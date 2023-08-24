@@ -1,0 +1,3 @@
+interface IFilter {
+    onReset: () => void;
+}

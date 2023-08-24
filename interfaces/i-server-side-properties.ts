@@ -1,0 +1,3 @@
+interface IServerSideProperties {
+  host?: string;
+}

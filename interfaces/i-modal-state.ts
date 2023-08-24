@@ -1,0 +1,3 @@
+interface IModalState {
+    isOpenModal: boolean;
+}

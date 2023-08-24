@@ -1,0 +1,2 @@
+interface IAdminAuthInfo extends IUserAuthInfo{
+}
