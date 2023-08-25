@@ -97,7 +97,7 @@ class BlacklistBlock extends React.Component<{}> {
     getBlacklist = () => {
         adminService.getBlacklist()
             .then((res: IBlacklist[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });

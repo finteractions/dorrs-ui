@@ -90,7 +90,7 @@ class BalancesBlock extends React.Component<{}> {
     getBalances = () => {
         adminService.getBalances()
             .then((res: IBalance[]) => {
-                const data = res.sort((a, b) =>  a.id - b.id);
+                const data = res?.sort((a, b) =>  a.id - b.id) || [];
                 data.forEach(s => {
                     s.editable = s.wallet_address.toLowerCase() === 'fiat'
                 })

@@ -68,7 +68,8 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                 id: "name",
                 cell: (item) =>
                     <div className={'table-image'}>
-                        <UserImage alt={'Profile Image'} src= {item.getValue().user_image || ''} width="28px" height="28px" />
+                        <UserImage alt={'Profile Image'} src={item.getValue().user_image || ''} width="28px"
+                                   height="28px"/>
                         {item.getValue().name}
                     </div>,
                 header: () => <span>Name</span>,
@@ -81,12 +82,14 @@ class UsersBlock extends React.Component<UsersBlockProps> {
             }),
             columnHelper.accessor((row) => row.user_id.email_verified, {
                 id: "email_verified",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
+                cell: (item) => <FontAwesomeIcon className="nav-icon"
+                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
                 header: () => <span>Email Verified</span>,
             }),
             columnHelper.accessor((row) => row.active, {
                 id: "active",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
+                cell: (item) => <FontAwesomeIcon className="nav-icon"
+                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
                 header: () => <span>Active</span>,
             }),
             columnHelper.accessor((row) => row.user_id.account_type, {
@@ -105,7 +108,9 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                         <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
                             {item.getValue().status}
                         </div>
-                        {item.getValue().comment_status ? <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon className="nav-icon" icon={faComment}/></div> : ''}
+                        {item.getValue().comment_status ?
+                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
+                                className="nav-icon" icon={faComment}/></div> : ''}
                     </div>,
                 header: () => <span>Status</span>,
             }),
@@ -131,7 +136,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
     getUsers = () => {
         adminService.getUsers()
             .then((res: IUserDetail[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
                     s.name = `${s.user_id.first_name} ${s.user_id.last_name}`
@@ -174,7 +179,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
 
     handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
+            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
         }), () => {
             this.filterData();
         });
@@ -182,7 +187,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -281,8 +286,11 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                                 </div>
                                 <div className="date__range__wrap">
                                     <DateRangePicker
-                                        onChange={(startDate, endDate) => {this.handleFilterDateChange('created_at',startDate, endDate)}}
-                                        onReset={() => {}}
+                                        onChange={(startDate, endDate) => {
+                                            this.handleFilterDateChange('created_at', startDate, endDate)
+                                        }}
+                                        onReset={() => {
+                                        }}
                                         ref={this.dateRangePickerRef}
                                     />
                                 </div>

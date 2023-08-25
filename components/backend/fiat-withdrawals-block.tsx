@@ -23,7 +23,7 @@ let columns: any[] = [];
 interface FiatWithdrawalsBlockState {
     loading: boolean;
     sendingReport: boolean;
-    sentReport : boolean;
+    sentReport: boolean;
     isOpenModal: boolean;
     formData: ICustody | null;
     formAction: string;
@@ -80,7 +80,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
             }), {
                 id: "base_price",
                 cell: (item) =>
-                        <span>{formatterService.numberFormat(item.getValue().base_price)} {item.getValue().base_currency}</span>,
+                    <span>{formatterService.numberFormat(item.getValue().base_price)} {item.getValue().base_currency}</span>,
                 header: () => <span>Amount</span>,
             }),
             columnHelper.accessor((row) => ({
@@ -94,7 +94,9 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
                         <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
                             {item.getValue().status}
                         </div>
-                        {item.getValue().comment_status ? <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon className="nav-icon" icon={faComment}/></div> : ''}
+                        {item.getValue().comment_status ?
+                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
+                                className="nav-icon" icon={faComment}/></div> : ''}
                     </div>,
                 header: () => <span>Status</span>,
             }),
@@ -142,11 +144,11 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
     getFiatWithdrawals = () => {
         adminService.getFiatWithdrawals()
             .then((res: ICustody[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
                 data.forEach(s => {
                     s.comment_status = !!s.comment
                 })
-                this.setState({dataFull: data, data: data},() => {
+                this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });
             })
@@ -175,7 +177,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
             return 'Do you want to remove this transaction?';
         } else if (mode === 'view') {
             return 'View Fiat Withdrawal'
-        }else {
+        } else {
             return `${mode === 'edit' ? 'Edit' : 'Add'} Fiat Withdrawal`;
         }
     }
@@ -197,7 +199,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
 
     handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
+            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
         }), () => {
             this.filterData();
         });
@@ -205,7 +207,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -222,7 +224,8 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
                     <div className="content__top">
                         <div className="content__title">Fiat Withdrawals</div>
                         <button className={`border-btn ripple ${this.state.sendingReport ? 'disable' : ''}`}
-                                disabled={this.state.sendingReport} onClick={() => this.sendFinanceReport()}>Send Finance Report
+                                disabled={this.state.sendingReport} onClick={() => this.sendFinanceReport()}>Send
+                            Finance Report
                         </button>
                     </div>
 
@@ -289,22 +292,29 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
                                         </div>
                                         <div className="date__range__wrap">
                                             <DateRangePicker
-                                                onChange={(startDate, endDate) => {this.handleFilterDateChange('approved_date_time',startDate, endDate)}}
-                                                onReset={() => {}}
+                                                onChange={(startDate, endDate) => {
+                                                    this.handleFilterDateChange('approved_date_time', startDate, endDate)
+                                                }}
+                                                onReset={() => {
+                                                }}
                                                 ref={this.dateRangePickerRef1}
                                             />
                                         </div>
                                         <div className="date__range__wrap">
                                             <DateRangePicker
-                                                onChange={(startDate, endDate) => {this.handleFilterDateChange('date_time',startDate, endDate)}}
-                                                onReset={() => {}}
+                                                onChange={(startDate, endDate) => {
+                                                    this.handleFilterDateChange('date_time', startDate, endDate)
+                                                }}
+                                                onReset={() => {
+                                                }}
                                                 ref={this.dateRangePickerRef2}
                                             />
                                         </div>
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
                                         </button>
                                     </div>
 
@@ -331,7 +341,9 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
                     )}
                 </div>
                 <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>
-                    <FiatWithdrawalForm updateModalTitle={(title) => this.setState({ modalTitle: title })} action={this.state.formAction} data={this.state.formData} onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()} />
+                    <FiatWithdrawalForm updateModalTitle={(title) => this.setState({modalTitle: title})}
+                                        action={this.state.formAction} data={this.state.formData}
+                                        onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
                 </Modal>
             </>
         )

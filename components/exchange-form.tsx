@@ -585,7 +585,8 @@ class ExchangeForm extends React.Component<ExchangeFormProps, ExchangeFormState>
 
 
                 {(!this.assets.length && !this.exchangePairs.length && !this.state.isAssetsLoading && !this.state.isPairsLoading && !this.errors) && (
-                    <NoDataBlock primaryText="No Assets available"/>
+                    // <NoDataBlock primaryText="No Assets available"/>
+                    <></>
                 )}
             </>
         )

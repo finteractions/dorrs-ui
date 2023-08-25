@@ -17,42 +17,100 @@ class ApiService {
 
     async get<T>(url: string, params?: Record<string, unknown>, token?: string): Promise<T> {
         const headers = this.getHeaders(token);
-        const response: AxiosResponse<T> = await this.http.get(url, {
-            headers,
-            params
-        }).catch((error: AxiosError) => this.handleError(error));
 
-        return response.data;
+        try {
+            const response: AxiosResponse<T> = await this.http.get(url, {
+                headers,
+                params
+            });
+
+            return response.data;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response && error.response.status === 404) {
+                    return {} as Partial<T> as T;
+                } else {
+                    this.handleError(error);
+                    throw error;
+                }
+            }
+
+            throw error;
+        }
     }
+
 
     async post<T>(url: string, data: Record<string, unknown>, params?: Record<string, unknown>, token?: string,): Promise<T> {
         const headers = this.getHeaders(token);
-        const response: AxiosResponse<T> = await this.http.post(url, data, {
-            headers,
-            params
-        }).catch((error: AxiosError) => this.handleError(error));
 
-        return response.data;
+        try {
+            const response: AxiosResponse<T> = await this.http.post(url, data, {
+                headers,
+                params
+            })
+
+            return response.data;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response && error.response.status === 404) {
+                    return {} as Partial<T> as T;
+                } else {
+                    this.handleError(error);
+                    throw error;
+                }
+            }
+
+            throw error;
+        }
+
     }
 
     async put<T>(url: string, data: Record<string, unknown>, params?: Record<string, unknown>, token?: string,): Promise<T> {
         const headers = this.getHeaders(token);
-        const response: AxiosResponse<T> = await this.http.put(url, data, {
-            headers,
-            params
-        }).catch((error: AxiosError) => this.handleError(error));
 
-        return response.data;
+        try {
+            const response: AxiosResponse<T> = await this.http.put(url, data, {
+                headers,
+                params
+            })
+
+            return response.data;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response && error.response.status === 404) {
+                    return {} as Partial<T> as T;
+                } else {
+                    this.handleError(error);
+                    throw error;
+                }
+            }
+
+            throw error;
+        }
     }
 
     async delete<T>(url: string, data: Record<string, unknown>, params?: Record<string, unknown>, token?: string): Promise<T> {
         const headers = this.getHeaders(token);
-        const response: AxiosResponse<T> = await this.http.delete(url, {
-            headers,
-            params
-        }).catch((error: AxiosError) => this.handleError(error));
 
-        return response.data;
+        try {
+            const response: AxiosResponse<T> = await this.http.delete(url, {
+                headers,
+                params
+            })
+
+            return response.data;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.response && error.response.status === 404) {
+                    return {} as Partial<T> as T;
+                } else {
+                    this.handleError(error);
+                    throw error; // Перебрасываем ошибку для обработки других кодов ответа
+                }
+            }
+
+            throw error;
+        }
     }
 
     private getHeaders(token?: string): {} {
@@ -75,7 +133,7 @@ class ApiService {
             } else if ((error.response?.data as { message: string })?.message) {
                 errorMessages.push((error.response?.data as { message: string })?.message);
             } else if (typeof error.response?.data === "string") {
-                 errorMessages.push(error.response?.data);
+                errorMessages.push(error.response?.data);
             } else if ((error.response?.data as { [key: string]: Array<string> })) {
                 errorMessages.push(...(Object.entries((error.response?.data as { [key: string]: Array<string> })).flatMap(([key, errorArray]) => {
                     return errorArray.map(errorMessage => `${key}: ${errorMessage.replace(/"/g, '')}`);

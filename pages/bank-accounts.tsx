@@ -24,9 +24,9 @@ const BankAccounts: NextPageWithLayout = () => {
     const getBankAccounts = () => {
         kycService.getBankAccounts()
             .then((res: Array<IBankAccount>) => {
-                const data = res.sort((a:IBankAccount, b:IBankAccount) => b.id - a.id )
-                 setBankAccounts(data);
-                 setBankAccountsFull(data);
+                const data = res?.sort((a: IBankAccount, b: IBankAccount) => b.id - a.id) || [];
+                setBankAccounts(data);
+                setBankAccountsFull(data);
             })
             .catch((error: IError) => {
                 setErrors(error.messages);
@@ -66,7 +66,7 @@ const BankAccounts: NextPageWithLayout = () => {
     }
 
     const handleFilterChange = (prop_name: string, item: any) => {
-       setFilterData({ ...filterData, [prop_name]: item?.value || ''});
+        setFilterData({...filterData, [prop_name]: item?.value || ''});
     }
 
     const filter = () => {
@@ -231,7 +231,8 @@ const BankAccounts: NextPageWithLayout = () => {
                                                     onClick={() => openModal('delete', bank)}/>
                                         </div>
                                         <div className={'bank__item-status-block'}>
-                                           <div className={`table__status table__status-${bank.status}`}> {bank.status.charAt(0).toUpperCase() + bank.status.slice(1).toLowerCase()}</div>
+                                            <div
+                                                className={`table__status table__status-${bank.status}`}> {bank.status.charAt(0).toUpperCase() + bank.status.slice(1).toLowerCase()}</div>
                                         </div>
                                     </div>
                                 ))}
@@ -242,8 +243,8 @@ const BankAccounts: NextPageWithLayout = () => {
                                     <AlertBlock type={"error"} messages={errors}/>
                                 ) : (
                                     <NoDataBlock
-                                    primaryText="No Bank Accounts have been added yet"
-                                    secondaryText="To add Bank Account use ”Add Bank Account”"/>
+                                        primaryText="No Bank Accounts have been added yet"
+                                        secondaryText="To add Bank Account use ”Add Bank Account”"/>
                                 )}
                             </>
                         )}

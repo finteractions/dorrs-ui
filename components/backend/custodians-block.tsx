@@ -143,7 +143,7 @@ class CustodiansBlock extends React.Component<{}> {
     getCustodians = () => {
         adminService.getCustodians()
             .then((res: ICustody[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
                 this.setState({dataFull: data, data: data},() => {
                     this.filterData();
                 });

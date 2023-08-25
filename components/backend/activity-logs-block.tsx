@@ -133,7 +133,7 @@ class ActivityLogsBlock extends React.Component<{}> {
     getBlacklist = () => {
         adminService.getBlacklist()
             .then((res: IBlacklist[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
                 this.setState({dataBlacklist: data});
                 this.getActivityLogs();
             })
@@ -145,7 +145,7 @@ class ActivityLogsBlock extends React.Component<{}> {
     getActivityLogs = () => {
         adminService.getActivityLogs()
             .then((res: IActivityLog[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
 
                 data.forEach(s => {
                     const country = s.country ? `${s.country}, ` : ''

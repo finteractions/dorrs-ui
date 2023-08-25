@@ -152,7 +152,7 @@ class AssetsBlock extends React.Component<{}> {
     getAssets = () => {
         adminService.getAssets()
             .then((res: IAdminAsset[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
                     s.name_label = `${s.name} (${s.label})`;

@@ -13,7 +13,6 @@ import filterService from "@/services/filter/filter";
 import Select from "react-select";
 
 
-
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
@@ -58,7 +57,8 @@ class TradesBlock extends React.Component<{}> {
 
             columnHelper.accessor((row) => row.active, {
                 id: "active",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
+                cell: (item) => <FontAwesomeIcon className="nav-icon"
+                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
                 header: () => <span>Active</span>,
             }),
         ];
@@ -77,7 +77,7 @@ class TradesBlock extends React.Component<{}> {
     getAssets = () => {
         adminService.getAssets()
             .then((res: IAdminAsset[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
                     s.name_label = `${s.name} (${s.label})`;
@@ -89,10 +89,10 @@ class TradesBlock extends React.Component<{}> {
                 });
             })
             .catch((errors: IError) => {
-                this.setState({ errors: errors.messages });
+                this.setState({errors: errors.messages});
             })
             .finally(() => {
-                this.setState({ loading: false })
+                this.setState({loading: false})
             });
     }
 
@@ -108,7 +108,7 @@ class TradesBlock extends React.Component<{}> {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode})
     }
 
-    modalTitle = () =>{
+    modalTitle = () => {
         return 'Edit Asset Status'
     }
 
@@ -127,7 +127,7 @@ class TradesBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -182,7 +182,8 @@ class TradesBlock extends React.Component<{}> {
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
                                         </button>
                                     </div>
 
@@ -210,7 +211,8 @@ class TradesBlock extends React.Component<{}> {
                 </div>
 
                 <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.modalTitle()}>
-                    <TradeForm action={this.state.formAction} data={this.state.formData} onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()} />
+                    <TradeForm action={this.state.formAction} data={this.state.formData}
+                               onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
                 </Modal>
             </>
         )

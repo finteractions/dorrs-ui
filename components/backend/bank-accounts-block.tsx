@@ -129,7 +129,7 @@ class BankAccountsBlock extends React.Component<{}> {
     getBankAccounts = () => {
         adminService.getBankAccounts()
             .then((res: IAdminBankAccount[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
                 data.forEach(s => {
                     s.status = s.deleted ? 'Deleted' : s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase();
                 });

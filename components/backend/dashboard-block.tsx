@@ -125,7 +125,7 @@ class DashboardBlock extends React.Component<{}> {
     getUsers = () => {
         adminService.getUsers()
             .then((res: IUserDetail[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
                 const userStatusCounts: any = {}
                 const emailVerifiedCount = {'Confirm': 0, 'Not Confirm': 0}
 
@@ -149,7 +149,7 @@ class DashboardBlock extends React.Component<{}> {
     getCustodians = () => {
         adminService.getCustodians()
             .then((res: ICustody[]) => {
-                const data = res.sort((a, b) => b.id - a.id);
+                const data = res?.sort((a, b) => b.id - a.id) || [];
                 const transactionStatusCounts: any = {}
 
                 data.forEach(s => {
@@ -169,7 +169,7 @@ class DashboardBlock extends React.Component<{}> {
     getBankAccounts = () => {
         adminService.getBankAccounts()
             .then((res: IAdminBankAccount[]) => {
-                const data = res.sort((a, b) => a.id - b.id);
+                const data = res?.sort((a, b) => a.id - b.id) || [];
                 const bankAccountStatusCounts: any = {}
 
                 data.forEach(s => {

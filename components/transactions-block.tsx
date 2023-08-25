@@ -142,7 +142,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
     getTransactions = () => {
         ordersService.getTransactions()
             .then((res: ITransaction[]) => {
-                const dataFull = res.sort((a, b) => b.id - a.id);
+                const dataFull = res?.sort((a, b) => b.id - a.id) || [];
                 const data = dataFull.slice(0, !isDashboard ? dataFull.length : MAX_ITEMS);
                 this.setState({dataFull: dataFull, data: data}, () => {
                     // const {
@@ -179,7 +179,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
 
     handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
+            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
         }), () => {
             this.filterData();
         });
@@ -187,7 +187,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -259,7 +259,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
                         </div>
                     )}
                 </div>
-                
+
                 {this.state.loading ? (
                     <LoaderBlock/>
                 ) : (
@@ -269,8 +269,11 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
 
                                 <div className="input__wrap">
                                     <DateRangePicker
-                                        onChange={(startDate, endDate) => {this.handleFilterDateChange('date_time',startDate, endDate)}}
-                                        onReset={() => {}}
+                                        onChange={(startDate, endDate) => {
+                                            this.handleFilterDateChange('date_time', startDate, endDate)
+                                        }}
+                                        onReset={() => {
+                                        }}
                                         ref={this.dateRangePickerRef}
                                     />
                                 </div>
