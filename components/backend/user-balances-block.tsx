@@ -39,7 +39,7 @@ class UserBalancesBlock extends React.Component<UserBalancesBlockProps> {
             columnHelper.accessor((row) => row.asset, {
                 id: "asset",
                 cell: (item) => item.getValue(),
-                header: () => <span>Asset</span>,
+                header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => row.balance, {
                 id: "balance",

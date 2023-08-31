@@ -187,11 +187,11 @@ class AssetsBlock extends React.Component<{}> {
 
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
-            return 'Do you want to remove this asset?';
+            return 'Do you want to remove this symbol?';
         } else if (mode === 'view') {
-            return 'View Asset'
+            return 'View Symbol'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Symbol`;
         }
     }
 
@@ -236,9 +236,9 @@ class AssetsBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Asset Management</div>
+                        <div className="content__title">Symbol Management</div>
                         <button className="border-btn ripple modal-link"
-                                disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Asset
+                                disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Symbol
                         </button>
                     </div>
 
@@ -381,7 +381,7 @@ class AssetsBlock extends React.Component<{}> {
                                             {this.state.errors.length ? (
                                                 <AlertBlock type="error" messages={this.state.errors}/>
                                             ) : (
-                                                <NoDataBlock primaryText="No assets available yet"/>
+                                                <NoDataBlock primaryText="No symbols available yet"/>
                                             )}
                                         </>
                                     )}

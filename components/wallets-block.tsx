@@ -104,7 +104,7 @@ class WalletsBlock extends React.Component<{ userAsset?: IUserAsset | null, onLo
                             ) : (
                                 <>
                                     <NoDataBlock primaryText={' '}
-                                                 secondaryText={'No wallets for selected virtual asset'}/>
+                                                 secondaryText={'No wallets for selected virtual symbol'}/>
                                 </>
                             )}
                             {this.state.errorMessages && (

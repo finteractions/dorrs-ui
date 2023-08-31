@@ -27,7 +27,7 @@ let MENU_LIST: Array<Menus> = [
     },
     {
         isAdmin: false,
-        text: 'My Assets',
+        text: 'My Symbols',
         href: "/assets",
     },
     {

@@ -85,7 +85,7 @@ class WalletForm extends React.Component<WalletFormProps, WalletFormState> {
                         <>
                             <Form>
                                 <div className="input">
-                                    <div className="input__title">Asset <i>*</i></div>
+                                    <div className="input__title">Symbol <i>*</i></div>
                                     <div className="input__wrap">
                                         <Field
                                             name="asset"

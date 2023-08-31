@@ -463,7 +463,7 @@ class AssetForm extends React.Component<AssetFormProps, AssetFormState> {
                                 <div className="box__title">Active</div>
                                 <div className="box__wrap">{this.props.data?.active ? 'Yes' : 'No' }</div>
                             </div>
-                            <button className="w-100 b-btn ripple" onClick={() => this.handleEdit('Edit Asset') }>
+                            <button className="w-100 b-btn ripple" onClick={() => this.handleEdit('Edit Symbol') }>
                                 Edit
                             </button>
                         </div>

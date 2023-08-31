@@ -50,11 +50,11 @@ const formSchema = (values: any): Yup.ObjectSchema<any> => {
                 .required("").label("Receive amount"),
         base_currency:
             Yup.string()
-                .notOneOf([Yup.ref('quote_currency')], "Assets must not match")
+                .notOneOf([Yup.ref('quote_currency')], "Symbols must not match")
                 .required("").label("Spend asset"),
         quote_currency:
             Yup.string()
-                .notOneOf([Yup.ref('base_currency')], "Assets must not match")
+                .notOneOf([Yup.ref('base_currency')], "Symbols must not match")
                 .required("").label("Receive asset"),
     });
 
@@ -585,7 +585,7 @@ class ExchangeForm extends React.Component<ExchangeFormProps, ExchangeFormState>
 
 
                 {(!this.assets.length && !this.exchangePairs.length && !this.state.isAssetsLoading && !this.state.isPairsLoading && !this.errors) && (
-                    // <NoDataBlock primaryText="No Assets available"/>
+                    // <NoDataBlock primaryText="No Symbols available"/>
                     <></>
                 )}
             </>

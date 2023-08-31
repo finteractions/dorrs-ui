@@ -109,7 +109,7 @@ class TradesBlock extends React.Component<{}> {
     }
 
     modalTitle = () => {
-        return 'Edit Asset Status'
+        return 'Edit Symbol Status'
     }
 
     cancelForm(): void {
@@ -143,7 +143,7 @@ class TradesBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">All Assets</div>
+                        <div className="content__title">All Symbols</div>
                     </div>
 
                     {this.state.loading ? (
@@ -200,7 +200,7 @@ class TradesBlock extends React.Component<{}> {
                                             {this.state.errors.length ? (
                                                 <AlertBlock type="error" messages={this.state.errors}/>
                                             ) : (
-                                                <NoDataBlock primaryText="No assets available yet"/>
+                                                <NoDataBlock primaryText="No symbols available yet"/>
                                             )}
                                         </>
                                     )}

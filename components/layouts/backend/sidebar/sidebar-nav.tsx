@@ -65,16 +65,16 @@ const MENU_LIST: MenuItem[] = [
         ]
     },
     {
-        text: 'Asset Management',
+        text: 'Symbol Management',
         href: '#',
         icon: faDollarSign,
         submenus: [
             {
-                text: 'Assets',
+                text: 'Symbols',
                 href: "/backend/asset-management",
             },
             {
-                text: 'All Assets',
+                text: 'All Symbols',
                 href: "/backend/trade-management",
             }
         ]
@@ -85,25 +85,25 @@ const MENU_LIST: MenuItem[] = [
     //     icon: faMoneyBillTrendUp,
     //     submenus: []
     // },
-    {
-        text: 'Custody Management',
-        href: '#',
-        icon: faSearchDollar,
-        submenus: [
-            {
-                text: 'Transactions',
-                href: "/backend/custody-management"
-            },
-            {
-                text: 'Bank Accounts',
-                href: "/backend/bank-accounts"
-            },
-            {
-                text: 'Fiat Withdrawals',
-                href: "/backend/fiat-withdrawals"
-            }
-        ]
-    },
+    // {
+    //     text: 'Custody Management',
+    //     href: '#',
+    //     icon: faSearchDollar,
+    //     submenus: [
+    //         {
+    //             text: 'Transactions',
+    //             href: "/backend/custody-management"
+    //         },
+    //         {
+    //             text: 'Bank Accounts',
+    //             href: "/backend/bank-accounts"
+    //         },
+    //         {
+    //             text: 'Fiat Withdrawals',
+    //             href: "/backend/fiat-withdrawals"
+    //         }
+    //     ]
+    // },
     {
         text: 'Balances Screen',
         href: "/backend/balances-screen",

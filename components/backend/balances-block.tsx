@@ -66,7 +66,7 @@ class BalancesBlock extends React.Component<{}> {
             columnHelper.accessor((row) => row.asset, {
                 id: "asset",
                 cell: (item) => item.getValue(),
-                header: () => <span>Asset</span>,
+                header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => row.wallet_address, {
                 id: "wallet_address",
@@ -210,7 +210,7 @@ class BalancesBlock extends React.Component<{}> {
                                                 value={filterService.setValue('asset', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('asset', item)}
                                                 options={filterService.buildOptions('asset', this.state.dataFull)}
-                                                placeholder="Asset"
+                                                placeholder="Symbol"
                                             />
                                         </div>
                                         <div className="input__wrap">

@@ -11,7 +11,7 @@ const Exchange: NextPageWithLayout = () => {
             {isExchange && (
                 <div className="content__top d-block text-center">
                     <div className="content__title">Exchange</div>
-                    <p>Create a request to exchange your assets</p>
+                    <p>Create a request to exchange your symbols</p>
                 </div>
             )}
             <ExchangeForm
