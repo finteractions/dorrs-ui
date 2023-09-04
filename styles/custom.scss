@@ -142,10 +142,10 @@ textarea.input__textarea {
   }
 }
 
-.DateRangePicker{
-   min-width: 220px;
+.DateRangePicker {
+  min-width: 220px;
 
-  .DateRangePickerInput{
+  .DateRangePickerInput {
     border-radius: 0;
     width: 100%;
 
@@ -154,7 +154,7 @@ textarea.input__textarea {
     //  right: initial !important;
     //}
 
-    .DateInput{
+    .DateInput {
       width: calc(50% - 12px);
 
       .DateInput_input {
@@ -175,8 +175,6 @@ textarea.input__textarea {
     }
   }
 }
-
-
 
 
 .DateRangePickerInput_arrow_svg {
@@ -632,4 +630,12 @@ table tbody td, .view-form {
     color: #828c97;
     transition: 0.3s ease-in-out;
   }
+}
+
+.mb-10px {
+  margin-bottom: 10px;
+}
+
+.table__status.table__status-submitted:before {
+  background: #3d7da2;
 }

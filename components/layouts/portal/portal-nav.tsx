@@ -21,31 +21,6 @@ let MENU_LIST: Array<Menus> = [
         href: "/dashboard",
     },
     {
-        isAdmin: false,
-        text: 'My Fiat',
-        href: "/fiats",
-    },
-    {
-        isAdmin: false,
-        text: 'My Symbols',
-        href: "/assets",
-    },
-    {
-        isAdmin: false,
-        text: 'Bank Accounts',
-        href: "/bank-accounts",
-    },
-    {
-        isAdmin: false,
-        text: 'Exchange',
-        href: "/exchange",
-    },
-    {
-        isAdmin: false,
-        text: 'Transaction History',
-        href: "/transactions",
-    },
-    {
         isAdmin: true,
         text: 'Admin Zone',
         href: "/backend/dashboard",
