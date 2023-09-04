@@ -12,19 +12,19 @@ import clientService from "@/services/client/client-service";
 const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
-    region: Yup.string().uppercase().required('Required'),
-    state: Yup.string().uppercase().required('Required'),
-    is_finra: Yup.boolean(),
-    crd: Yup.string().min(3).max(12).required('Required'),
+    region: Yup.string().uppercase().required('Required').label('Region Information'),
+    state: Yup.string().uppercase().required('Required').label('State'),
+    is_finra: Yup.boolean().label('FINRA'),
+    crd: Yup.string().min(3).max(12).required('Required').label('CRD'),
     company_name: Yup.string().min(3).max(99).required('Required').label('Legal Company Name'),
-    email: Yup.string().email("Invalid email").required("Required"),
+    email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
     mobile_number: FormValidator.phoneNumberField,
     address1: Yup.string().min(3).max(99).required('Required').label('Address 1'),
-    address2: Yup.string().min(3).max(99).label('Address 1'),
+    address2: Yup.string().min(3).max(99).label('Address 2'),
     city: Yup.string().min(3).max(99).required('Required').label('City'),
-    zip_code: Yup.string().min(3).max(99).required('Required').label('Zip code'),
-    country: Yup.string().required('Required').label('City'),
-    annual_fees: Yup.string().required('Required'),
+    zip_code: Yup.string().min(3).max(99).required('Required').label('ZIP code'),
+    country: Yup.string().required('Required').label('Country'),
+    annual_fees: Yup.string().required('Required').label('Annual Fees'),
 });
 
 interface MembershipFormState extends IState {
@@ -153,7 +153,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             disabled={isSubmitting || this.isShow()}
                                             onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
                                         >
-                                            <option value="">Select a region</option>
+                                            <option value="">Select a Region</option>
                                             {Object.keys(countries).map((countryCode: string) => (
                                                 <option key={countryCode} value={countryCode}>
                                                     {countries[countryCode as keyof typeof countries]?.name}
@@ -176,7 +176,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 className="b-select"
                                                 disabled={isSubmitting || this.isShow()}
                                             >
-                                                <option value="">Select a state</option>
+                                                <option value="">Select a State</option>
                                                 {this.state.usaStates.map((state) => (
                                                     <option key={state.abbreviation} value={state.abbreviation}>
                                                         {state.name}
@@ -219,7 +219,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 id="mpid"
                                                 type="text"
                                                 className="input__text"
-                                                placeholder="Type mpid"
+                                                placeholder="Type MPID"
                                                 disabled={isSubmitting || this.isShow()}
                                             />
                                             <ErrorMessage name="mpid" component="div"
@@ -235,7 +235,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="crd"
                                             type="text"
                                             className="input__text"
-                                            placeholder="Type crd"
+                                            placeholder="Type CRD#"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="crd" component="div"
@@ -250,7 +250,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="company_name"
                                             type="text"
                                             className="input__text"
-                                            placeholder="Type Company Name"
+                                            placeholder="Type a Company Name"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="mpid" component="div"
@@ -296,7 +296,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="address1"
                                             type="text"
                                             className="input__text"
-                                            placeholder="Type Address 1"
+                                            placeholder="Type an Address 1"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="address1" component="div"
@@ -311,7 +311,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="address2"
                                             type="text"
                                             className="input__text"
-                                            placeholder="Type Address 2"
+                                            placeholder="Type an Address 2"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="address2" component="div"
@@ -326,7 +326,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="city"
                                             type="text"
                                             className="input__text"
-                                            placeholder="Type City"
+                                            placeholder="Type a City"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="city" component="div"
@@ -341,7 +341,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             id="zip_code"
                                             type="text"
                                             className="input__text input-class-4"
-                                            placeholder="Type ZIP code"
+                                            placeholder="Type a ZIP code"
                                             disabled={isSubmitting || this.isShow()}
                                         />
                                         <ErrorMessage name="house_number" component="div"
@@ -358,7 +358,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             className="b-select"
                                             disabled={isSubmitting || this.isShow()}
                                         >
-                                            <option value="">Select a region</option>
+                                            <option value="">Select a Country</option>
                                             {Object.keys(countries).map((countryCode: string) => (
                                                 <option key={countryCode} value={countryCode}>
                                                     {countries[countryCode as keyof typeof countries]?.name}
@@ -385,7 +385,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 className="b-select"
                                                 disabled={isSubmitting || this.isShow()}
                                             >
-                                                <option value="">Select Annual Fees</option>
+                                                <option value="">Select an Annual Fees</option>
                                                 {ANNUAL_FEES.map(fees => (
                                                     <option value={fees.level}
                                                             key={fees.level}>{fees.level}: {fees.budget}</option>

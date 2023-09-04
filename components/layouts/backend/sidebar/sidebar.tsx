@@ -34,7 +34,7 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
       id="sidebar"
     >
       <div className="sidebar-brand d-none d-md-flex align-items-center justify-content-center">
-        <Image src="/img/logo.png" width={75} height={40} alt="Logo" priority/>
+        <Image src="/img/logo-backend.webp" width={85.33} height={43} alt="Logo" priority/>
       </div>
 
       <div className="sidebar-nav flex-fill">

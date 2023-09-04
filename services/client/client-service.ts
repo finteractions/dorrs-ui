@@ -10,31 +10,7 @@ class ClientService extends BaseService {
     }
 
     public getUserForms(): Promise<any> {
-        // return apiWebBackendService.get(`${this.PATH}forms/`)
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve(new Array<IForm<any>>({
-                    name: "Membership",
-                    data: {
-                        "region": "US",
-                        "state": "CA",
-                        "is_finra": true,
-                        "crd": "123412341234",
-                        "company_name": "country",
-                        "email": "dannmixon@gmail.com",
-                        "mobile_number": "+380500000000",
-                        "address1": "addr1",
-                        "address2": "addr2",
-                        "city": "New York",
-                        "zip_code": "12343",
-                        "country": "AM",
-                        "mpid": "1111111",
-                        "annual_fees": "Level B"
-                    },
-                    status: 'Rejected'
-                }))
-            }, 1000)
-        })
+        return apiWebBackendService.get(`${this.PATH}forms/`)
     }
 
     public createUserForm(data: any): Promise<any> {
