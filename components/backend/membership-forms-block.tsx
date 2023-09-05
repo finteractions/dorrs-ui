@@ -155,7 +155,7 @@ class MembershipFormsBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Membership Form</div>
+                        <div className="content__title">Membership Forms</div>
                     </div>
 
                     {this.state.loading ? (
