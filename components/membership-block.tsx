@@ -2,7 +2,7 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Modal from "@/components/modal";
 import MembershipForm from "@/components/membership-form";
-import clientService from "@/services/client/client-service";
+import formService from "@/services/form/form-service";
 import {FormStatus} from "@/enums/form-status";
 
 interface MembershipBlockState extends IState, IModalState {
@@ -10,11 +10,15 @@ interface MembershipBlockState extends IState, IModalState {
     formAction: string;
 }
 
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+
 class MembershipBlock extends React.Component {
 
     state: MembershipBlockState;
 
     membershipForm: IMembershipForm;
+
+    getMembershipFormsInterval!: NodeJS.Timer;
 
     constructor(props: {}, membershipForm: IMembershipForm) {
         super(props);
@@ -27,20 +31,36 @@ class MembershipBlock extends React.Component {
         }
 
         this.membershipForm = membershipForm;
+
     }
 
     componentDidMount() {
-        this.getUserForms();
+        this.setState({loading: true});
+        this.getMembershipForm();
+        this.startAutoUpdate();
     }
 
-    getUserForms(): void {
-        clientService.getUserForms()
-            .then((res: Array<any>) => {
-                if (typeof res[0] !== undefined) {
-                    this.membershipForm = res[0] as IMembershipForm;
+    componentWillUnmount() {
+        this.stopAutoUpdate();
+    }
+
+    startAutoUpdate = () => {
+        this.getMembershipFormsInterval = setInterval(this.getMembershipForm, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.getMembershipFormsInterval) clearInterval(this.getMembershipFormsInterval);
+    }
+
+    getMembershipForm = () => {
+        formService.getMembershipForm()
+            .then((res: Array<IMembershipForm>) => {
+                if (res.length > 0) {
+                    this.membershipForm = res[0];
                     const formAction = [FormStatus.REJECTED.toString(), FormStatus.SUBMITTED.toString()].includes(this.membershipForm.status) ? 'edit' : 'view';
                     this.setState({formAction: formAction});
                 }
+
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -67,6 +87,7 @@ class MembershipBlock extends React.Component {
 
     onCallback = async (values: any, step: boolean) => {
         this.modalHandle();
+        this.getMembershipForm();
     };
 
     render() {
@@ -93,7 +114,7 @@ class MembershipBlock extends React.Component {
                                                 {this.membershipForm?.status ? (
                                                     <div
                                                         className={`table__status table__status-${this.membershipForm.status.toLowerCase()}`}>
-                                                        {this.membershipForm.status}
+                                                        {`${this.membershipForm.status.charAt(0).toUpperCase()}${this.membershipForm.status.slice(1).toLowerCase()}`}
                                                     </div>
                                                 ) : (
                                                     <>Not filled</>

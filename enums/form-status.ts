@@ -1,5 +1,5 @@
 export enum FormStatus {
-    SUBMITTED = 'Submitted',
-    APPROVED = 'Approved',
-    REJECTED = 'Rejected'
+    SUBMITTED = 'submitted',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
 }

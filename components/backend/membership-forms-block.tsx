@@ -96,6 +96,10 @@ class MembershipFormsBlock extends React.Component<{}> {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
 
+                data.forEach(s => {
+                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                });
+
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });

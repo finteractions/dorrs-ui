@@ -7,17 +7,23 @@ import PhoneInputField from "@/components/phone-input-field";
 import {countries} from "countries-list";
 import {UsaStates} from 'usa-states';
 import {ANNUAL_FEES} from "@/constants/annual-fees";
-import clientService from "@/services/client/client-service";
+import formService from "@/services/form/form-service";
 import {FormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
+import formatterService from "@/services/formatter/formatter-service";
 
 const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
     region: Yup.string().uppercase().required('Required').label('Region Information'),
-    state: Yup.string().uppercase().required('Required').label('State'),
+    state: Yup.string()
+        .when('region', {
+            is: (v: string) => v === selectedCountry,
+            then: (schema) => schema.required('Required')
+        }),
     is_finra: Yup.boolean().label('FINRA'),
+    mpid: Yup.string().min(3).max(12).label('MPID'),
     crd: Yup.string().min(3).max(12).required('Required').label('CRD'),
     company_name: Yup.string().min(3).max(99).required('Required').label('Legal Company Name'),
     email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
@@ -36,7 +42,7 @@ interface MembershipFormState extends IState {
         abbreviation: string;
         name: string;
     }[],
-    selectedCountry: string;
+    selectedRegion: string;
     isFinra: boolean;
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
@@ -64,6 +70,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             region: string;
             state: string;
             is_finra: boolean;
+            mpid: string;
             crd: string;
             company_name: string;
             email: string;
@@ -78,6 +85,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             region: initialData?.region || selectedCountry,
             state: initialData?.state || "",
             is_finra: initialData?.is_finra || false,
+            mpid: initialData?.mpid || "",
             crd: initialData?.crd || "",
             company_name: initialData?.company_name || "",
             email: initialData?.email || "",
@@ -97,8 +105,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             success: false,
             formInitialValues: initialValues,
             usaStates: usaStatesList,
-            selectedCountry: selectedCountry,
-            isFinra: false,
+            selectedRegion: initialValues.region,
+            isFinra: initialValues.is_finra,
             loading: false,
             isApproving: null,
             isConfirmedApproving: false
@@ -108,11 +116,10 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
     handleSubmit = async (values: Record<string, string | boolean | null>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null});
-        values.name = 'membership';
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            clientService.updateUserForm(values, this.props.data?.id || 0) :
-            clientService.createUserForm(values);
+            formService.updateMembershipForm(values, this.props.data?.id || 0) :
+            formService.createMembershipForm(values);
 
         await request
             .then(((res: any) => {
@@ -133,12 +140,13 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
         const selectedRegion = e.target.value;
         setFieldValue("region", selectedRegion);
         setFieldValue("state", "");
-        this.setState({selectedCountry: selectedRegion});
+        this.setState({selectedRegion: selectedRegion});
     };
 
     handleFinraChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         const isFinra = e.target.value === 'false';
         setFieldValue("is_finra", isFinra);
+        setFieldValue("mpid", "");
         this.setState({isFinra: isFinra});
     };
 
@@ -152,7 +160,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
             })
-            .finally(() => this.setState({loading:false}))
+            .finally(() => this.setState({loading: false}))
     };
 
     render() {
@@ -172,21 +180,21 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                             {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                 return (
                                     <Form id="bank-form">
-
                                         {this.props.isAdmin && (
                                             <div className='approve-form'>
                                                 {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
                                                     <>
                                                         <div className='approve-form-text'>
                                                             <>
-                                                                Status: {this.props.data?.status}
+                                                                Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
                                                             </>
                                                         </div>
 
                                                         {this.props.data?.comment && (
                                                             <div className="approve-form-comment">
                                                                 <div className="approve-form-comment-text-panel">
-                                                                    <div className="approve-form-comment-text-title">Comment:
+                                                                    <div
+                                                                        className="approve-form-comment-text-title">Comment:
                                                                     </div>
                                                                     <div className="approve-form-comment-text-message"
                                                                          title={this.props.data?.comment}>{this.props.data?.comment}</div>
@@ -201,15 +209,15 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                         <div className='approve-form-confirm'>
                                                             {this.state.isConfirmedApproving ? (
                                                                 <>
-                                                                    <div className='approve-form-confirm-title mb-2'>Are you
-                                                                        sure
-                                                                        you want
+                                                                    <div className='approve-form-confirm-title mb-2'>Are
+                                                                        you sure you want
                                                                         to {this.state.isApproving ? 'approve' : 'reject'}?
                                                                     </div>
                                                                     <button className={`b-btn ripple`} type="button"
                                                                             onClick={() => this.handleApprove(this.props.data, this.commentTextarea?.current?.value ?? '')}>Confirm
                                                                     </button>
-                                                                    <button className={`border-btn ripple`} type="button"
+                                                                    <button className={`border-btn ripple`}
+                                                                            type="button"
                                                                             onClick={() => this.setState({
                                                                                 isConfirmedApproving: false,
                                                                                 isApproving: null
@@ -224,7 +232,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                                                 isApproving: true
                                                                             })}>Approve
                                                                     </button>
-                                                                    <button className={`border-btn ripple`} type="button"
+                                                                    <button className={`border-btn ripple`}
+                                                                            type="button"
                                                                             onClick={() => this.setState({
                                                                                 isConfirmedApproving: true,
                                                                                 isApproving: false
@@ -268,7 +277,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                               className="error-message"/>
                                             </div>
                                         </div>
-                                        {this.state.selectedCountry === selectedCountry && (
+
+                                        {this.state.selectedRegion === selectedCountry && (
                                             <div className="input">
                                                 <div className="input__title">State <i>*</i></div>
                                                 <div

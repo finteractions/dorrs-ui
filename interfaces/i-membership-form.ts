@@ -18,4 +18,6 @@ interface IMembershipForm {
     status: string;
     comment: string;
     updated_at: string;
+    approved_by: string;
+    approved_date_time: string;
 }

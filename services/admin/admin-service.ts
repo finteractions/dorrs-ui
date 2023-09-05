@@ -184,7 +184,7 @@ class AdminService extends BaseService {
     }
 
     public async getUserMembershipForms(): Promise<Array<IMembershipForm>> {
-        return (await apiWebBackendService.get<Array<IMembershipForm>>(`${this.PATH}forms/?type=membership?limit=${this.queryLimit}`, {}, this.getAdminToken()));
+        return (await apiWebBackendService.get<IResponse<IMembershipForm[]>>(`${this.PATH}users_membership_form/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
     public async approveMembershipForm(id: number, is_approved: boolean, comment: string): Promise<IResponseApi> {
@@ -193,7 +193,7 @@ class AdminService extends BaseService {
             comment: comment
         }
 
-        return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}forms/${id}/?type=membership/`, data, {}, this.getAdminToken()));
+        return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}users_membership_form/${id}/`, data, {}, this.getAdminToken()));
     }
 
 }
