@@ -9,7 +9,7 @@ class ClientService extends BaseService {
         super();
     }
 
-    public getUserForms(): Promise<any> {
+    public getUserForms(): Promise<Array<any>> {
         return apiWebBackendService.get(`${this.PATH}forms/`)
     }
 

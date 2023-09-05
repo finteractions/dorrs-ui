@@ -14,9 +14,9 @@ class MembershipBlock extends React.Component {
 
     state: MembershipBlockState;
 
-    form: IForm<IMembershipForm>;
+    membershipForm: IMembershipForm;
 
-    constructor(props: {}, form: IForm<IMembershipForm>) {
+    constructor(props: {}, membershipForm: IMembershipForm) {
         super(props);
 
         this.state = {
@@ -26,7 +26,7 @@ class MembershipBlock extends React.Component {
             formAction: 'add'
         }
 
-        this.form = form;
+        this.membershipForm = membershipForm;
     }
 
     componentDidMount() {
@@ -35,11 +35,10 @@ class MembershipBlock extends React.Component {
 
     getUserForms(): void {
         clientService.getUserForms()
-            .then((res: Array<IForm<any>>) => {
-                this.form = res[0];
+            .then((res: Array<any>) => {
                 if (typeof res[0] !== undefined) {
-                    this.form = res[0] as IForm<IMembershipForm>;
-                    const formAction = [FormStatus.REJECTED.toString(), FormStatus.SUBMITTED.toString()].includes(this.form.status) ? 'edit' : 'view';
+                    this.membershipForm = res[0] as IMembershipForm;
+                    const formAction = [FormStatus.REJECTED.toString(), FormStatus.SUBMITTED.toString()].includes(this.membershipForm.status) ? 'edit' : 'view';
                     this.setState({formAction: formAction});
                 }
             })
@@ -62,7 +61,7 @@ class MembershipBlock extends React.Component {
             case 'edit':
                 return 'Edit'
             case 'view':
-                return 'Show';
+                return 'View';
         }
     }
 
@@ -91,10 +90,10 @@ class MembershipBlock extends React.Component {
                                         </div>
                                         <div className="fiat__item-right">
                                             <div className="fiat__item-balance">
-                                                {this.form?.status ? (
+                                                {this.membershipForm?.status ? (
                                                     <div
-                                                        className={`table__status table__status-${this.form.status.toLowerCase()}`}>
-                                                        {this.form.status}
+                                                        className={`table__status table__status-${this.membershipForm.status.toLowerCase()}`}>
+                                                        {this.membershipForm.status}
                                                     </div>
                                                 ) : (
                                                     <>Not filled</>
@@ -121,10 +120,11 @@ class MembershipBlock extends React.Component {
                        title={`${this.modalTitle()} Membership Form`}
                 >
                     <MembershipForm
-                        data={this.form}
+                        data={this.membershipForm}
                         onCallback={this.onCallback}
                         action={this.state.formAction}
                         onCancel={() => this.modalHandle()}
+                        isAdmin={false}
                     />
                 </Modal>
             </>

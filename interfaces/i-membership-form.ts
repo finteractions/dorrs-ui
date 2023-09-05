@@ -1,5 +1,5 @@
 interface IMembershipForm {
-    id: number | null,
+    id: number,
     region: string;
     state: string;
     is_finra: boolean;
@@ -14,4 +14,8 @@ interface IMembershipForm {
     zip_code: string;
     country: string;
     annual_fees: string;
+    user_id: string;
+    status: string;
+    comment: string;
+    updated_at: string;
 }

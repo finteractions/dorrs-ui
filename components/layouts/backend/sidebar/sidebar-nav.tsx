@@ -10,7 +10,8 @@ import {
     faMoneyBillTrendUp,
     faWallet,
     faUser,
-    faDollarSign
+    faDollarSign,
+    faBook
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -61,6 +62,17 @@ const MENU_LIST: MenuItem[] = [
             {
                 text: 'Blacklist (IP)',
                 href: "/backend/blacklist",
+            }
+        ]
+    },
+    {
+        text: 'Form Management',
+        href: '#',
+        icon: faBook,
+        submenus: [
+            {
+                text: 'Membership Forms',
+                href: "/backend/membership-form",
             }
         ]
     },

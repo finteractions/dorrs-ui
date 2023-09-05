@@ -42,11 +42,11 @@ class AdminService extends BaseService {
             comment: comment
         }
 
-       return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}client_approval/`, data, {}, this.getAdminToken()));
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}client_approval/`, data, {}, this.getAdminToken()));
     }
 
     public async activateUser(user_id: string, active: boolean): Promise<IResponseApi> {
-        const data: any ={
+        const data: any = {
             user_email: user_id,
             is_block: !active,
             comment: ''
@@ -182,6 +182,20 @@ class AdminService extends BaseService {
     public async sendFinanceReport(): Promise<IResponseApi> {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}withdraw_report/`, {}, {}, this.getAdminToken()));
     }
+
+    public async getUserMembershipForms(): Promise<Array<IMembershipForm>> {
+        return (await apiWebBackendService.get<Array<IMembershipForm>>(`${this.PATH}forms/?type=membership?limit=${this.queryLimit}`, {}, this.getAdminToken()));
+    }
+
+    public async approveMembershipForm(id: number, is_approved: boolean, comment: string): Promise<IResponseApi> {
+        const data = {
+            status: is_approved ? 'approved' : 'rejected',
+            comment: comment
+        }
+
+        return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}forms/${id}/?type=membership/`, data, {}, this.getAdminToken()));
+    }
+
 }
 
 const adminService = new AdminService();

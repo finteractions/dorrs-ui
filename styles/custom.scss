@@ -470,6 +470,11 @@ textarea.input__textarea {
 
 input, textarea, select, .modal__content .input__text, .b-select {
   background-color: #ffffff;
+
+  &:disabled {
+    color: #828c97;
+    cursor: not-allowed;
+  }
 }
 
 .exchange-modal .modal-exchange.disabled {
