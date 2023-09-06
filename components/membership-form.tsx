@@ -24,7 +24,7 @@ const formSchema = Yup.object().shape({
         }),
     is_finra: Yup.boolean().label('FINRA'),
     mpid: Yup.string().min(3).max(12).label('MPID'),
-    crd: Yup.string().min(3).max(12).required('Required').label('CRD'),
+    crd: Yup.string().min(3).max(16).required('Required').label('CRD'),
     company_name: Yup.string().min(3).max(99).required('Required').label('Legal Company Name'),
     email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
     mobile_number: FormValidator.phoneNumberField,
