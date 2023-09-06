@@ -1,5 +1,5 @@
 .backend {
-  font-family: Avenir;
+  font-family: "Work Sans",sans-serif;
 
   ol li, ul li {
     list-style: none;
@@ -32,6 +32,10 @@
     column-gap: 15px;
     word-break: break-word;
 
+    color: #1e2d3b;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
   }
 
   .download-buttons {
@@ -212,7 +216,7 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     padding: 0;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
     line-height: 100%;
     -webkit-font-feature-settings: "kern" off;
