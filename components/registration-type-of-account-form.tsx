@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 const formSchema = Yup.object().shape({
-    account_type: Yup.mixed<"Hotel Guest" | "Employee" | "Vendor">().oneOf(
-        ["Hotel Guest", "Employee", "Vendor"],
+    account_type: Yup.mixed<"User Portal" | `DORRS Member` | "DORRS Admin">().oneOf(
+        ["User Portal", "DORRS Member", "DORRS Admin"],
         "Invalid Type of Account"
     )
 });
@@ -55,51 +55,51 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                                 <div className="sign-up__row">
                                     <Field
                                         name="account_type"
-                                        id="account_type_hotel_guest"
+                                        id="account_type_user_portal"
                                         type="radio"
-                                        value="Hotel Guest"
+                                        value="User Portal"
                                         className="hidden"
                                         disabled={isSubmitting}
                                         onClick={() => submitForm()}
                                     />
                                     <label className="sign-up__item"
-                                           htmlFor="account_type_hotel_guest">
+                                           htmlFor="account_type_user_portal">
                                         <div className="sign-up__item-img">
                                             <Image src="/img/accountType.svg" width={64} height={64} alt="Hotel Guest"/>
                                         </div>
-                                        <span>Hotel Guest</span>
+                                        <span>User Portal</span>
                                     </label>
                                     <Field
                                         name="account_type"
-                                        id="account_type_employee"
+                                        id="account_dorrs_member"
                                         type="radio"
-                                        value="Employee"
+                                        value="DORRS Member"
                                         className="hidden"
                                         disabled={isSubmitting}
                                         onClick={() => submitForm()}
                                     />
                                     <label className="sign-up__item"
-                                           htmlFor="account_type_employee">
+                                           htmlFor="account_dorrs_member">
                                         <div className="sign-up__item-img">
                                             <Image src="/img/accountType2.svg" width={64} height={64} alt="Employee"/>
                                         </div>
-                                        <span>Employee</span>
+                                        <span>DORRS Member</span>
                                     </label>
                                     <Field
                                         name="account_type"
-                                        id="account_type_type_of_vendor"
+                                        id="account_dorrs_admin"
                                         type="radio"
-                                        value="Vendor"
+                                        value="DORRS Admin"
                                         className="hidden"
                                         disabled={isSubmitting}
                                         onClick={() => submitForm()}
                                     />
                                     <label className="sign-up__item"
-                                           htmlFor="account_type_type_of_vendor">
+                                           htmlFor="account_dorrs_admin">
                                         <div className="sign-up__item-img">
                                             <Image src="/img/accountType3.svg" width={64} height={64} alt="Vendor"/>
                                         </div>
-                                        <span>Vendor</span>
+                                        <span>DORRS Admin</span>
                                     </label>
                                 </div>
                                 <ErrorMessage name="account_type" component="div"
