@@ -2481,7 +2481,11 @@ body {
   flex-wrap: wrap;
   margin-left: -4px;
   margin-right: -4px;
-  margin-top: -16px
+  margin-top: -16px;
+
+  > a {
+    margin: 0 0 0 16px;
+  }
 }
 
 .assets__item-block {

@@ -1,4 +1,4 @@
-interface IMembershipForm {
+interface IMembership {
     id: number,
     region: string;
     state: string;

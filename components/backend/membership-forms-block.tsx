@@ -20,11 +20,11 @@ let columns: any[] = [];
 interface MembershipFormsBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: IMembershipForm | null;
+    formData: IMembership | null;
     formAction: string;
-    data: IMembershipForm[];
+    data: IMembership[];
     errors: string[];
-    dataFull: IMembershipForm[];
+    dataFull: IMembership[];
     filterData: any;
 }
 
@@ -91,7 +91,7 @@ class MembershipFormsBlock extends React.Component<{}> {
 
     getForms = () => {
         adminService.getUserMembershipForms()
-            .then((res: Array<IMembershipForm>) => {
+            .then((res: Array<IMembership>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];

@@ -21,6 +21,11 @@ let MENU_LIST: Array<Menus> = [
         href: "/dashboard",
     },
     {
+        isAdmin: false,
+        text: 'Symbols',
+        href: "/symbols",
+    },
+    {
         isAdmin: true,
         text: 'Admin Zone',
         href: "/backend/dashboard",

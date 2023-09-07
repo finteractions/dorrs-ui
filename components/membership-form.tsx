@@ -52,7 +52,7 @@ interface MembershipFormState extends IState {
 interface MembershipFormProps extends ICallback {
     isAdmin: boolean;
     action: string;
-    data: IMembershipForm | null;
+    data: IMembership | null;
     onCancel?: () => void;
 }
 
@@ -64,7 +64,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
     constructor(props: MembershipFormProps) {
         super(props);
-        const initialData = this.props.data || {} as IMembershipForm;
+        const initialData = this.props.data || {} as IMembership;
 
         const initialValues: {
             region: string;

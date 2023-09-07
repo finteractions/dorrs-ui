@@ -16,11 +16,11 @@ class MembershipBlock extends React.Component {
 
     state: MembershipBlockState;
 
-    membershipForm: IMembershipForm;
+    membershipForm: IMembership;
 
     getMembershipFormsInterval!: NodeJS.Timer;
 
-    constructor(props: {}, membershipForm: IMembershipForm) {
+    constructor(props: {}, membershipForm: IMembership) {
         super(props);
 
         this.state = {
@@ -54,7 +54,7 @@ class MembershipBlock extends React.Component {
 
     getMembershipForm = () => {
         formService.getMembershipForm()
-            .then((res: Array<IMembershipForm>) => {
+            .then((res: Array<IMembership>) => {
                 if (res.length > 0) {
                     this.membershipForm = res[0];
                     const formAction = [FormStatus.REJECTED.toString(), FormStatus.SUBMITTED.toString()].includes(this.membershipForm.status) ? 'edit' : 'view';

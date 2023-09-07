@@ -9,8 +9,8 @@ class FormService extends BaseService {
         super();
     }
 
-    public async getMembershipForm(): Promise<Array<IMembershipForm>> {
-        return (await apiWebBackendService.get<IResponse<Array<IMembershipForm>>>(`${this.PATH}membership/`, {}, this.getUserAccessToken())).data;
+    public async getMembershipForm(): Promise<Array<IMembership>> {
+        return (await apiWebBackendService.get<IResponse<Array<IMembership>>>(`${this.PATH}membership/`, {}, this.getUserAccessToken())).data;
     }
 
     public createMembershipForm(data: any): Promise<any> {

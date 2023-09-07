@@ -183,8 +183,8 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}withdraw_report/`, {}, {}, this.getAdminToken()));
     }
 
-    public async getUserMembershipForms(): Promise<Array<IMembershipForm>> {
-        return (await apiWebBackendService.get<IResponse<IMembershipForm[]>>(`${this.PATH}users_membership_form/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    public async getUserMembershipForms(): Promise<Array<IMembership>> {
+        return (await apiWebBackendService.get<IResponse<IMembership[]>>(`${this.PATH}users_membership_form/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
     public async approveMembershipForm(id: number, is_approved: boolean, comment: string): Promise<IResponseApi> {
