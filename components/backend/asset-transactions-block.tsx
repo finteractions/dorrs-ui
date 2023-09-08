@@ -112,7 +112,7 @@ class AssetTransactionsBlock extends React.Component<AssetTransactionsBlockProps
     getCustodians = () => {
         adminService.getCustodians()
             .then((res: ICustody[]) => {
-                const data = res.filter(item => item.quote_currency === this.props.label || item.base_currency === this.props.label).sort((a, b) => b.id - a.id);
+                const data = res?.filter(item => item.quote_currency === this.props.label || item.base_currency === this.props.label).sort((a, b) => b.id - a.id) || []
                 this.setState({data: data});
             })
             .catch((errors: IError) => {
@@ -129,7 +129,8 @@ class AssetTransactionsBlock extends React.Component<AssetTransactionsBlockProps
             <>
                 <div className="info-panel-section transactions">
                     <div className="info-panel-section-title mb-2">
-                        <div className='info-panel-title-text'>Transactions <span className='info-panel-section-sub-title'>(last 10 record)</span></div>
+                        <div className='info-panel-title-text'>Transactions <span
+                            className='info-panel-section-sub-title'>(last 10 record)</span></div>
 
                         <Link className='link info-panel-title-link' href="/backend/custody-management">
                             All transactions
@@ -144,7 +145,7 @@ class AssetTransactionsBlock extends React.Component<AssetTransactionsBlockProps
                             {this.state.data.length ? (
                                 <Table
                                     columns={columns}
-                                    data={this.state.data.slice(0,10)}
+                                    data={this.state.data.slice(0, 10)}
                                     filter={false}
                                 />
                             ) : (

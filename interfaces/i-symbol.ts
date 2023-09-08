@@ -2,6 +2,7 @@ export interface ISymbol {
     id: number;
     name: string;
     code: string;
+    ticker: string;
     network: string;
     currency_type: string;
     fee: number;

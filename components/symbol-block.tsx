@@ -140,7 +140,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                                                 src={symbol?.image || ''}
                                                                 width={24} height={24}/>
                                                         </div>
-                                                        <span>{symbol.name} (${symbol.code})</span>
+                                                        <span>{symbol.name} ({symbol.ticker})</span>
                                                     </div>
                                                     <div className="fiat__item-right">
                                                         <div className="fiat__item-balance">
