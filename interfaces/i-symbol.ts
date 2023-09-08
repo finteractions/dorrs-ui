@@ -1,16 +1,14 @@
 export interface ISymbol {
     id: number;
+    figi: string;
     name: string;
-    code: string;
     ticker: string;
-    network: string;
-    currency_type: string;
-    fee: number;
-    last_price: number;
-    active: boolean;
-    image: string;
+    exchange_code: string;
+    security_type: string;
+    market_sector: string;
+    figi_composite: string;
+    share_class: string;
     status: string;
-    comment: string;
     updated_at: string;
     approved_by: string;
     approved_date_time: string;

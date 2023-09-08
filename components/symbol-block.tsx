@@ -1,19 +1,20 @@
 import React from 'react';
-import Link from 'next/link'
 import LoaderBlock from "@/components/loader-block";
-import AssetImage from "@/components/asset-image";
 import NoDataBlock from "./no-data-block";
 import {ISymbol} from "@/interfaces/i-symbol";
 import Modal from "@/components/modal";
-import {FormStatus} from "@/enums/form-status";
 import SymbolForm from "@/components/symbol-form";
 import symbolService from "@/services/symbol/symbol-service";
+import Table from "@/components/table/table";
+import {createColumnHelper} from "@tanstack/react-table";
+import Link from "next/link";
 
 
 interface SymbolBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
     symbol: ISymbol | null;
+    modalTitle: string;
     errors: string[];
 }
 
@@ -26,6 +27,9 @@ let isDashboard = false;
 const MAX_ITEMS: number = 5;
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+
+const columnHelper = createColumnHelper<any>();
+let columns: any[] = [];
 
 class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
@@ -42,11 +46,64 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             isLoading: true,
             isOpenModal: false,
             formAction: 'add',
+            modalTitle: '',
             errors: [],
             symbol: null
         }
 
         isDashboard = this.props?.isDashboard ?? true;
+
+        columns = [
+            columnHelper.accessor((row) => row.figi, {
+                id: "figi",
+                cell: (item) => item.getValue(),
+                header: () => <span>FIGI</span>,
+            }),
+            columnHelper.accessor((row) => row.name, {
+                id: "name",
+                cell: (item) => item.getValue(),
+                header: () => <span>Name</span>,
+            }),
+            columnHelper.accessor((row) => row.ticker, {
+                id: "ticker",
+                cell: (item) => item.getValue(),
+                header: () => <span>Ticker</span>,
+            }),
+            columnHelper.accessor((row) => row.exchange_code, {
+                id: "exchange_code",
+                cell: (item) => item.getValue(),
+                header: () => <span>Exchange Code</span>,
+            }),
+            columnHelper.accessor((row) => row.security_type, {
+                id: "security_type",
+                cell: (item) => item.getValue(),
+                header: () => <span>Security Type</span>,
+            }),
+            columnHelper.accessor((row) => row.market_sector, {
+                id: "market_sector",
+                cell: (item) => item.getValue(),
+                header: () => <span>Market Sector</span>,
+            }),
+            columnHelper.accessor((row) => row.figi_composite, {
+                id: "figi_composite",
+                cell: (item) => item.getValue(),
+                header: () => <span>FIGI Composite</span>,
+            }),
+            columnHelper.accessor((row) => row.share_class, {
+                id: "share_class",
+                cell: (item) => item.getValue(),
+                header: () => <span>Share Class</span>,
+            }),
+            columnHelper.accessor((row) => row.status, {
+                id: "status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
+                    </div>
+                ,
+                header: () => <span>Status</span>,
+            })
+        ];
     }
 
     componentDidMount() {
@@ -70,7 +127,15 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                if (res) this.symbols = res;
+                const data = res?.sort((a, b) => {
+                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                }) || [];
+
+                data.forEach(s => {
+                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                });
+
+                this.symbols = data;
             })
             .catch((errors: IError) => {
 
@@ -80,28 +145,27 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             });
     }
 
-    modalHandle = (symbol?: ISymbol) => {
-        this.setState({
-            isOpenModal: !this.state.isOpenModal,
-            symbol: symbol || null,
-            formAction: symbol?.status ? [FormStatus.REJECTED.toString(), FormStatus.SUBMITTED.toString()].includes(symbol?.status) ? 'edit' : 'view' : 'add'
-        });
+    openModal = (mode: string, data?: ISymbol) => {
+        this.setState({isOpenModal: true, symbol: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
 
-    modalTitle = () => {
-        switch (this.state.formAction) {
-            case 'add':
-                return 'Add'
-            case 'edit':
-                return 'Edit'
-            case 'view':
-                return 'View';
+    closeModal(): void {
+        this.setState({isOpenModal: false})
+    }
+
+    modalTitle = (mode: string) => {
+        if (mode === 'delete') {
+            return 'Do you want to remove this symbol?';
+        } else if (mode === 'view') {
+            return 'View Symbol'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Symbol`;
         }
     }
 
     onCallback = async (values: any, step: boolean) => {
-        this.modalHandle();
         this.getSymbols();
+        this.closeModal();
     };
 
     render() {
@@ -115,7 +179,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                             <div className="assets__item-row">
                                 <button className="border-btn ripple modal-link"
                                         disabled={this.state.isLoading}
-                                        onClick={() => this.modalHandle()}>Add Symbol
+                                        onClick={() => this.openModal('add')}>Add Symbol
                                 </button>
                                 {isDashboard && (
                                     <Link href="/symbols" className="b-link">View all</Link>
@@ -129,46 +193,20 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         ) : (
                             <>
                                 {this.symbols.length > 0 ? (
-                                    <div className="row">
-                                        {this.symbols.slice(0, !isDashboard ? this.symbols.length : MAX_ITEMS).map((symbol: ISymbol, index: number) => (
-                                            <div className="col w-100" key={symbol.code}>
-                                                <div className="fiat__item">
-                                                    <div className="fiat__item-left">
-                                                        <div className="fiat__item-img">
-                                                            <AssetImage
-                                                                alt={symbol?.code}
-                                                                src={symbol?.image || ''}
-                                                                width={24} height={24}/>
-                                                        </div>
-                                                        <span>{symbol.name} ({symbol.code})</span>
-                                                    </div>
-                                                    <div className="fiat__item-right">
-                                                        <div className="fiat__item-balance">
-                                                            <div
-                                                                className={`table__status table__status-${symbol.status.toLowerCase()}`}>
-                                                                {`${symbol.status.charAt(0).toUpperCase()}${symbol.status.slice(1).toLowerCase()}`}
-                                                            </div>
-                                                        </div>
-                                                        <div className="assets__item-btns">
-                                                            <button
-                                                                className="btn-dep assets__item-btn border-btn ripple"
-                                                                onClick={() => this.modalHandle(symbol)}
-                                                            >
-                                                                Open
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <Table columns={columns}
+                                           data={this.symbols}
+                                           // searchPanel={true}
+                                           block={this}
+                                           // editBtn={true}
+                                           // viewBtn={true}
+                                    />
                                 ) : (
                                     <NoDataBlock/>
                                 )}
 
                                 <Modal isOpen={this.state.isOpenModal}
-                                       onClose={() => this.modalHandle()}
-                                       title={`${this.modalTitle()} Symbol`}
+                                       onClose={() => this.closeModal()}
+                                       title={this.state.modalTitle}
                                 >
                                     <SymbolForm
                                         isAdmin={false}
