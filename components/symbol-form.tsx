@@ -8,16 +8,27 @@ import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import symbolService from "@/services/symbol/symbol-service";
+import {SecurityType} from "@/enums/security-type";
+import {SecurityType2} from "@/enums/security-type-2";
 
 const formSchema = Yup.object().shape({
-    figi: Yup.string().min(3).max(255).required('Required').label('FIGI'),
-    name: Yup.string().min(3).max(255).required('Required').label('Name'),
-    ticker: Yup.string().max(255).required('Required').label('Ticker'),
-    exchange_code: Yup.string().max(255).required('Required').label('Exchange Code'),
-    security_type: Yup.string().min(3).max(255).required('Required').label('Security Type'),
+    reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
+    symbol: Yup.string().min(3).max(255).required('Required').label('Symbol'),
+    cusip: Yup.string().min(9).max(9).required('Required').label('CUSIP'),
+    dsin: Yup.string().min(12).max(12).required('Required').label('DSIN'),
+    primary_ats: Yup.string().min(3).max(255).required('Required').label('Primary ATS'),
+    transfer_agent: Yup.string().min(3).max(255).required('Required').label('Transfer Agent'),
+    custodian: Yup.string().min(3).max(255).required('Required').label('Custodian'),
     market_sector: Yup.string().min(3).max(255).required('Required').label('Market Sector'),
-    figi_composite: Yup.string().min(3).max(255).required('Required').label('FIGI Composite'),
-    share_class: Yup.string().min(3).max(255).required('Required').label('Share Class')
+    lot_size: Yup.number().typeError('Invalid Lot Size').required('Required').label('Lot Size'),
+    fractional_lot_size: Yup.number().typeError('Invalid Fractional Lot Size').required('Required').label('Fractional Lot Size'),
+    mvp: Yup.number().typeError('Invalid MVP').required('Required').label('MVP'),
+    security_name: Yup.string().min(3).max(255).required('Required').label('Security Name'),
+    security_type: Yup.string().required('Required').label('Security Type'),
+    security_type_2: Yup.string().required('Required').label('Security Type 2'),
+    blockchain: Yup.string().min(3).max(255).required('Required').label('Blockchain'),
+    smart_contract_type: Yup.string().min(3).max(255).required('Required').label('Smart Contract type'),
+
 });
 
 interface SymbolFormState extends IState {
@@ -25,7 +36,6 @@ interface SymbolFormState extends IState {
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
     loading: boolean;
-    selectedFile: File | null;
 }
 
 interface SymbolFormProps extends ICallback {
@@ -46,23 +56,39 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         const initialData = this.props.data || {} as ISymbol;
 
         const initialValues: {
-            figi: string;
-            name: string;
-            ticker: string;
-            exchange_code: string;
-            security_type: string;
+            reason_for_entry: string;
+            symbol: string;
+            cusip: string;
+            dsin: string;
+            primary_ats: string;
+            transfer_agent: string;
+            custodian: string;
             market_sector: string;
-            figi_composite: string;
-            share_class: string;
+            lot_size: string;
+            fractional_lot_size: string;
+            mvp: string;
+            security_name: string;
+            security_type: string;
+            security_type_2: string;
+            blockchain: string;
+            smart_contract_type: string;
         } = {
-            figi: initialData?.figi || '',
-            name: initialData?.name || '',
-            ticker: initialData?.ticker || '',
-            exchange_code: initialData?.exchange_code || '',
-            security_type: initialData?.security_type || '',
-            figi_composite: initialData?.figi_composite || '',
+            reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
+            symbol: initialData?.symbol || '',
+            cusip: initialData?.cusip || '',
+            dsin: initialData?.dsin || '',
+            primary_ats: initialData?.primary_ats || '',
+            transfer_agent: initialData?.transfer_agent || '',
+            custodian: initialData?.custodian || '',
             market_sector: initialData?.market_sector || '',
-            share_class: initialData?.share_class || '',
+            lot_size: (initialData?.lot_size || '').toString(),
+            fractional_lot_size: (initialData?.fractional_lot_size || '').toString(),
+            mvp: (initialData?.mvp || '').toString(),
+            security_name: initialData?.security_name || '',
+            security_type: initialData?.security_type || '',
+            security_type_2: initialData?.security_type_2 || '',
+            blockchain: initialData?.blockchain || '',
+            smart_contract_type: initialData?.smart_contract_type || '',
         };
 
         this.state = {
@@ -71,7 +97,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             loading: false,
             isApproving: null,
             isConfirmedApproving: false,
-            selectedFile: null,
         };
 
     }
@@ -79,24 +104,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     handleSubmit = async (values: ISymbol, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null});
 
-        const formData = new FormData();
-
-        if (this.state.selectedFile) {
-            formData.append('image', this.state.selectedFile);
-        }
-
-        Object.entries(values).forEach(([key, value]) => {
-            console.log(key, value);
-            formData.append(key, value);
-        });
-
         const request: Promise<any> = this.props.action == 'edit' ?
-            symbolService.updateSymbol(formData, this.props.data?.id || 0) :
-            symbolService.createSymbol(formData);
+            symbolService.updateSymbol(values, this.props.data?.id || 0) :
+            symbolService.createSymbol(values);
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(formData);
+                this.props.onCallback(values);
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -121,11 +135,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             })
             .finally(() => this.setState({loading: false}))
     };
-
-    handleFile = (event: any) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFile: selectedFile});
-    }
 
     render() {
 
@@ -207,92 +216,137 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         )}
 
                                         <div className="input">
-                                            <div className="input__title">FIGI <i>*</i></div>
+                                            <div className="input__title">Reason for Entry <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="figi"
-                                                    id="figi"
-                                                    type="text"
-                                                    className="input__text"
-                                                    placeholder="Type FIGI"
-                                                    disabled={isSubmitting || this.isShow()}
-                                                />
-                                                <ErrorMessage name="figi" component="div"
+                                                    name="reason_for_entry"
+                                                    id="reason_for_entry"
+                                                    as="select"
+                                                    className="b-select"
+                                                    disabled={true}
+                                                >
+                                                    <option value="">Select a Reason</option>
+                                                    <option value="New Ticker Symbol">New Ticker
+                                                        Symbol
+                                                    </option>
+
+                                                </Field>
+                                                <ErrorMessage name="reason_for_entry" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Name <i>*</i></div>
+                                            <div className="input__title">Symbol <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="name"
-                                                    id="name"
+                                                    name="symbol"
+                                                    id="symbol"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type Name"
+                                                    placeholder="Type Symbol"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="name" component="div"
+                                                <ErrorMessage name="symbol" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+
+                                        <div className="input">
+                                            <div className="input__title">External Security Identifier Number –
+                                                CUSIP <i>*</i>
+                                            </div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="cusip"
+                                                    id="cusip"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type CUSIP"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="cusip" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Ticker <i>*</i></div>
+                                            <div className="input__title">Digital Security Identifier Number -
+                                                DSIN <i>*</i>
+                                            </div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="ticker"
-                                                    id="ticker"
+                                                    name="dsin"
+                                                    id="dsin"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type Ticker"
+                                                    placeholder="Type CUSIP"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="ticker" component="div"
+                                                <ErrorMessage name="dsin" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Exchange Code <i>*</i></div>
+                                            <div className="input__title">Primary ATS <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="exchange_code"
-                                                    id="exchange_code"
+                                                    name="primary_ats"
+                                                    id="primary_ats"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type Exchange Code"
+                                                    placeholder="Type Primary ATS"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="exchange_code" component="div"
+                                                <ErrorMessage name="primary_ats" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Security Type <i>*</i></div>
+                                            <div className="input__title">Transfer Agent <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="security_type"
-                                                    id="security_type"
+                                                    name="transfer_agent"
+                                                    id="transfer_agent"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type Security Type"
+                                                    placeholder="Type Transfer Agent"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="security_type" component="div"
+                                                <ErrorMessage name="primary_ats" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Market Sector <i>*</i></div>
+                                            <div className="input__title">Custodian <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="custodian"
+                                                    id="custodian"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type Custodian"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="custodian" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Market Sector (stock, corporate bond, GOVT,
+                                                etc.) <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
@@ -309,35 +363,149 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">FIGI Composite <i>*</i></div>
+                                            <div className="input__title">Lot Size <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="figi_composite"
-                                                    id="figi_composite"
+                                                    name="lot_size"
+                                                    id="lot_size"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type FIGI Composite"
+                                                    placeholder="Type Lot Size"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="figi_composite" component="div"
+                                                <ErrorMessage name="lot_size" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
 
                                         <div className="input">
-                                            <div className="input__title">Share Class <i>*</i></div>
+                                            <div className="input__title">Fractional Lot Size <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
-                                                    name="share_class"
-                                                    id="share_class"
+                                                    name="fractional_lot_size"
+                                                    id="fractional_lot_size"
                                                     type="text"
                                                     className="input__text"
-                                                    placeholder="Type Share Class"
+                                                    placeholder="Type Fractional Lot Size"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="share_class" component="div"
+                                                <ErrorMessage name="fractional_lot_size" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Minimum Price Variation (MPV) <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="mvp"
+                                                    id="mvp"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type MVP"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="mvp" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Security Name <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="security_name"
+                                                    id="security_name"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type Security Name"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="security_name" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Security Type <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="security_type"
+                                                    id="security_type"
+                                                    as="select"
+                                                    className="b-select"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                >
+                                                    <option value="">Select Security Type</option>
+                                                    {Object.values(SecurityType).map((type) => (
+                                                        <option key={type} value={type}>
+                                                            {type}
+                                                        </option>
+                                                    ))}
+                                                </Field>
+                                                <ErrorMessage name="security_type" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Security Type 2 <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="security_type_2"
+                                                    id="security_type_2"
+                                                    as="select"
+                                                    className="b-select"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                >
+                                                    <option value="">Select Security Type</option>
+                                                    {Object.values(SecurityType2).map((type) => (
+                                                        <option key={type} value={type}>
+                                                            {type}
+                                                        </option>
+                                                    ))}
+                                                </Field>
+                                                <ErrorMessage name="security_type_2" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Blockchain <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="blockchain"
+                                                    id="blockchain"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type Security Name"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="blockchain" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+
+                                        <div className="input">
+                                            <div className="input__title">Smart Contract type <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="smart_contract_type"
+                                                    id="smart_contract_type"
+                                                    type="text"
+                                                    className="input__text"
+                                                    placeholder="Type Smart Contract type"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                />
+                                                <ErrorMessage name="smart_contract_type" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>

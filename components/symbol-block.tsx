@@ -8,6 +8,7 @@ import symbolService from "@/services/symbol/symbol-service";
 import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
 import Link from "next/link";
+import formatterService from "@/services/formatter/formatter-service";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -54,46 +55,86 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         isDashboard = this.props?.isDashboard ?? true;
 
         columns = [
-            columnHelper.accessor((row) => row.figi, {
-                id: "figi",
+            columnHelper.accessor((row) => row.reason_for_entry, {
+                id: "reason_for_entry",
                 cell: (item) => item.getValue(),
-                header: () => <span>FIGI</span>,
+                header: () => <span>Reason for Entry</span>,
             }),
-            columnHelper.accessor((row) => row.name, {
-                id: "name",
+            columnHelper.accessor((row) => row.symbol, {
+                id: "symbol",
                 cell: (item) => item.getValue(),
-                header: () => <span>Name</span>,
+                header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.ticker, {
-                id: "ticker",
+            columnHelper.accessor((row) => row.cusip, {
+                id: "cusip",
                 cell: (item) => item.getValue(),
-                header: () => <span>Ticker</span>,
+                header: () => <span>CUSIP</span>,
             }),
-            columnHelper.accessor((row) => row.exchange_code, {
-                id: "exchange_code",
+            columnHelper.accessor((row) => row.dsin, {
+                id: "dsin",
                 cell: (item) => item.getValue(),
-                header: () => <span>Exchange Code</span>,
+                header: () => <span>DSIN</span>,
             }),
-            columnHelper.accessor((row) => row.security_type, {
-                id: "security_type",
+            columnHelper.accessor((row) => row.primary_ats, {
+                id: "primary_ats",
                 cell: (item) => item.getValue(),
-                header: () => <span>Security Type</span>,
+                header: () => <span>Primary ATS </span>,
             }),
+            columnHelper.accessor((row) => row.transfer_agent, {
+                id: "transfer_agent",
+                cell: (item) => item.getValue(),
+                header: () => <span>Transfer Agent </span>,
+            }),
+            // columnHelper.accessor((row) => row.custodian, {
+            //     id: "custodian",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Custodian </span>,
+            // }),
             columnHelper.accessor((row) => row.market_sector, {
                 id: "market_sector",
                 cell: (item) => item.getValue(),
-                header: () => <span>Market Sector</span>,
+                header: () => <span>Market Sector </span>,
             }),
-            columnHelper.accessor((row) => row.figi_composite, {
-                id: "figi_composite",
+            // columnHelper.accessor((row) => row.lot_size, {
+            //     id: "lot_size",
+            //     cell: (item) => formatterService.numberFormat(item.getValue()),
+            //     header: () => <span>Lot Size </span>,
+            // }),
+            // columnHelper.accessor((row) => row.fractional_lot_size, {
+            //     id: "fractional_lot_size",
+            //     cell: (item) => formatterService.numberFormat(item.getValue()),
+            //     header: () => <span>Fractional Lot Size </span>,
+            // }),
+            columnHelper.accessor((row) => row.mvp, {
+                id: "mvp",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>MPV </span>,
+            }),
+            // columnHelper.accessor((row) => row.security_name, {
+            //     id: "security_name",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Security Name </span>,
+            // }),
+            columnHelper.accessor((row) => row.security_type, {
+                id: "security_type",
                 cell: (item) => item.getValue(),
-                header: () => <span>FIGI Composite</span>,
+                header: () => <span>Security Type </span>,
             }),
-            columnHelper.accessor((row) => row.share_class, {
-                id: "share_class",
-                cell: (item) => item.getValue(),
-                header: () => <span>Share Class</span>,
-            }),
+            // columnHelper.accessor((row) => row.security_type_2, {
+            //     id: "security_type2",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Security Type 2 </span>,
+            // }),
+            // columnHelper.accessor((row) => row.blockchain, {
+            //     id: "blockchain",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Blockchain </span>,
+            // }),
+            // columnHelper.accessor((row) => row.smart_contract_type, {
+            //     id: "smart_contract_type",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Smart Contract type </span>,
+            // }),
             columnHelper.accessor((row) => row.status, {
                 id: "status",
                 cell: (item) =>
@@ -195,10 +236,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                 {this.symbols.length > 0 ? (
                                     <Table columns={columns}
                                            data={this.symbols}
-                                           // searchPanel={true}
+                                        // searchPanel={true}
                                            block={this}
-                                           // editBtn={true}
-                                           // viewBtn={true}
+                                        // editBtn={true}
+                                        // viewBtn={true}
                                     />
                                 ) : (
                                     <NoDataBlock/>
