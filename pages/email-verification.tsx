@@ -17,4 +17,6 @@ EmailVerification.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+EmailVerification.layoutName = "HomeLayout"
+
 export default EmailVerification

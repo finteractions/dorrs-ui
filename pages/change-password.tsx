@@ -21,4 +21,6 @@ Profile.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Profile.layoutName = "PortalLayout"
+
 export default Profile

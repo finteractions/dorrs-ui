@@ -19,4 +19,6 @@ CustodyManagement.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+CustodyManagement.layoutName = "BackendLayout"
+
 export default CustodyManagement

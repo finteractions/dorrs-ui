@@ -20,4 +20,6 @@ ActivityLogs.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+ActivityLogs.layoutName = "BackendLayout"
+
 export default ActivityLogs

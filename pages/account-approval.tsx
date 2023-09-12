@@ -1,4 +1,4 @@
-import React, {ReactElement, useContext, useEffect, useState} from "react"
+import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "./_app";
 import HomeLayout from "@/components/layouts/home/home-layout";
 import AccountApprovalBlock from "@/components/account-approval-block";
@@ -16,5 +16,7 @@ AccountApproval.getLayout = function getLayout(page: ReactElement) {
         </HomeLayout>
     )
 }
+
+AccountApproval.layoutName = "HomeLayout";
 
 export default AccountApproval

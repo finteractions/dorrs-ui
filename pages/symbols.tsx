@@ -18,4 +18,6 @@ Symbols.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Symbols.layoutName = "PortalLayout"
+
 export default Symbols

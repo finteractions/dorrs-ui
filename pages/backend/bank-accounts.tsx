@@ -19,4 +19,6 @@ BankAccounts.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+BankAccounts.layoutName = "BackendLayout"
+
 export default BankAccounts

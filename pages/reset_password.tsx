@@ -34,4 +34,6 @@ ResetPasswordPage.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+ResetPasswordPage.layoutName = "HomeLayout"
+
 export default ResetPasswordPage

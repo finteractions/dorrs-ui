@@ -21,4 +21,6 @@ TradeManagement.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+TradeManagement.layoutName = "BackendLayout"
+
 export default TradeManagement

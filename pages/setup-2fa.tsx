@@ -84,4 +84,6 @@ Setup2fa.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Setup2fa.layoutName = "HomeLayout"
+
 export default Setup2fa

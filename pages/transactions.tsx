@@ -1,5 +1,5 @@
-import React, { ReactElement } from "react"
-import type { NextPageWithLayout} from "./_app";
+import React, {ReactElement} from "react"
+import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
 import TransactionsBlock from "@/components/transactions-block";
 
@@ -17,5 +17,7 @@ Transactions.getLayout = function getLayout(page: ReactElement) {
         </PortalLayout>
     )
 }
+
+Transactions.layoutName = "PortalLayout"
 
 export default Transactions

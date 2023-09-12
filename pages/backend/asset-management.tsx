@@ -20,4 +20,6 @@ AssetManagement.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+AssetManagement.layoutName = "BackendLayout"
+
 export default AssetManagement

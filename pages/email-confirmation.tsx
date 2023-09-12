@@ -28,4 +28,6 @@ EmailConfirmation.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+EmailConfirmation.layoutName = "HomeLayout"
+
 export default EmailConfirmation

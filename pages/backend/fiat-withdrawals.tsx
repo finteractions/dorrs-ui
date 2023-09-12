@@ -19,4 +19,6 @@ FiatWithdrawals.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+FiatWithdrawals.layoutName = "BackendLayout"
+
 export default FiatWithdrawals

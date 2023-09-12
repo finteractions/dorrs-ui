@@ -75,4 +75,6 @@ Login.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Login.layoutName = "HomeLayout"
+
 export default Login

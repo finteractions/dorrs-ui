@@ -1,8 +1,8 @@
-import React, { ReactElement } from "react"
-import type { NextPageWithLayout} from "./_app";
+import React, {ReactElement} from "react"
+import type {NextPageWithLayout} from "./_app";
 import HomeLayout from "../components/layouts/home/home-layout";
 import ResetPasswordForm from "@/components/reset-password-form";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 
 const ResetPassword: NextPageWithLayout = () => {
     const router = useRouter()
@@ -21,5 +21,7 @@ ResetPassword.getLayout = function getLayout(page: ReactElement) {
         </HomeLayout>
     )
 }
+
+ResetPassword.layoutName = "HomeLayout"
 
 export default ResetPassword

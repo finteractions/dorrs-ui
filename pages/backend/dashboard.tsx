@@ -23,4 +23,6 @@ Dashboard.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Dashboard.layoutName = "BackendLayout";
+
 export default Dashboard

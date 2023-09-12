@@ -18,4 +18,6 @@ Assets.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Assets.layoutName = "PortalLayout";
+
 export default Assets

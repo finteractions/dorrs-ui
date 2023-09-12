@@ -274,4 +274,6 @@ BankAccounts.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+BankAccounts.layoutName = "PortalLayout"
+
 export default BankAccounts

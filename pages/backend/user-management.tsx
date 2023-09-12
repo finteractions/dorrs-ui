@@ -7,11 +7,11 @@ import UserBlock from "@/components/backend/user-block";
 
 const UserManagement: NextPageWithLayout = () => {
     const router = useRouter();
-    const { user } = router.query;
+    const {user} = router.query;
 
     return (
         <>
-            {user && !Array.isArray(user)? (
+            {user && !Array.isArray(user) ? (
                 <UserBlock user_id={user}/>
             ) : (
                 <UsersBlock/>
@@ -28,5 +28,7 @@ UserManagement.getLayout = function getLayout(page: ReactElement) {
         </BackendLayout>
     )
 }
+
+UserManagement.layoutName = "BackendLayout"
 
 export default UserManagement

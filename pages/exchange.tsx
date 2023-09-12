@@ -29,4 +29,6 @@ Exchange.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Exchange.layoutName = "PortalLayout"
+
 export default Exchange

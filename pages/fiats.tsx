@@ -18,4 +18,6 @@ Fiats.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Fiats.layoutName = "PortalLayout"
+
 export default Fiats

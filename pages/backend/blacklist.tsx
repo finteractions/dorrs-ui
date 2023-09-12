@@ -20,4 +20,6 @@ Blacklist.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Blacklist.layoutName = "BackendLayout"
+
 export default Blacklist

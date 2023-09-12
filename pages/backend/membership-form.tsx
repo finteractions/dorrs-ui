@@ -20,4 +20,6 @@ MembershipForm.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+MembershipForm.layoutName = "BackendLayout"
+
 export default MembershipForm

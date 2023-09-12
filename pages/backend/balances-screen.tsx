@@ -20,4 +20,6 @@ BalancesScreen.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+BalancesScreen.layoutName = "BackendLayout"
+
 export default BalancesScreen

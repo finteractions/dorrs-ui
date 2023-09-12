@@ -17,4 +17,6 @@ ForgotPassword.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+ForgotPassword.layoutName = "HomeLayout"
+
 export default ForgotPassword

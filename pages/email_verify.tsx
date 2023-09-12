@@ -34,4 +34,6 @@ EmailVerifyPage.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+EmailVerifyPage.layoutName = "HomeLayout"
+
 export default EmailVerifyPage

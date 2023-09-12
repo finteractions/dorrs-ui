@@ -22,4 +22,6 @@ Dashboard.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
+Dashboard.layoutName = "PortalLayout"
+
 export default Dashboard
