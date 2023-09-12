@@ -97,19 +97,19 @@ class AssetForm extends React.Component<AssetFormProps, AssetFormState> {
             formData.append('image', this.state.selectedFile);
         }
 
-        const request: Promise<any> = this.state.mode == 'edit' ?
-            adminService.updateAsset(formData, this.props.data?.id || 0) :
-            adminService.createAsset(formData);
-
-        await request
-            .then(((res: any) => {
-                this.props.onCallback(formData);
-            }))
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
-            }).finally(() => {
-                setSubmitting(false);
-            });
+        // const request: Promise<any> = this.state.mode == 'edit' ?
+        //     adminService.updateAsset(formData, this.props.data?.id || 0) :
+        //     adminService.createAsset(formData);
+        //
+        // await request
+        //     .then(((res: any) => {
+        //         this.props.onCallback(formData);
+        //     }))
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages});
+        //     }).finally(() => {
+        //         setSubmitting(false);
+        //     });
     };
 
     handleDelete = async (values: any) => {

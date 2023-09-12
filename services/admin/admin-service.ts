@@ -7,6 +7,7 @@ import {IUserDetail} from "@/interfaces/i-user-detail";
 import {IUser} from "@/interfaces/i-user";
 import {IBlacklist} from "@/interfaces/i-blacklist";
 import {any} from "prop-types";
+import {ISymbol} from "@/interfaces/i-symbol";
 
 class AdminService extends BaseService {
 
@@ -119,8 +120,8 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}fiat_change_status/`, data, {}, this.getAdminToken()));
     }
 
-    public async getAssets(): Promise<IAdminAsset[]> {
-        return (await apiWebBackendService.get<IResponse<IAdminAsset[]>>(`${this.PATH}asset_management/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    public async getAssets(): Promise<ISymbol[]> {
+        return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
     public async getAsset(label: string): Promise<IAdminAsset[]> {
@@ -142,8 +143,19 @@ class AdminService extends BaseService {
         return apiWebBackendService.delete<IResponseApi>(`${this.PATH}asset_management/${id}/`, {}, {}, this.getAdminToken());
     }
 
-    public async updateAsset(data: any, id: number): Promise<IResponseApi> {
+    public async updateAsset(id: number, is_approved: boolean): Promise<IResponseApi> {
+        const data = {
+            status: is_approved ? 'approved' : 'rejected',
+        }
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async approveAsset(id: number, is_approved: boolean): Promise<IResponseApi> {
+        const data = {
+            status: is_approved ? 'approved' : 'rejected'
+        }
+
+        return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management/${id}/`, data, {}, this.getAdminToken()));
     }
 
     public async createAsset(data: any): Promise<IResponseApi> {

@@ -11,6 +11,7 @@ import TradeForm from "@/components/backend/trade-form";
 import adminIconService from "@/services/admin/admin-icon-service";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
+import {ISymbol} from "@/interfaces/i-symbol";
 
 
 const columnHelper = createColumnHelper<any>();
@@ -76,12 +77,12 @@ class TradesBlock extends React.Component<{}> {
 
     getAssets = () => {
         adminService.getAssets()
-            .then((res: IAdminAsset[]) => {
+            .then((res: ISymbol[]) => {
                 const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
-                    s.name_label = `${s.name} (${s.label})`;
-                    s.active_text = s.active ? 'Yes' : 'No';
+                    // s.name_label = `${s.name} (${s.label})`;
+                    // s.active_text = s.active ? 'Yes' : 'No';
                 })
 
                 this.setState({dataFull: data, data: data}, () => {

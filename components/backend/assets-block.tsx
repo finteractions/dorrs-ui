@@ -15,6 +15,9 @@ import AssetImage from "@/components/asset-image";
 import moment from "moment";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
+import MembershipForm from "@/components/membership-form";
+import SymbolForm from "@/components/symbol-form";
+import {ISymbol} from "@/interfaces/i-symbol";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -22,12 +25,12 @@ let columns: any[] = [];
 interface AssetsBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: IAdminAsset | null;
+    formData: ISymbol | null;
     formAction: string;
-    data: IAdminAsset[];
+    data: ISymbol[];
     errors: string[];
     modalTitle: string;
-    dataFull: IAdminAsset[];
+    dataFull: ISymbol[];
     filterData: any;
 }
 
@@ -55,86 +58,100 @@ class AssetsBlock extends React.Component<{}> {
         }
 
         columns = [
-            columnHelper.accessor((row) => ({
-                name_label: row.name_label,
-                image: row.image
-            }), {
-                id: "name",
+            columnHelper.accessor((row) => row.reason_for_entry, {
+                id: "reason_for_entry",
+                cell: (item) => item.getValue(),
+                header: () => <span>Reason for Entry</span>,
+            }),
+            columnHelper.accessor((row) => row.security_name, {
+                id: "security_name",
+                cell: (item) => item.getValue(),
+                header: () => <span>Security Name </span>,
+            }),
+            columnHelper.accessor((row) => row.symbol, {
+                id: "symbol",
+                cell: (item) => item.getValue(),
+                header: () => <span>Symbol</span>,
+            }),
+            columnHelper.accessor((row) => row.cusip, {
+                id: "cusip",
+                cell: (item) => item.getValue(),
+                header: () => <span>CUSIP</span>,
+            }),
+            columnHelper.accessor((row) => row.dsin, {
+                id: "dsin",
+                cell: (item) => item.getValue(),
+                header: () => <span>DSIN</span>,
+            }),
+            columnHelper.accessor((row) => row.primary_ats, {
+                id: "primary_ats",
+                cell: (item) => item.getValue(),
+                header: () => <span>Primary ATS </span>,
+            }),
+            columnHelper.accessor((row) => row.transfer_agent, {
+                id: "transfer_agent",
+                cell: (item) => item.getValue(),
+                header: () => <span>Transfer Agent </span>,
+            }),
+            // columnHelper.accessor((row) => row.custodian, {
+            //     id: "custodian",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Custodian </span>,
+            // }),
+            columnHelper.accessor((row) => row.market_sector, {
+                id: "market_sector",
+                cell: (item) => item.getValue(),
+                header: () => <span>Market Sector </span>,
+            }),
+            // columnHelper.accessor((row) => row.lot_size, {
+            //     id: "lot_size",
+            //     cell: (item) => formatterService.numberFormat(item.getValue()),
+            //     header: () => <span>Lot Size </span>,
+            // }),
+            // columnHelper.accessor((row) => row.fractional_lot_size, {
+            //     id: "fractional_lot_size",
+            //     cell: (item) => formatterService.numberFormat(item.getValue()),
+            //     header: () => <span>Fractional Lot Size </span>,
+            // }),
+            // columnHelper.accessor((row) => row.mvp, {
+            //     id: "mvp",
+            //     cell: (item) => formatterService.numberFormat(item.getValue()),
+            //     header: () => <span>MPV </span>,
+            // }),
+
+            // columnHelper.accessor((row) => row.security_type, {
+            //     id: "security_type",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Security Type </span>,
+            // }),
+            // columnHelper.accessor((row) => row.security_type_2, {
+            //     id: "security_type2",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Security Type 2 </span>,
+            // }),
+            // columnHelper.accessor((row) => row.blockchain, {
+            //     id: "blockchain",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Blockchain </span>,
+            // }),
+            // columnHelper.accessor((row) => row.smart_contract_type, {
+            //     id: "smart_contract_type",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Smart Contract type </span>,
+            // }),
+            columnHelper.accessor((row) => row.status, {
+                id: "status",
                 cell: (item) =>
-                    <>
-                        <div className="table-image">
-                            <div className="table-image-container">
-                                <AssetImage alt='' src={item.getValue().image || ''} width={28} height={28}/>
-                            </div>
-                            {item.getValue().name_label}
-                        </div>
-                    </>,
-                header: () => <span>Name</span>,
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
+                    </div>
+                ,
+                header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.network, {
-                id: "network",
-                cell: (item) => item.getValue(),
-                header: () => <span>Network</span>,
-            }),
-            columnHelper.accessor((row) => row.protocol, {
-                id: "protocol",
-                cell: (item) => item.getValue(),
-                header: () => <span>Protocol</span>,
-            }),
-            columnHelper.accessor((row) => row.code, {
-                id: "code",
-                cell: (item) => <div title={item.getValue()} className='simple-data'>{item.getValue()}</div>,
-                header: () => <span>Code</span>,
-            }),
-            columnHelper.accessor((row) => row.qr_wallet_name, {
-                id: "qr_wallet_name",
-                cell: (item) => item.getValue(),
-                header: () => <span>QR Wallet Name</span>,
-            }),
-            columnHelper.accessor((row) => row.currency_type, {
-                id: "currency_type",
-                cell: (item) => item.getValue(),
-                header: () => <span>Currency Type</span>,
-            }),
-            columnHelper.accessor((row) => row.transaction_fee, {
-                id: "transaction_fee",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Fee</span>,
-            }),
-            // columnHelper.accessor((row) => row.transaction_fee_updated, {
-            //     id: "transaction_fee_updated",
-            //     cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-            //     header: () => <span>Fee Updated</span>,
-            // }),
-            columnHelper.accessor((row) => row.dollar_pegged, {
-                id: "dollar_pegged",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
-                header: () => <span>Dollar Pegged</span>,
-            }),
-            columnHelper.accessor((row) => row.dollar_pegged_rate, {
-                id: "dollar_pegged_rate",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Dollar Pegged Rate</span>,
-            }),
-            columnHelper.accessor((row) => row.inverted_rate, {
-                id: "inverted_rate",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
-                header: () => <span>Inverted Rate</span>,
-            }),
-            columnHelper.accessor((row) => row.last_price, {
-                id: "last_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Last Price</span>,
-            }),
-            // columnHelper.accessor((row) => row.last_price_updated, {
-            //     id: "last_price_updated",
-            //     cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-            //     header: () => <span>Last Price Updated</span>,
-            // }),
-            columnHelper.accessor((row) => row.active, {
-                id: "active",
-                cell: (item) => <FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(item.getValue())}/>,
-                header: () => <span>Active</span>,
+            columnHelper.accessor((row) => row.updated_at, {
+                id: "updated_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Date/Time</span>,
             }),
         ];
     }
@@ -151,14 +168,11 @@ class AssetsBlock extends React.Component<{}> {
 
     getAssets = () => {
         adminService.getAssets()
-            .then((res: IAdminAsset[]) => {
+            .then((res: ISymbol[]) => {
                 const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
-                    s.name_label = `${s.name} (${s.label})`;
-                    s.active_text = s.active ? 'Yes' : 'No';
-                    s.dollar_pegged_text = s.dollar_pegged ? 'Yes' : 'No';
-                    s.inverted_rate_text = s.inverted_rate ? 'Yes' : 'No';
+                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -205,18 +219,9 @@ class AssetsBlock extends React.Component<{}> {
     }
 
     handleResetButtonClick = () => {
-        // this.dateRangePickerRef1.current.onReset();
-        // this.dateRangePickerRef2.current.onReset();
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
-    // handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
-    //     this.setState(({
-    //         filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
-    //     }), () => {
-    //         this.filterData();
-    //     });
-    // }
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
@@ -257,10 +262,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('name_label', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('name_label', item)}
-                                                options={filterService.buildOptions('name_label', this.state.dataFull)}
-                                                placeholder="Name"
+                                                value={filterService.setValue('reason_for_entry', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('reason_for_entry', item)}
+                                                options={filterService.buildOptions('reason_for_entry', this.state.dataFull)}
+                                                placeholder="Reason for Entry"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -269,10 +274,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('network', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('network', item)}
-                                                options={filterService.buildOptions('network', this.state.dataFull)}
-                                                placeholder="Network"
+                                                value={filterService.setValue('security_name', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('security_name', item)}
+                                                options={filterService.buildOptions('security_name', this.state.dataFull)}
+                                                placeholder="Security Name"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -281,10 +286,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('protocol', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('protocol', item)}
-                                                options={filterService.buildOptions('protocol', this.state.dataFull)}
-                                                placeholder="Protocol"
+                                                value={filterService.setValue('symbol', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('symbol', item)}
+                                                options={filterService.buildOptions('symbol', this.state.dataFull)}
+                                                placeholder="Symbol"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -293,10 +298,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('code', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('code', item)}
-                                                options={filterService.buildOptions('code', this.state.dataFull)}
-                                                placeholder="Code"
+                                                value={filterService.setValue('cusip', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('cusip', item)}
+                                                options={filterService.buildOptions('cusip', this.state.dataFull)}
+                                                placeholder="CUSIP"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -305,10 +310,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('qr_wallet_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('qr_wallet_name', item)}
-                                                options={filterService.buildOptions('qr_wallet_name', this.state.dataFull)}
-                                                placeholder="QR Wallet Name"
+                                                value={filterService.setValue('dsin', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('dsin', item)}
+                                                options={filterService.buildOptions('dsin', this.state.dataFull)}
+                                                placeholder="DSIN"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -317,10 +322,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('currency_type', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('currency_type', item)}
-                                                options={filterService.buildOptions('currency_type', this.state.dataFull)}
-                                                placeholder="Currency Type"
+                                                value={filterService.setValue('transfer_agent', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('transfer_agent', item)}
+                                                options={filterService.buildOptions('transfer_agent', this.state.dataFull)}
+                                                placeholder="Transfer Agent"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -329,10 +334,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('dollar_pegged_text', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('dollar_pegged_text', item)}
-                                                options={filterService.buildOptions('dollar_pegged_text', this.state.dataFull)}
-                                                placeholder="Dollar Pegged"
+                                                value={filterService.setValue('market_sector', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('market_sector', item)}
+                                                options={filterService.buildOptions('market_sector', this.state.dataFull)}
+                                                placeholder="Market Sector"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -341,22 +346,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('inverted_rate_text', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('inverted_rate_text', item)}
-                                                options={filterService.buildOptions('inverted_rate_text', this.state.dataFull)}
-                                                placeholder="Inverted Rate"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('active_text', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('active_text', item)}
-                                                options={filterService.buildOptions('active_text', this.state.dataFull)}
-                                                placeholder="Active"
+                                                value={filterService.setValue('status', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('status', item)}
+                                                options={filterService.buildOptions('status', this.state.dataFull)}
+                                                placeholder="Status"
                                             />
                                         </div>
                                         <button
@@ -391,10 +384,16 @@ class AssetsBlock extends React.Component<{}> {
                     )}
                 </div>
 
-                <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>
-                    <AssetForm updateModalTitle={(title) => this.setState({modalTitle: title})}
-                               action={this.state.formAction} data={this.state.formData}
-                               onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
+                <Modal isOpen={this.state.isOpenModal}
+                       onClose={() => this.cancelForm()}
+                       title={this.modalTitle(this.state.formAction)}
+                >
+                    <SymbolForm action={this.state.formAction}
+                                    data={this.state.formData}
+                                    onCancel={() => this.cancelForm()}
+                                    onCallback={() => this.submitForm()}
+                                    isAdmin={true}
+                    />
                 </Modal>
             </>
         )
