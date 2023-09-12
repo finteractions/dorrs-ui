@@ -55,11 +55,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         isDashboard = this.props?.isDashboard ?? true;
 
         columns = [
-            columnHelper.accessor((row) => row.reason_for_entry, {
-                id: "reason_for_entry",
-                cell: (item) => item.getValue(),
-                header: () => <span>Reason for Entry</span>,
-            }),
+            // columnHelper.accessor((row) => row.reason_for_entry, {
+            //     id: "reason_for_entry",
+            //     cell: (item) => item.getValue(),
+            //     header: () => <span>Reason for Entry</span>,
+            // }),
             columnHelper.accessor((row) => row.symbol, {
                 id: "symbol",
                 cell: (item) => item.getValue(),
@@ -236,10 +236,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                 {this.symbols.length > 0 ? (
                                     <Table columns={columns}
                                            data={this.symbols}
-                                        // searchPanel={true}
+                                           // searchPanel={true}
                                            block={this}
-                                        // editBtn={true}
-                                        // viewBtn={true}
+                                           editBtn={true}
+                                           viewBtn={true}
                                     />
                                 ) : (
                                     <NoDataBlock/>

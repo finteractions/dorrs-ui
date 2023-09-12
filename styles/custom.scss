@@ -644,3 +644,46 @@ table tbody td, .view-form {
 .table__status.table__status-submitted:before {
   background: #3d7da2;
 }
+
+.admin-table-actions {
+  display: flex;
+  column-gap: 3px;
+  justify-content: flex-end;
+}
+
+.admin-table-btn {
+  height: 28px;
+  width: 28px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 1px solid #1c4a7e;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  -webkit-font-feature-settings: "kern" off;
+  font-feature-settings: "kern" off;
+  color: #1e2c3c;
+  -webkit-transition: .3s ease-in-out;
+  -o-transition: .3s ease-in-out;
+  transition: .3s ease-in-out;
+
+  &.custom-btn {
+    width: initial !important;
+    padding: 0 5px;
+  }
+}
+
+.admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover {
+  background: #1c4a7e;
+  color: #fff
+}
