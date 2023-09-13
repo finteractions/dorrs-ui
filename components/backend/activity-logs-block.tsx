@@ -180,7 +180,7 @@ class ActivityLogsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getActivityLogsInterval) clearInterval(this.getActivityLogsInterval);
+        if (this.getActivityLogsInterval) clearInterval(this.getActivityLogsInterval as NodeJS.Timer);
     }
 
     openModal = (mode: string, data?: IBlacklist) => {

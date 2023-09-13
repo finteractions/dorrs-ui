@@ -122,7 +122,7 @@ class MembershipBlock extends React.Component {
                                             </div>
                                             <div className="assets__item-btns">
                                                 <button
-                                                    className="btn-dep assets__item-btn border-btn ripple"
+                                                    className="btn-dep assets__item-btn b-btn ripple"
                                                     onClick={() => this.modalHandle()}
                                                 >
                                                     Open

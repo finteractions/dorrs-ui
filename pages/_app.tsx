@@ -1,9 +1,10 @@
 import '@/styles/globals.scss'
 import '@/styles/font-face.scss'
 import '@/styles/fonts/fonts.css'
-import '@/styles/style.scss'
+// import '@/styles/style.scss'
 import '@/styles/icon.scss'
 import '@/styles/custom.scss'
+import "@/styles/home.scss"
 
 import {ReactElement, ReactNode} from 'react';
 import type {NextPage} from 'next';
@@ -44,8 +45,10 @@ function App({Component, pageProps}: AppPropsWithLayout) {
 }
 
 async function loadZone(Component: NextPageWithLayout): Promise<void> {
+
     switch (Component?.layoutName) {
         case "HomeLayout":
+            await import(("@/styles/home.scss"))
             break;
         case "PortalLayout":
             await import(("@/styles/portal.scss"))

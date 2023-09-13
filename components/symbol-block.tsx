@@ -218,7 +218,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         <div className="content__top">
                             <div className="content__title">Symbols</div>
                             <div className="assets__item-row">
-                                <button className="border-btn ripple modal-link"
+                                <button className="b-btn ripple modal-link"
                                         disabled={this.state.isLoading}
                                         onClick={() => this.openModal('add')}>Add Symbol
                                 </button>
