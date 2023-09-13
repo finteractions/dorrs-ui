@@ -98,7 +98,8 @@ const PortalSidebarNavGroupToggle = (props: PortalSidebarNavGroupToggleProps) =>
             })}
             onClick={decoratedOnClick}
         >
-            <FontAwesomeIcon className="nav-icon ms-n3" icon={icon}/>
+            {/*<FontAwesomeIcon className="nav-icon ms-n3" icon={icon}/>*/}
+            {icon &&  <div dangerouslySetInnerHTML={{ __html: icon }} />}
             {children}
             <div className="nav-chevron ms-auto text-end">
                 <FontAwesomeIcon size="xs" icon={faChevronUp}/>
