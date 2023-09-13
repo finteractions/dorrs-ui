@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react"
+import React, {PropsWithChildren, useContext, useEffect, useState} from "react"
 import Link from "next/link"
 import Image from 'next/image'
 import {useRouter} from 'next/router';
@@ -11,6 +11,7 @@ import {Dropdown, Nav, NavItem} from "react-bootstrap";
 import {faUser, faBuilding} from "@fortawesome/free-regular-svg-icons";
 import {faPowerOff} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 
 // interface Menus {
 //     isAdmin: boolean,
@@ -48,6 +49,9 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 // const activeLink = (url: string, pathname: string) => pathname === url ? 'active' : '';
 
+type ItemWithIconProps = {
+    icon: IconDefinition;
+} & PropsWithChildren
 const ItemWithIcon = (props: ItemWithIconProps) => {
     const {icon, children} = props
 
@@ -81,38 +85,7 @@ const PortalNav = () => {
 
     return (
         <>
-            {/*<nav className={`nav ${navActive ? 'active' : ''}`}>*/}
-            {/*    <ul>*/}
-            {/*        {MENUS.map((menu, idx) => (*/}
-            {/*            <li onClick={() => setNavActive(false)} key={menu.text}>*/}
-            {/*                <NavItem active={activeLink(menu.href, router.pathname)} {...menu} />*/}
-            {/*            </li>*/}
-            {/*        ))}*/}
-            {/*    </ul>*/}
-            {/*</nav>*/}
-            {/*<div className="header__right">*/}
-            {/*    <Link href="/profile" className="header__user">*/}
-            {/*        {dataContext.userProfileLoading ? (*/}
-            {/*            <>*/}
-            {/*                <div className={'header__profile__image'}><LoaderBlock/></div>*/}
-            {/*            </>*/}
-            {/*        ) : (*/}
-            {/*            <>*/}
-            {/*                {dataContext.userProfile?.user_image ? (*/}
-            {/*                    <div className={'header__profile__image'}><img alt="Profile" src={dataContext.userProfile?.user_image}/></div>*/}
-            {/*                ) : (*/}
-            {/*                    <Image src="/img/user.svg" width={24} height={25} alt="Profile"/>*/}
-            {/*                )}*/}
-            {/*            </>*/}
-            {/*        )}*/}
-            {/*        <span>My profile</span>*/}
-            {/*    </Link>*/}
-            {/*    <button type="button"*/}
-            {/*            className="btn-logout ripple"*/}
-            {/*            onClick={() => handleLogout()}*/}
-            {/*    >Log Out*/}
-            {/*    </button>*/}
-            {/*</div>*/}
+
 
             <Nav className={'justify-content-end align-items-center portal-navbar'}>
                 <NavItem>
