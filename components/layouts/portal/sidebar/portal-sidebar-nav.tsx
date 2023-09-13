@@ -152,7 +152,7 @@ export default function PortalSidebarNav() {
                     {menu.submenus.length > 0 ? (
                         <PortalSidebarNavGroup key={idx} toggleIcon={menu.icon} toggleText={menu.text}>
                             {menu.submenus.map((subMenu, idxx) => (
-                                <PortalSidebarNavItem key={idxx} href={subMenu.href}>
+                                <PortalSidebarNavItem active={activeLink(menu.href, router.pathname)} key={idxx} href={subMenu.href}>
                                     {subMenu.text}
                                 </PortalSidebarNavItem>
                             ))}
