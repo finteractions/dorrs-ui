@@ -12,6 +12,7 @@ import Image from "next/image";
 type PortalSidebarNavItemProps = {
     href: string;
     icon?: string;
+    active: string;
 } & PropsWithChildren
 
 interface Submenu {
