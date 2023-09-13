@@ -71,7 +71,7 @@ const PortalSidebarNavItem = (props: PortalSidebarNavItemProps) => {
 
 type PortalSidebarNavGroupToggleProps = {
     eventKey: string;
-    icon: IconDefinition;
+    icon: string;
     setIsShow: (isShow: boolean) => void;
 } & PropsWithChildren
 
