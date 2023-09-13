@@ -109,7 +109,7 @@ const PortalSidebarNavGroupToggle = (props: PortalSidebarNavGroupToggleProps) =>
 }
 
 type PortalSidebarNavGroupProps = {
-    toggleIcon: IconDefinition;
+    toggleIcon: string;
     toggleText: string;
 } & PropsWithChildren
 
