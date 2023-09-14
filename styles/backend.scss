@@ -312,7 +312,7 @@
   }
 
   textarea {
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     width: 100%;
     height: 310px;
     background: #f8fbff;
@@ -359,6 +359,10 @@
     margin-bottom: 24px
   }
 
+  .input:last-child {
+    margin-bottom: 50px;
+  }
+
   .input__title {
     font-weight: 400;
     font-size: 14px;
@@ -375,7 +379,7 @@
     padding: 4px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -412,17 +416,18 @@
 
   .input__text {
     width: 100%;
-    height: 35px;;
-    border: 1px solid #c5cacf;
+    height: 40px;;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     padding: 0 16px;
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
-    color: #1e2c3c;
-    border-radius: 4px;
+    color: #718494;
+    border-radius: 6px;
+    border: 1px solid #718494;
+    background: #FFF;
   }
 
   .input__file {
@@ -431,7 +436,7 @@
     border: 1px solid #c5cacf;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
@@ -465,7 +470,7 @@
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-    color: #c5cacf;
+    color: #718494;
     font-size: 22px;
     -webkit-transition: .3s ease-in-out;
     -o-transition: .3s ease-in-out;
@@ -502,7 +507,7 @@
   }
 
   .input__wrapper .input__file-text {
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     font-weight: 400;
     font-size: 12px;
     line-height: 16px;
@@ -620,7 +625,7 @@
   }
 
   .file-item__name {
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
@@ -658,7 +663,7 @@
     border-radius: 4px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     padding: 0 16px;
     font-weight: 400;
     font-size: 14px;
@@ -979,7 +984,7 @@
   }
 
   .modal__content .modal-terms {
-    font-family: "Work Sans",sans-serif
+    font-family: "Work Sans", sans-serif
   }
 
   .modal__content .modal-terms p {
@@ -1256,7 +1261,7 @@
     margin: 0;
     font-size: 16px;
     line-height: 1.2;
-    font-family: "Work Sans",sans-serif, serif;
+    font-family: "Work Sans", sans-serif, serif;
     width: 100%;
     background: #fff;
     -webkit-overflow-scrolling: touch;
@@ -2165,7 +2170,7 @@
         box-shadow: initial;
       }
 
-      .select__react__input-container{
+      .select__react__input-container {
         margin: 0;
       }
     }
@@ -2261,7 +2266,7 @@
   }
 
   .content__filter .input {
-    font-family: "Work Sans",sans-serif;
+    font-family: "Work Sans", sans-serif;
     width: 160px;
     margin: 0 16px 0 0
   }
@@ -3455,11 +3460,9 @@
   //}
 
 
+  ////////////***////////////////
 
-
-////////////***////////////////
-
-  font-family: "Work Sans",sans-serif;
+  font-family: "Work Sans", sans-serif;
 
   ol li, ul li {
     list-style: none;
@@ -3567,7 +3570,8 @@
       height: 30px;
     }
   }
-  .table{
+
+  .table {
     table {
       thead tr th {
         padding: 7px;

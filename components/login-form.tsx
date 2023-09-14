@@ -140,19 +140,21 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
                                             {this.state.errorMessages && (
                                                 <AlertBlock type={"error"} messages={this.state.errorMessages}/>
                                             )}
-
-                                            <Link
-                                                href="/forgot-password"
-                                                className="forgot-password login__link"
-                                            >Forgot password?
-                                            </Link>
                                         </Form>
+
+                                        {/*<div className="divider"></div>*/}
 
                                         <div className="login__bottom">
                                             <p>Not registered? <Link
                                                 href="/registration"
                                                 className="login__link"
-                                            >Sign Up
+                                            >Sign Up here
+                                            </Link>
+                                            </p>
+                                            <p>Forgot password? <Link
+                                                href="/forgot-password"
+                                                className="login__link"
+                                            >Reset it here
                                             </Link>
                                             </p>
                                         </div>

@@ -1,22 +1,34 @@
 body {
+  height: 100vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
   margin: 0;
   font-size: 16px;
   line-height: 1.2;
-  font-family: "Work Sans",sans-serif, serif;
+  font-family: "Work Sans", sans-serif, serif;
   width: 100%;
   background: #fff;
   -webkit-overflow-scrolling: touch;
   min-height: 100%;
   min-width: 320px;
+  color: #1E2D3B;
 
-  .login{
+  .login {
+    background-color: #F6F9FC;
+    background-image: url("./img/background-home.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-pack: start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
 
     h1, h2, h3, h4, h5, h6 {
       margin: 0 0 30px;
@@ -237,21 +249,17 @@ body {
     }
 
     .b-btn {
-      height: 35px;;
+      height: 40px;
       background: #1f8ceb;
       border: 1px solid #1f8ceb;
       border-radius: 4px;
       font-weight: 600;
-      font-size: 16px;
-      line-height: 18px;
-      -webkit-font-feature-settings: "kern" off;
+      font-size: 14px;
+      line-height: 16px;
       font-feature-settings: "kern" off;
       color: #fff;
       padding: 0 24px;
-      -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      -webkit-transition: .3s ease-in-out;
-      -o-transition: .3s ease-in-out;
       transition: .3s ease-in-out;
 
       &:hover {
@@ -331,7 +339,7 @@ body {
     }
 
     textarea {
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       width: 100%;
       height: 310px;
       background: #f8fbff;
@@ -378,11 +386,17 @@ body {
       margin-bottom: 24px
     }
 
+    .input:last-of-type {
+      margin-bottom: 45px;
+    }
+
     .input__title {
+      color: #718494;
+      font-size: 12px;
+      font-style: normal;
       font-weight: 400;
-      font-size: 14px;
-      line-height: 1;
-      color: #75808a;
+      line-height: 13px;
+      letter-spacing: 1px;
       margin: 0 0 7px
     }
 
@@ -394,7 +408,7 @@ body {
       padding: 4px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -431,17 +445,18 @@ body {
 
     .input__text {
       width: 100%;
-      height: 35px;;
-      border: 1px solid #c5cacf;
+      height: 40px;;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
       padding: 0 16px;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       font-weight: 400;
       font-size: 14px;
       line-height: 16px;
-      color: #1e2c3c;
-      border-radius: 4px;
+      color: #718494;
+      border-radius: 6px;
+      border: 1px solid #718494;
+      background: #FFF;
     }
 
     .input__file {
@@ -450,7 +465,7 @@ body {
       border: 1px solid #c5cacf;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       font-weight: 400;
       font-size: 14px;
       line-height: 16px;
@@ -484,7 +499,7 @@ body {
       -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
       transform: translateY(-50%);
-      color: #c5cacf;
+      color: #718494;
       font-size: 22px;
       -webkit-transition: .3s ease-in-out;
       -o-transition: .3s ease-in-out;
@@ -521,7 +536,7 @@ body {
     }
 
     .input__wrapper .input__file-text {
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
@@ -639,7 +654,7 @@ body {
     }
 
     .file-item__name {
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       font-weight: 400;
       font-size: 14px;
       line-height: 16px;
@@ -677,7 +692,7 @@ body {
       border-radius: 4px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       padding: 0 16px;
       font-weight: 400;
       font-size: 14px;
@@ -998,7 +1013,7 @@ body {
     }
 
     .modal__content .modal-terms {
-      font-family: "Work Sans",sans-serif
+      font-family: "Work Sans", sans-serif
     }
 
     .modal__content .modal-terms p {
@@ -1513,14 +1528,14 @@ body {
     //}
 
     //@media(max-height: 650px) {
-      //.login {
-      //  -ms-flex-line-pack: start;
-      //  align-content: flex-start;
-      //  height: auto
-      //}
-      //.login__left {
-      //  max-height: 670px
-      //}
+    //.login {
+    //  -ms-flex-line-pack: start;
+    //  align-content: flex-start;
+    //  height: auto
+    //}
+    //.login__left {
+    //  max-height: 670px
+    //}
     //}
 
     //.login__slider {
@@ -1575,7 +1590,7 @@ body {
     }
 
     .login__wrapper {
-      width: 380px;
+      width: 640px;
       margin: 0 auto
     }
 
@@ -1583,10 +1598,23 @@ body {
       width: 525px
     }
 
+    .login__block {
+      background-color: #ffffff;
+      padding: 35px 57px;
+      border-radius: 12px;
+      box-shadow: 0 2px 45px 0 rgba(110, 115, 157, 0.12);
+
+      > form {
+        max-width: 335px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
     .login__logo {
       margin: 0 0 48px;
       text-align: center;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
     }
 
     .login__logo img {
@@ -1601,13 +1629,28 @@ body {
     }
 
     .login__title {
-      font-family: "Work Sans",sans-serif;
-      font-weight: 600;
       font-size: 32px;
-      line-height: 100%;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 53.248px;
       text-align: center;
-      color: #1e2c3c;
-      margin: 0 0 48px
+      color: #1E2D3B;
+      margin: 0 0 49px;
+      position: relative;
+
+      &:after {
+        position: absolute;
+        top: 100%;
+        background: -o-linear-gradient(358deg, #19d5b2 -1.69%, #19b3d5 104.14%);
+        background: linear-gradient(92deg, #19d5b2 -1.69%, #19b3d5 104.14%);
+        -webkit-transform: translateX(-50%) skewX(-45deg);
+        -ms-transform: translateX(-50%) skewX(-45deg);
+        transform: translateX(-50%) skewX(-45deg);
+        left: 50%;
+        content: "";
+        width: 241px;
+        height: 6px;
+      }
     }
 
     .login__title.mb-24 {
@@ -1654,22 +1697,40 @@ body {
 
     .b-btn {
       width: 100%;
-      max-width: 380px;
+      max-width: 163px;
       margin: 0 auto;
       display: block
     }
 
     .login__bottom {
       text-align: center;
-      margin: 48px 0 0
+      position: relative;
+      margin-top: 45px;
+      padding-top: 45px;
+
+      &:before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: #718494;
+        opacity: .5;
+        left: 0;
+        top: 0;
+      }
     }
 
     .login__bottom p {
+      text-align: center;
+      font-size: 14px;
+      font-style: normal;
       font-weight: 400;
-      font-size: 16px;
-      line-height: 1;
-      color: #75808a;
-      margin: 0
+      line-height: 18px;
+      margin-bottom: 18px;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
     }
 
     .login__bottom i {
@@ -1776,13 +1837,14 @@ body {
     }
 
     .login__link {
-      font-weight: 600;
-      font-size: 16px;
-      line-height: 1;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 14px;
+      text-decoration-line: underline;
       -webkit-font-feature-settings: "kern" off;
       font-feature-settings: "kern" off;
-      color: #2966ab;
-      text-decoration: none;
+      color: #1F8CEB;
       -webkit-transition: .3s ease-in-out;
       -o-transition: .3s ease-in-out;
       transition: .3s ease-in-out
@@ -1863,7 +1925,7 @@ body {
 
     &.sign-up {
       display: block;
-      height: auto;
+      //height: auto;
       padding: 48px 15px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box
@@ -1892,7 +1954,7 @@ body {
       box-sizing: border-box;
       height: 32px;
       border: 1px solid #e8ecf0;
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       font-weight: 600;
       font-size: 16px;
       line-height: 100%;
@@ -1991,7 +2053,7 @@ body {
     }
 
     .sign-up__terms {
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -2263,7 +2325,7 @@ body {
     }
 
     .content__filter .input {
-      font-family: "Work Sans",sans-serif;
+      font-family: "Work Sans", sans-serif;
       width: 160px;
       margin: 0 16px 0 0
     }
@@ -2858,6 +2920,13 @@ body {
         display: block;
         margin: 0 0 12px
       }
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: #718494;
+      margin: 45px 0;
     }
 
     //.bank .content__top {
@@ -3456,8 +3525,6 @@ body {
     //}
   }
 }
-
-
 
 
 /*# sourceMappingURL=../sourcemaps/style.min.css.map */
