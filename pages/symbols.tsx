@@ -6,7 +6,9 @@ import SymbolBlock from "@/components/symbol-block";
 
 const Symbols: NextPageWithLayout = () => {
     return (
-        <SymbolBlock isDashboard={false} />
+        <div className="flex-panel-box">
+            <SymbolBlock isDashboard={false} />
+        </div>
     )
 }
 

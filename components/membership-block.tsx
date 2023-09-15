@@ -94,43 +94,43 @@ class MembershipBlock extends React.Component {
         return (
             <>
 
-                <div className="fiat section">
-                    <div className="content__top">
-                        <div className="content__title">Forms</div>
-                    </div>
+                <div className="membership panel">
+                    {/*<div className="content__top">*/}
+                    {/*    <div className="content__title">Membership</div>*/}
+                    {/*</div>*/}
 
                     {this.state.isLoading ? (
                         <LoaderBlock/>
                     ) : (
                         <>
-                            <div className="row">
-                                <div className="col w-100">
-                                    <div className="fiat__item">
-                                        <div className="fiat__item-left">
-                                            <span>Membership Form</span>
-                                        </div>
-                                        <div className="fiat__item-right">
-                                            <div className="fiat__item-balance">
-                                                {this.membershipForm?.status ? (
-                                                    <div
-                                                        className={`table__status table__status-${this.membershipForm.status.toLowerCase()}`}>
-                                                        {`${this.membershipForm.status.charAt(0).toUpperCase()}${this.membershipForm.status.slice(1).toLowerCase()}`}
-                                                    </div>
-                                                ) : (
-                                                    <>Not filled</>
-                                                )}
-                                            </div>
-                                            <div className="assets__item-btns">
-                                                <button
-                                                    className="btn-dep assets__item-btn b-btn ripple"
-                                                    onClick={() => this.modalHandle()}
-                                                >
-                                                    Open
-                                                </button>
-                                            </div>
-                                        </div>
+                            <div className="content__bottom">
+
+                                <div className="membership__item">
+
+                                    <div className="membership__item__left">
+                                        <span>Membership form</span>
                                     </div>
+
+                                    <div className={'membership__item__right'}>
+                                        {this.membershipForm?.status ? (
+                                            <div
+                                                className={`table__status table__status-${this.membershipForm.status.toLowerCase()}`}>
+                                                {`${this.membershipForm.status.charAt(0).toUpperCase()}${this.membershipForm.status.slice(1).toLowerCase()}`}
+                                            </div>
+                                        ) : (
+                                            <div className={`table__status table__status-`}>Not filled</div>
+                                        )}
+
+                                        <button
+                                            className=" b-btn ripple"
+                                            onClick={() => this.modalHandle()}
+                                        >
+                                            Open
+                                        </button>
+                                    </div>
+
                                 </div>
+
                             </div>
                         </>
                     )}

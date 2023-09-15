@@ -486,34 +486,34 @@ input, textarea, select, .modal__content .input__text, .b-select {
   margin-bottom: 0;
 }
 
-.fiat__item {
-  display: flex;
-
-  .fiat__item-right {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-
-    .fiat__item-balance {
-      margin: 0 16px 0 0;
-    }
-  }
-}
-
-@media (max-width: 991px) {
-  .fiat__item {
-    .fiat__item-right {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin-left: 6px;
-
-      .fiat__item-balance {
-        margin: 0 0 6px;
-      }
-    }
-  }
-}
+//.fiat__item {
+//  display: flex;
+//
+//  .fiat__item-right {
+//    display: flex;
+//    flex-wrap: wrap;
+//    align-items: center;
+//
+//    .fiat__item-balance {
+//      margin: 0 16px 0 0;
+//    }
+//  }
+//}
+//
+//@media (max-width: 991px) {
+//  .fiat__item {
+//    .fiat__item-right {
+//      flex-direction: column;
+//      justify-content: center;
+//      align-items: center;
+//      margin-left: 6px;
+//
+//      .fiat__item-balance {
+//        margin: 0 0 6px;
+//      }
+//    }
+//  }
+//}
 
 .login__text span.link-text {
   display: unset;

@@ -8,8 +8,13 @@ const Dashboard: NextPageWithLayout = () => {
 
     return (
         <>
-            <MembershipBlock/>
-            <SymbolBlock isDashboard={true}/>
+            <div className={'flex-panel-box'}>
+              <MembershipBlock/>
+              <SymbolBlock isDashboard={false}/>
+            </div>
+
+
+            {/*<SymbolBlock isDashboard={true}/>*/}
         </>
     )
 }

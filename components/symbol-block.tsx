@@ -60,25 +60,32 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             //     cell: (item) => item.getValue(),
             //     header: () => <span>Reason for Entry</span>,
             // }),
-            columnHelper.accessor((row) => row.symbol, {
-                id: "symbol",
-                cell: (item) => item.getValue(),
-                header: () => <span>Symbol</span>,
-            }),
             columnHelper.accessor((row) => row.cusip, {
                 id: "cusip",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
                 header: () => <span>CUSIP</span>,
             }),
-            columnHelper.accessor((row) => row.dsin, {
-                id: "dsin",
-                cell: (item) => item.getValue(),
-                header: () => <span>DSIN</span>,
+            columnHelper.accessor((row) => row.symbol, {
+                id: "symbol",
+                cell: (item) =>
+                    <span className='black-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>Symbol</span>,
             }),
+
             columnHelper.accessor((row) => row.primary_ats, {
                 id: "primary_ats",
                 cell: (item) => item.getValue(),
                 header: () => <span>Primary ATS </span>,
+            }),
+            columnHelper.accessor((row) => row.dsin, {
+                id: "dsin",
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>DSIN</span>,
             }),
             columnHelper.accessor((row) => row.transfer_agent, {
                 id: "transfer_agent",
@@ -214,11 +221,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             <>
 
                 <>
-                    <div className="assets section">
+                    <div className="panel">
                         <div className="content__top">
                             <div className="content__title">Symbols</div>
-                            <div className="assets__item-row">
-                                <button className="b-btn ripple modal-link"
+                            <div className="content__title_btns">
+                                <button className="b-btn ripple"
                                         disabled={this.state.isLoading}
                                         onClick={() => this.openModal('add')}>Add Symbol
                                 </button>
@@ -229,21 +236,24 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
                         </div>
 
+
                         {this.state.isLoading ? (
                             <LoaderBlock/>
                         ) : (
                             <>
-                                {this.symbols.length > 0 ? (
-                                    <Table columns={columns}
-                                           data={this.symbols}
-                                           // searchPanel={true}
-                                           block={this}
-                                           editBtn={true}
-                                           viewBtn={true}
-                                    />
-                                ) : (
-                                    <NoDataBlock/>
-                                )}
+                                <div className="content__bottom">
+                                    {this.symbols.length > 0 ? (
+                                        <Table columns={columns}
+                                               data={this.symbols}
+                                               // searchPanel={true}
+                                               block={this}
+                                               editBtn={true}
+                                               viewBtn={true}
+                                        />
+                                    ) : (
+                                        <NoDataBlock/>
+                                    )}
+                                </div>
 
                                 <Modal isOpen={this.state.isOpenModal}
                                        onClose={() => this.closeModal()}
