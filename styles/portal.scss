@@ -1797,6 +1797,10 @@ body {
     .panel.membership{
       height: max-content;
 
+      .loader-block{
+        margin: 0;
+      }
+
       .membership__item{
         display: flex;
         flex-wrap: wrap;

@@ -100,7 +100,7 @@ class MembershipBlock extends React.Component {
                     {/*</div>*/}
 
                     {this.state.isLoading ? (
-                        <LoaderBlock/>
+                        <LoaderBlock width={75} height={75}/>
                     ) : (
                         <>
                             <div className="content__bottom">
