@@ -7,7 +7,7 @@ import FormValidator from "../services/form-validator/form-validator";
 import authService from "@/services/auth/auth-service";
 import AlertBlock from "@/components/alert-block";
 import downloadFile from "@/services/download-file/download-file";
-import {AGREEMENT} from "@/constants/settings";
+import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
 
 const formSchema = Yup.object().shape({
     first_name: FormValidator.firstNameField,
@@ -120,125 +120,138 @@ class RegistrationPersonalInformationForm extends React.Component<{ onCallback: 
                                 <>
                                     <div className="sign-up__title mb-48">Personal Information</div>
                                     <Form>
-                                        <div className="input">
-                                            <div className="input__wrap">
-                                                <Field
-                                                    name="first_name"
-                                                    id="first_name"
-                                                    type="text"
-                                                    className="input__text input-class-1"
-                                                    placeholder="First name"
-                                                    disabled={isSubmitting}
-                                                />
-                                                <ErrorMessage name="first_name" component="div"
-                                                              className="error-message"/>
+                                        <div className="form-wrap">
+                                            <div className="input">
+                                                <div className="input__wrap">
+                                                    <Field
+                                                        name="first_name"
+                                                        id="first_name"
+                                                        type="text"
+                                                        className="input__text input-class-1"
+                                                        placeholder="First name"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <ErrorMessage name="first_name" component="div"
+                                                                  className="error-message"/>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="input">
-                                            <div className="input__wrap">
-                                                <Field
-                                                    name="last_name"
-                                                    id="last_name"
-                                                    type="text"
-                                                    className="input__text input-class-2"
-                                                    placeholder="Last name"
-                                                    disabled={isSubmitting}
-                                                />
-                                                <ErrorMessage name="last_name" component="div"
-                                                              className="error-message"/>
+                                            <div className="input">
+                                                <div className="input__wrap">
+                                                    <Field
+                                                        name="last_name"
+                                                        id="last_name"
+                                                        type="text"
+                                                        className="input__text input-class-2"
+                                                        placeholder="Last name"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <ErrorMessage name="last_name" component="div"
+                                                                  className="error-message"/>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="input">
-                                            <div className="input__wrap">
-                                                <Field
-                                                    name="email"
-                                                    id="email"
-                                                    type="email"
-                                                    className="input__text input-class-3"
-                                                    placeholder="Email"
-                                                    autoComplete="username"
-                                                    disabled={isSubmitting}
-                                                />
-                                                <ErrorMessage name="email" component="div"
-                                                              className="error-message"/>
+                                            <div className="input">
+                                                <div className="input__wrap">
+                                                    <Field
+                                                        name="email"
+                                                        id="email"
+                                                        type="email"
+                                                        className="input__text input-class-3"
+                                                        placeholder="Email"
+                                                        autoComplete="username"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <ErrorMessage name="email" component="div"
+                                                                  className="error-message"/>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="input">
-                                            <div
-                                                className={`input__wrap ${this.state.showPassword ? "active" : ""}`}>
-                                                <Field
-                                                    name="password1"
-                                                    id="password1"
-                                                    type={this.state.showPassword ? "text" : "password"}
-                                                    className={`input__text input-password ${this.state.showPassword ? "view" : ""}`}
-                                                    placeholder="Enter your password"
-                                                    autoComplete="new-password"
-                                                    disabled={isSubmitting}
-                                                />
-                                                <button
-                                                    onClick={this.handleTogglePassword}
-                                                    type="button"
-                                                    tabIndex={-1}
-                                                    className="show-password icon-eye"
-                                                ></button>
-                                                <ErrorMessage name="password1" component="div"
-                                                              className="error-message"/>
+                                            <div className="input">
+                                                <div className="input__wrap">
+                                                    <Field
+                                                        name="mobile_number"
+                                                        id="mobile_number"
+                                                        component={PhoneInputField}
+                                                        country="us"
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="input">
-                                            <div
-                                                className={`input__wrap ${this.state.showPasswordConfirm ? "active" : ""}`}>
-                                                <Field
-                                                    name="password2"
-                                                    id="password2"
-                                                    type={this.state.showPasswordConfirm ? "text" : "password"}
-                                                    className={`input__text input-password ${this.state.showPasswordConfirm ? "view" : ""}`}
-                                                    placeholder="Repeat your password"
-                                                    autoComplete="new-password"
-                                                    disabled={isSubmitting}
-                                                />
-                                                <button
-                                                    onClick={this.handleTogglePasswordConfirm}
-                                                    type="button"
-                                                    tabIndex={-1}
-                                                    className="show-password icon-eye"
-                                                ></button>
-                                                <ErrorMessage name="password2" component="div"
-                                                              className="error-message"/>
+                                            <div className="input">
+                                                <div
+                                                    className={`input__wrap ${this.state.showPassword ? "active" : ""}`}>
+                                                    <Field
+                                                        name="password1"
+                                                        id="password1"
+                                                        type={this.state.showPassword ? "text" : "password"}
+                                                        className={`input__text input-password ${this.state.showPassword ? "view" : ""}`}
+                                                        placeholder="Enter your password"
+                                                        autoComplete="new-password"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <button
+                                                        onClick={this.handleTogglePassword}
+                                                        type="button"
+                                                        tabIndex={-1}
+                                                        className="show-password icon-eye"
+                                                    ></button>
+                                                    <ErrorMessage name="password1" component="div"
+                                                                  className="error-message"/>
+                                                </div>
+                                            </div>
+                                            <div className="input">
+                                                <div
+                                                    className={`input__wrap ${this.state.showPasswordConfirm ? "active" : ""}`}>
+                                                    <Field
+                                                        name="password2"
+                                                        id="password2"
+                                                        type={this.state.showPasswordConfirm ? "text" : "password"}
+                                                        className={`input__text input-password ${this.state.showPasswordConfirm ? "view" : ""}`}
+                                                        placeholder="Repeat your password"
+                                                        autoComplete="new-password"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <button
+                                                        onClick={this.handleTogglePasswordConfirm}
+                                                        type="button"
+                                                        tabIndex={-1}
+                                                        className="show-password icon-eye"
+                                                    ></button>
+                                                    <ErrorMessage name="password2" component="div"
+                                                                  className="error-message"/>
 
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="input">
-                                            <div className="input__wrap">
+                                            <div className="b-checkbox b-checkbox">
                                                 <Field
-                                                    name="mobile_number"
-                                                    id="mobile_number"
-                                                    component={PhoneInputField}
-                                                    country="us"
+                                                    type="checkbox"
+                                                    name="agreement"
+                                                    id="agreement"
                                                 />
+                                                <label htmlFor="agreement">
+                                                    <span></span><i> I have read and agree to the{" "}
+                                                    <Link
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            downloadFile.PDF(TERMS_OF_SERVICE)
+                                                        }}
+                                                        download
+                                                    >Terms of Service
+                                                    </Link>
+                                                    {" "}and{" "}
+                                                    <Link
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            downloadFile.PDF(PRIVACY_POLICY)
+                                                        }}
+                                                        download
+                                                    >
+                                                        Privacy Policy
+                                                    </Link>
+                                                </i>
+                                                </label>
+                                                <ErrorMessage name="agreement" component="div"
+                                                              className="error-message"/>
                                             </div>
-                                        </div>
-                                        <div className="b-checkbox b-checkbox">
-                                            <Field
-                                                type="checkbox"
-                                                name="agreement"
-                                                id="agreement"
-                                            />
-                                            <label htmlFor="agreement">
-                                                <span></span><i> I have read and agree to the{" "}
-                                                <Link
-                                                    href=""
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        downloadFile.PDF(AGREEMENT)
-                                                    }}
-                                                    download
-                                                >Client Agreement
-                                                </Link>
-                                            </i>
-                                            </label>
-                                            <ErrorMessage name="agreement" component="div"
-                                                          className="error-message"/>
                                         </div>
 
                                         {this.state.errorMessages && (
@@ -287,6 +300,6 @@ class RegistrationPersonalInformationForm extends React.Component<{ onCallback: 
             </Formik>
         );
     }
-}
+    }
 
-export default RegistrationPersonalInformationForm;
+    export default RegistrationPersonalInformationForm;

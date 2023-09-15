@@ -47,10 +47,6 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
 
                     return (
                         <>
-                            <div className="sign-up__title mb-24">Type of Account</div>
-                            <div className="login__text">
-                                Choose the type of account you want to register
-                            </div>
                             <Form>
                                 <div className="sign-up__row">
                                     <Field
@@ -65,7 +61,7 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                                     <label className="sign-up__item"
                                            htmlFor="account_type_user_portal">
                                         <div className="sign-up__item-img">
-                                            <Image src="/img/accountType.svg" width={64} height={64} alt="Hotel Guest"/>
+                                            <Image src="/img/account-type-1.png" width={64} height={64} alt="Hotel Guest"/>
                                         </div>
                                         <span>User Portal</span>
                                     </label>
@@ -81,7 +77,7 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                                     <label className="sign-up__item"
                                            htmlFor="account_dorrs_member">
                                         <div className="sign-up__item-img">
-                                            <Image src="/img/accountType2.svg" width={64} height={64} alt="Employee"/>
+                                            <Image src="/img/account-type-3.png" width={64} height={64} alt="Employee"/>
                                         </div>
                                         <span>DORRS Member</span>
                                     </label>
@@ -97,7 +93,7 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                                     <label className="sign-up__item"
                                            htmlFor="account_dorrs_admin">
                                         <div className="sign-up__item-img">
-                                            <Image src="/img/accountType3.svg" width={64} height={64} alt="Vendor"/>
+                                            <Image src="/img/account-type-1.png" width={64} height={64} alt="Vendor"/>
                                         </div>
                                         <span>DORRS Admin</span>
                                     </label>

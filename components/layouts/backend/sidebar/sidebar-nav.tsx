@@ -85,10 +85,10 @@ const MENU_LIST: MenuItem[] = [
                 text: 'Symbols',
                 href: "/backend/asset-management",
             },
-            {
-                text: 'All Symbols',
-                href: "/backend/trade-management",
-            }
+            // {
+            //     text: 'All Symbols',
+            //     href: "/backend/trade-management",
+            // }
         ]
     },
     // {

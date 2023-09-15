@@ -25,6 +25,7 @@ export default function Registration() {
     const steps = 2;
 
     const [step, setStep] = useState(-1);
+    const [lastStep, setLastStep] = useState(-1);
     const [stepsData, setStepsData] = useState(Array(steps).fill({}));
     const router = useRouter();
 
@@ -37,6 +38,7 @@ export default function Registration() {
             });
 
             setStep(prevStep => nextStep ? prevStep + 1 : prevStep - 1);
+            setLastStep(prevStep => nextStep ? prevStep + 1 : prevStep - 1);
         },
         []
     );
@@ -46,7 +48,11 @@ export default function Registration() {
 
         if (step === 1) {
             setStepsData(Array(steps).fill({}));
-            if (!nextStep) setStep(0);
+            setLastStep(lastStep + 1)
+            if (!nextStep) {
+                setStep(0);
+                setLastStep(0)
+            }
         } else {
             saveData(step, values, nextStep);
 
@@ -70,44 +76,49 @@ export default function Registration() {
                 initialValues={[stepsData[step], stepsData[step - 1]]}
                 onCallback={onCallback}
             />)
-        // .set(2,
-        //     <RegistrationSetup2faForm
-        //         key={step}
-        //         initialValues={stepsData[step]}
-        //         onCallback={onCallback}
-        //     />)
-        // .set(3,
-        //     <VerifyOtpForm
-        //         key={step}
-        //         initialValues={stepsData[step - 1]}
-        //         isStep={true}
-        //         onCallback={onCallback}
-        //         onBack={true}
-        //     />)
-        // .set(4,
-        //     <RegistrationIdentityVerificationForm
-        //         key={step}
-        //         initialValues={stepsData[step]}
-        //         onCallback={onCallback}
-        //     />)
-        // .set(5,
-        //     <RegistrationResidenceAddressForm
-        //         key={step}
-        //         initialValues={stepsData[step]}
-        //         onCallback={onCallback}
-        //     />)
-        // .set(6,
-        //     <RegistrationBankAccountDetailsForm
-        //         key={step}
-        //         initialValues={stepsData[step]}
-        //         onCallback={onCallback}
-        //     />)
-        // .set(7,
-        //     <RegistrationSignDMCCAgreementForm
-        //         key={step}
-        //         initialValues={stepsData[step]}
-        //         onCallback={onCallback}
-        //     />);
+    // .set(2,
+    //     <RegistrationSetup2faForm
+    //         key={step}
+    //         initialValues={stepsData[step]}
+    //         onCallback={onCallback}
+    //     />)
+    // .set(3,
+    //     <VerifyOtpForm
+    //         key={step}
+    //         initialValues={stepsData[step - 1]}
+    //         isStep={true}
+    //         onCallback={onCallback}
+    //         onBack={true}
+    //     />)
+    // .set(4,
+    //     <RegistrationIdentityVerificationForm
+    //         key={step}
+    //         initialValues={stepsData[step]}
+    //         onCallback={onCallback}
+    //     />)
+    // .set(5,
+    //     <RegistrationResidenceAddressForm
+    //         key={step}
+    //         initialValues={stepsData[step]}
+    //         onCallback={onCallback}
+    //     />)
+    // .set(6,
+    //     <RegistrationBankAccountDetailsForm
+    //         key={step}
+    //         initialValues={stepsData[step]}
+    //         onCallback={onCallback}
+    //     />)
+    // .set(7,
+    //     <RegistrationSignDMCCAgreementForm
+    //         key={step}
+    //         initialValues={stepsData[step]}
+    //         onCallback={onCallback}
+    //     />);
+
+    const stepTitles: Map<number, any> = new Map<number, any>()
+        .set(0, 'Select your account type')
+        .set(1, 'Fill in your personal information')
+        .set(2, 'Confirm your email')
 
     useEffect(() => {
         let step = 0;
@@ -125,6 +136,7 @@ export default function Registration() {
         }
 
         setStep(step);
+        setLastStep(step);
     }, [PATH, saveData]);
 
     useEffect(() => {
@@ -140,8 +152,10 @@ export default function Registration() {
         const setup2FA = JSON.parse(CookieService.getItem(`${process.env.TOKEN_NAME}RegistrationSetup2FA`) || 'null');
         if (setup2FA !== null) {
             setStep(-1)
+            setLastStep(-1)
             saveData(2, setup2FA, false);
             setStep(2);
+            setLastStep(2);
             cookieService.removeItem(`${process.env.TOKEN_NAME}RegistrationSetup2FA`);
         }
     }, [saveData]);
@@ -151,10 +165,10 @@ export default function Registration() {
         if (step === stepsData.length) {
             localStorage.removeItem(PATH);
 
-                setStepsData(Array(steps).fill({}));
+            setStepsData(Array(steps).fill({}));
 
 
-                        contextUser.clearAuthInfo();
+            contextUser.clearAuthInfo();
 
         }
     }, [PATH, step, stepsData.length])
@@ -166,35 +180,39 @@ export default function Registration() {
                 <div className={`login__wrapper ${step === 0 ? 'lg' : ''}`}>
 
                     <HomeLogo/>
-                    {step < stepsData.length && step >= 0 && (
-                        <div className="sign-up__step">
-                            <span>{step + 1} / {stepsData.length}</span>
-                        </div>
-                    )}
+                    <div className="login__block registration">
+                        <div className="login__title">Registration</div>
 
-                    {step < 0 && (
-                        <LoaderBlock/>
-                    )}
-
-                    {step >= 0 && (
-                        components.get(step)
-                    )}
-
-
-                    {step === stepsData.length && (
-                        <>
-                            <div className="login__title mb-24">You have successfully registered!</div>
-                            <AccountApprovalBlock isRegistration={true}/>
-                            <div className="login__bottom">
-                                <p>
-                                    <i className="icon-chevron-left"/>
-                                    <Link className="login__link" href="/login">Go to Login</Link>
-                                </p>
+                        {step < stepsData.length && step >= 0 && (
+                            <div className="sign-up__step">
+                                {stepTitles.get(lastStep)}
+                                <div><span>{lastStep + 1}</span><span> | {stepsData.length + 1}</span></div>
                             </div>
-                        </>
+                        )}
 
-                    )}
+                        {step < 0 && (
+                            <LoaderBlock/>
+                        )}
 
+                        {step >= 0 && (
+                            components.get(step)
+                        )}
+
+
+                        {step === stepsData.length && (
+                            <>
+                                <div className="login__title mb-24">You have successfully registered!</div>
+                                <AccountApprovalBlock isRegistration={true}/>
+                                <div className="login__bottom">
+                                    <p>
+                                        <i className="icon-chevron-left"/>
+                                        <Link className="login__link" href="/login">Go to Login</Link>
+                                    </p>
+                                </div>
+                            </>
+
+                        )}
+                    </div>
 
                 </div>
             </div>
