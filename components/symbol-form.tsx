@@ -22,7 +22,7 @@ const formSchema = Yup.object().shape({
     market_sector: Yup.string().min(3).max(50).required('Required').label('Market Sector'),
     fractional_lot_size: Yup.number()
         .typeError('Invalid Fractional Lot Size')
-        .test('is-fractional', 'There should be an example i.e. .01. .001, .0001 and etc.', function (value) {
+        .test('is-fractional', 'Invalid Fractional Lot Size. Example: .01. .001, .0001 and etc.', function (value) {
             if (value === null || value === undefined) {
                 return true;
             }
@@ -32,7 +32,7 @@ const formSchema = Yup.object().shape({
         .label('Fractional Lot Size'),
     mvp: Yup.number()
         .typeError('Invalid MVP')
-        .test('is-fractional', 'There should be an example i.e. .01., 05, .10 and etc.', function (value) {
+        .test('is-fractional', 'Invalid MVP. Example: .01, 05, .10 and etc.', function (value) {
             if (value === null || value === undefined) {
                 return true;
             }
