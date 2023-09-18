@@ -16,7 +16,7 @@ class AccountApprovalBlock extends React.Component<{ isRegistration?: boolean }>
 
             <>
                 {!isRegistration && (
-                    <div className="login__title mb-24">Account Approval</div>
+                    <div className="login__title">Account Approval</div>
                 )}
 
                 <div className="login__text">

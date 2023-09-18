@@ -238,7 +238,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
     render() {
         return (
             <div className="transactions section">
-                <div className={`content__top ${!isDashboard ? 'xs-d-block mb-24' : ''}`}>
+                <div className={`content__top ${!isDashboard ? 'xs-d-block' : ''}`}>
                     <div className="content__title">{title}</div>
                     {isDashboard && (
                         <Link href="/transactions" className="b-link">View all</Link>

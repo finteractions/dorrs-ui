@@ -104,7 +104,7 @@ class EmailConfirmationBlock extends React.Component<EmailConfirmationBlockProps
                                         <div className="login__ico">
                                             <Image src="img/check-ex.svg" width={38} height={26} alt="Check"/>
                                         </div>
-                                        <div className="login__title mb-24">Email confirmed</div>
+                                        <div className="login__title">Email confirmed</div>
                                         <div className="login__text">
                                             Your email has been confirmed successfully.<br/>
                                             Please log in.

@@ -65,7 +65,7 @@ class ForgotPasswordForm extends React.Component<ForgotPasswordFormProps, Forgot
                                         <div className="login__ico">
                                             <Image src="/img/mail.svg" width={32} height={24} alt="Email"/>
                                         </div>
-                                        <div className="login__title mb-24">Recovery link was sent</div>
+                                        <div className="login__title">Recovery link was sent</div>
                                         <div className="login__text">
                                             We have sent an email to <span className="link-text">{values.email}</span> with a password reset link.
                                         </div>

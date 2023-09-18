@@ -98,12 +98,12 @@ class VerifyOtpForm extends React.Component<VerifyOtpFormProps, VerifyOtpFormSta
                                     {this.isStep && !this.isWithdraw ? (
                                         <div className="sign-up__title mb-48">Enter OTP</div>
                                     ) : (
-                                        <div className="login__title mb-24">Enter OTP</div>
+                                        <div className="login__title">Enter OTP</div>
                                     )}
                                 </>
                             )}
 
-                            <div className="login__text mb-24">
+                            <div className="login__text">
                                 Enter OTP code from your authenticator App
                             </div>
                             <Form>

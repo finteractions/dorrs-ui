@@ -86,7 +86,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
                         <>
                             {
                                 this.state.success ? (
-                                    <div className="login__title mb-24">You have successfully logged in!</div>
+                                    <div className="login__title">You have successfully logged in!</div>
                                 ) : (
                                     <>
                                         <div className="login__title">Login</div>

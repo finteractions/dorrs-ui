@@ -48,7 +48,7 @@ const Setup2fa: NextPageWithLayout = () => {
                     <div className="login__ico">
                         <Image src="/img/shield.svg" width={33} height={42} alt="Shield"/>
                     </div>
-                    <div className="login__title mb-24">Setup 2FA</div>
+                    <div className="login__title">Setup 2FA</div>
                     <div className="login__text mb-48">
                         You have not enable Two Factor authentication on your account.
                         Please setup 2FA now to continue using WI EXCHANGE OTC using the button below.
@@ -60,7 +60,7 @@ const Setup2fa: NextPageWithLayout = () => {
                 </>
             ) : (
                 <>
-                    <div className="login__title mb-24">Scan QR with Google Auth</div>
+                    <div className="login__title">Scan QR with Google Auth</div>
                     <div className="login__text mb-32">
                         <small>To enable Google 2FA , please scan the QR code below using your Google Authenticator app or you can register the Timed OTP for your account by entering the</small>
                         <span>&quot;secret key&quot; : {data.secretKey}</span>

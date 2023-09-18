@@ -6,7 +6,7 @@ function numberFormat(
     maximumFractionDigits = 8,
     locale = 'en-US'): string {
 
-    if (number === undefined) {
+    if (number === undefined || number === null) {
         return '';
     }
 

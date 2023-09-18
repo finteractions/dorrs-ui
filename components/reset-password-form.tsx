@@ -129,7 +129,7 @@ class ResetPasswordForm extends React.Component<ResetPasswordFormProps, ResetPas
                                             <div className="login__ico">
                                                 <Image src="/img/check-ex.svg" width={38} height={26} alt="Check"/>
                                             </div>
-                                            <div className="login__title mb-24">Password changed</div>
+                                            <div className="login__title">Password changed</div>
                                             <div className="login__text">
                                                 Your password has been changed successfully.<br/>
                                                 Please log in with new password.

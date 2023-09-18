@@ -67,7 +67,7 @@ class EmailVerificationBlock extends React.Component<{}, EmailVerificationBlockS
                                 <div className="login__ico">
                                     <Image src="img/mail.svg" width={32} height={24} alt="Email"/>
                                 </div>
-                                <div className="login__title mb-24">Confirmation link was sent</div>
+                                <div className="login__title">Confirmation link was sent</div>
                                 <div className="login__text">
                                     We have sent an email to <span className="link-text">{this.state.email}</span> with
                                     a link to confirm the email.

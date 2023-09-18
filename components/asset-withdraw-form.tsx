@@ -498,7 +498,7 @@ class AssetWithdrawForm extends React.Component<AssetWithdrawFormProps, AssetWit
                                 <div className="login__ico">
                                     <Image src="/img/check-ex.svg" width={38} height={26} alt="Check"/>
                                 </div>
-                                <div className="login__title mb-24">Transaction request was submitted</div>
+                                <div className="login__title">Transaction request was submitted</div>
                             </>
                         )}
                     </div>

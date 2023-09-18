@@ -201,7 +201,7 @@ export default function Registration() {
 
                         {step === stepsData.length && (
                             <>
-                                <div className="login__title mb-24">You have successfully registered!</div>
+                                <div className="login__title">You have successfully registered!</div>
                                 <AccountApprovalBlock isRegistration={true}/>
                                 <div className="login__bottom">
                                     <p>

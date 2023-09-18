@@ -13,21 +13,37 @@ import {SecurityType2} from "@/enums/security-type-2";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
-    symbol: Yup.string().min(3).max(255).required('Required').label('Symbol'),
+    symbol: Yup.string().min(3).max(50).required('Required').label('Symbol'),
     cusip: Yup.string().min(9).max(9).required('Required').label('CUSIP'),
     dsin: Yup.string().min(12).max(12).required('Required').label('DSIN'),
-    primary_ats: Yup.string().min(3).max(255).required('Required').label('Primary ATS'),
-    transfer_agent: Yup.string().min(3).max(255).required('Required').label('Transfer Agent'),
-    custodian: Yup.string().min(3).max(255).required('Required').label('Custodian'),
-    market_sector: Yup.string().min(3).max(255).required('Required').label('Market Sector'),
-    lot_size: Yup.number().typeError('Invalid Lot Size').required('Required').label('Lot Size'),
-    fractional_lot_size: Yup.number().typeError('Invalid Fractional Lot Size').required('Required').label('Fractional Lot Size'),
-    mvp: Yup.number().typeError('Invalid MVP').required('Required').label('MVP'),
-    security_name: Yup.string().min(3).max(255).required('Required').label('Security Name'),
+    primary_ats: Yup.string().min(3).max(50).required('Required').label('Primary ATS'),
+    transfer_agent: Yup.string().min(3).max(50).label('Transfer Agent'),
+    custodian: Yup.string().min(3).max(50).label('Custodian'),
+    market_sector: Yup.string().min(3).max(50).required('Required').label('Market Sector'),
+    fractional_lot_size: Yup.number()
+        .typeError('Invalid Fractional Lot Size')
+        .test('is-fractional', 'Must be a fractional number like 0.1, 0.001, 0.0001, etc.', function (value) {
+            if (value === null || value === undefined) {
+                return true;
+            }
+            const valueAsString = value.toString();
+            return /^0\.0*1$/.test(valueAsString);
+        })
+        .label('Fractional Lot Size'),
+    mvp: Yup.number()
+        .typeError('Invalid MVP')
+        .test('is-fractional', 'Must be a fractional number', function (value) {
+            if (value === null || value === undefined) {
+                return true;
+            }
+            return Number.isFinite(value) && value % 1 !== 0;
+        })
+        .label('MVP'),
+    security_name: Yup.string().min(3).max(50).required('Required').label('Security Name'),
     security_type: Yup.string().required('Required').label('Security Type'),
-    security_type_2: Yup.string().required('Required').label('Security Type 2'),
-    blockchain: Yup.string().min(3).max(255).required('Required').label('Blockchain'),
-    smart_contract_type: Yup.string().min(3).max(255).required('Required').label('Smart Contract type'),
+    security_type_2: Yup.string().label('Security Type 2'),
+    blockchain: Yup.string().min(3).max(50).label('Blockchain'),
+    smart_contract_type: Yup.string().min(3).max(50).label('Smart Contract type'),
 
 });
 
@@ -242,13 +258,14 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             id="reason_for_entry"
                                                             as="select"
                                                             className="b-select"
-                                                            disabled={true}
+                                                            disabled={isSubmitting || this.isShow()}
                                                         >
                                                             <option value="">Select a Reason</option>
-                                                            <option value="New Ticker Symbol">New Ticker
-                                                                Symbol
-                                                            </option>
-
+                                                            <option value="New Ticker Symbol">New Ticker Symbol</option>
+                                                            <option disabled={true} value="New Ticker Symbol">New Security Name</option>
+                                                            <option disabled={true} value="New Ticker Symbol">Deleted Date</option>
+                                                            <option disabled={true} value="New Ticker Symbol">Effective Date of Change</option>
+                                                            <option disabled={true} value="New Ticker Symbol">Reason for the Change</option>
                                                         </Field>
                                                         <ErrorMessage name="reason_for_entry" component="div"
                                                                       className="error-message"/>
@@ -329,7 +346,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Transfer Agent <i>*</i></div>
+                                                    <div className="input__title">Transfer Agent</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -346,7 +363,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Custodian <i>*</i></div>
+                                                    <div className="input__title">Custodian</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -399,7 +416,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Fractional Lot Size <i>*</i></div>
+                                                    <div className="input__title">Fractional Lot Size</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -416,8 +433,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Minimum Price Variation (MPV) <i>*</i>
-                                                    </div>
+                                                    <div className="input__title">Minimum Price Variation (MPV)</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -474,7 +490,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Security Type 2 <i>*</i></div>
+                                                    <div className="input__title">Security Type 2</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -497,7 +513,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Blockchain <i>*</i></div>
+                                                    <div className="input__title">Blockchain</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -514,7 +530,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Smart Contract type <i>*</i></div>
+                                                    <div className="input__title">Smart Contract type</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field

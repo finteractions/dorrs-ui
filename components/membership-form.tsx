@@ -25,13 +25,13 @@ const formSchema = Yup.object().shape({
     is_finra: Yup.boolean().label('FINRA'),
     mpid: Yup.string().min(3).max(12).label('MPID'),
     crd: Yup.string().min(16).max(16).required('Required').label('CRD'),
-    company_name: Yup.string().min(3).max(99).required('Required').label('Legal Company Name'),
+    company_name: Yup.string().min(3).max(50).required('Required').label('Legal Company Name'),
     email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
     mobile_number: FormValidator.phoneNumberField,
-    address1: Yup.string().min(3).max(99).required('Required').label('Address 1'),
-    address2: Yup.string().min(3).max(99).label('Address 2'),
-    city: Yup.string().min(3).max(99).required('Required').label('City'),
-    zip_code: Yup.string().min(3).max(99).required('Required').label('ZIP code'),
+    address1: Yup.string().min(3).max(50).required('Required').label('Address 1'),
+    address2: Yup.string().min(3).max(50).label('Address 2'),
+    city: Yup.string().min(3).max(50).required('Required').label('City'),
+    zip_code: Yup.string().min(3).max(50).required('Required').label('ZIP code'),
     country: Yup.string().required('Required').label('Country'),
     annual_fees: Yup.string().required('Required').label('Annual Fees'),
 });
@@ -317,7 +317,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     <span></span><i> FINRA Member
                                                 </i>
                                                 </label>
-                                                <ErrorMessage name="agreement" component="div"
+                                                <ErrorMessage name="is_finra" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
@@ -369,7 +369,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     placeholder="Type a Company Name"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="mpid" component="div"
+                                                <ErrorMessage name="company_name" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
@@ -467,7 +467,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     placeholder="Type a ZIP code"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
-                                                <ErrorMessage name="house_number" component="div"
+                                                <ErrorMessage name="zip_code" component="div"
                                                               className="error-message"/>
                                             </div>
                                         </div>
