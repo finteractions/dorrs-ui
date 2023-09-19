@@ -173,12 +173,6 @@ export default function Registration() {
         }
     }, [PATH, step, stepsData.length])
 
-    const handleLinkClick = () => {
-        const currentUrl = window.location.href;
-        const urlObject = new URL(currentUrl);
-        window.location.href = `${urlObject.protocol}//${urlObject.hostname}`;
-    };
-
 
     return (
         <>
@@ -187,7 +181,7 @@ export default function Registration() {
 
                     <HomeLogo/>
                     <div className="link__block">
-                        <a className="mb-24 login__link" href="javascript:void(0)" onClick={handleLinkClick}>Get back to Home</a>
+                        <Link className="mb-24 login__link" href="/">Get back to Home</Link>
                     </div>
                     <div className="login__block registration">
                         <div className="login__title">Registration</div>

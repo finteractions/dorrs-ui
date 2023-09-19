@@ -1,12 +1,14 @@
-import React from "react";
-import HomeSlider from "../components/layouts/home/home-slider";
+import { useEffect } from 'react';
 
-export default function Home() {
-    return (
-        <main>
-            <div className="login">
-                <HomeSlider/>
-            </div>
-        </main>
-    )
-}
+const Home = () => {
+    useEffect(() => {
+        const currentUrl = window.location.href;
+        const urlObject = new URL(currentUrl);
+        window.location.href = `${urlObject.protocol}//${urlObject.hostname}`;
+    }, []);
+
+    return null;
+};
+
+export default Home;
+
