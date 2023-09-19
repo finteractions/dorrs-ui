@@ -180,6 +180,9 @@ export default function Registration() {
                 <div className={`login__wrapper ${step === 0 ? 'lg' : ''}`}>
 
                     <HomeLogo/>
+                    <div className="link__block">
+                        <Link className="mb-24 login__link" href="/">Get back to Home</Link>
+                    </div>
                     <div className="login__block registration">
                         <div className="login__title">Registration</div>
 
