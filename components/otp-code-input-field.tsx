@@ -79,7 +79,7 @@ class OtpCodeInputField extends React.Component<{ field: any; form: any }> {
                                 inputType={"tel"}
                                 inputStyle={{width: "100%"}}
                                 shouldAutoFocus={true}
-                                onChange={this.handleChange} // Используем обновленный обработчик onChange
+                                onChange={this.handleChange}
                                 renderInput={(props, index) => {
                                     return (
                                         <div className="input">

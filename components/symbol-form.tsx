@@ -10,12 +10,13 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import symbolService from "@/services/symbol/symbol-service";
 import {SecurityType} from "@/enums/security-type";
 import {SecurityType2} from "@/enums/security-type-2";
+import dsinService from "@/services/dsin/dsin-service";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
-    symbol: Yup.string().min(3).max(50).required('Required').label('Symbol'),
-    cusip: Yup.string().min(9).max(9).required('Required').label('CUSIP'),
-    dsin: Yup.string().min(12).max(12).required('Required').label('DSIN'),
+    symbol: Yup.string().min(3).max(4).required('Required').label('Symbol'),
+    cusip: Yup.string().min(3).max(9).required('Required').label('CUSIP'),
+    dsin: Yup.string().label('DSIN'),
     primary_ats: Yup.string().min(3).max(50).required('Required').label('Primary ATS'),
     transfer_agent: Yup.string().min(3).max(50).label('Transfer Agent'),
     custodian: Yup.string().min(3).max(50).label('Custodian'),
@@ -68,7 +69,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     constructor(props: SymbolFormProps) {
         super(props);
-        console.log(props)
+
         const initialData = this.props.data || {} as ISymbol;
 
         const initialValues: {
@@ -142,7 +143,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     handleApprove = async (values: any) => {
         this.setState({loading: true});
-        console.log(this.props.action)
         const request: Promise<any> = this.props.action == 'view' ?
             adminService.updateAsset(values.id, this.state.isApproving || false) :
             adminService.createAsset(values);
@@ -169,6 +169,14 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                 this.setState({isDeleting: false});
             });
     };
+
+    handleSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
+        const alphanumericValue = value.slice(0, 4).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        setFieldValue('symbol', alphanumericValue);
+
+        const dsin = dsinService.generate(alphanumericValue)
+        setFieldValue('dsin', dsin);
+    }
 
     render() {
         switch (this.props.action) {
@@ -262,10 +270,18 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                         >
                                                             <option value="">Select a Reason</option>
                                                             <option value="New Ticker Symbol">New Ticker Symbol</option>
-                                                            <option disabled={true} value="New Ticker Symbol">New Security Name</option>
-                                                            <option disabled={true} value="New Ticker Symbol">Deleted Date</option>
-                                                            <option disabled={true} value="New Ticker Symbol">Effective Date of Change</option>
-                                                            <option disabled={true} value="New Ticker Symbol">Reason for the Change</option>
+                                                            <option disabled={true} value="New Ticker Symbol">New
+                                                                Security Name
+                                                            </option>
+                                                            <option disabled={true} value="New Ticker Symbol">Deleted
+                                                                Date
+                                                            </option>
+                                                            <option disabled={true} value="New Ticker Symbol">Effective
+                                                                Date of Change
+                                                            </option>
+                                                            <option disabled={true} value="New Ticker Symbol">Reason for
+                                                                the Change
+                                                            </option>
                                                         </Field>
                                                         <ErrorMessage name="reason_for_entry" component="div"
                                                                       className="error-message"/>
@@ -283,6 +299,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             className="input__text"
                                                             placeholder="Type Symbol"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
                                                         />
                                                         <ErrorMessage name="symbol" component="div"
                                                                       className="error-message"/>
@@ -311,17 +328,16 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
                                                 <div className="input">
                                                     <div className="input__title">Digital Security Identifier Number -
-                                                        DSIN <i>*</i>
+                                                        DSIN
                                                     </div>
                                                     <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        className={`input__wrap text-center`}>
                                                         <Field
                                                             name="dsin"
                                                             id="dsin"
                                                             type="text"
-                                                            className="input__text"
-                                                            placeholder="Type CUSIP"
-                                                            disabled={isSubmitting || this.isShow()}
+                                                            className="input__text dsin"
+                                                            disabled={true}
                                                         />
                                                         <ErrorMessage name="dsin" component="div"
                                                                       className="error-message"/>
