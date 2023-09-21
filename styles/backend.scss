@@ -463,6 +463,7 @@
     color: #828c97
   }
 
+
   .input .show-password {
     position: absolute;
     top: 50%;
@@ -945,7 +946,11 @@
   }
 
   .modal__content .input__text {
-    background: #f8fbff
+    background: #f8fbff;
+
+    &.dsin {
+      background-color: #edf0f5;
+    }
   }
 
   .modal__content .modal-qr {
@@ -4079,16 +4084,15 @@
   cursor: not-allowed;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .input__text.dsin {
   max-width: 230px;
   width: 100%;
   margin: 10px;
   padding: 10px;
   font-size: 23px;
-  text-align: center;
-  background-color: #edf0f5;
-}
-
-.text-center {
   text-align: center;
 }

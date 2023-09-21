@@ -55,8 +55,7 @@ const Login: NextPageWithLayout = () => {
 
     useEffect(() => {
         if (step === 2) {
-            const routePath = contextAdmin.isAuthenticated() ? '/backend/dashboard' : '/dashboard';
-            router.push(routePath);
+            router.push('/profile');
         }
     }, [step, router]);
 

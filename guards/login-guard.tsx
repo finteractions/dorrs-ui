@@ -22,8 +22,7 @@ export default function loginGuard<P extends {}>(
             const checkAuth = () => {
                 if (authUserContext.isAuthenticated()) {
                     if (!excludedPath.includes(router.pathname) && !isRedirected) {
-                        const routePath = authAdminContext.isAuthenticated() ? '/backend/dashboard' : '/dashboard';
-                        router.push(routePath);
+                        router.push('/profile');
                         setIsRedirected(true);
                     } else {
 
