@@ -1,4 +1,6 @@
 function generate(value: string): string {
+    if (value === '') return '';
+
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     const numericPart = value.split("").map((char) => {
