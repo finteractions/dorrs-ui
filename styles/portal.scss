@@ -1404,12 +1404,16 @@ body {
           position: relative;
           cursor: pointer;
 
-          &:hover {
+          &:hover:not(.disable) {
             svg {
               path, rect {
                 fill: #1f8ceb;
               }
             }
+          }
+
+          &.disable:hover {
+            cursor: not-allowed;
           }
 
           &.event:after {

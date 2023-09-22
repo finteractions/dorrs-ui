@@ -55,7 +55,7 @@ const Login: NextPageWithLayout = () => {
 
     useEffect(() => {
         if (step === 2) {
-            router.push('/profile');
+            router.push('/dashboard');
         }
     }, [step, router]);
 

@@ -22,7 +22,7 @@ export default function loginGuard<P extends {}>(
             const checkAuth = () => {
                 if (authUserContext.isAuthenticated()) {
                     if (!excludedPath.includes(router.pathname) && !isRedirected) {
-                        router.push('/profile');
+                        router.push('/dashboard');
                         setIsRedirected(true);
                     } else {
 
