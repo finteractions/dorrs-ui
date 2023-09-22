@@ -11,9 +11,7 @@ function generate(value: string): string {
         }
     }).join("");
 
-    const paddedNumericPart = numericPart.padEnd(8, "0");
-
-    const digits = paddedNumericPart.split("").map(Number);
+    const digits = numericPart.split("").map(Number);
 
     for (let i = 0; i < digits.length; i += 2) {
         digits[i] = (digits[i] * 2) % 9;
@@ -23,7 +21,7 @@ function generate(value: string): string {
 
     const checkDigit = sum % 10;
 
-    return `${paddedNumericPart}${checkDigit}`;
+    return `${numericPart}${checkDigit}`;
 }
 
 const dsinService = {

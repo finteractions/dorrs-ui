@@ -14,7 +14,7 @@ import dsinService from "@/services/dsin/dsin-service";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
-    symbol: Yup.string().min(3).max(4).required('Required').label('Symbol'),
+    symbol: Yup.string().min(2).max(5).required('Required').label('Symbol'),
     cusip: Yup.string().min(3).max(9).required('Required').label('CUSIP'),
     dsin: Yup.string().label('DSIN'),
     primary_ats: Yup.string().min(3).max(50).required('Required').label('Primary ATS'),
@@ -171,7 +171,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     };
 
     handleSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
-        const alphanumericValue = value.slice(0, 4).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const alphanumericValue = value.slice(0, 5).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         setFieldValue('symbol', alphanumericValue);
 
         const dsin = dsinService.generate(alphanumericValue)
