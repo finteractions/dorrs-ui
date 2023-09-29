@@ -4096,3 +4096,17 @@
   font-size: 23px;
   text-align: center;
 }
+
+.head_permission_rule{
+  width: 65px !important;
+  text-align: center !important;
+}
+
+.permission_rule {
+  display: flex;
+  justify-content: center;
+
+  input {
+    cursor: pointer;
+  }
+}

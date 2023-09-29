@@ -15,6 +15,7 @@ import UserBalancesBlock from "@/components/backend/user-balances-block";
 import UserImage from "@/components/user-image";
 import Link from "next/link";
 import NoDataBlock from "@/components/no-data-block";
+import UserPermissionsBlock from "@/components/backend/user-permissions-block";
 
 
 
@@ -280,6 +281,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                     </div>
 
                                                 </div>
+                                                <UserPermissionsBlock user_id={this.state.data?.user_id.email || ''}/>
                                                 <UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>
                                             </div>
                                             <div className="active-form">

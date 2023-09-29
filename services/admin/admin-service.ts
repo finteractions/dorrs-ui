@@ -8,6 +8,7 @@ import {IUser} from "@/interfaces/i-user";
 import {IBlacklist} from "@/interfaces/i-blacklist";
 import {any} from "prop-types";
 import {ISymbol} from "@/interfaces/i-symbol";
+import {IPermission} from "@/interfaces/i-permission";
 
 class AdminService extends BaseService {
 
@@ -206,6 +207,20 @@ class AdminService extends BaseService {
         }
 
         return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}users_membership_form/${id}/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getUserPermissions(user_id: string): Promise<IPermission[]> {
+        return (await apiWebBackendService.get<IResponse<IPermission[]>>(`${this.PATH}access_management/?user_id=${encodeURIComponent(user_id)}`, {}, this.getAdminToken())).data;
+    }
+
+    public async setUserPermissions(user_id: string, permission: string, type: string, value: string): Promise<IResponseApi> {
+        const data = {
+            user_id: user_id,
+            permission: permission,
+            [type]: value
+            // permission_id: 1,
+        }
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}access_management/`, data, {}, this.getAdminToken()));
     }
 
 }
