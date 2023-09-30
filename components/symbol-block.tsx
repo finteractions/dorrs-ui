@@ -9,6 +9,7 @@ import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
 import Link from "next/link";
 import formatterService from "@/services/formatter/formatter-service";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -21,6 +22,7 @@ interface SymbolBlockState extends IState, IModalState {
 
 interface SymbolBlockProps {
     isDashboard: boolean;
+    access?: any;
 }
 
 let isDashboard = false;
@@ -218,17 +220,19 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     render() {
         return (
-            <>
 
                 <>
                     <div className="panel">
                         <div className="content__top">
                             <div className="content__title">Symbols</div>
                             <div className="content__title_btns">
-                                <button className="b-btn ripple"
-                                        disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('add')}>Add Symbol
-                                </button>
+                                {this.props.access.create && (
+                                    <button className="b-btn ripple"
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.openModal('add')}>Add Symbol
+                                    </button>
+                                )}
+
                                 {isDashboard && (
                                     <Link href="/symbols" className="b-link">View all</Link>
                                 )}
@@ -249,6 +253,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                                block={this}
                                                editBtn={true}
                                                viewBtn={true}
+                                               access={this.props.access}
                                         />
                                     ) : (
                                         <NoDataBlock/>
@@ -270,9 +275,9 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         )}
                     </div>
                 </>
-            </>
+
         )
     }
 }
 
-export default SymbolBlock;
+export default portalAccessWrapper(SymbolBlock);

@@ -62,7 +62,8 @@ const Table = ({
                    viewBtn,
                    deleteBtn,
                    customBtns,
-                   filter
+                   filter,
+                   access,
                }: {
     columns: any[];
     columns_for_search?: any[];
@@ -76,6 +77,7 @@ const Table = ({
     deleteBtn?: boolean,
     customBtns?: any,
     filter?: boolean
+    access?: any
 }) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [searchValue, setSearchValue] = React.useState("");
@@ -232,7 +234,7 @@ const Table = ({
                                                 </th>
                                             );
                                         })}
-                                        {editBtn || deleteBtn || viewBtn || customBtns || filter ? (
+                                        {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtns || filter ? (
                                             <th>
 
                                             </th>
@@ -283,7 +285,7 @@ const Table = ({
                                                     )}
                                                 </td>
                                             ))}
-                                            {editBtn || deleteBtn || viewBtn || customBtns ? (
+                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtns ? (
                                                 <td>
                                                     <div className='admin-table-actions'>
                                                         {viewBtn && (
@@ -292,14 +294,14 @@ const Table = ({
                                                                 className='admin-table-btn ripple'><FontAwesomeIcon
                                                                 className="nav-icon" icon={faEye}/></button>
                                                         )}
-                                                        {editBtn && (
+                                                        {editBtn && (!access || access.edit) && (
                                                             <button
                                                                 disabled={isEditButtonDisabled(row.original)}
                                                                 onClick={() => block.openModal('edit', row.original)}
                                                                 className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) ? 'disable' : ''}`}><FontAwesomeIcon
                                                                 className="nav-icon" icon={faEdit}/></button>
                                                         )}
-                                                        {deleteBtn && (
+                                                        {deleteBtn && (!access || access.delete) && (
                                                             <button
                                                                 onClick={() => block.openModal('delete', row.original)}
                                                                 className='admin-table-btn ripple'><FontAwesomeIcon

@@ -4100,6 +4100,11 @@
 .head_permission_rule{
   width: 65px !important;
   text-align: center !important;
+  cursor: initial !important;
+}
+
+.head_permission_name {
+  cursor: initial !important;
 }
 
 .permission_rule {
