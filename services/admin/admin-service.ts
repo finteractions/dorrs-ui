@@ -239,6 +239,21 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}approve_company_profile/`, data, {}, this.getAdminToken()));
     }
 
+    public async createCompany(name: string): Promise<IResponseApi> {
+        const data = {
+            name: name
+        }
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}firm_management/`, data, {}, this.getAdminToken()));
+    }
+
+    public async assignCompany(user_id: string, firm_id: string): Promise<IResponseApi> {
+        const data = {
+            user_id: user_id,
+            firm_id: firm_id
+        }
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_firm/`, data, {}, this.getAdminToken()));
+    }
+
 
 }
 

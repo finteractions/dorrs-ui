@@ -1,5 +1,6 @@
 interface IMembership {
     id: number,
+    firm: string | null
     region: string;
     state: string;
     is_finra: boolean;

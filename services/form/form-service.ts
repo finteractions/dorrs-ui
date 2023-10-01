@@ -21,6 +21,14 @@ class FormService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}membership/${id}/`, data, {}, this.getUserAccessToken());
     }
 
+    public async searchCompany(company_name: string): Promise<Array<ICompanySearch>> {
+        const params = {
+            name: company_name
+        }
+        return (await apiWebBackendService.get<IResponse<Array<ICompanySearch>>>(`/search/firm/`, params, this.getUserAccessToken())).data;
+    }
+
+
 }
 
 const formService = new FormService();

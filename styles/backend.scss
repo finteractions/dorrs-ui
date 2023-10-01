@@ -3845,6 +3845,12 @@
       flex-wrap: wrap;
       column-gap: 15px;
       max-width: 315px;
+      padding: 10px 0;
+
+      .company_text{
+        font-size: 14px;
+        font-weight: 600;
+      }
 
       .approve-form-confirm-title {
         flex: 0 0 100%;

@@ -2882,6 +2882,18 @@ body {
       margin-top: 50px;
       margin-bottom: 15px;
     }
+
+    .input__wrap__search_company{
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 5px;
+
+      .search_company_item {
+        height: initial;
+        padding: 5px 10px;
+        margin-top: 5px;
+      }
+    }
   }
 }
 
