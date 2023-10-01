@@ -16,7 +16,7 @@ export default function portalAccessWrapper<P extends { access?: any }>(
             ...props as P,
             access,
         };
-
+        console.log(finalProps)
         return (
             <>
                 {access && access.view && (
