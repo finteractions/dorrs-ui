@@ -8,7 +8,7 @@ export default function portalAccessWrapper<P extends { access?: any }>(
     return function Init(props: Omit<P, 'access'>) {
         const dataContext = useContext(DataContext);
         const access = UserPermissionService.getAccessRulesByComponent(
-            Component.name,
+            Component.prototype.constructor.name,
             dataContext.userProfile.access
         );
 
@@ -16,7 +16,7 @@ export default function portalAccessWrapper<P extends { access?: any }>(
             ...props as P,
             access,
         };
-        console.log(finalProps, dataContext.userProfile.access)
+
         return (
             <>
                 {access && access.view && (
