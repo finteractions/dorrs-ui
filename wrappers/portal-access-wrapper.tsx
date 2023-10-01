@@ -16,7 +16,7 @@ export default function portalAccessWrapper<P extends { access?: any }>(
             ...props as P,
             access,
         };
-        console.log(finalProp, dataContext.userProfile.access)
+        console.log(finalProps, dataContext.userProfile.access)
         return (
             <>
                 {access && access.view && (
