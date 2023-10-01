@@ -285,4 +285,4 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     }
 }
 
-export default portalAccessWrapper(SymbolBlock);
+export default portalAccessWrapper(SymbolBlock, 'SymbolBlock');
