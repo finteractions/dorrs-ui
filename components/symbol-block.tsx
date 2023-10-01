@@ -22,7 +22,12 @@ interface SymbolBlockState extends IState, IModalState {
 
 interface SymbolBlockProps {
     isDashboard: boolean;
-    access?: any;
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 let isDashboard = false;
