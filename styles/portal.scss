@@ -2865,5 +2865,23 @@ body {
     .text-center {
       text-align: center;
     }
+
+    .modal__navigate{
+      display: flex;
+      align-items: center;
+      column-gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .modal__navigate__title{
+      font-weight: 600;
+    }
+
+    .input__group__title{
+      font-size: 20px;
+      margin-top: 50px;
+      margin-bottom: 15px;
+    }
   }
 }
+

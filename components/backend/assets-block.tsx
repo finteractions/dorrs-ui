@@ -17,7 +17,9 @@ import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import MembershipForm from "@/components/membership-form";
 import SymbolForm from "@/components/symbol-form";
+import CompanyProfile from "@/components/company-profile-form";
 import {ISymbol} from "@/interfaces/i-symbol";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -25,13 +27,17 @@ let columns: any[] = [];
 interface AssetsBlockState {
     loading: boolean;
     isOpenModal: boolean;
+    isOpenCompanyModal: boolean;
     formData: ISymbol | null;
+    formCompanyData: ICompanyProfile | null;
     formAction: string;
+    formCompanyAction: string;
     data: ISymbol[];
     errors: string[];
     modalTitle: string;
     dataFull: ISymbol[];
     filterData: any;
+    showSymbolForm: boolean;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -48,13 +54,17 @@ class AssetsBlock extends React.Component<{}> {
         this.state = {
             loading: true,
             isOpenModal: false,
+            isOpenCompanyModal: false,
             formData: null,
+            formCompanyData: null,
             formAction: 'add',
+            formCompanyAction: 'add',
             data: [],
             errors: [],
             modalTitle: '',
             dataFull: [],
-            filterData: []
+            filterData: [],
+            showSymbolForm: true
         }
 
         columns = [
@@ -153,6 +163,18 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Date/Time</span>,
             }),
+
+            columnHelper.accessor((row) => ({
+                status: row.company_profile?.status || '-'
+            }), {
+                id: "company_profile_status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                        {item.getValue().status}
+                    </div>
+                ,
+                header: () => <span>Company Profile Status</span>,
+            }),
         ];
     }
 
@@ -197,6 +219,12 @@ class AssetsBlock extends React.Component<{}> {
 
     openModal = (mode: string, data?: IAdminAsset) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+        this.cancelCompanyForm();
+    }
+
+    openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
+        this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode, modalTitle: this.modalTitle(mode)})
+        this.cancelForm();
     }
 
     modalTitle = (mode: string) => {
@@ -209,12 +237,23 @@ class AssetsBlock extends React.Component<{}> {
         }
     }
 
+    modalCompanyTitle = (mode: string) => {
+        if (mode === 'view') {
+            return 'View Company Profile'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+        }
+    }
+
+    cancelCompanyForm(): void {
+        this.setState({isOpenCompanyModal: false});
+    }
     cancelForm(): void {
-        this.setState({isOpenModal: false})
+        this.setState({isOpenModal: false});
     }
 
     submitForm(): void {
-        this.setState({isOpenModal: false})
+        this.setState({isOpenModal: false, isOpenCompanyModal: false});
         this.getAssets();
     }
 
@@ -388,12 +427,54 @@ class AssetsBlock extends React.Component<{}> {
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
+                    {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
+                        <div className="modal__navigate">
+                            <div className="modal__navigate__title">Company Profile: </div>
+
+                            {this.state.formData?.company_profile ? (
+                                <>
+                                    <div className={`table__status table__status-${this.state.formData?.company_profile?.status}`}>{this.state.formData?.company_profile?.status}</div>
+                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('view', this.state.formData?.company_profile)}>
+                                        View
+                                    </button>
+                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('edit', this.state.formData?.company_profile)}>
+                                        Edit
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('add')}>
+                                        Add
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+
                     <SymbolForm action={this.state.formAction}
-                                    data={this.state.formData}
-                                    onCancel={() => this.cancelForm()}
+                                data={this.state.formData}
+                                onCancel={() => this.cancelForm()}
+                                onCallback={() => this.submitForm()}
+                                isAdmin={true}/>
+                </Modal>
+
+                <Modal isOpen={this.state.isOpenCompanyModal}
+                       onClose={() => this.cancelCompanyForm()}
+                       title={this.modalCompanyTitle(this.state.formCompanyAction)}
+                >
+                    <div className="modal__navigate">
+                    <button className={'border-btn ripple'} onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
+                        Back to Symbol
+                    </button>
+                    </div>
+
+                    <CompanyProfile action={this.state.formCompanyAction}
+                                    data={this.state.formCompanyData}
+                                    symbolData={this.state.formData}
+                                    onCancel={() => this.cancelCompanyForm()}
                                     onCallback={() => this.submitForm()}
-                                    isAdmin={true}
-                    />
+                                    isAdmin={true} />
+
                 </Modal>
             </>
         )

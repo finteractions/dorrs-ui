@@ -10,9 +10,14 @@ import {createColumnHelper} from "@tanstack/react-table";
 import Link from "next/link";
 import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import CompanyProfile from "@/components/company-profile-form";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 
 interface SymbolBlockState extends IState, IModalState {
+    isOpenCompanyModal: boolean;
+    formCompanyData: ICompanyProfile | null;
+    formCompanyAction: string;
     isLoading: boolean;
     formAction: string;
     symbol: ISymbol | null;
@@ -56,7 +61,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             formAction: 'add',
             modalTitle: '',
             errors: [],
-            symbol: null
+            symbol: null,
+            isOpenCompanyModal: false,
+            formCompanyData: null,
+            formCompanyAction: 'add',
         }
 
         isDashboard = this.props?.isDashboard ?? true;
@@ -157,7 +165,18 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     </div>
                 ,
                 header: () => <span>Status</span>,
-            })
+            }),
+            columnHelper.accessor((row) => ({
+                status: row.company_profile?.status || '-'
+            }), {
+                id: "company_profile_status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                        {item.getValue().status}
+                    </div>
+                ,
+                header: () => <span>Company Profile Status</span>,
+            }),
         ];
     }
 
@@ -202,10 +221,28 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     openModal = (mode: string, data?: ISymbol) => {
         this.setState({isOpenModal: true, symbol: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+        this.cancelCompanyForm();
+    }
+
+    openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
+        this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode, modalTitle: this.modalTitle(mode)})
+        this.closeModal();
     }
 
     closeModal(): void {
         this.setState({isOpenModal: false})
+    }
+
+    cancelCompanyForm(): void {
+        this.setState({isOpenCompanyModal: false});
+    }
+
+    modalCompanyTitle = (mode: string) => {
+        if (mode === 'view') {
+            return 'View Company Profile'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+        }
     }
 
     modalTitle = (mode: string) => {
@@ -269,12 +306,55 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                        onClose={() => this.closeModal()}
                                        title={this.state.modalTitle}
                                 >
+                                    {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
+                                        <div className="modal__navigate">
+                                            <div className="modal__navigate__title">Company Profile: </div>
+
+                                            {this.state.symbol?.company_profile ? (
+                                                <>
+                                                    <div className={`table__status table__status-${this.state.symbol?.company_profile?.status}`}>{this.state.symbol?.company_profile?.status}</div>
+                                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('view', this.state.symbol?.company_profile)}>
+                                                        View
+                                                    </button>
+                                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('edit', this.state.symbol?.company_profile)}>
+                                                        Edit
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('add')}>
+                                                        Add
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <SymbolForm
                                         isAdmin={false}
                                         action={this.state.formAction}
                                         data={this.state.symbol}
                                         onCallback={this.onCallback}
                                     />
+                                </Modal>
+
+
+                                <Modal isOpen={this.state.isOpenCompanyModal}
+                                       onClose={() => this.cancelCompanyForm()}
+                                       title={this.modalCompanyTitle(this.state.formCompanyAction)}
+                                >
+                                    <div className="modal__navigate">
+                                        <button className={'border-btn ripple'} onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
+                                            Back to Symbol
+                                        </button>
+                                    </div>
+
+                                    <CompanyProfile action={this.state.formCompanyAction}
+                                                    data={this.state.formCompanyData}
+                                                    symbolData={this.state.symbol}
+                                                    onCallback={this.onCallback}
+                                                    isAdmin={false} />
+
                                 </Modal>
                             </>
                         )}

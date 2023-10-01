@@ -22,6 +22,14 @@ class SymbolService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}user_assets/${id}/`, data, {}, this.getUserAccessToken());
     }
 
+    public createCompanyProfile(data: any): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}company_profile/`, data, {}, this.getUserAccessToken())
+    }
+
+    public updateCompanyProfile(data: any, id: number): Promise<any> {
+        return apiWebBackendService.put(`${this.PATH}company_profile/${id}/`, data, {}, this.getUserAccessToken());
+    }
+
 }
 
 const symbolService = new SymbolService();

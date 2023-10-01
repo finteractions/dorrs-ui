@@ -4077,41 +4077,60 @@
       }
     }
   }
-}
 
-.disable {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
 
-.text-center {
-  text-align: center;
-}
+  .disable {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 
-.input__text.dsin {
-  max-width: 230px;
-  width: 100%;
-  margin: 10px;
-  padding: 10px;
-  font-size: 23px;
-  text-align: center;
-}
+  .text-center {
+    text-align: center;
+  }
 
-.head_permission_rule{
-  width: 65px !important;
-  text-align: center !important;
-  cursor: initial !important;
-}
+  .input__text.dsin {
+    max-width: 230px;
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    font-size: 23px;
+    text-align: center;
+  }
 
-.head_permission_name {
-  cursor: initial !important;
-}
+  .head_permission_rule{
+    width: 65px !important;
+    text-align: center !important;
+    cursor: initial !important;
+  }
 
-.permission_rule {
-  display: flex;
-  justify-content: center;
+  .head_permission_name {
+    cursor: initial !important;
+  }
 
-  input {
-    cursor: pointer;
+  .permission_rule {
+    display: flex;
+    justify-content: center;
+
+    input {
+      cursor: pointer;
+    }
+  }
+
+  .modal__navigate{
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .modal__navigate__title{
+    font-weight: 600;
+  }
+
+  .input__group__title{
+    font-size: 20px;
+    margin-top: 50px;
+    margin-bottom: 15px;
   }
 }
+

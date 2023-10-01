@@ -1,3 +1,5 @@
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
+
 export interface ISymbol {
     id: number;
     reason_for_entry: string;
@@ -20,4 +22,5 @@ export interface ISymbol {
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
+    company_profile: ICompanyProfile | null;
 }
