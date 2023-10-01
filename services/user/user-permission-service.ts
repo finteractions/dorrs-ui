@@ -3,6 +3,9 @@ const comparison_matrix: Record<string, string> = {
 }
 
 function getAccessRulesByComponent(component_name: string, access_matrix: any[]) {
+    console.log('1', access_matrix)
+    console.log('2', component_name)
+    console.log('3', comparison_matrix)
     const permission_row = access_matrix.filter(i => i.key === comparison_matrix[component_name])
     return permission_row?.[0]?.values || {view: false, create: false, edit: false, delete: false};
 }
