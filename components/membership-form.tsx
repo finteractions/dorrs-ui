@@ -34,6 +34,11 @@ const formSchema = Yup.object().shape({
     zip_code: Yup.string().min(3).max(50).required('Required').label('ZIP code'),
     country: Yup.string().required('Required').label('Country'),
     annual_fees: Yup.string().required('Required').label('Annual Fees'),
+    firm: Yup.string(),
+    create_firm: Yup.boolean().when('firm', {
+        is: (firm: any) => !firm || firm.trim() === '',
+        then: (schema) => schema.oneOf([true], 'You must accept'),
+    }),
 });
 
 interface MembershipFormState extends IState {
@@ -86,6 +91,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             country: string;
             annual_fees: string;
             firm: string;
+            create_firm: boolean;
         } = {
             region: initialData?.region || selectedCountry,
             state: initialData?.state || "",
@@ -102,6 +108,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             country: initialData?.country || "",
             annual_fees: initialData?.annual_fees || "",
             firm: initialData?.firm || "",
+            create_firm: false
         };
 
         const usaStates = new UsaStates();
@@ -463,6 +470,23 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     type="hidden"
                                                     disabled={isSubmitting || this.isShow()}
                                                 />
+                                                {this.props.action === 'add' && !this.state.selectedCompany && (
+                                                    <div
+                                                        className={`mt-2 b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            type="checkbox"
+                                                            name="create_firm"
+                                                            id="create_firm"
+                                                            disabled={this.state.availableCompaniesLoading || isSubmitting || this.isShow()}
+                                                        />
+                                                        <label htmlFor="create_firm">
+                                                            <span></span><i> I want to create a new company
+                                                        </i>
+                                                        </label>
+                                                        <ErrorMessage name="create_firm" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                )}
 
                                                 <div className="input__wrap__search_company">
                                                     {this.state.availableCompanies.map((item: ICompanySearch) => (
@@ -475,6 +499,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             </div>
 
                                         </div>
+
                                         <div className="input">
                                             <div className="input__title">Email Address <i>*</i></div>
                                             <div
