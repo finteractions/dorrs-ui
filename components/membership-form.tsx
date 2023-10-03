@@ -428,7 +428,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             </div>
                                         )}
                                         <div className="input">
-                                            <div className="input__title">CRD#</div>
+                                            <div className="input__title">CRD# <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                 <Field
