@@ -56,7 +56,6 @@ class MembershipFormsBlock extends React.Component<{}> {
                 header: () => <span>User</span>,
             }),
             columnHelper.accessor((row) => ({
-                comment: row.comment,
                 status: row.status
             }), {
                 id: "status",
@@ -65,9 +64,6 @@ class MembershipFormsBlock extends React.Component<{}> {
                         <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
                             {item.getValue().status}
                         </div>
-                        {item.getValue().comment ?
-                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
-                                className="nav-icon" icon={faComment}/></div> : ''}
                     </div>,
                 header: () => <span>Status</span>,
             }),

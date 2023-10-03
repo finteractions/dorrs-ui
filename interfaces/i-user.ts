@@ -1,3 +1,5 @@
+import {IFirm} from "@/interfaces/i-firm";
+
 export interface IUser {
     id: number;
     email: string;
@@ -7,4 +9,5 @@ export interface IUser {
     email_verified: boolean;
     account_type: string;
     is_blocked: boolean;
+    firm?: IFirm | null;
 }

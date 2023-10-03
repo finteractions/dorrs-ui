@@ -86,90 +86,92 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
         return (
 
             <>
-                <div className="info-panel-section balances">
-                    <div className="info-panel-section-title mb-2">
-                        <div className='info-panel-title-text'>Permissions</div>
-                    </div>
-
-                    {this.state.loading ? (
-                        <LoaderBlock/>
-                    ) : (
-                        <>
-                            {this.state.loading ? (
-                                <LoaderBlock/>
-                            ) : (
-                                <>
-                                    {this.state.data.length ? (
-                                        <>
-                                            <div className="table">
-                                                <div className="overflow-x-auto">
-                                                    <table>
-                                                        <thead>
-                                                        <tr>
-                                                            <th className="head_permission_name">Name</th>
-                                                            <th className="head_permission_rule">View</th>
-                                                            <th className="head_permission_rule">Edit</th>
-                                                            <th className="head_permission_rule">Create</th>
-                                                            <th className="head_permission_rule">Delete</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {this.state.data.map((item) => (
-                                                            <tr key={item.key}>
-                                                                <td>
-                                                                    <div className="permission_name">
-                                                                        {item.name}
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="permission_rule">
-                                                                        <input disabled={this.state.settingCheckbox.view} type="checkbox"
-                                                                               onChange={(event) => this.setUserPermissions(item.key,'view', event.target.checked)}
-                                                                               defaultChecked={item.values.view}/>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="permission_rule">
-                                                                        <input disabled={this.state.settingCheckbox.edit} type="checkbox"
-                                                                               onChange={(event) => this.setUserPermissions(item.key,'edit', event.target.checked)}
-                                                                               defaultChecked={item.values.edit}/>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="permission_rule">
-                                                                        <input disabled={this.state.settingCheckbox.create} type="checkbox"
-                                                                               onChange={(event) => this.setUserPermissions(item.key,'create', event.target.checked)}
-                                                                               defaultChecked={item.values.create}/>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="permission_rule">
-                                                                        <input disabled={this.state.settingCheckbox.delete} type="checkbox"
-                                                                               onChange={(event) => this.setUserPermissions(item.key,'delete', event.target.checked)}
-                                                                               defaultChecked={item.values.delete}/>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {this.state.errors.length ? (
-                                                <AlertBlock type="error" messages={this.state.errors}/>
-                                            ) : (
-                                                <NoDataBlock primaryText="No Permissions available yet"/>
-                                            )}
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </>
-                    )}
+                <div className="info-panel-section-title mb-2">
+                    <div className='info-panel-title-text'>Permissions</div>
                 </div>
+
+                {this.state.loading ? (
+                    <LoaderBlock/>
+                ) : (
+                    <>
+                        {this.state.loading ? (
+                            <LoaderBlock/>
+                        ) : (
+                            <>
+                                {this.state.data.length ? (
+                                    <>
+                                        <div className="table mb-3">
+                                            <div className="overflow-x-auto">
+                                                <table>
+                                                    <thead>
+                                                    <tr>
+                                                        <th className="head_permission_name">Name</th>
+                                                        <th className="head_permission_rule">View</th>
+                                                        <th className="head_permission_rule">Edit</th>
+                                                        <th className="head_permission_rule">Create</th>
+                                                        <th className="head_permission_rule">Delete</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {this.state.data.map((item) => (
+                                                        <tr key={item.key}>
+                                                            <td>
+                                                                <div className="permission_name">
+                                                                    {item.name}
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className="permission_rule">
+                                                                    <input disabled={this.state.settingCheckbox.view}
+                                                                           type="checkbox"
+                                                                           onChange={(event) => this.setUserPermissions(item.key, 'view', event.target.checked)}
+                                                                           defaultChecked={item.values.view}/>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className="permission_rule">
+                                                                    <input disabled={this.state.settingCheckbox.edit}
+                                                                           type="checkbox"
+                                                                           onChange={(event) => this.setUserPermissions(item.key, 'edit', event.target.checked)}
+                                                                           defaultChecked={item.values.edit}/>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className="permission_rule">
+                                                                    <input disabled={this.state.settingCheckbox.create}
+                                                                           type="checkbox"
+                                                                           onChange={(event) => this.setUserPermissions(item.key, 'create', event.target.checked)}
+                                                                           defaultChecked={item.values.create}/>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div className="permission_rule">
+                                                                    <input disabled={this.state.settingCheckbox.delete}
+                                                                           type="checkbox"
+                                                                           onChange={(event) => this.setUserPermissions(item.key, 'delete', event.target.checked)}
+                                                                           defaultChecked={item.values.delete}/>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {this.state.errors.length ? (
+                                            <AlertBlock type="error" messages={this.state.errors}/>
+                                        ) : (
+                                            <NoDataBlock primaryText="No Permissions available yet"/>
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
             </>
         )
     }

@@ -15,11 +15,12 @@ export interface IUserDetail {
     created_at: string;
     approved_by: number | null;
     status?: string;
-    name?:string;
+    name?: string;
     active?: boolean;
     active_text?: string;
     email_verified_text?: string;
     comment: string;
     comment_status?: boolean;
     user_image: string;
+    membership_form?: IMembership | null;
 }
