@@ -207,6 +207,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+
+                    if (s.company_profile && s.company_profile?.status) {
+                        s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
+                    }
                 });
 
                 this.symbols = data;
@@ -258,6 +262,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     onCallback = async (values: any, step: boolean) => {
         this.getSymbols();
         this.closeModal();
+        this.cancelCompanyForm()
     };
 
     render() {

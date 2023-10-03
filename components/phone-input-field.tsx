@@ -13,7 +13,7 @@ class PhoneInputField extends React.Component<{ field: any, form: any, disabled:
         const customStyles = {
             width: '100%',
             height: '40px',
-            borderRadius:'4px',
+            borderRadius:'6px',
             border: '1px solid #718494',
             boxSizing: 'border-box',
             padding: '0 16px',

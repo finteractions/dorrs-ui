@@ -9,7 +9,11 @@ import formatterService from "@/services/formatter/formatter-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import symbolService from "@/services/symbol/symbol-service";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import {countries} from "countries-list";
+import PhoneInputField from "@/components/phone-input-field";
+import {UsaStates} from "usa-states";
 
+const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
     symbol: Yup.string().required('Required'),
@@ -22,6 +26,11 @@ interface CompanyProfileFormState extends IState {
     isApproving: boolean | null;
     loading: boolean;
     isDeleting: boolean;
+    usaStates: {
+        abbreviation: string;
+        name: string;
+    }[],
+    selectedCountry: string;
 }
 
 interface CompanyProfileFormProps extends ICallback {
@@ -93,6 +102,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             edgar_cik: initialData?.edgar_cik || '',
         };
 
+        const usaStates = new UsaStates();
+        const usaStatesList = usaStates.states;
+
         this.state = {
             success: false,
             formInitialValues: initialValues,
@@ -100,6 +112,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             isApproving: null,
             isConfirmedApproving: false,
             isDeleting: false,
+            usaStates: usaStatesList,
+            selectedCountry: initialValues.country,
         };
 
     }
@@ -140,6 +154,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => this.setState({loading: false}))
+    };
+
+    handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        const selectedRegion = e.target.value;
+        setFieldValue("country", selectedRegion);
+        setFieldValue("state", "");
+        this.setState({selectedCountry: selectedRegion});
     };
 
     render() {
@@ -318,23 +339,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
-                                                    <div className="input">
-                                                        <div className="input__title">State
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="state"
-                                                                id="state"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type State"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="state" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
 
                                                     <div className="input">
                                                         <div className="input__title">Zip Code
@@ -355,22 +359,54 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
 
                                                     <div className="input">
-                                                        <div className="input__title">Country
-                                                        </div>
+                                                        <div className="input__title">Country</div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
                                                                 name="country"
                                                                 id="country"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Country"
+                                                                as="select"
+                                                                className="b-select"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                            />
+                                                                onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
+                                                            >
+                                                                <option value="">Select a Country</option>
+                                                                {Object.keys(countries).map((countryCode: string) => (
+                                                                    <option key={countryCode} value={countryCode}>
+                                                                        {countries[countryCode as keyof typeof countries]?.name}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
                                                             <ErrorMessage name="country" component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
+
+                                                    {this.state.selectedCountry === selectedCountry && (
+                                                        <div className="input">
+                                                            <div className="input__title">State </div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="state"
+                                                                    id="state"
+                                                                    as="select"
+                                                                    className="b-select"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                >
+                                                                    <option value="">Select a State</option>
+                                                                    {this.state.usaStates.map((state) => (
+                                                                        <option key={state.abbreviation} value={state.abbreviation}>
+                                                                            {state.name}
+                                                                        </option>
+                                                                    ))}
+                                                                </Field>
+                                                                <ErrorMessage name="state" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     <div className="input">
                                                         <div className="input__title">Phone
                                                         </div>
@@ -379,13 +415,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             <Field
                                                                 name="phone"
                                                                 id="phone"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Phone"
+                                                                component={PhoneInputField}
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                country="us"
                                                             />
-                                                            <ErrorMessage name="phone" component="div"
-                                                                          className="error-message"/>
                                                         </div>
                                                     </div>
                                                 </div>

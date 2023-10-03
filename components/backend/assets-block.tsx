@@ -195,6 +195,10 @@ class AssetsBlock extends React.Component<{}> {
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    
+                    if (s.company_profile && s.company_profile?.status) {
+                        s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
+                    }
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -223,7 +227,12 @@ class AssetsBlock extends React.Component<{}> {
     }
 
     openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
-        this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode, modalTitle: this.modalTitle(mode)})
+        this.setState({
+            isOpenCompanyModal: true,
+            formCompanyData: data || null,
+            formCompanyAction: mode,
+            modalTitle: this.modalTitle(mode)
+        })
         this.cancelForm();
     }
 
@@ -248,6 +257,7 @@ class AssetsBlock extends React.Component<{}> {
     cancelCompanyForm(): void {
         this.setState({isOpenCompanyModal: false});
     }
+
     cancelForm(): void {
         this.setState({isOpenModal: false});
     }
@@ -264,7 +274,7 @@ class AssetsBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -394,7 +404,8 @@ class AssetsBlock extends React.Component<{}> {
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
                                         </button>
                                     </div>
 
@@ -429,21 +440,25 @@ class AssetsBlock extends React.Component<{}> {
                 >
                     {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
                         <div className="modal__navigate">
-                            <div className="modal__navigate__title">Company Profile: </div>
+                            <div className="modal__navigate__title">Company Profile:</div>
 
                             {this.state.formData?.company_profile ? (
                                 <>
-                                    <div className={`table__status table__status-${this.state.formData?.company_profile?.status}`}>{this.state.formData?.company_profile?.status}</div>
-                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('view', this.state.formData?.company_profile)}>
+                                    <div
+                                        className={`table__status table__status-${this.state.formData?.company_profile?.status}`}>{this.state.formData?.company_profile?.status}</div>
+                                    <button className={'border-btn ripple'}
+                                            onClick={() => this.openCompanyModal('view', this.state.formData?.company_profile)}>
                                         View
                                     </button>
-                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('edit', this.state.formData?.company_profile)}>
+                                    <button className={'border-btn ripple'}
+                                            onClick={() => this.openCompanyModal('edit', this.state.formData?.company_profile)}>
                                         Edit
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('add')}>
+                                    <button className={'border-btn ripple'}
+                                            onClick={() => this.openCompanyModal('add')}>
                                         Add
                                     </button>
                                 </>
@@ -463,9 +478,10 @@ class AssetsBlock extends React.Component<{}> {
                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                 >
                     <div className="modal__navigate">
-                    <button className={'border-btn ripple'} onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
-                        Back to Symbol
-                    </button>
+                        <button className={'border-btn ripple'}
+                                onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
+                            Back to Symbol
+                        </button>
                     </div>
 
                     <CompanyProfile action={this.state.formCompanyAction}
@@ -473,7 +489,7 @@ class AssetsBlock extends React.Component<{}> {
                                     symbolData={this.state.formData}
                                     onCancel={() => this.cancelCompanyForm()}
                                     onCallback={() => this.submitForm()}
-                                    isAdmin={true} />
+                                    isAdmin={true}/>
 
                 </Modal>
             </>
