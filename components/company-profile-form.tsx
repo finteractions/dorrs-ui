@@ -12,12 +12,28 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {countries} from "countries-list";
 import PhoneInputField from "@/components/phone-input-field";
 import {UsaStates} from "usa-states";
+import UserImage from "@/components/user-image";
+import slide3Img from "@/public/img/sl3.webp";
+import Image from "next/image";
+
+const allowedFileSizeMB = 1
+const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
+const allowedExt = ['png', 'jpg', 'jpeg']
 
 const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
     symbol: Yup.string().required('Required'),
     company_name: Yup.string().required('Required').label('Company Name'),
+    logo_tmp: Yup.mixed()
+        .test('logo_tmp', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+            if (!value) return true;
+            return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+        })
+        .test('logo_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+            if (!value) return true;
+            return value.size <= allowedFileSize;
+        }),
 });
 
 interface CompanyProfileFormState extends IState {
@@ -31,6 +47,7 @@ interface CompanyProfileFormState extends IState {
         name: string;
     }[],
     selectedCountry: string;
+    selectedFile: File | null;
 }
 
 interface CompanyProfileFormProps extends ICallback {
@@ -75,6 +92,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             securities_counsel: string;
             us_reporting: string;
             edgar_cik: string;
+            logo: string;
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
             company_name: initialData?.company_name || '',
@@ -100,6 +118,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             securities_counsel: initialData?.securities_counsel || '',
             us_reporting: initialData?.us_reporting || '',
             edgar_cik: initialData?.edgar_cik || '',
+            logo: initialData?.logo || '',
         };
 
         const usaStates = new UsaStates();
@@ -114,6 +133,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             isDeleting: false,
             usaStates: usaStatesList,
             selectedCountry: initialValues.country,
+            selectedFile: null,
         };
 
     }
@@ -123,13 +143,24 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     }) => {
         this.setState({errorMessages: null});
 
+        const formData = new FormData();
+        for (const [key, value] of Object.entries(values)) {
+            formData.append(key, value);
+        }
+
+        formData.delete('logo_tmp');
+        formData.delete('logo');
+
+        if (this.state.selectedFile) {
+            formData.append('logo', this.state.selectedFile);
+        }
         const request: Promise<any> = this.props.action == 'edit' ?
-            !this.props?.isAdmin ? symbolService.updateCompanyProfile(values, this.props.data?.id || 0) : adminService.updateCompanyProfile(values, this.props.data?.id || 0) :
-            !this.props?.isAdmin ? symbolService.createCompanyProfile(values) : adminService.createCompanyProfile(values);
+            !this.props?.isAdmin ? symbolService.updateCompanyProfile(formData, this.props.data?.id || 0) : adminService.updateCompanyProfile(formData, this.props.data?.id || 0) :
+            !this.props?.isAdmin ? symbolService.createCompanyProfile(formData) : adminService.createCompanyProfile(formData);
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(values);
+                this.props.onCallback(formData);
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -163,6 +194,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState({selectedCountry: selectedRegion});
     };
 
+    handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target?.files?.[0] || null;
+        this.setState({selectedFile: selectedFile});
+    };
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -180,7 +216,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                 >
-                                    {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                    {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                         return (
                                             <Form id="company-profile-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (
@@ -238,6 +274,36 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 </div>
                                                             </>
                                                         )}
+                                                    </div>
+                                                )}
+
+                                                {(this.isShow() && initialValues?.logo) && (
+                                                    <div
+                                                        className={"input d-flex justify-content-center company-profile-logo"}>
+                                                        <img src={initialValues?.logo} alt="Logo"/>
+                                                    </div>
+                                                )}
+                                                {!this.isShow() && (
+                                                    <div className="input">
+                                                        <div className="input__title">Logo</div>
+                                                        <div className="input__wrap">
+                                                            <input
+                                                                id="logo_tmp"
+                                                                name="logo_tmp"
+                                                                type="file"
+                                                                accept={'.' + allowedExt.join(',.')}
+                                                                className="input__file"
+                                                                disabled={isSubmitting}
+                                                                onChange={(event) => {
+                                                                    setFieldValue('logo_tmp', event.target?.files?.[0] || '');
+                                                                    this.handleFileChange(event);
+                                                                }}
+                                                            />
+                                                            {errors.logo_tmp && (
+                                                                <div
+                                                                    className="error-message">{errors.logo_tmp.toString()}</div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 )}
 
@@ -384,7 +450,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                     {this.state.selectedCountry === selectedCountry && (
                                                         <div className="input">
-                                                            <div className="input__title">State </div>
+                                                            <div className="input__title">State</div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                 <Field
@@ -396,7 +462,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 >
                                                                     <option value="">Select a State</option>
                                                                     {this.state.usaStates.map((state) => (
-                                                                        <option key={state.abbreviation} value={state.abbreviation}>
+                                                                        <option key={state.abbreviation}
+                                                                                value={state.abbreviation}>
                                                                             {state.name}
                                                                         </option>
                                                                     ))}
@@ -422,7 +489,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         </div>
                                                     </div>
                                                 </div>
-
 
 
                                                 <div className="input">
@@ -456,7 +522,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Type SIC Industry Classification"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
-                                                            <ErrorMessage name="sic_industry_classification" component="div"
+                                                            <ErrorMessage name="sic_industry_classification"
+                                                                          component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
@@ -472,7 +539,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Type Incorporation Information"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
-                                                            <ErrorMessage name="incorporation_information" component="div"
+                                                            <ErrorMessage name="incorporation_information"
+                                                                          component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
@@ -495,7 +563,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
 
 
-
                                                 <div className="input">
                                                     <div className="input__title">Company Officers & Contacts</div>
                                                     <div
@@ -508,7 +575,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             placeholder="Type Company Officers & Contacts"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
-                                                        <ErrorMessage name="company_officers_and_contacts" component="div"
+                                                        <ErrorMessage name="company_officers_and_contacts"
+                                                                      component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
@@ -595,13 +663,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Type Accounting / Auditing Firm"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
-                                                            <ErrorMessage name="accounting_auditing_firm" component="div"
+                                                            <ErrorMessage name="accounting_auditing_firm"
+                                                                          component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
 
                                                     <div className="input">
-                                                        <div className="input__title">Investor Relations / Marketing / Communications</div>
+                                                        <div className="input__title">Investor Relations / Marketing /
+                                                            Communications
+                                                        </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
@@ -612,8 +683,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Type Investor Relations / Marketing / Communications"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
-                                                            <ErrorMessage name="investor_relations_marketing_communications" component="div"
-                                                                          className="error-message"/>
+                                                            <ErrorMessage
+                                                                name="investor_relations_marketing_communications"
+                                                                component="div"
+                                                                className="error-message"/>
                                                         </div>
                                                     </div>
 
@@ -634,7 +707,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         </div>
                                                     </div>
                                                 </div>
-
 
 
                                                 <div className="itput__group">
@@ -690,7 +762,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     }}
                                 </Formik>
                             </>
-                        )}
+                        )
+                        }
 
 
                     </>

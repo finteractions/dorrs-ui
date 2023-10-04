@@ -1,7 +1,7 @@
 export interface ICompanyProfile {
     id: number;
     symbol: string;
-    security_name : string;
+    security_name: string;
     company_name: string;
     business_description: string;
     street_address_1: string;
@@ -29,4 +29,6 @@ export interface ICompanyProfile {
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
+    logo: string;
+    logo_tmp?: string;
 }

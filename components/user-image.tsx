@@ -25,7 +25,10 @@ function UserImage({alt, src, width, ...props}: UserImageProps) {
                 alt={imageAlt}
                 layout="fill"
                 objectFit="cover"
-                onError={() => setImageSrc('/img/avatar_gray.png')}
+                onError={(err) => {
+                    console.log(err)
+                    setImageSrc('/img/avatar_gray.png')
+                }}
             />
         </div>
     );
