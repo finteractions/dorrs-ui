@@ -82,10 +82,25 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>CUSIP</span>,
             }),
-            columnHelper.accessor((row) => row.symbol, {
+            // columnHelper.accessor((row) => row.symbol, {
+            //     id: "symbol",
+            //     cell: (item) =>
+            //         <span onClick={() => this.openCompanyModal('view', item.company_profile as ISymbol)} className='black-text'>{item.getValue()}</span>
+            //     ,
+            //     header: () => <span>Symbol</span>,
+            // }),
+
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol,
+                company_profile: row.company_profile,
+                formData: row
+            }), {
                 id: "symbol",
                 cell: (item) =>
-                    <span className='black-text'>{item.getValue()}</span>
+                    <span onClick={() => {
+                        this.setState({symbol: item.getValue().formData, formAction: 'view'})
+                        this.openCompanyModal('view', item.getValue().company_profile)
+                    }} className='black-text cursor-pointer'>{item.getValue().symbol}</span>
                 ,
                 header: () => <span>Symbol</span>,
             }),
@@ -317,7 +332,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
                                             {this.state.symbol?.company_profile ? (
                                                 <>
-                                                    <div className={`table__status table__status-${this.state.symbol?.company_profile?.status}`}>{this.state.symbol?.company_profile?.status}</div>
+                                                    <div className={`table__status table__status-${this.state.symbol?.company_profile?.status.toLowerCase()}`}>{this.state.symbol?.company_profile?.status}</div>
                                                     <button className={'border-btn ripple'} onClick={() => this.openCompanyModal('view', this.state.symbol?.company_profile)}>
                                                         View
                                                     </button>
@@ -345,6 +360,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
 
                                 <Modal isOpen={this.state.isOpenCompanyModal}
+                                       className={this.state.formCompanyAction === 'view' ? 'big_modal' :  ''}
                                        onClose={() => this.cancelCompanyForm()}
                                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                                 >

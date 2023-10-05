@@ -4152,11 +4152,64 @@
   }
 
   .company-profile-logo {
-    max-height: 120px;
+    flex: 0 0 60px;
+    height: 60px;
+    min-width: 60px;
+    border-radius: 50%;
+    overflow: hidden;
 
     > img {
-      max-height: 120px;
+      object-fit: cover;
+      width: 100%;
       height: 100%;
+    }
+  }
+
+  .big_modal .modal__content{
+    max-width: 950px;
+  }
+
+  .view_block_main_title{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 15px;
+    row-gap: 15px;
+  }
+
+  .view_panel{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -30px;
+    row-gap: 50px;
+
+
+    .view_block{
+      flex: 0 0 50%;
+      @media(max-width: 767px) {
+        flex: 0 0 100%;
+      }
+
+      &.full_block{
+        flex: 0 0 100%;
+      }
+
+      .view_block_body{
+        margin: 0 30px;
+
+        .view_block_title{
+          font-weight: 600;
+          border-bottom: 3px solid #1f8ceb;
+          padding-bottom: 5px;
+          font-size: 20px;
+          margin-bottom: 10px;
+        }
+
+        .view_block_sub_title{
+          font-weight: 600;
+          margin-top: 10px;
+        }
+      }
     }
   }
 }

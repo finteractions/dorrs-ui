@@ -15,6 +15,7 @@ import {UsaStates} from "usa-states";
 import UserImage from "@/components/user-image";
 import slide3Img from "@/public/img/sl3.webp";
 import Image from "next/image";
+import NoDataBlock from "@/components/no-data-block";
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
@@ -203,7 +204,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         switch (this.props.action) {
             case 'add':
             case 'edit':
-            case 'view':
                 return (
                     <>
 
@@ -766,6 +766,121 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                         }
 
 
+                    </>
+                )
+            case 'view':
+                return (
+                    <>
+                        {this.props.data ? (
+                            <div>
+
+                            <h2 className={'view_block_main_title'}>
+                                {this.props.data?.logo && (
+                                    <div className={"company-profile-logo"}>
+                                        <img src={this.props.data?.logo} alt="Logo"/>
+                                    </div>
+                                )}
+
+                                {this.props.data?.company_name} ({this.props.data?.security_name})
+                            </h2>
+                            <div className='view_panel'>
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Company Address</div>
+                                        <div>{[this.props.data?.street_address_1, this.props.data?.street_address_2, this.props.data?.city,this.props.data?.zip_code, this.props.data?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                        <div className="mt-2">{this.props.data?.phone}</div>
+                                        <div className="mt-2">{this.props.data?.web_address}</div>
+                                    </div>
+                                </div>
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Business Description</div>
+                                        <div>{this.props.data?.business_description || 'not filled'}</div>
+                                    </div>
+                                </div>
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Company Profile Data</div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">SIC Industry Classification</div>
+                                            <div className="">{this.props.data?.sic_industry_classification || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Incorporation Information</div>
+                                            <div className="">{this.props.data?.incorporation_information || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Number of Employees</div>
+                                            <div className="">{this.props.data?.number_of_employees || 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Company Officers & Contacts</div>
+                                        <div>{this.props.data?.company_officers_and_contacts || 'not filled'}</div>
+                                    </div>
+                                </div>
+                                <div className="view_block full_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Board of Directors</div>
+                                        <div>{this.props.data?.board_of_directors || 'not filled'}</div>
+                                    </div>
+                                </div>
+                                <div className="view_block full_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Product & Services</div>
+                                        <div>{this.props.data?.product_and_services || 'not filled'}</div>
+                                    </div>
+                                </div>
+                                <div className="view_block full_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Company Facilities</div>
+                                        <div>{this.props.data?.company_facilities || 'not filled'}</div>
+                                    </div>
+                                </div>
+
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Service Providers</div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Transfer Agent</div>
+                                            <div className="">{this.props.data?.transfer_agent || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Accounting / Auditing Firm</div>
+                                            <div className="">{this.props.data?.accounting_auditing_firm || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Investor Relations / Marketing / Communications</div>
+                                            <div className="">{this.props.data?.investor_relations_marketing_communications || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Securities Counsel</div>
+                                            <div className="">{this.props.data?.securities_counsel || 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="view_block">
+                                    <div className="view_block_body">
+                                        <div className="view_block_title">Financial Reporting</div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">US Reporting</div>
+                                            <div className="">{this.props.data?.us_reporting || 'not filled'}</div>
+                                        </div>
+                                        <div className="ver">
+                                            <div className="view_block_sub_title">Edgar CIK</div>
+                                            <div className="">{this.props.data?.edgar_cik || 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                            ) : (
+                                <NoDataBlock/>
+                            )
+                        }
                     </>
                 )
             // case 'delete':

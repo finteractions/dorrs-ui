@@ -78,11 +78,22 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Name </span>,
             }),
-            columnHelper.accessor((row) => row.symbol, {
+
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol,
+                company_profile: row.company_profile,
+                formData: row
+            }), {
                 id: "symbol",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <span onClick={() => {
+                        this.setState({formData: item.getValue().formData, formAction: 'view'})
+                        this.openCompanyModal('view', item.getValue().company_profile)
+                    }} className='cursor-pointer'>{item.getValue().symbol}</span>
+                ,
                 header: () => <span>Symbol</span>,
             }),
+
             columnHelper.accessor((row) => row.cusip, {
                 id: "cusip",
                 cell: (item) => item.getValue(),
@@ -445,7 +456,7 @@ class AssetsBlock extends React.Component<{}> {
                             {this.state.formData?.company_profile ? (
                                 <>
                                     <div
-                                        className={`table__status table__status-${this.state.formData?.company_profile?.status}`}>{this.state.formData?.company_profile?.status}</div>
+                                        className={`table__status table__status-${this.state.formData?.company_profile?.status.toLowerCase()}`}>{this.state.formData?.company_profile?.status}</div>
                                     <button className={'border-btn ripple'}
                                             onClick={() => this.openCompanyModal('view', this.state.formData?.company_profile)}>
                                         View
@@ -474,9 +485,12 @@ class AssetsBlock extends React.Component<{}> {
                 </Modal>
 
                 <Modal isOpen={this.state.isOpenCompanyModal}
+                       className={this.state.formCompanyAction === 'view' ? 'big_modal' :  ''}
                        onClose={() => this.cancelCompanyForm()}
                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                 >
+
+
                     <div className="modal__navigate">
                         <button className={'border-btn ripple'}
                                 onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
