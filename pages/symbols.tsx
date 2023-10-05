@@ -1,16 +1,28 @@
-import React, { ReactElement } from "react"
-import type { NextPageWithLayout} from "./_app";
-import PortalLayout from "../components/layouts/portal/portal-layout";
-import SymbolBlock from "@/components/symbol-block";
+import React, {ReactElement} from "react"
+import SymbolBlock from "@/components/symbol-block";;
+import PortalLayout from "@/components/layouts/portal/portal-layout";
+import {NextPageWithLayout} from "@/pages/_app";
+import {useRouter} from "next/router";
 
 
 const Symbols: NextPageWithLayout = () => {
+
+    const router = useRouter();
+
+    const onCallback = (symbol: string) => {
+        router.push(`/symbols/${symbol}`)
+    }
+
     return (
         <div className="flex-panel-box">
-            <SymbolBlock isDashboard={false} />
+            <SymbolBlock
+                isDashboard={false}
+                onCallback={onCallback}
+            />
         </div>
     )
 }
+
 
 Symbols.getLayout = function getLayout(page: ReactElement) {
     return (
