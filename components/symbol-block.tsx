@@ -36,9 +36,6 @@ interface SymbolBlockProps {
 }
 
 let isDashboard = false;
-
-const MAX_ITEMS: number = 5;
-
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 const columnHelper = createColumnHelper<any>();

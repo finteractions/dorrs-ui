@@ -61,13 +61,26 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
     }
 
     setUserPermissions = (permission: string, type: string, value: boolean) => {
+        let editValue = value && (type === 'create' || type === 'delete');
+        let viewValue = value && (type === 'create' || type === 'delete');
+
         this.setState(prevState => ({
             settingCheckbox: {
                 ...prevState.settingCheckbox,
                 [type]: true,
             },
         }));
-        adminService.setUserPermissions(this.props.user_id, permission, type, value.toString())
+
+        const data = {
+            user_id: this.props.user_id,
+            permission: permission,
+            create: editValue,
+            edit: editValue,
+            view: viewValue,
+            [type]: value
+        }
+
+        adminService.setUserPermissions(data)
             .then()
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -79,6 +92,7 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
                         [type]: false,
                     },
                 }));
+                this.getUserPermissions();
             });
     }
 
@@ -107,7 +121,6 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
                                                     <tr>
                                                         <th className="head_permission_name">Name</th>
                                                         <th className="head_permission_rule">View</th>
-                                                        <th className="head_permission_rule">Edit</th>
                                                         <th className="head_permission_rule">Create</th>
                                                         <th className="head_permission_rule">Delete</th>
                                                     </tr>
@@ -125,15 +138,7 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
                                                                     <input disabled={this.state.settingCheckbox.view}
                                                                            type="checkbox"
                                                                            onChange={(event) => this.setUserPermissions(item.key, 'view', event.target.checked)}
-                                                                           defaultChecked={item.values.view}/>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div className="permission_rule">
-                                                                    <input disabled={this.state.settingCheckbox.edit}
-                                                                           type="checkbox"
-                                                                           onChange={(event) => this.setUserPermissions(item.key, 'edit', event.target.checked)}
-                                                                           defaultChecked={item.values.edit}/>
+                                                                           checked={item.values.view}/>
                                                                 </div>
                                                             </td>
                                                             <td>
@@ -141,7 +146,7 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
                                                                     <input disabled={this.state.settingCheckbox.create}
                                                                            type="checkbox"
                                                                            onChange={(event) => this.setUserPermissions(item.key, 'create', event.target.checked)}
-                                                                           defaultChecked={item.values.create}/>
+                                                                           checked={item.values.create}/>
                                                                 </div>
                                                             </td>
                                                             <td>
@@ -149,7 +154,7 @@ class UserPermissionsBlock extends React.Component<UserPermissionsBlockProps, Us
                                                                     <input disabled={this.state.settingCheckbox.delete}
                                                                            type="checkbox"
                                                                            onChange={(event) => this.setUserPermissions(item.key, 'delete', event.target.checked)}
-                                                                           defaultChecked={item.values.delete}/>
+                                                                           checked={item.values.delete}/>
                                                                 </div>
                                                             </td>
                                                         </tr>

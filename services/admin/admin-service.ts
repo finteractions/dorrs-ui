@@ -213,13 +213,7 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<IPermission[]>>(`${this.PATH}access_management/?user_id=${encodeURIComponent(user_id)}`, {}, this.getAdminToken())).data;
     }
 
-    public async setUserPermissions(user_id: string, permission: string, type: string, value: string): Promise<IResponseApi> {
-        const data = {
-            user_id: user_id,
-            permission: permission,
-            [type]: value
-            // permission_id: 1,
-        }
+    public async setUserPermissions(data: any): Promise<IResponseApi> {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}access_management/`, data, {}, this.getAdminToken()));
     }
 
