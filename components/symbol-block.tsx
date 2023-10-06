@@ -96,7 +96,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 cell: (item) =>
                     <span onClick={() => {
                         this.navigate(item.getValue().symbol)
-                    }} className='black-text cursor-pointer'>{item.getValue().symbol}</span>
+                    }} className={`cursor-pointer ${item.getValue().company_profile ? 'link' : 'black-text'}`}>{item.getValue().symbol}</span>
                 ,
                 header: () => <span>Symbol</span>,
             }),
