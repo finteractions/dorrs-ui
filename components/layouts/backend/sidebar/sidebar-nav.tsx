@@ -11,6 +11,7 @@ import {
     faWallet,
     faUser,
     faDollarSign,
+    faBuilding,
     faBook
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
@@ -62,6 +63,17 @@ const MENU_LIST: MenuItem[] = [
             {
                 text: 'Blacklist (IP)',
                 href: "/backend/blacklist",
+            }
+        ]
+    },
+    {
+        text: 'Firm Management',
+        href: '#',
+        icon: faBuilding,
+        submenus: [
+            {
+                text: 'Firms',
+                href: "/backend/firm-management",
             }
         ]
     },

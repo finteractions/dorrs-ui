@@ -179,33 +179,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             .finally(() => this.setState({loading: false}))
     };
 
-    // Недоработанный метод асайна/создания компании
-    handleAssignCompany = async () => {
-        if (this.props.data?.firm){
-            await adminService.assignCompany(this.props.data?.user_id, this.props.data?.firm)
-                .then(((res: any) => {
-
-                }))
-                .catch((errors: IError) => {
-                    this.setState({errorMessages: errors.messages});
-                })
-                .finally(() => {
-                    // this.setState({loading: false})
-                })
-        } else if (this.props.data?.company_name){
-            await adminService.createCompany(this.props.data?.company_name)
-                .then(((res: any) => {
-
-                }))
-                .catch((errors: IError) => {
-                    this.setState({errorMessages: errors.messages});
-                })
-                .finally(() => {
-                    // this.setState({loading: false})
-                })
-        }
-    }
-
     handleCompanySearch = async (values: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         if (values.company_name && !this.state.selectedCompany) {
             this.setState({availableCompaniesLoading: true});
@@ -214,7 +187,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                     console.log(res.length)
                     if (res.length === 1 && res[0].name === values.company_name) {
                         this.handleSetSearchedCompany(res[0], setFieldValue);
-                    }else {
+                    } else {
                         this.setState({availableCompanies: res});
                     }
 
@@ -228,17 +201,17 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
         }
     }
 
-    handleSetSearchedCompany = (item: ICompanySearch,setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+    handleSetSearchedCompany = (item: ICompanySearch, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         this.setState({availableCompanies: [], selectedCompany: item}, () => {
-            setFieldValue('company_name', item.name );
+            setFieldValue('company_name', item.name);
             setFieldValue('firm', item.id);
         });
     }
 
     handleResetSearchedCompany = (value: string, values: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-       setFieldValue('company_name', value);
+        setFieldValue('company_name', value);
 
-        if (value !== this.state.selectedCompany?.name){
+        if (value !== this.state.selectedCompany?.name) {
             setFieldValue('firm', '');
             this.setState({availableCompanies: [], selectedCompany: null});
         }
@@ -258,7 +231,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                             validationSchema={formSchema}
                             onSubmit={this.handleSubmit}
                         >
-                            {({isSubmitting, setFieldValue, isValid, dirty, values, errors,validateField}) => {
+                            {({isSubmitting, setFieldValue, isValid, dirty, values, errors, validateField}) => {
                                 return (
                                     <Form id="bank-form">
                                         {this.props.isAdmin && (
@@ -294,7 +267,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                                         you sure you want
                                                                         to {this.state.isApproving ? 'approve' : 'reject'}
                                                                         {this.state.isApproving && !this.props.data?.firm && (
-                                                                            <span className='company_text'> (company &quot;{this.props.data?.company_name}&quot; will be created) </span>
+                                                                            <span
+                                                                                className='company_text'> (company &quot;{this.props.data?.company_name}&quot; will be created) </span>
                                                                         )}?
 
                                                                     </div>
@@ -455,7 +429,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     placeholder="Type a Company Name"
                                                     onBlur={() => {
 
-                                                      this.handleCompanySearch(values, setFieldValue);
+                                                        this.handleCompanySearch(values, setFieldValue);
 
 
                                                     }}
@@ -490,7 +464,11 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
                                                 <div className="input__wrap__search_company">
                                                     {this.state.availableCompanies.map((item: ICompanySearch) => (
-                                                        <button disabled={this.state.availableCompaniesLoading || isSubmitting || this.isShow()} className="b-btn ripple search_company_item" onClick={() => this.handleSetSearchedCompany(item, setFieldValue)} key={item.id}>{item.name}</button>
+                                                        <button
+                                                            disabled={this.state.availableCompaniesLoading || isSubmitting || this.isShow()}
+                                                            className="b-btn ripple search_company_item"
+                                                            onClick={() => this.handleSetSearchedCompany(item, setFieldValue)}
+                                                            key={item.id}>{item.name}</button>
                                                     ))}
                                                 </div>
 

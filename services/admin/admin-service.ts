@@ -9,6 +9,7 @@ import {IBlacklist} from "@/interfaces/i-blacklist";
 import {any} from "prop-types";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {IPermission} from "@/interfaces/i-permission";
+import {IFirm} from "@/interfaces/i-firm";
 
 class AdminService extends BaseService {
 
@@ -240,14 +241,25 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}firm_management/`, data, {}, this.getAdminToken()));
     }
 
-    public async assignCompany(user_id: string, firm_id: string): Promise<IResponseApi> {
-        const data = {
-            user_id: user_id,
-            firm_id: firm_id
-        }
+    public async assignCompany(data: any): Promise<IResponseApi> {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_firm/`, data, {}, this.getAdminToken()));
     }
 
+    public async getFirms(): Promise<IFirm[]> {
+        return (await apiWebBackendService.get<IResponse<IFirm[]>>(`${this.PATH}firm_management/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    }
+
+    public async createFirm(data:any): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}firm_management/`, data, {}, this.getAdminToken());
+    }
+
+    public async updateFirm(id: number, data:any): Promise<IResponseApi> {
+        return apiWebBackendService.put<IResponseApi>(`${this.PATH}firm_management/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async deleteFirm(id: number): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}firm_management/${id}/`, {}, {}, this.getAdminToken());
+    }
 
 }
 

@@ -1,4 +1,4 @@
-import React, {createRef} from 'react';
+import React from 'react';
 import UserActivityLogsBlock from "@/components/backend/user-activity-logs-block";
 import adminFileService from "@/services/admin/admin-file-service";
 import {IUserDetail} from "@/interfaces/i-user-detail";
@@ -16,6 +16,15 @@ import UserImage from "@/components/user-image";
 import Link from "next/link";
 import NoDataBlock from "@/components/no-data-block";
 import UserPermissionsBlock from "@/components/backend/user-permissions-block";
+import {IFirm} from "@/interfaces/i-firm";
+import {faClose, faEdit, faEye, faCheck} from "@fortawesome/free-solid-svg-icons";
+import {ErrorMessage, Field, Form, Formik} from "formik";
+import * as Yup from "yup";
+import formService from "@/services/form/form-service";
+
+const formSchema = Yup.object().shape({
+    firm_id: Yup.number().required('Required').label('Firm'),
+});
 
 
 interface UserBlockState extends IState {
@@ -27,6 +36,9 @@ interface UserBlockState extends IState {
     isConfirmedActivation: boolean;
     loading: boolean;
     approved_by_user: IUser | null
+    firms: Array<IFirm> | null
+    isUserFirmEdit: boolean;
+    formInitialValues: { firm_id: number | null },
 }
 
 interface UserBlockProps {
@@ -49,7 +61,10 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             isActivation: null,
             isConfirmedActivation: false,
             loading: true,
-            approved_by_user: null
+            approved_by_user: null,
+            firms: null,
+            isUserFirmEdit: false,
+            formInitialValues: {firm_id: null}
         };
     }
 
@@ -61,6 +76,18 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             this.setState({approved_by_user: null, loading: true})
         }
         this.getUser(this.props.user_id);
+        this.getFirms();
+    }
+
+    getFirms = () => {
+        adminService.getFirms()
+            .then((res: IFirm[]) => {
+                const data = res?.sort((a, b) => a.id - b.id) || [];
+                this.setState({firms: data});
+            })
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            })
     }
 
     handleApprove = async (values: any, comment: string) => {
@@ -109,9 +136,11 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
     getUser = (user_id: string) => {
         adminService.getUser(user_id || '')
             .then((res: IUserDetail[]) => {
-                this.setState({data: res[0]});
+                const user = res[0] as IUserDetail;
+                const firm_id = user.user_id?.firm?.id || null;
+                this.setState({data: user, formInitialValues: {firm_id: firm_id}});
                 if (res[0].approved_by) {
-                    this.getApprovedByUser(res[0].approved_by || 0);
+                    this.getApprovedByUser(user.approved_by || 0);
                 } else {
                     this.setState({
                         loading: false,
@@ -133,6 +162,30 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                 });
             })
     }
+
+    editFirm = () => {
+        this.setState({isUserFirmEdit: !this.state.isUserFirmEdit})
+    }
+
+    handleSubmit = async (values: Record<string, number | null>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+        this.setState({errorMessages: null});
+
+        const data = {
+            user_id: this.state.data?.user_id.email,
+            firm_id: values.firm_id
+        }
+
+        await adminService.assignCompany(data)
+            .then(((res: any) => {
+                this.getUser(this.props.user_id);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+                this.setState({isUserFirmEdit: false})
+            });
+    };
 
     render() {
 
@@ -351,7 +404,97 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                         <div className="info-panel-section-title mb-2">
                                                             <div className='info-panel-title-text'>Firm</div>
                                                         </div>
-                                                       <div>{this.state.data?.user_id?.firm?.name ? this.state.data?.user_id?.firm?.name : '-'}</div>
+
+                                                        <div className={'d-flex align-items-center'}>
+                                                            <div>
+                                                                {!this.state.isUserFirmEdit ? (
+                                                                    <>
+                                                                        {this.state.data?.user_id?.firm?.name ? this.state.data?.user_id?.firm?.name : '-'}</>
+                                                                ) : (
+                                                                    <>
+                                                                        <Formik
+                                                                            initialValues={this.state.formInitialValues}
+                                                                            validationSchema={formSchema}
+                                                                            onSubmit={this.handleSubmit}
+                                                                        >
+                                                                            {({
+                                                                                  isSubmitting
+                                                                              }) => {
+                                                                                return (
+                                                                                    <Form id={'firm-user'}
+                                                                                          className={'edit-form-small'}>
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                                                                <Field
+                                                                                                    name="firm_id"
+                                                                                                    id="firm_id"
+                                                                                                    as="select"
+                                                                                                    className="b-select"
+                                                                                                    disabled={isSubmitting}
+                                                                                                >
+                                                                                                    <option
+                                                                                                        disabled={true}
+                                                                                                        value="">Select
+                                                                                                        a Firm
+                                                                                                    </option>
+                                                                                                    {this.state.firms?.map((firm: IFirm) => (
+                                                                                                        <option
+                                                                                                            key={firm.id}
+                                                                                                            value={firm.id}>
+                                                                                                            {firm.name}
+                                                                                                        </option>
+                                                                                                    ))}
+                                                                                                </Field>
+                                                                                                <ErrorMessage
+                                                                                                    name="region"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <>
+                                                                                            <div
+                                                                                                className='admin-table-actions mr-20px'>
+                                                                                                <button
+                                                                                                    type="submit"
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faCheck}/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={this.editFirm}
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faClose}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    </Form>
+                                                                                );
+                                                                            }}
+                                                                        </Formik>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                            {this.state.data.is_approved && (
+                                                                <div className='admin-table-actions mr-20px'>
+                                                                    {!this.state.isUserFirmEdit ? (
+                                                                        <button
+                                                                            onClick={this.editFirm}
+                                                                            className='admin-table-btn ripple'>
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon" icon={faEdit}/>
+                                                                        </button>
+                                                                    ) : (
+                                                                        <></>
+                                                                    )}
+
+
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <div className="mb-3">
                                                         <div className="info-panel-section-title mb-2">

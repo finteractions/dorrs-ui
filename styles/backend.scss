@@ -3847,7 +3847,7 @@
       max-width: 315px;
       padding: 10px 0;
 
-      .company_text{
+      .company_text {
         font-size: 14px;
         font-weight: 600;
       }
@@ -4103,7 +4103,7 @@
     text-align: center;
   }
 
-  .head_permission_rule{
+  .head_permission_rule {
     width: 65px !important;
     text-align: center !important;
     cursor: initial !important;
@@ -4122,18 +4122,18 @@
     }
   }
 
-  .modal__navigate{
+  .modal__navigate {
     display: flex;
     align-items: center;
     column-gap: 10px;
     margin-bottom: 32px;
   }
 
-  .modal__navigate__title{
+  .modal__navigate__title {
     font-weight: 600;
   }
 
-  .input__group__title{
+  .input__group__title {
     font-size: 20px;
     margin-top: 50px;
     margin-bottom: 15px;
@@ -4165,11 +4165,11 @@
     }
   }
 
-  .big_modal .modal__content{
+  .big_modal .modal__content {
     max-width: 950px;
   }
 
-  .view_block_main_title{
+  .view_block_main_title {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -4177,27 +4177,27 @@
     row-gap: 15px;
   }
 
-  .view_panel{
+  .view_panel {
     display: flex;
     flex-wrap: wrap;
     margin: 0 -30px;
     row-gap: 50px;
 
 
-    .view_block{
+    .view_block {
       flex: 0 0 50%;
       @media(max-width: 767px) {
         flex: 0 0 100%;
       }
 
-      &.full_block{
+      &.full_block {
         flex: 0 0 100%;
       }
 
-      .view_block_body{
+      .view_block_body {
         margin: 0 30px;
 
-        .view_block_title{
+        .view_block_title {
           font-weight: 600;
           border-bottom: 3px solid #1f8ceb;
           padding-bottom: 5px;
@@ -4205,11 +4205,46 @@
           margin-bottom: 10px;
         }
 
-        .view_block_sub_title{
+        .view_block_sub_title {
           font-weight: 600;
           margin-top: 10px;
         }
       }
+    }
+  }
+
+  .mr-20px {
+    margin-left: 20px;
+  }
+
+  .align-items-center {
+    align-items: center;
+  }
+
+  .edit-form-small {
+    display: flex;
+    align-items: center;
+
+    > .input {
+      margin-bottom: unset;
+
+      > .input__wrap {
+        min-width: 250px;
+        width: 100%;
+      }
+    }
+
+
+    .b-select {
+      border-radius: 0;
+      border: 1px solid #1E2D3B;
+      box-sizing: border-box;
+      font-size: 14px;
+      line-height: 100%;
+      font-feature-settings: "kern" off;
+      color: #1E2D3B;
+      height: 28px;
+      background: url(../public/img/select-arrow.svg) right 16px center/24px no-repeat #fff;
     }
   }
 }
