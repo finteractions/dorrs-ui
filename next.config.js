@@ -25,6 +25,9 @@ module.exports = {
             },
         ]
     },
+    images: {
+        domains: process.env.IMAGE_DOMAINS ? process.env.IMAGE_DOMAINS.split(',') : [],
+    },
     distDir: 'build',
     compress: true,
     generateEtags: true,

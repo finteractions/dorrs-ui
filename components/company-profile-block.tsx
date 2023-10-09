@@ -3,32 +3,42 @@ import symbolService from "@/services/symbol/symbol-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import LoaderBlock from "@/components/loader-block";
-import NoDataBlock from "@/components/no-data-block";
+import Link from "next/link";
+import {useRouter} from "next/router";
 import CompanyProfile from "@/components/company-profile-form";
+import Modal from "@/components/modal";
 
 
 interface CompanyProfileProps {
     symbol: string;
 }
 
-interface CompanyProfileState {
-    isLoading: boolean
+interface CompanyProfileState extends IState, IModalState {
+    isLoading: boolean;
+    isOpenCompanyModal: boolean;
+    formCompanyAction: string;
+    errors: string[];
 }
 
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
     symbols: Array<ISymbol> = new Array<ISymbol>();
-
     state: CompanyProfileState;
     companyProfile: ICompanyProfile | null;
+    symbol: ISymbol | null;
 
     constructor(props: CompanyProfileProps) {
         super(props);
 
         this.companyProfile = null;
-
+        this.symbol = null;
         this.state = {
-            isLoading: false,
+            success: false,
+            isLoading: true,
+            isOpenModal: false,
+            errors: [],
+            isOpenCompanyModal: false,
+            formCompanyAction: 'add',
         }
     }
 
@@ -53,8 +63,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                 });
 
                 this.symbols = data;
-
-                this.companyProfile = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol)?.company_profile || null;
+                const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
+                this.symbol = symbol || null;
+                this.companyProfile = symbol?.company_profile || null;
             })
             .catch((errors: IError) => {
 
@@ -63,6 +74,35 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                 this.setState({isLoading: false})
             });
     }
+    handleBack = () => {
+        const router = useRouter();
+        router.push('/symbols');
+    }
+
+
+    openCompanyModal = (mode: string) => {
+        this.setState({
+            isOpenCompanyModal: true,
+            formCompanyAction: mode,
+        })
+    }
+
+    cancelCompanyForm(): void {
+        this.setState({isOpenCompanyModal: false});
+    }
+
+    modalCompanyTitle = (mode: string) => {
+        if (mode === 'view') {
+            return 'View Company Profile'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+        }
+    }
+
+    onCallback = async (values: any, step: boolean) => {
+        this.getSymbols();
+        this.cancelCompanyForm()
+    };
 
     render() {
         return (
@@ -71,6 +111,26 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
+                        <div className="d-flex align-items-center justify-content-between flex-1">
+                            <div className="login__bottom">
+                                <p>
+                                    <i className="icon-chevron-left"/> <Link
+                                    className="login__link"
+                                    href="/symbols"
+
+                                >Back
+                                </Link>
+                                </p>
+                            </div>
+                            {this.companyProfile && !this.companyProfile.is_approved && (
+                                <button
+                                    className={`b-btn ripple`}
+                                    onClick={() => this.openCompanyModal('edit')}
+                                >Edit
+                                </button>
+                            )}
+
+                        </div>
                         <div className={'panel'}>
                             {this.companyProfile ? (
                                 <div className={'content__bottom'}>
@@ -195,11 +255,30 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                     </div>
                                 </div>
                             ) : (
-                                <div className={'content__bottom'}>
-                                    <NoDataBlock/>
+                                <div className={'content__bottom flex flex-1 justify-content-center text-center'}>
+                                    <div className="mb-24">This is Company Profile for {this.props.symbol}</div>
+                                    <button
+                                        className={`b-btn ripple`}
+                                        onClick={() => this.openCompanyModal('add')}
+                                    >Add
+                                    </button>
                                 </div>
                             )}
                         </div>
+
+                        <Modal isOpen={this.state.isOpenCompanyModal}
+                               className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}
+                               onClose={() => this.cancelCompanyForm()}
+                               title={this.modalCompanyTitle(this.state.formCompanyAction)}
+                        >
+                            <CompanyProfile action={this.state.formCompanyAction}
+                                            data={this.companyProfile}
+                                            symbolData={this.symbol}
+                                            onCallback={this.onCallback}
+                                            isAdmin={false}/>
+
+                        </Modal>
+
                     </>
                 )}
             </>

@@ -29,6 +29,7 @@ export interface ICompanyProfile {
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
+    is_approved: boolean;
     logo: string;
     logo_tmp?: string;
 }

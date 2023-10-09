@@ -12,6 +12,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import CompanyProfile from "@/components/company-profile-form";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import AssetImage from "@/components/asset-image";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -41,6 +42,9 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
+let host = '';
+
+
 class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     state: SymbolBlockState;
@@ -64,14 +68,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             formCompanyAction: 'add',
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         isDashboard = this.props?.isDashboard ?? true;
 
         columns = [
-            // columnHelper.accessor((row) => row.reason_for_entry, {
-            //     id: "reason_for_entry",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Reason for Entry</span>,
-            // }),
             columnHelper.accessor((row) => row.cusip, {
                 id: "cusip",
                 cell: (item) =>
@@ -79,24 +80,26 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>CUSIP</span>,
             }),
-            // columnHelper.accessor((row) => row.symbol, {
-            //     id: "symbol",
-            //     cell: (item) =>
-            //         <span onClick={() => this.openCompanyModal('view', item.company_profile as ISymbol)} className='black-text'>{item.getValue()}</span>
-            //     ,
-            //     header: () => <span>Symbol</span>,
-            // }),
-
             columnHelper.accessor((row) => ({
                 symbol: row.symbol,
                 company_profile: row.company_profile,
-                formData: row
+                formData: row,
+                name_label: row.company_profile?.security_name,
+                image: row.company_profile?.logo
             }), {
                 id: "symbol",
                 cell: (item) =>
-                    <span onClick={() => {
+                    <div onClick={() => {
                         this.navigate(item.getValue().symbol)
-                    }} className={`cursor-pointer ${item.getValue().company_profile ? 'link' : 'black-text'}`}>{item.getValue().symbol}</span>
+                    }}
+                         className={`table-image cursor-pointer ${item.getValue().company_profile ? 'link' : 'black-text'}`}
+                    >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
+                        {item.getValue().symbol}
+                    </div>
                 ,
                 header: () => <span>Symbol</span>,
             }),
@@ -118,56 +121,21 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Transfer Agent </span>,
             }),
-            // columnHelper.accessor((row) => row.custodian, {
-            //     id: "custodian",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Custodian </span>,
-            // }),
             columnHelper.accessor((row) => row.market_sector, {
                 id: "market_sector",
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
-            // columnHelper.accessor((row) => row.lot_size, {
-            //     id: "lot_size",
-            //     cell: (item) => formatterService.numberFormat(item.getValue()),
-            //     header: () => <span>Lot Size </span>,
-            // }),
-            // columnHelper.accessor((row) => row.fractional_lot_size, {
-            //     id: "fractional_lot_size",
-            //     cell: (item) => formatterService.numberFormat(item.getValue()),
-            //     header: () => <span>Fractional Lot Size </span>,
-            // }),
             columnHelper.accessor((row) => row.mvp, {
                 id: "mvp",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>MPV </span>,
             }),
-            // columnHelper.accessor((row) => row.security_name, {
-            //     id: "security_name",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Security Name </span>,
-            // }),
             columnHelper.accessor((row) => row.security_type, {
                 id: "security_type",
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Type </span>,
             }),
-            // columnHelper.accessor((row) => row.security_type_2, {
-            //     id: "security_type2",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Security Type 2 </span>,
-            // }),
-            // columnHelper.accessor((row) => row.blockchain, {
-            //     id: "blockchain",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Blockchain </span>,
-            // }),
-            // columnHelper.accessor((row) => row.smart_contract_type, {
-            //     id: "smart_contract_type",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Smart Contract type </span>,
-            // }),
             columnHelper.accessor((row) => row.status, {
                 id: "status",
                 cell: (item) =>
@@ -316,7 +284,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                 {this.symbols.length > 0 ? (
                                     <Table columns={columns}
                                            data={this.symbols}
-                                        // searchPanel={true}
+                                           searchPanel={true}
                                            block={this}
                                            editBtn={true}
                                            viewBtn={true}
