@@ -9,8 +9,6 @@ import formValidator from "@/services/form-validator/form-validator";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {isNull} from "util";
-import {faPencil} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import UserImage from "@/components/user-image";
 import VerifyOtpForm from "@/components/verify-otp-form";
 import PhoneInput from "react-phone-input-2";

@@ -1,5 +1,6 @@
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import BaseService from "@/services/base/base-service";
+import {IUserProfile} from "@/interfaces/i-user-profile";
 
 class UserService extends BaseService {
 
