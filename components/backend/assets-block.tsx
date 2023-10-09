@@ -86,6 +86,10 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) =>
                     <div
                         className={`table-image cursor-pointer`}
+                        onClick={() => {
+                            this.setState({formData: item.getValue().formData, formAction: 'view'})
+                            this.openCompanyModal('view', item.getValue().company_profile)
+                        }}
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
@@ -96,7 +100,6 @@ class AssetsBlock extends React.Component<{}> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
-
             columnHelper.accessor((row) => row.reason_for_entry, {
                 id: "reason_for_entry",
                 cell: (item) => item.getValue(),

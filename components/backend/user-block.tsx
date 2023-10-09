@@ -20,7 +20,6 @@ import {IFirm} from "@/interfaces/i-firm";
 import {faClose, faEdit, faEye, faCheck} from "@fortawesome/free-solid-svg-icons";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
-import formService from "@/services/form/form-service";
 
 const formSchema = Yup.object().shape({
     firm_id: Yup.number().required('Required').label('Firm'),
@@ -64,7 +63,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             approved_by_user: null,
             firms: null,
             isUserFirmEdit: false,
-            formInitialValues: {firm_id: null}
+            formInitialValues: {firm_id: null},
         };
     }
 
@@ -418,7 +417,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                             onSubmit={this.handleSubmit}
                                                                         >
                                                                             {({
-                                                                                  isSubmitting
+                                                                                  isSubmitting, errors
                                                                               }) => {
                                                                                 return (
                                                                                     <Form id={'firm-user'}
@@ -434,7 +433,6 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                                     disabled={isSubmitting}
                                                                                                 >
                                                                                                     <option
-                                                                                                        disabled={true}
                                                                                                         value="">Select
                                                                                                         a Firm
                                                                                                     </option>
@@ -446,15 +444,16 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                                         </option>
                                                                                                     ))}
                                                                                                 </Field>
+
                                                                                                 <ErrorMessage
-                                                                                                    name="region"
+                                                                                                    name="firm_id"
                                                                                                     component="div"
                                                                                                     className="error-message"/>
                                                                                             </div>
                                                                                         </div>
                                                                                         <>
                                                                                             <div
-                                                                                                className='admin-table-actions mr-20px'>
+                                                                                                className='admin-table-actions ml-20px'>
                                                                                                 <button
                                                                                                     type="submit"
                                                                                                     className='admin-table-btn ripple'>
@@ -479,19 +478,19 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                 )}
                                                             </div>
                                                             {this.state.data.is_approved && (
-                                                                <div className='admin-table-actions mr-20px'>
+                                                                <div className='admin-table-actions ml-20px'>
                                                                     {!this.state.isUserFirmEdit ? (
-                                                                        <button
-                                                                            onClick={this.editFirm}
-                                                                            className='admin-table-btn ripple'>
-                                                                            <FontAwesomeIcon
-                                                                                className="nav-icon" icon={faEdit}/>
-                                                                        </button>
+                                                                        <>
+                                                                            <button
+                                                                                onClick={this.editFirm}
+                                                                                className='admin-table-btn ripple'>
+                                                                                <FontAwesomeIcon
+                                                                                    className="nav-icon" icon={faEdit}/>
+                                                                            </button>
+                                                                        </>
                                                                     ) : (
                                                                         <></>
                                                                     )}
-
-
                                                                 </div>
                                                             )}
                                                         </div>

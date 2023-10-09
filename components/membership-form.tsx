@@ -184,7 +184,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             this.setState({availableCompaniesLoading: true});
             await formService.searchCompany(values.company_name)
                 .then((res: Array<ICompanySearch>) => {
-                    console.log(res.length)
                     if (res.length === 1 && res[0].name === values.company_name) {
                         this.handleSetSearchedCompany(res[0], setFieldValue);
                     } else {

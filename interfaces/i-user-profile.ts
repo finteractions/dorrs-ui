@@ -1,4 +1,6 @@
-interface IUserProfile {
+import {IFirm} from "@/interfaces/i-firm";
+
+export interface IUserProfile {
     first_name: string;
     last_name: string;
     email: string;
@@ -11,4 +13,5 @@ interface IUserProfile {
     address: string;
     state: string;
     house_number: string;
+    firm?: IFirm
 }

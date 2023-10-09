@@ -29,7 +29,6 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
 
     constructor(props: FirmFormProps) {
         super(props);
-        console.log(this.props.data)
         const initialData = this.props.data || {} as IFirm;
 
         const initialValues: {

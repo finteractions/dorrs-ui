@@ -1,4 +1,6 @@
 import {IUserAssetData} from "@/interfaces/i-user-asset-data";
+import {IUserProfile} from "@/interfaces/i-user-profile";
+
 
 export interface IDataContext<T> {
     userAssets: IUserAssetData;

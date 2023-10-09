@@ -92,7 +92,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     <div onClick={() => {
                         this.navigate(item.getValue().symbol)
                     }}
-                         className={`table-image cursor-pointer ${item.getValue().company_profile ? 'link' : 'black-text'}`}
+                         className={`table-image cursor-pointer link`}
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}

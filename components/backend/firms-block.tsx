@@ -145,7 +145,6 @@ class FirmsBlock extends React.Component<{}> {
 
 
     onCallback = async (values: any, step: boolean) => {
-        console.log('callback...')
         this.getFirms();
         this.closeModal();
     };
