@@ -67,7 +67,36 @@ class AssetsBlock extends React.Component<{}> {
             showSymbolForm: true
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         columns = [
+            columnHelper.accessor((row) => row.cusip, {
+                id: "cusip",
+                cell: (item) => item.getValue(),
+                header: () => <span>CUSIP</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol,
+                company_profile: row.company_profile,
+                formData: row,
+                name_label: row.company_profile?.security_name,
+                image: row.company_profile?.logo
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <div
+                        className={`table-image cursor-pointer`}
+                    >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
+                        {item.getValue().symbol}
+                    </div>
+                ,
+                header: () => <span>Symbol</span>,
+            }),
+
             columnHelper.accessor((row) => row.reason_for_entry, {
                 id: "reason_for_entry",
                 cell: (item) => item.getValue(),
@@ -77,27 +106,6 @@ class AssetsBlock extends React.Component<{}> {
                 id: "security_name",
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Name </span>,
-            }),
-
-            columnHelper.accessor((row) => ({
-                symbol: row.symbol,
-                company_profile: row.company_profile,
-                formData: row
-            }), {
-                id: "symbol",
-                cell: (item) =>
-                    <span onClick={() => {
-                        this.setState({formData: item.getValue().formData, formAction: 'view'})
-                        this.openCompanyModal('view', item.getValue().company_profile)
-                    }} className='cursor-pointer'>{item.getValue().symbol}</span>
-                ,
-                header: () => <span>Symbol</span>,
-            }),
-
-            columnHelper.accessor((row) => row.cusip, {
-                id: "cusip",
-                cell: (item) => item.getValue(),
-                header: () => <span>CUSIP</span>,
             }),
             columnHelper.accessor((row) => row.dsin, {
                 id: "dsin",
@@ -206,7 +214,7 @@ class AssetsBlock extends React.Component<{}> {
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-                    
+
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
@@ -485,7 +493,7 @@ class AssetsBlock extends React.Component<{}> {
                 </Modal>
 
                 <Modal isOpen={this.state.isOpenCompanyModal}
-                       className={this.state.formCompanyAction === 'view' ? 'big_modal' :  ''}
+                       className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}
                        onClose={() => this.cancelCompanyForm()}
                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                 >

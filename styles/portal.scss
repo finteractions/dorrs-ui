@@ -3023,8 +3023,8 @@ body {
     }
 
     .content__search {
-      justify-content: end;
       display: flex;
+      justify-content: flex-end;
 
       .search-filter {
         max-width: 250px;
