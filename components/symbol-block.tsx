@@ -13,6 +13,9 @@ import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import CompanyProfile from "@/components/company-profile-form";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import AssetImage from "@/components/asset-image";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
+import UserPermissionService from "@/services/user/user-permission-service";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -24,6 +27,12 @@ interface SymbolBlockState extends IState, IModalState {
     symbol: ISymbol | null;
     modalTitle: string;
     errors: string[];
+    companyProfileAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 interface SymbolBlockProps extends ICallback {
@@ -52,8 +61,17 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     errors: Array<string> = new Array<string>();
     getSymbolsInterval!: NodeJS.Timer;
 
-    constructor(props: SymbolBlockProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    constructor(props: SymbolBlockProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
+
+        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
+            'CompanyProfile',
+            this.context.userProfile.access
+        );
 
         this.state = {
             success: false,
@@ -66,11 +84,13 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             isOpenCompanyModal: false,
             formCompanyData: null,
             formCompanyAction: 'add',
+            companyProfileAccess: companyProfileAccess
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
 
         isDashboard = this.props?.isDashboard ?? true;
+
 
         columns = [
             columnHelper.accessor((row) => row.cusip, {
@@ -301,29 +321,48 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                             >
                                 {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
                                     <div className="modal__navigate">
-                                        <div className="modal__navigate__title">Company Profile:</div>
+                                        {(this.state.companyProfileAccess.create ||
+                                            this.state.companyProfileAccess.edit ||
+                                            this.state.companyProfileAccess.view) && (
+                                            <div className="modal__navigate__title">Company Profile:</div>
+                                        )}
 
-                                        {this.state.symbol?.company_profile ? (
+                                        {(this.state.companyProfileAccess.create ||
+                                            this.state.companyProfileAccess.edit ||
+                                            this.state.companyProfileAccess.view) && (
                                             <>
-                                                <div
-                                                    className={`table__status table__status-${this.state.symbol?.company_profile?.status.toLowerCase()}`}>{this.state.symbol?.company_profile?.status}</div>
-                                                <button className={'border-btn ripple'}
-                                                        onClick={() => this.openCompanyModal('view', this.state.symbol?.company_profile)}>
-                                                    View
-                                                </button>
-                                                <button className={'border-btn ripple'}
-                                                        onClick={() => this.openCompanyModal('edit', this.state.symbol?.company_profile)}>
-                                                    Edit
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button className={'border-btn ripple'}
-                                                        onClick={() => this.openCompanyModal('add')}>
-                                                    Add
-                                                </button>
+                                                {this.state.symbol?.company_profile ? (
+                                                    <>
+                                                        <div
+                                                            className={`table__status table__status-${this.state.symbol?.company_profile?.status.toLowerCase()}`}>{this.state.symbol?.company_profile?.status}</div>
+                                                        {this.state.companyProfileAccess.view && (
+                                                            <button className={'border-btn ripple'}
+                                                                    onClick={() => this.openCompanyModal('view', this.state.symbol?.company_profile)}>
+                                                                View
+                                                            </button>
+                                                        )}
+                                                        {this.state.companyProfileAccess.edit && (
+                                                            <button className={'border-btn ripple'}
+                                                                    onClick={() => this.openCompanyModal('edit', this.state.symbol?.company_profile)}>
+                                                                Edit
+                                                            </button>
+                                                        )}
+
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {this.state.companyProfileAccess.create && (
+                                                            <button className={'border-btn ripple'}
+                                                                    onClick={() => this.openCompanyModal('add')}>
+                                                                Add
+                                                            </button>
+                                                        )}
+
+                                                    </>
+                                                )}
                                             </>
                                         )}
+
                                     </div>
                                 )}
 

@@ -6,12 +6,17 @@ export default function portalAccessWrapper<P extends { access?: any }>(
     Component: React.ComponentType<P>,
     componentName: string
 ) {
-    return function Init(props: Omit<P, 'access'>) {
-        const dataContext = useContext(DataContext);
+    function calculateAccess(dataContext:any, componentName:string) {
         const access = UserPermissionService.getAccessRulesByComponent(
             componentName,
             dataContext.userProfile.access
         );
+        return access;
+    }
+
+    return function Init(props: Omit<P, 'access'>) {
+        const dataContext = useContext(DataContext);
+        const access = calculateAccess(dataContext, componentName);
 
         const finalProps: P = {
             ...props as P,
