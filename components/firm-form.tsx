@@ -5,6 +5,8 @@ import AlertBlock from "@/components/alert-block";
 import LoaderBlock from "@/components/loader-block";
 import {IFirm} from "@/interfaces/i-firm";
 import adminService from "@/services/admin/admin-service";
+import {FormStatus} from "@/enums/form-status";
+import formatterService from "@/services/formatter/formatter-service";
 
 
 const formSchema = Yup.object().shape({
@@ -91,75 +93,88 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                 return (
                     <>
 
-                        {this.state.loading ? (
-                            <LoaderBlock/>
-                        ) : (
-                            <>
-                                <Formik<IFirm>
-                                    initialValues={this.state.formInitialValues as IFirm}
-                                    validationSchema={formSchema}
-                                    onSubmit={this.handleSubmit}
-                                >
-                                    {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
-                                        return (
-                                            <Form id="firm-form">
-                                                <div className="input">
-                                                    <div className="input__title">Name <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="name"
-                                                            id="name"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Name"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="company_name" component="div"
-                                                                      className="error-message"/>
+                    {this.state.loading ? (
+                        <LoaderBlock/>
+                    ) : (
+                        <>
+                            <Formik<IFirm>
+                                initialValues={this.state.formInitialValues as IFirm}
+                                validationSchema={formSchema}
+                                onSubmit={this.handleSubmit}
+                            >
+                                {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                    return (
+                                        <Form id="firm-form">
+
+                                            {this.props.action === 'view' && (
+                                                <div className='approve-form'>
+                                                    <div className='approve-form-text'>
+                                                        <>
+                                                            Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
+                                                        </>
                                                     </div>
                                                 </div>
+                                            )}
 
-                                                {this.props.action !== 'view' && (
-                                                    <button
-                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                                        Save Firm
-                                                    </button>
-                                                )}
+                                            <div className="input">
+                                                <div className="input__title">Name <i>*</i></div>
+                                                <div
+                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                    <Field
+                                                        name="name"
+                                                        id="name"
+                                                        type="text"
+                                                        className="input__text"
+                                                        placeholder="Type Name"
+                                                        disabled={isSubmitting || this.isShow()}
+                                                    />
+                                                    <ErrorMessage name="company_name" component="div"
+                                                                  className="error-message"/>
+                                                </div>
+                                            </div>
 
-                                                {this.state.errorMessages && (
-                                                    <AlertBlock type={"error"} messages={this.state.errorMessages}/>
-                                                )}
-                                            </Form>
-                                        );
-                                    }}
-                                </Formik>
-                            </>
-                        )
-                        }
+                                            {this.props.action !== 'view' && (
+                                                <button
+                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                    type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                                    Save Firm
+                                                </button>
+                                            )}
 
-
-                    </>
-                )
-            case 'delete':
-                return (
-                    <>
-                        <div className="confirm-btns-panel">
-                            {this.props?.onCancel && (
-                                <button className="border-btn ripple"
-                                        onClick={() => this.props.onCancel?.()}>Cancel</button>
-                            )}
-                            <button className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
-                                    type="button" disabled={this.state.isDeleting}
-                                    onClick={() => this.handleDelete(this.props.data)}>Confirm
-                            </button>
-                        </div>
-                    </>
-                );
+                                            {this.state.errorMessages && (
+                                                <AlertBlock type={"error"} messages={this.state.errorMessages}/>
+                                            )}
+                                        </Form>
+                                    );
+                                }}
+                    </Formik>
+            </>
+            )
         }
 
-    }
-}
 
-export default FirmForm;
+    </>
+    )
+    case
+        'delete'
+    :
+        return (
+            <>
+                <div className="confirm-btns-panel">
+                    {this.props?.onCancel && (
+                        <button className="border-btn ripple"
+                                onClick={() => this.props.onCancel?.()}>Cancel</button>
+                    )}
+                    <button className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
+                            type="button" disabled={this.state.isDeleting}
+                            onClick={() => this.handleDelete(this.props.data)}>Confirm
+                    </button>
+                </div>
+            </>
+        );
+    }
+
+    }
+    }
+
+    export default FirmForm;

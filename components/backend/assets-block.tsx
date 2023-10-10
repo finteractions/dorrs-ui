@@ -181,9 +181,9 @@ class AssetsBlock extends React.Component<{}> {
                 header: () => <span>Status</span>,
             }),
             columnHelper.accessor((row) => row.updated_at, {
-                id: "updated_at",
+                id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Date/Time</span>,
+                header: () => <span>Created Date</span>,
             }),
 
             columnHelper.accessor((row) => ({

@@ -57,11 +57,19 @@ class FirmsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Name</span>,
             }),
-
-            columnHelper.accessor((row) => row.updated_at, {
-                id: "updated_at",
+            columnHelper.accessor((row) => row.status, {
+                id: "status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
+                    </div>
+                ,
+                header: () => <span>Status</span>,
+            }),
+            columnHelper.accessor((row) => row.created_at, {
+                id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created date</span>,
+                header: () => <span>Created Date</span>,
             }),
         ];
     }
@@ -80,7 +88,9 @@ class FirmsBlock extends React.Component<{}> {
         adminService.getFirms()
             .then((res: IFirm[]) => {
                 const data = res?.sort((a, b) => a.id - b.id) || [];
-
+                data.forEach(s => {
+                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                });
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });
@@ -110,9 +120,9 @@ class FirmsBlock extends React.Component<{}> {
         if (mode === 'delete') {
             return 'Do you want to remove this firm?';
         } else if (mode === 'view') {
-            return 'View Symbol'
+            return 'View Firm'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} firm`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Firm`;
         }
     }
 
@@ -182,6 +192,18 @@ class FirmsBlock extends React.Component<{}> {
                                                 placeholder="Name"
                                             />
                                         </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('status', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('status', item)}
+                                                options={filterService.buildOptions('status', this.state.dataFull)}
+                                                placeholder="Status"
+                                            />
+                                        </div>
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
@@ -196,7 +218,7 @@ class FirmsBlock extends React.Component<{}> {
                                                data={this.state.data}
                                                searchPanel={true}
                                                block={this}
-                                               viewBtn={false}
+                                               viewBtn={true}
                                                editBtn={true}
                                                deleteBtn={true}
                                         />

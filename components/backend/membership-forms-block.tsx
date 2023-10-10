@@ -67,10 +67,10 @@ class MembershipFormsBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.updated_at, {
-                id: "updated_at",
+            columnHelper.accessor((row) => row.created_at, {
+                id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Date/Time</span>,
+                header: () => <span>Created Date</span>,
             }),
         ];
     }
@@ -89,7 +89,7 @@ class MembershipFormsBlock extends React.Component<{}> {
         adminService.getUserMembershipForms()
             .then((res: Array<IMembership>) => {
                 const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
 
                 data.forEach(s => {

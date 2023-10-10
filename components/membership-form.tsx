@@ -242,18 +242,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                                 Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
                                                             </>
                                                         </div>
-
-                                                        {this.props.data?.comment && (
-                                                            <div className="approve-form-comment">
-                                                                <div className="approve-form-comment-text-panel">
-                                                                    <div
-                                                                        className="approve-form-comment-text-title">Comment:
-                                                                    </div>
-                                                                    <div className="approve-form-comment-text-message"
-                                                                         title={this.props.data?.comment}>{this.props.data?.comment}</div>
-                                                                </div>
-                                                            </div>
-                                                        )}
                                                     </>
                                                 ) : (
                                                     <>

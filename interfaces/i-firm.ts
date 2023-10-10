@@ -4,4 +4,5 @@ export interface IFirm {
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
+    status: string;
 }
