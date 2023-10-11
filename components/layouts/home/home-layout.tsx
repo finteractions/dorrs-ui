@@ -1,13 +1,20 @@
-import React from "react";
+import React, {useEffect} from "react";
 import HomeLogo from "./home-logo";
 import loginGuard from "@/guards/login-guard";
 import Link from "next/link";
+import {initializeGoogleTagManager} from '@/js/googleTagManager';
+import {useRouter} from "next/router";
 
 type HomeLayoutProps = {
     children: React.ReactNode
 }
 
 function HomeLayout({children}: HomeLayoutProps) {
+
+    useEffect(() => {
+        initializeGoogleTagManager(process.env.GTM_CODE);
+    }, []);
+
     return (
         <>
             <div className="login">
