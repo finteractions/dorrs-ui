@@ -76,7 +76,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             }),
             columnHelper.accessor((row) => row.condition, {
                 id: "condition",
-                cell: (item) => Condition[item.getValue()] || '',
+                cell: (item) => Condition[item.getValue() as keyof typeof Condition] || '',
                 header: () => <span>Condition</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {

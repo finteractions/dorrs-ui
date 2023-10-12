@@ -32,7 +32,7 @@ const formSchema = Yup.object().shape({
 interface LastSaleReportState extends IState {
     formInitialValues: {};
     loading: boolean;
-    focusedInput: boolean;
+    // focusedInput: boolean;
 
 }
 
@@ -78,7 +78,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
             success: false,
             formInitialValues: initialValues,
             loading: true,
-            focusedInput: null,
+            // focusedInput: null,
         };
 
     }
@@ -204,7 +204,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                                             <option value="">Select Condition</option>
                                                             {Object.keys(Condition).map((item) => (
                                                                 <option key={item} value={item}>
-                                                                    {Condition[item]}
+                                                                    {Condition[item as keyof typeof Condition]}
                                                                 </option>
                                                             ))}
                                                         </Field>
@@ -303,7 +303,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                                             <option value="">Select Tick Indication</option>
                                                             {Object.keys(TickIndication).map((item) => (
                                                                 <option key={item} value={item}>
-                                                                    {TickIndication[item]} ({item})
+                                                                    {TickIndication[item as keyof typeof TickIndication]} ({item})
                                                                 </option>
                                                             ))}
                                                         </Field>
