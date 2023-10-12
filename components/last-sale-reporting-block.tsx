@@ -21,8 +21,7 @@ interface LastSaleReportingState extends IState, IModalState {
     errors: string[];
 }
 
-interface LastSaleReportingProps extends ICallback {
-
+interface LastSaleReportingProps {
     access: {
         view: boolean
         create: boolean

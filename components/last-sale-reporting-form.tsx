@@ -55,8 +55,8 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
             symbol: initialData?.symbol_name || '',
             condition: initialData?.condition || '',
             tick_indication: initialData?.tick_indication || '',
-            quantity: initialData?.quantity || '',
-            price: initialData?.price || '',
+            quantity: (initialData?.quantity || '').toString(),
+            price: (initialData?.price || '').toString(),
             time: initialData?.time || '',
             date: initialData?.date || '',
             uti: initialData?.uti || '',
@@ -255,11 +255,9 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
-
-
-
+                                                
                                                 {this.props.action !== 'view' && (
-                                                    <button className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                    <button className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                             type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                                         Save Sale Report
                                                     </button>
