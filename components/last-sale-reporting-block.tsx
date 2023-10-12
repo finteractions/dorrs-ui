@@ -11,6 +11,7 @@ import lastSaleService from "@/services/last-sale/last-sale-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import formatterService from "@/services/formatter/formatter-service";
 import LastSaleReportForm from "@/components/last-sale-reporting-form";
+import {Condition} from "@/enums/condition";
 
 
 interface LastSaleReportingState extends IState, IModalState {
@@ -62,9 +63,6 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             formData: null,
         }
 
-
-
-
         columns = [
             columnHelper.accessor((row) => row.origin, {
                 id: "origin",
@@ -78,7 +76,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             }),
             columnHelper.accessor((row) => row.condition, {
                 id: "condition",
-                cell: (item) => item.getValue(),
+                cell: (item) => Condition[item.getValue()] || '',
                 header: () => <span>Condition</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
