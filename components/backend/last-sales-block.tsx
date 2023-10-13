@@ -338,6 +338,11 @@ class LastSalesBlock extends React.Component<{}> {
                                     className="box__wrap">{Condition[this.state.formData?.condition as keyof typeof Condition] || ''}</div>
                             </div>
                             <div className="view-form-box">
+                                <div className="box__title">Tick Indication</div>
+                                <div
+                                    className="box__wrap">{this.state.formData?.tick_indication}</div>
+                            </div>
+                            <div className="view-form-box">
                                 <div className="box__title">Quantity</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.quantity ? formatterService.numberFormat(parseFloat(this.state.formData.quantity)) : ''}</div>
@@ -346,11 +351,6 @@ class LastSalesBlock extends React.Component<{}> {
                                 <div className="box__title">Price</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.price ? formatterService.numberFormat(parseFloat(this.state.formData.price)) : ''}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Tick Indication</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.tick_indication}</div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Date</div>
