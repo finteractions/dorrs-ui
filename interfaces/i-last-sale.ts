@@ -13,4 +13,6 @@ export interface ILastSale {
     uti: string;
     created_at: string;
     updated_at: string;
+    user_name?: string;
+    user_id?: string;
 }

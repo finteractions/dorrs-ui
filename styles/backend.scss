@@ -98,6 +98,10 @@
     max-width: 100%
   }
 
+  .sidebar-nav {
+    font-size: 15px;
+  }
+
   a {
     color: inherit;
     outline: 0;
@@ -2645,7 +2649,7 @@
   }
 
   .table table td span {
-    color: #2966ab
+    //color: #2966ab
   }
 
   .table__type {
@@ -4243,6 +4247,15 @@
       height: 28px;
       background: url(../public/img/select-arrow.svg) right 16px center/24px no-repeat #fff;
     }
+  }
+
+  .text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    width: 100%;
+    display: block;
   }
 }
 

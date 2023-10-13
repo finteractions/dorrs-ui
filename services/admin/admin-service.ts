@@ -10,6 +10,7 @@ import {any} from "prop-types";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {IPermission} from "@/interfaces/i-permission";
 import {IFirm} from "@/interfaces/i-firm";
+import {ILastSale} from "@/interfaces/i-last-sale";
 
 class AdminService extends BaseService {
 
@@ -259,6 +260,10 @@ class AdminService extends BaseService {
 
     public async deleteFirm(id: number): Promise<IResponseApi> {
         return apiWebBackendService.delete<IResponseApi>(`${this.PATH}firm_management/${id}/`, {}, {}, this.getAdminToken());
+    }
+
+    public async getLastSales(): Promise<ILastSale[]> {
+        return (await apiWebBackendService.get<IResponse<ILastSale[]>>(`${this.PATH}last_sale/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
 }

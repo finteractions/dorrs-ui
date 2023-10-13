@@ -50,10 +50,16 @@ class MembershipFormsBlock extends React.Component<{}> {
         }
 
         columns = [
-            columnHelper.accessor((row) => row.user_id, {
-                id: "user_id",
-                cell: (item) => item.getValue(),
-                header: () => <span>User</span>,
+            columnHelper.accessor((row) => ({
+                name: row.user_name,
+                email: row.user_id
+            }), {
+                id: "user",
+                cell: (item) => <div>
+                    <span>{item.getValue().name}</span><br/>
+                    <span>{item.getValue().email}</span>
+                </div>,
+                header: () => <span>Name <br/>Email</span>,
             }),
             columnHelper.accessor((row) => ({
                 status: row.status
@@ -173,10 +179,22 @@ class MembershipFormsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
+                                                value={filterService.setValue('user_name', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('user_name', item)}
+                                                options={filterService.buildOptions('user_name', this.state.dataFull)}
+                                                placeholder="Name"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
                                                 value={filterService.setValue('user_id', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('user_id', item)}
                                                 options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                                placeholder="User"
+                                                placeholder="Email"
                                             />
                                         </div>
                                         <div className="input__wrap">

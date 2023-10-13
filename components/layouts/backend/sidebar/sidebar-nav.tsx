@@ -103,6 +103,17 @@ const MENU_LIST: MenuItem[] = [
             // }
         ]
     },
+    {
+        text: 'Last Sale Management',
+        href: '#',
+        icon: faBook,
+        submenus: [
+            {
+                text: 'Last Sale Reporting',
+                href: "/backend/last-sales",
+            }
+        ]
+    },
     // {
     //     text: 'Trade Management',
     //     href: "/backend/trade-management",
