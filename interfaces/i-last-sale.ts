@@ -6,8 +6,8 @@ export interface ILastSale {
     symbol: string;
     condition: string;
     tick_indication: string;
-    quantity: number;
-    price: number;
+    quantity: string;
+    price: string;
     time: string;
     date: string;
     uti: string;

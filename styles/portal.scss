@@ -365,6 +365,17 @@ body {
       max-height: 465px
     }
 
+    .input__group{
+      display: flex;
+      margin-bottom: 24px;
+      column-gap: 15px;
+
+      .input{
+        flex: 1;
+        margin-bottom: 0 !important;
+      }
+    }
+
     .input {
       position: relative
     }
@@ -373,9 +384,9 @@ body {
       margin-bottom: 24px
     }
 
-    .input:last-child {
-      margin-bottom: 50px
-    }
+    //.input:last-child {
+    //  margin-bottom: 50px
+    //}
 
     .input__title {
       font-weight: 400;
@@ -668,6 +679,56 @@ body {
 
     select {
       outline: 0
+    }
+
+    .SingleDatePicker{
+      width: 100%;
+
+      .SingleDatePickerInput{
+        width: 100%;
+        border: 1px solid #718494;
+        border-radius: 6px;
+        overflow: hidden;
+        background: initial !important;
+
+        .DateInput{
+          width: 100%;
+          background: initial !important;
+          .DateInput_input{
+            background: initial!important;
+            font-size: 14px;
+            font-weight: 400;
+            padding: 0 16px;
+            height: 38px;
+            color: #718494;
+            font-style: normal;
+          }
+        }
+
+      }
+
+    }
+
+    .b-select-search{
+      font-weight: 400;
+      font-size: 14px;
+      height: 40px;
+      color: #718494;
+
+      .select__react__control{
+        border-radius: 4px;
+        border: 1px solid #718494;
+        background-color: initial;
+        box-shadow: initial !important;
+      }
+
+      .select__react__value-container{
+        padding-left: 16px;
+
+        .select__react__single-value{
+          color: #718494;
+        }
+      }
     }
 
     .b-select {
@@ -1765,6 +1826,8 @@ body {
           margin: 0;
           border-bottom: 1px solid #EFF2F5;
           display: flex;
+          row-gap: 20px;
+          column-gap: 5px;
           align-items: center;
           flex-wrap: wrap;
           justify-content: space-between;
@@ -3049,6 +3112,25 @@ body {
       }
     }
 
+    .last-sale-reporting{
+
+      .modal__content{
+        display: flex;
+        flex-direction: column;
+
+        .loader-block{
+          margin: auto;
+        }
+      }
+
+      &.add .modal__content,&.edit .modal__content{
+        min-height: 881px;
+      }
+
+      &.view .modal__content{
+        min-height: 822px;
+      }
+    }
   }
 }
 

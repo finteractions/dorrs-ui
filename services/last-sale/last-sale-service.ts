@@ -14,8 +14,8 @@ class LastSaleService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
     }
 
-    public createLastSaleReport(data: any): Promise<any> {
-        return apiWebBackendService.post(`${this.PATH}reporting/`, data, {}, this.getUserAccessToken())
+    public async createLastSaleReport(data: any): Promise<Array<ILastSale>> {
+        return (await apiWebBackendService.post<IResponse<Array<ILastSale>>>(`${this.PATH}reporting/`, data, {}, this.getUserAccessToken())).data
     }
 
     public updateLastSaleReport(data: any, id: number): Promise<any> {

@@ -134,7 +134,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         lastSaleService.getLastSaleReporting()
             .then((res: Array<ILastSale>) => {
                 const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
 
                 this.data = data;
@@ -164,9 +164,16 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         }
     }
 
-    onCallback = async (values: any, step: boolean) => {
+    onCallback = async (values: any, open: boolean) => {
         this.getLastSaleReporting();
-        this.closeModal();
+
+        if (open){
+            this.setState({isOpenModal: false}, ()=> {
+                this.openModal('edit', values as ILastSale);
+            })
+        }else {
+            this.closeModal();
+        }
     };
 
     render() {
@@ -210,6 +217,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
+                                   className={`last-sale-reporting ${this.state.formAction}`}
                             >
                                 <LastSaleReportForm
                                     action={this.state.formAction}
