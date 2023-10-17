@@ -12,6 +12,7 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import formatterService from "@/services/formatter/formatter-service";
 import LastSaleReportForm from "@/components/last-sale-reporting-form";
 import {Condition} from "@/enums/condition";
+import AssetImage from "@/components/asset-image";
 
 
 interface LastSaleReportingState extends IState, IModalState {
@@ -22,7 +23,7 @@ interface LastSaleReportingState extends IState, IModalState {
     errors: string[];
 }
 
-interface LastSaleReportingProps {
+interface LastSaleReportingProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -36,7 +37,6 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-
 
 
 class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
@@ -69,9 +69,19 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Origin</span>,
             }),
-            columnHelper.accessor((row) => row.symbol_name, {
-                id: "symbol_name",
-                cell: (item) => item.getValue(),
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol_name,
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <div onClick={() => {
+                        this.navigate(item.getValue().symbol)
+                    }}
+                         className={`table-image cursor-pointer link`}
+                    >
+                        {item.getValue().symbol}
+                    </div>
+                ,
                 header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => row.condition, {
@@ -110,6 +120,10 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
         ];
+    }
+
+    navigate = (symbol: string) => {
+        this.props.onCallback(symbol);
     }
 
     componentDidMount() {
@@ -167,11 +181,11 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     onCallback = async (values: any, open: boolean) => {
         this.getLastSaleReporting();
 
-        if (open){
-            this.setState({isOpenModal: false}, ()=> {
+        if (open) {
+            this.setState({isOpenModal: false}, () => {
                 this.openModal('edit', values as ILastSale);
             })
-        }else {
+        } else {
             this.closeModal();
         }
     };
@@ -225,7 +239,6 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                                     onCallback={this.onCallback}
                                 />
                             </Modal>
-
 
 
                         </>
