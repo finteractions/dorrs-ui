@@ -13,6 +13,9 @@ import formatterService from "@/services/formatter/formatter-service";
 import LastSaleReportForm from "@/components/last-sale-reporting-form";
 import {Condition} from "@/enums/condition";
 import AssetImage from "@/components/asset-image";
+import filterService from "@/services/filter/filter";
+import Select from "react-select";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 interface LastSaleReportingState extends IState, IModalState {
@@ -21,6 +24,9 @@ interface LastSaleReportingState extends IState, IModalState {
     formData: ILastSale | null;
     modalTitle: string;
     errors: string[];
+    data: ILastSale[];
+    dataFull: ILastSale[];
+    filterData: any;
 }
 
 interface LastSaleReportingProps extends ICallback {
@@ -42,7 +48,6 @@ let columns: any[] = [];
 class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
 
     state: LastSaleReportingState;
-    data: Array<ILastSale> = new Array<ILastSale>();
     errors: Array<string> = new Array<string>();
     getLastSaleReportingInterval!: NodeJS.Timer;
 
@@ -61,6 +66,9 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             modalTitle: '',
             errors: [],
             formData: null,
+            data: [],
+            dataFull: [],
+            filterData: [],
         }
 
         columns = [
@@ -86,7 +94,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             }),
             columnHelper.accessor((row) => row.condition, {
                 id: "condition",
-                cell: (item) => Condition[item.getValue() as keyof typeof Condition] || '',
+                cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -129,7 +137,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     componentDidMount() {
         this.setState({isLoading: true});
         this.getLastSaleReporting();
-        this.startAutoUpdate();
+        // this.startAutoUpdate();
     }
 
     componentWillUnmount() {
@@ -151,7 +159,13 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
 
-                this.data = data;
+                data.forEach(s => {
+                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                })
+
+                this.setState({dataFull: data, data: data}, () => {
+                    this.filterData();
+                });
             })
             .catch((errors: IError) => {
 
@@ -161,6 +175,9 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             });
     }
 
+    filterData = () => {
+        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    }
     openModal = (mode: string, data?: ILastSale) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
@@ -190,6 +207,18 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         }
     };
 
+    handleFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterData();
+        });
+    }
+
+    handleResetButtonClick = () => {
+        this.setState({data: this.state.dataFull, filterData: []});
+    }
+
     render() {
         return (
 
@@ -214,9 +243,91 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                     ) : (
                         <>
                             <div className="content__bottom">
-                                {this.data.length > 0 ? (
+
+                                <div className="content__filter mb-3">
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('symbol_name', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('symbol_name', item)}
+                                            options={filterService.buildOptions('symbol_name', this.state.dataFull)}
+                                            placeholder="Symbol"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('origin', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('origin', item)}
+                                            options={filterService.buildOptions('origin', this.state.dataFull)}
+                                            placeholder="Origin"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('condition', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('condition', item)}
+                                            options={filterService.buildOptions('condition', this.state.dataFull)}
+                                            placeholder="Condition"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('tick_indication', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('tick_indication', item)}
+                                            options={filterService.buildOptions('tick_indication', this.state.dataFull)}
+                                            placeholder="Tick Indication"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('uti', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('uti', item)}
+                                            options={filterService.buildOptions('uti', this.state.dataFull)}
+                                            placeholder="UTI"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('date', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('date', item)}
+                                            options={filterService.buildOptions('date', this.state.dataFull)}
+                                            placeholder="Date"
+                                        />
+                                    </div>
+                                    <button
+                                        className="content__filter-clear ripple"
+                                        onClick={this.handleResetButtonClick}>
+                                        <FontAwesomeIcon className="nav-icon"
+                                                         icon={filterService.getFilterResetIcon()}/>
+                                    </button>
+                                </div>
+
+                                {this.state.data.length ? (
                                     <Table columns={columns}
-                                           data={this.data}
+                                           data={this.state.data}
                                            searchPanel={true}
                                            block={this}
                                            editBtn={true}

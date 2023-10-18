@@ -16,6 +16,9 @@ import AssetImage from "@/components/asset-image";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import UserPermissionService from "@/services/user/user-permission-service";
+import Select from "react-select";
+import filterService from "@/services/filter/filter";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -32,7 +35,10 @@ interface SymbolBlockState extends IState, IModalState {
         create: boolean
         edit: boolean
         delete: boolean
-    }
+    };
+    data: ISymbol[];
+    dataFull: ISymbol[];
+    filterData: any;
 }
 
 interface SymbolBlockProps extends ICallback {
@@ -51,13 +57,9 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-let host = '';
-
-
 class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     state: SymbolBlockState;
-    symbols: Array<ISymbol> = new Array<ISymbol>();
     errors: Array<string> = new Array<string>();
     getSymbolsInterval!: NodeJS.Timer;
 
@@ -84,7 +86,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             isOpenCompanyModal: false,
             formCompanyData: null,
             formCompanyAction: 'add',
-            companyProfileAccess: companyProfileAccess
+            companyProfileAccess: companyProfileAccess,
+            data: [],
+            dataFull: [],
+            filterData: [],
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -165,13 +170,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => ({
-                status: row.company_profile?.status || '-'
-            }), {
+            columnHelper.accessor((row) => row.company_profile_status, {
                 id: "company_profile_status",
                 cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
-                        {item.getValue().status}
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
                     </div>
                 ,
                 header: () => <span>Company Profile Status</span>,
@@ -182,7 +185,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     componentDidMount() {
         this.setState({isLoading: true});
         this.getSymbols();
-        this.startAutoUpdate();
+        // this.startAutoUpdate();
     }
 
     navigate = (symbol: string) => {
@@ -214,9 +217,13 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
+
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status :  '-'
                 });
 
-                this.symbols = data;
+                this.setState({dataFull: data, data: data}, () => {
+                    this.filterData();
+                });
             })
             .catch((errors: IError) => {
 
@@ -273,6 +280,22 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         this.cancelCompanyForm()
     };
 
+    handleFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterData();
+        });
+    }
+
+    filterData = () => {
+        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    }
+
+    handleResetButtonClick = () => {
+        this.setState({data: this.state.dataFull, filterData: []});
+    }
+
     render() {
         return (
 
@@ -301,9 +324,101 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     ) : (
                         <>
                             <div className="content__bottom">
-                                {this.symbols.length > 0 ? (
+                                <div className="content__filter mb-3">
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('symbol', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('symbol', item)}
+                                            options={filterService.buildOptions('symbol', this.state.dataFull)}
+                                            placeholder="Symbol"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('cusip', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('cusip', item)}
+                                            options={filterService.buildOptions('cusip', this.state.dataFull)}
+                                            placeholder="CUSIP"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('dsin', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('dsin', item)}
+                                            options={filterService.buildOptions('dsin', this.state.dataFull)}
+                                            placeholder="DSIN"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('transfer_agent', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('transfer_agent', item)}
+                                            options={filterService.buildOptions('transfer_agent', this.state.dataFull)}
+                                            placeholder="Transfer Agent"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('market_sector', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('market_sector', item)}
+                                            options={filterService.buildOptions('market_sector', this.state.dataFull)}
+                                            placeholder="Market Sector"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('status', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('status', item)}
+                                            options={filterService.buildOptions('status', this.state.dataFull)}
+                                            placeholder="Status"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('company_profile_status', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('company_profile_status', item)}
+                                            options={filterService.buildOptions('company_profile_status', this.state.dataFull)}
+                                            placeholder="Company Profile Status"
+                                        />
+                                    </div>
+                                    <button
+                                        className="content__filter-clear ripple"
+                                        onClick={this.handleResetButtonClick}>
+                                        <FontAwesomeIcon className="nav-icon"
+                                                         icon={filterService.getFilterResetIcon()}/>
+                                    </button>
+                                </div>
+                                {this.state.data.length ? (
                                     <Table columns={columns}
-                                           data={this.symbols}
+                                           data={this.state.data}
                                            searchPanel={true}
                                            block={this}
                                            editBtn={true}

@@ -9,6 +9,9 @@ import {Condition} from "@/enums/condition";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
 import {TradingViewWidget} from "@/components/trading-view-widget";
+import filterService from "@/services/filter/filter";
+import Select from "react-select";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -18,46 +21,15 @@ interface LastSaleReportingPerSymbolState extends IState {
     isLoading: boolean;
     isLoadingChart: boolean;
     errors: string[];
+    data: ILastSale[];
+    dataFull: ILastSale[];
+    filterData: any;
 }
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-const initData = [
-    {
-        time: '2023-10-10',
-        value: 99999.36
-    },
-    {
-        time: '2023-12-11',
-        value: 289563.99
-    },
-    {
-        time: '2023-12-12',
-        value: 96622.33
-    },
-    {
-        time: '2023-12-22',
-        value: 25
-    }
-];
-
-const initialData = [
-    {time: '2018-12-22', value: 32.51},
-    {time: '2018-12-23', value: 31.11},
-    {time: '2018-12-24', value: 27.02},
-    {time: '2018-12-25', value: 27.32},
-    {time: '2018-12-26', value: 25.17},
-    {time: '2018-12-27', value: 28.89},
-    {time: '2018-12-28', value: 25.46},
-    {time: '2018-12-29', value: 23.92},
-    {time: '2018-12-30', value: 22.68},
-    {time: '2018-12-31', value: 22.67},
-];
-
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {
-
-    lastSales: Array<ILastSale> = new Array<ILastSale>();
     charts: Array<ITradingView> = new Array<ITradingView>();
     state: LastSaleReportingPerSymbolState;
 
@@ -69,6 +41,9 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isLoading: true,
             isLoadingChart: true,
             errors: [],
+            data: [],
+            dataFull: [],
+            filterData: [],
         }
 
 
@@ -80,7 +55,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             }),
             columnHelper.accessor((row) => row.condition, {
                 id: "condition",
-                cell: (item) => Condition[item.getValue() as keyof typeof Condition] || '',
+                cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -136,6 +111,10 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             });
     }
 
+    filterData = () => {
+        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    }
+
     getLastSaleReporting = () => {
         lastSaleService.getLastSaleReportingBySymbol(this.props.symbol)
             .then((res: Array<ILastSale>) => {
@@ -143,7 +122,13 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
 
-                this.lastSales = data;
+                data.forEach(s => {
+                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                })
+
+                this.setState({dataFull: data, data: data}, () => {
+                    this.filterData();
+                });
             })
             .catch((errors: IError) => {
 
@@ -160,6 +145,18 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     onCallback = async (values: any, step: boolean) => {
         this.getLastSaleReporting();
     };
+
+    handleFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterData();
+        });
+    }
+
+    handleResetButtonClick = () => {
+        this.setState({data: this.state.dataFull, filterData: []});
+    }
 
     render() {
         return (
@@ -184,7 +181,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                             <div className="content__top">
                                 <div className="content__title">Last Sale Reporting for {this.props.symbol}</div>
                             </div>
-                            <div className={`content__bottom ${this.lastSales.length > 0 ? '' : 'd-none'}`}>
+                            <div className={`content__bottom ${this.state.data.length ? '' : 'd-none'}`}>
 
                                 <>
                                     {this.state.isLoadingChart ? (
@@ -193,8 +190,77 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                         <TradingViewWidget data={this.charts}/>
                                     )}
 
+                                    <div className="content__filter mb-3">
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('origin', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('origin', item)}
+                                                options={filterService.buildOptions('origin', this.state.dataFull)}
+                                                placeholder="Origin"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('condition', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('condition', item)}
+                                                options={filterService.buildOptions('condition', this.state.dataFull)}
+                                                placeholder="Condition"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('tick_indication', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('tick_indication', item)}
+                                                options={filterService.buildOptions('tick_indication', this.state.dataFull)}
+                                                placeholder="Tick Indication"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('uti', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('uti', item)}
+                                                options={filterService.buildOptions('uti', this.state.dataFull)}
+                                                placeholder="UTI"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('date', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('date', item)}
+                                                options={filterService.buildOptions('date', this.state.dataFull)}
+                                                placeholder="Date"
+                                            />
+                                        </div>
+                                        <button
+                                            className="content__filter-clear ripple"
+                                            onClick={this.handleResetButtonClick}>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
+                                        </button>
+                                    </div>
+
                                     <Table columns={columns}
-                                           data={this.lastSales}
+                                           data={this.state.data}
                                            searchPanel={true}
                                            block={this}
                                            editBtn={false}

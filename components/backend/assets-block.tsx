@@ -185,14 +185,11 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Created Date</span>,
             }),
-
-            columnHelper.accessor((row) => ({
-                status: row.company_profile?.status || '-'
-            }), {
+            columnHelper.accessor((row) => row.company_profile_status, {
                 id: "company_profile_status",
                 cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
-                        {item.getValue().status}
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
                     </div>
                 ,
                 header: () => <span>Company Profile Status</span>,
@@ -221,6 +218,8 @@ class AssetsBlock extends React.Component<{}> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
+
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status :  '-'
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -421,6 +420,18 @@ class AssetsBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('status', item)}
                                                 options={filterService.buildOptions('status', this.state.dataFull)}
                                                 placeholder="Status"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('company_profile_status', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('company_profile_status', item)}
+                                                options={filterService.buildOptions('company_profile_status', this.state.dataFull)}
+                                                placeholder="Company Profile Status"
                                             />
                                         </div>
                                         <button

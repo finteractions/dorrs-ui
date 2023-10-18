@@ -23,4 +23,5 @@ export interface ISymbol {
     approved_by: string;
     approved_date_time: string;
     company_profile: ICompanyProfile | null;
+    company_profile_status: string;
 }

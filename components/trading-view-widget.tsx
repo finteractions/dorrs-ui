@@ -68,7 +68,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = (props) => {
     );
 
     return (
-        <div className={'mb-24'}
+        <div className={'mb-48'}
              ref={chartContainerRef}
         />
     );

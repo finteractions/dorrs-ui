@@ -2154,6 +2154,71 @@ body {
       margin: 0 0 0 8.25px
     }
 
+    .content__filter {
+      column-gap: 5px;
+      row-gap: 5px;
+      flex: 1;
+
+      .date__range__wrap {
+        flex: 0 0 180px;
+      }
+
+      .select__react, .DateRangePicker, .content__filter-clear {
+        font-size: 13px;
+      }
+
+      .select__react {
+        .select__react__control {
+          min-height: 30px;
+
+          .select__react__value-container {
+            padding: 2px 0 2px 5px;
+          }
+
+          .select__react__indicators {
+            .select__react__indicator {
+              padding: 2px;
+            }
+          }
+        }
+
+        .select__react__menu {
+          .select__react__menu-list {
+            .select__react__option {
+              padding: 7px;
+            }
+          }
+        }
+      }
+
+      .DateRangePicker {
+        min-width: 180px;
+
+        .DateRangePickerInput {
+          .DateInput {
+            width: calc(50% - 7px);
+
+            .DateInput_input {
+              min-height: 28px;
+              padding: 4px 7px 4px;
+            }
+          }
+
+          .DateRangePickerInput_arrow {
+            .DateRangePickerInput_arrow_svg {
+              height: 28px;
+              width: 14px;
+            }
+          }
+        }
+      }
+
+      .content__filter-clear {
+        width: 30px;
+        height: 30px;
+      }
+    }
+
     .table {
       table {
         width: 100%;
@@ -3092,6 +3157,10 @@ body {
 
     .mb-24 {
       margin-bottom: 24px;
+    }
+
+    .mb-48 {
+      margin-bottom: 48px;
     }
 
     .content__search {
