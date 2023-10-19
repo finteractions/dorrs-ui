@@ -23,8 +23,16 @@ const formSchema = Yup.object().shape({
             then: (schema) => schema.required('Required')
         }),
     is_finra: Yup.boolean().label('FINRA'),
-    mpid: Yup.string().min(3).max(12).label('MPID'),
-    crd: Yup.string().min(16).max(16).label('CRD'),
+    mpid: Yup.string().min(3).max(12).label('MPID')
+        .when('is_finra', {
+            is: (v: boolean) => v,
+            then: (schema) => schema.required('Required')
+        }),
+    crd: Yup.string().min(16).max(16).label('CRD')
+        .when('is_finra', {
+            is: (v: boolean) => v,
+            then: (schema) => schema.required('Required')
+        }),
     company_name: Yup.string().min(3).max(50).required('Required').label('Legal Company Name'),
     email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
     mobile_number: FormValidator.phoneNumberField,
@@ -371,39 +379,43 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
 
                                         {this.state.isFinra && (
-                                            <div className="input">
-                                                <div className="input__title">MPID</div>
-                                                <div
-                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                    <Field
-                                                        name="mpid"
-                                                        id="mpid"
-                                                        type="text"
-                                                        className="input__text"
-                                                        placeholder="Type MPID"
-                                                        disabled={isSubmitting || this.isShow()}
-                                                    />
-                                                    <ErrorMessage name="mpid" component="div"
-                                                                  className="error-message"/>
+                                            <>
+                                                <div className="input">
+                                                    <div className="input__title">MPID <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="mpid"
+                                                            id="mpid"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type MPID"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="mpid" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <div className="input">
+                                                    <div className="input__title">CRD# <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="crd"
+                                                            id="crd"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type CRD#"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="crd" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+                                            </>
+
                                         )}
-                                        <div className="input">
-                                            <div className="input__title">CRD# <i>*</i></div>
-                                            <div
-                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                <Field
-                                                    name="crd"
-                                                    id="crd"
-                                                    type="text"
-                                                    className="input__text"
-                                                    placeholder="Type CRD#"
-                                                    disabled={isSubmitting || this.isShow()}
-                                                />
-                                                <ErrorMessage name="crd" component="div"
-                                                              className="error-message"/>
-                                            </div>
-                                        </div>
+
                                         <div className="input">
                                             <div className="input__title">Legal name of the company <i>*</i></div>
                                             <div
@@ -612,7 +624,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 </div>
                                             </div>
                                         </div>
-
                                         {this.props.action !== 'view' && (
                                             <button id="add-bank-acc"
                                                     className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
