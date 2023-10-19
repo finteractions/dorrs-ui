@@ -107,15 +107,15 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>Price</span>,
             }),
-            columnHelper.accessor((row) => row.time, {
-                id: "time",
-                cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
-            }),
             columnHelper.accessor((row) => row.date, {
                 id: "date",
                 cell: (item) => item.getValue(),
                 header: () => <span>Date</span>,
+            }),
+            columnHelper.accessor((row) => row.time, {
+                id: "time",
+                cell: (item) => item.getValue(),
+                header: () => <span>Time</span>,
             }),
             columnHelper.accessor((row) => row.tick_indication, {
                 id: "tick_indication",

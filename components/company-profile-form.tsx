@@ -709,7 +709,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
 
 
-                                                <div className="itput__group">
+                                                <div className="itput__group input">
                                                     <h4 className="input__group__title">Financial Reporting</h4>
                                                     <div className="input">
                                                         <div className="input__title">US Reporting</div>

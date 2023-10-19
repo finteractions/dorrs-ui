@@ -66,7 +66,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
         } = {
             origin: initialData?.origin || '',
             symbol: initialData?.symbol_name || '',
-            condition: initialData?.condition || '',
+            condition: (initialData?.condition || '').toLowerCase(),
             tick_indication: initialData?.tick_indication || '',
             quantity: (initialData?.quantity || '').toString(),
             price: (initialData?.price || '').toString(),
@@ -89,7 +89,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
             .then((res: Array<ISymbol>) => {
                 const data: ISymbol[] = res?.sort((a, b) => {
                     return a.symbol.localeCompare(b.symbol);
-                }) || [];
+                }).filter(s => s.status.toLowerCase() === 'approved') || [];
 
                 this.symbols = data;
             })
