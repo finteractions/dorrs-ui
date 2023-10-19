@@ -12,10 +12,10 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import formatterService from "@/services/formatter/formatter-service";
 import LastSaleReportForm from "@/components/last-sale-reporting-form";
 import {Condition} from "@/enums/condition";
-import AssetImage from "@/components/asset-image";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import downloadFile from "@/services/download-file/download-file";
 
 
 interface LastSaleReportingState extends IState, IModalState {
@@ -219,6 +219,18 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
+    downloadLastSaleReportingCSV = () => {
+        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
+            downloadFile.CSV('last_sale_reporting', res);
+        })
+    }
+
+    downloadLastSaleReportingXLSX = () => {
+        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
+            downloadFile.XLSX('last_sale_reporting', res);
+        })
+    }
+
     render() {
         return (
 
@@ -226,7 +238,17 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Last Sale Reporting</div>
-                        <div className="content__title_btns">
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadLastSaleReportingCSV}>
+                                <span className="file-item__download"></span>
+                                <span>CSV</span>
+                            </button>
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadLastSaleReportingXLSX}>
+                                <span className="file-item__download"></span>
+                                <span>XLSX</span>
+                            </button>
                             {this.props.access.create && (
                                 <button className="b-btn ripple"
                                         disabled={this.state.isLoading}

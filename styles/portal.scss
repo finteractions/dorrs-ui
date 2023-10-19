@@ -1729,7 +1729,7 @@ body {
 
     .border-grey-btn {
       min-width: 100px;
-      height: 30px;
+      height: 35px;
       padding: 0 10px;
       border: 1px solid #c5cacf;
       font-weight: 600;
@@ -3060,6 +3060,10 @@ body {
 
     .justify-content-between {
       justify-content: space-between;
+    }
+
+    .justify-content-end {
+      justify-content: end;
     }
 
     .align-items-center {

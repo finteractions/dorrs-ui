@@ -30,6 +30,10 @@ class SymbolService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}company_profile/${id}/`, data, {}, this.getUserAccessToken());
     }
 
+    public async downloadSymbols(data: any): Promise<string> {
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_symbols/`, data, {}, this.getUserAccessToken()));
+    }
+
 }
 
 const symbolService = new SymbolService();

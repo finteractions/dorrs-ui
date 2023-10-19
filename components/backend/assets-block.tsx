@@ -8,18 +8,15 @@ import Table from "@/components/table/table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
-import AssetForm from "@/components/backend/asset-form";
-import adminIconService from "@/services/admin/admin-icon-service";
 import AssetImage from "@/components/asset-image";
-// import DateRangePicker from "@/components/date-range-picker";
-import moment from "moment";
+
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
-import MembershipForm from "@/components/membership-form";
 import SymbolForm from "@/components/symbol-form";
 import CompanyProfile from "@/components/company-profile-form";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import downloadFile from "@/services/download-file/download-file";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -305,6 +302,18 @@ class AssetsBlock extends React.Component<{}> {
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
+    downloadSymbolsCSV = () => {
+        adminService.downloadSymbols(this.state.filterData).then((res) => {
+            downloadFile.CSV('symbols', res);
+        })
+    }
+
+    downloadSymbolsXLSX = () => {
+        adminService.downloadSymbols(this.state.filterData).then((res) => {
+            downloadFile.XLSX('symbols', res);
+        })
+    }
+
     render() {
         return (
 
@@ -312,9 +321,22 @@ class AssetsBlock extends React.Component<{}> {
                 <div className="assets section page__section">
                     <div className="content__top">
                         <div className="content__title">Symbol Management</div>
-                        <button className="border-btn ripple modal-link"
-                                disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Symbol
-                        </button>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadSymbolsCSV}>
+                                <span className="file-item__download"></span>
+                                <span>CSV</span>
+                            </button>
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadSymbolsXLSX}>
+                                <span className="file-item__download"></span>
+                                <span>XLSX</span>
+                            </button>
+                            <button className="border-btn ripple modal-link"
+                                    disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Symbol
+                            </button>
+                        </div>
+
                     </div>
 
                     {this.state.loading ? (

@@ -29,6 +29,14 @@ class LastSaleService extends BaseService {
     public async getLastSaleReportingChartBySymbol(symbol: string): Promise<Array<ITradingView>> {
         return (await apiWebBackendService.get<IResponse<Array<ITradingView>>>(`${this.PATH}chart/?symbol=${symbol}`, {}, this.getUserAccessToken())).data;
     }
+
+    public async downloadLastSales(data: any): Promise<string> {
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/`, data, {}, this.getUserAccessToken()));
+    }
+
+    public async downloadLastSalesBySymbol(symbol: string, data:any): Promise<string> {
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/?symbol=${symbol}`, data, {}, this.getUserAccessToken()));
+    }
 }
 
 const lastSaleService = new LastSaleService();

@@ -19,6 +19,7 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import Select from "react-select";
 import filterService from "@/services/filter/filter";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import downloadFile from "@/services/download-file/download-file";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -218,7 +219,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
 
-                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status :  '-'
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-'
                 });
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -296,6 +297,18 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
+    downloadSymbolsCSV = () => {
+        symbolService.downloadSymbols(this.state.filterData).then((res) => {
+            downloadFile.CSV('symbols', res);
+        })
+    }
+
+    downloadSymbolsXLSX = () => {
+        symbolService.downloadSymbols(this.state.filterData).then((res) => {
+            downloadFile.XLSX('symbols', res);
+        })
+    }
+
     render() {
         return (
 
@@ -303,7 +316,18 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Symbols</div>
-                        <div className="content__title_btns">
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadSymbolsCSV}>
+                                <span className="file-item__download"></span>
+                                <span>CSV</span>
+                            </button>
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadSymbolsXLSX}>
+                                <span className="file-item__download"></span>
+                                <span>XLSX</span>
+                            </button>
+
                             {this.props.access.create && (
                                 <button className="b-btn ripple"
                                         disabled={this.state.isLoading}

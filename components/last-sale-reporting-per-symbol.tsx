@@ -12,6 +12,8 @@ import {TradingViewWidget} from "@/components/trading-view-widget";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import symbolService from "@/services/symbol/symbol-service";
+import downloadFile from "@/services/download-file/download-file";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -158,6 +160,18 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
+    downloadLastSaleReportingCSV = () => {
+        lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.state.filterData).then((res) => {
+            downloadFile.CSV('last_sale_reporting', res);
+        })
+    }
+
+    downloadLastSaleReportingXLSX = () => {
+        lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.state.filterData).then((res) => {
+            downloadFile.XLSX('last_sale_reporting', res);
+        })
+    }
+
     render() {
         return (
             <>
@@ -189,6 +203,22 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                     ) : (
                                         <TradingViewWidget data={this.charts}/>
                                     )}
+
+
+                                    <div
+                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadLastSaleReportingCSV}>
+                                            <span className="file-item__download"></span>
+                                            <span>CSV</span>
+                                        </button>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadLastSaleReportingXLSX}>
+                                            <span className="file-item__download"></span>
+                                            <span>XLSX</span>
+                                        </button>
+                                    </div>
+
 
                                     <div className="content__filter mb-3">
                                         <div className="input__wrap">

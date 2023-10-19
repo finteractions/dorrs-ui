@@ -266,6 +266,14 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<ILastSale[]>>(`${this.PATH}last_sale/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
+    public async downloadSymbols(data: any): Promise<string> {
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_symbols/`, data, {}, this.getAdminToken()));
+    }
+
+    public async downloadLastSales(data: any): Promise<string> {
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/`, data, {}, this.getAdminToken()));
+    }
+
 }
 
 const adminService = new AdminService();

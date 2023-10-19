@@ -13,6 +13,7 @@ import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
+import downloadFile from "@/services/download-file/download-file";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -210,6 +211,18 @@ class LastSalesBlock extends React.Component<{}> {
         this.closeModal();
     };
 
+    downloadLastSaleReportingCSV = () => {
+        adminService.downloadLastSales(this.state.filterData).then((res) => {
+            downloadFile.CSV('last_sale_reporting', res);
+        })
+    }
+
+    downloadLastSaleReportingXLSX = () => {
+        adminService.downloadLastSales(this.state.filterData).then((res) => {
+            downloadFile.XLSX('last_sale_reporting', res);
+        })
+    }
+
     render() {
         return (
 
@@ -217,6 +230,18 @@ class LastSalesBlock extends React.Component<{}> {
                 <div className="assets section page__section">
                     <div className="content__top">
                         <div className="content__title">Last Sale Reporting</div>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadLastSaleReportingCSV}>
+                                <span className="file-item__download"></span>
+                                <span>CSV</span>
+                            </button>
+                            <button className="border-grey-btn ripple d-flex"
+                                    onClick={this.downloadLastSaleReportingXLSX}>
+                                <span className="file-item__download"></span>
+                                <span>XLSX</span>
+                            </button>
+                        </div>
                     </div>
 
                     {this.state.loading ? (
