@@ -31,6 +31,7 @@ class SymbolService extends BaseService {
     }
 
     public async downloadSymbols(data: any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_symbols/`, data, {}, this.getUserAccessToken()));
     }
 

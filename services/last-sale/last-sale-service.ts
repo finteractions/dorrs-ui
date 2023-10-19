@@ -31,10 +31,12 @@ class LastSaleService extends BaseService {
     }
 
     public async downloadLastSales(data: any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/`, data, {}, this.getUserAccessToken()));
     }
 
     public async downloadLastSalesBySymbol(symbol: string, data:any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/?symbol=${symbol}`, data, {}, this.getUserAccessToken()));
     }
 }
