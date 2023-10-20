@@ -11,6 +11,7 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {IPermission} from "@/interfaces/i-permission";
 import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
+import {IDoc} from "@/interfaces/i-doc";
 
 class AdminService extends BaseService {
 
@@ -274,6 +275,10 @@ class AdminService extends BaseService {
     public async downloadLastSales(data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getDocs(): Promise<IDoc[]> {
+        return (await apiWebBackendService.get<IResponse<IDoc[]>>(`${this.PATH}doc/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
 }
