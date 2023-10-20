@@ -14,6 +14,7 @@ import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
 import downloadFile from "@/services/download-file/download-file";
+import AssetImage from "@/components/asset-image";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -53,6 +54,8 @@ class LastSalesBlock extends React.Component<{}> {
             showSymbolForm: true,
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         columns = [
             columnHelper.accessor((row) => ({
                 name: row.user_name,
@@ -75,9 +78,21 @@ class LastSalesBlock extends React.Component<{}> {
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Origin</span>,
             }),
-            columnHelper.accessor((row) => row.symbol_name, {
-                id: "symbol_name",
-                cell: (item) => item.getValue(),
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol_name,
+                image: row.company_profile?.logo
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <div className={`table-image`}
+                    >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
+                        {item.getValue().symbol}
+                    </div>
+                ,
                 header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => row.condition, {

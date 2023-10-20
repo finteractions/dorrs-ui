@@ -352,7 +352,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-                                                <div className="itput__group">
+                                                <div className="input">
                                                     <h4 className="input__group__title">Company Address:</h4>
                                                     <div className="input">
                                                         <div className="input__title">Street Address 1
@@ -508,7 +508,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-                                                <div className="itput__group">
+                                                <div className="input">
                                                     <h4 className="input__group__title">Company Profile Data</h4>
                                                     <div className="input">
                                                         <div className="input__title">SIC Industry Classification</div>
@@ -632,7 +632,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-                                                <div className="itput__group">
+                                                <div className="input">
                                                     <h4 className="input__group__title">Service Providers</h4>
                                                     <div className="input">
                                                         <div className="input__title">Transfer Agent</div>
@@ -709,7 +709,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
 
 
-                                                <div className="itput__group input">
+                                                <div className="input">
                                                     <h4 className="input__group__title">Financial Reporting</h4>
                                                     <div className="input">
                                                         <div className="input__title">US Reporting</div>

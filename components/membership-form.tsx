@@ -601,7 +601,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                             <div className="input__title">Annual fees <i>*</i></div>
                                             <div className="modal-terms mb-10px">
                                         <span
-                                            className="list-head">The annual fee for {process.env.APP_TITLE} membership is based on the level of contribution to the plan. There are three levels of membership by Firm Size:<br/>A Large, B Medium, C Small:</span>
+                                            className="list-head">The annual fee for {process.env.APP_TITLE} membership is based on the level of contribution to the plan. There are three levels of membership by Firm Size:<br/>A Large, B Medium, C Small, D Extra Small:</span>
                                             </div>
                                             <div className="input">
                                                 <div

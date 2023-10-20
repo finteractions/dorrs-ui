@@ -14,6 +14,8 @@ import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import symbolService from "@/services/symbol/symbol-service";
 import downloadFile from "@/services/download-file/download-file";
+import {ISymbol} from "@/interfaces/i-symbol";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -32,11 +34,15 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {
+
+    companyProfile: ICompanyProfile | null;
     charts: Array<ITradingView> = new Array<ITradingView>();
     state: LastSaleReportingPerSymbolState;
 
     constructor(props: LastSaleReportingPerSymbolProps) {
         super(props);
+
+        this.companyProfile = null;
 
         this.state = {
             success: false,
@@ -95,6 +101,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     componentDidMount() {
         this.setState({isLoading: true});
+        this.getSymbols();
         this.getLastSaleReportingChart();
         this.getLastSaleReporting();
 
@@ -115,6 +122,24 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     filterData = () => {
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    }
+
+    getSymbols = () => {
+        symbolService.getSymbols()
+            .then((res: Array<ISymbol>) => {
+                const data = res?.sort((a, b) => {
+                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                }) || [];
+
+                const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
+                this.companyProfile = symbol?.company_profile || null;
+            })
+            .catch((errors: IError) => {
+
+            })
+            .finally(() => {
+
+            });
     }
 
     getLastSaleReporting = () => {
@@ -192,12 +217,22 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                             </div>
                         </div>
                         <div className={'panel'}>
-                            <div className="content__top">
-                                <div className="content__title">Last Sale Reporting for {this.props.symbol}</div>
-                            </div>
                             <div className={`content__bottom ${this.state.data.length ? '' : 'd-none'}`}>
 
                                 <>
+                                    <h2 className={'view_block_main_title'}>
+                                        {this.companyProfile ? (
+                                            <>
+                                                <div className={"company-profile-logo"}>
+                                                    <img src={this.companyProfile.logo} alt="Logo"/>
+                                                </div>
+                                                {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                            </>
+                                        ) : (
+                                            <>{this.props.symbol}</>
+                                        )}
+                                    </h2>
+
                                     {this.state.isLoadingChart ? (
                                         <LoaderBlock/>
                                     ) : (

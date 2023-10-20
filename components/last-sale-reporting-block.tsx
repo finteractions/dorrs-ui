@@ -16,6 +16,7 @@ import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
+import AssetImage from "@/components/asset-image";
 
 
 interface LastSaleReportingState extends IState, IModalState {
@@ -71,6 +72,8 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             filterData: [],
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         columns = [
             columnHelper.accessor((row) => row.origin, {
                 id: "origin",
@@ -79,6 +82,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
+                image: row.company_profile?.logo
             }), {
                 id: "symbol",
                 cell: (item) =>
@@ -87,6 +91,10 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                     }}
                          className={`table-image cursor-pointer link`}
                     >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
                         {item.getValue().symbol}
                     </div>
                 ,
