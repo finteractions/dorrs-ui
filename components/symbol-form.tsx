@@ -11,6 +11,7 @@ import symbolService from "@/services/symbol/symbol-service";
 import {SecurityType} from "@/enums/security-type";
 import {SecurityType2} from "@/enums/security-type-2";
 import dsinService from "@/services/dsin/dsin-service";
+import {MarketSector} from "@/enums/market-sector";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -396,19 +397,23 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Market Sector (stock, corporate bond,
-                                                        GOVT,
-                                                        etc.) <i>*</i></div>
+                                                    <div className="input__title">Market Sector <i>*</i></div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
                                                             name="market_sector"
                                                             id="market_sector"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Market Sector"
+                                                            as="select"
+                                                            className="b-select"
                                                             disabled={isSubmitting || this.isShow()}
-                                                        />
+                                                        >
+                                                            <option value="">Select Market Sector</option>
+                                                            {Object.values(MarketSector).map((type) => (
+                                                                <option key={type} value={type}>
+                                                                    {type}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
                                                         <ErrorMessage name="market_sector" component="div"
                                                                       className="error-message"/>
                                                     </div>
