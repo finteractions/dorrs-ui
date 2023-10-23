@@ -20,11 +20,16 @@ import {IFirm} from "@/interfaces/i-firm";
 import {faClose, faEdit, faEye, faCheck} from "@fortawesome/free-solid-svg-icons";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
+import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
 
-const formSchema = Yup.object().shape({
+const formFirmSchema = Yup.object().shape({
     firm_id: Yup.number().required('Required').label('Firm'),
 });
 
+
+const formAccountTypeSchema = Yup.object().shape({
+    account_type: Yup.string().required('Required').label('Account Type'),
+});
 
 interface UserBlockState extends IState {
     mode: string;
@@ -37,7 +42,10 @@ interface UserBlockState extends IState {
     approved_by_user: IUser | null
     firms: Array<IFirm> | null
     isUserFirmEdit: boolean;
-    formInitialValues: { firm_id: number | null },
+    isUserAccountTypeEdit: boolean;
+    formFirmInitialValues: { firm_id: number | null },
+    formAccountTypeInitialValues: { account_type: string | null },
+    selectedAccountType: string
 }
 
 interface UserBlockProps {
@@ -63,7 +71,10 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             approved_by_user: null,
             firms: null,
             isUserFirmEdit: false,
-            formInitialValues: {firm_id: null},
+            isUserAccountTypeEdit: false,
+            formFirmInitialValues: {firm_id: null},
+            formAccountTypeInitialValues: {account_type: null},
+            selectedAccountType: ''
         };
     }
 
@@ -137,7 +148,14 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             .then((res: IUserDetail[]) => {
                 const user = res[0] as IUserDetail;
                 const firm_id = user.user_id?.firm?.id || null;
-                this.setState({data: user, formInitialValues: {firm_id: firm_id}});
+                const account_type = user.user_id?.account_type || null;
+
+                this.setState({
+                    data: user,
+                    formFirmInitialValues: {firm_id: firm_id},
+                    formAccountTypeInitialValues: {account_type: account_type}
+                });
+
                 if (res[0].approved_by) {
                     this.getApprovedByUser(user.approved_by || 0);
                 } else {
@@ -166,7 +184,13 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         this.setState({isUserFirmEdit: !this.state.isUserFirmEdit})
     }
 
-    handleSubmit = async (values: Record<string, number | null>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    editAccountType = () => {
+        this.setState({isUserAccountTypeEdit: !this.state.isUserAccountTypeEdit})
+    }
+
+    handleFirmSubmit = async (values: Record<string, number | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
         this.setState({errorMessages: null});
 
         const data = {
@@ -183,6 +207,34 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             }).finally(() => {
                 setSubmitting(false);
                 this.setState({isUserFirmEdit: false})
+            });
+    };
+
+    handleAccountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        const selectedAccountType = e.target.value;
+        setFieldValue("account_type", selectedAccountType);
+        this.setState({selectedAccountType: selectedAccountType});
+    };
+
+    handleAccountTypeSubmit = async (values: Record<string, string | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.setState({errorMessages: null});
+
+        const data = {
+            user_id: this.state.data?.user_id.email,
+            account_type: values.account_type
+        }
+
+        await adminService.assignAccountType(data)
+            .then(((res: any) => {
+                this.getUser(this.props.user_id);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+                this.setState({isUserAccountTypeEdit: false})
             });
     };
 
@@ -320,11 +372,6 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                         </div>
                                                     </div>
                                                     <div className="view-form-box">
-                                                        <div className="box__title">Account Type</div>
-                                                        <div
-                                                            className="box__wrap">{this.state.data?.user_id.account_type || ''}</div>
-                                                    </div>
-                                                    <div className="view-form-box">
                                                         <div className="box__title">State</div>
                                                         <div className="box__wrap">{this.state.data?.state || ''}</div>
                                                     </div>
@@ -412,9 +459,9 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                 ) : (
                                                                     <>
                                                                         <Formik
-                                                                            initialValues={this.state.formInitialValues}
-                                                                            validationSchema={formSchema}
-                                                                            onSubmit={this.handleSubmit}
+                                                                            initialValues={this.state.formFirmInitialValues}
+                                                                            validationSchema={formFirmSchema}
+                                                                            onSubmit={this.handleFirmSubmit}
                                                                         >
                                                                             {({
                                                                                   isSubmitting, errors
@@ -495,6 +542,108 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                             )}
                                                         </div>
                                                     </div>
+
+                                                    <div className="mb-3">
+                                                        <div className="info-panel-section-title mb-2">
+                                                            <div className='info-panel-title-text'>Account Type</div>
+                                                        </div>
+
+                                                        <div className={'d-flex align-items-center'}>
+                                                            <div>
+                                                                {!this.state.isUserAccountTypeEdit ? (
+                                                                    <>
+                                                                        {this.state.data?.user_id?.account_type ? this.state.data?.user_id?.account_type : '-'}</>
+                                                                ) : (
+                                                                    <>
+                                                                        <Formik
+                                                                            initialValues={this.state.formAccountTypeInitialValues}
+                                                                            validationSchema={formAccountTypeSchema}
+                                                                            onSubmit={this.handleAccountTypeSubmit}
+                                                                        >
+                                                                            {({
+                                                                                  isSubmitting, setFieldValue, errors
+                                                                              }) => {
+                                                                                return (
+                                                                                    <Form id={'firm-user'}
+                                                                                          className={'edit-form-small align-items-start'}>
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                                                                <Field
+                                                                                                    name="account_type"
+                                                                                                    id="account_type"
+                                                                                                    as="select"
+                                                                                                    className="b-select"
+                                                                                                    disabled={isSubmitting}
+                                                                                                    onChange={(e: any) => this.handleAccountTypeChange(e, setFieldValue)}
+                                                                                                >
+                                                                                                    <option
+                                                                                                        value="">Select
+                                                                                                        an Account Type
+                                                                                                    </option>
+                                                                                                    {Object.values(AccountType).map((type) => (
+                                                                                                        <option
+                                                                                                            key={type}
+                                                                                                            value={type}>
+                                                                                                            {type}
+                                                                                                        </option>
+                                                                                                    ))}
+                                                                                                </Field>
+                                                                                                <p className={'mt-1'}>
+                                                                                                    <span
+                                                                                                        className={'fw-bold '}>Notice: </span>{getAccountTypeDescription((this.state.selectedAccountType || this.state.formAccountTypeInitialValues.account_type) as AccountType)}
+                                                                                                </p>
+                                                                                                <ErrorMessage
+                                                                                                    name="firm_id"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <>
+                                                                                            <div
+                                                                                                className='admin-table-actions ml-20px'>
+                                                                                                <button
+                                                                                                    type="submit"
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faCheck}/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={this.editAccountType}
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faClose}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    </Form>
+                                                                                );
+                                                                            }}
+                                                                        </Formik>
+                                                                    </>
+                                                                )}
+                                                            </div>
+
+                                                            <div className='admin-table-actions ml-20px'>
+                                                                {!this.state.isUserAccountTypeEdit ? (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={this.editAccountType}
+                                                                            className='admin-table-btn ripple'>
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon" icon={faEdit}/>
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <></>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
                                                     <div className="mb-3">
                                                         <div className="info-panel-section-title mb-2">
                                                             <div className='info-panel-title-text'>Membership Form</div>

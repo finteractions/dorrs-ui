@@ -267,6 +267,7 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<ILastSale[]>>(`${this.PATH}last_sale/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
+<<<<<<< HEAD
     public async downloadSymbols(data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_symbols/`, data, {}, this.getAdminToken()));
@@ -279,6 +280,10 @@ class AdminService extends BaseService {
 
     public async getDocs(): Promise<IDoc[]> {
         return (await apiWebBackendService.get<IResponse<IDoc[]>>(`${this.PATH}doc/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+=======
+    public async assignAccountType(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_account_type/`, data, {}, this.getAdminToken()));
+>>>>>>> 111
     }
 
 }

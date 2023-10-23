@@ -3,11 +3,12 @@ import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
 import Image from "next/image";
+import {AccountType, getAccountTypeImage} from "@/enums/account-type";
 
 const formSchema = Yup.object().shape({
-    account_type: Yup.mixed<"User Portal" | `DORRS Member` | "DORRS Admin">().oneOf(
-        ["User Portal", "DORRS Member", "DORRS Admin"],
-        "Invalid Type of Account"
+    account_type: Yup.mixed<AccountType>().oneOf(
+        Object.values(AccountType),
+        'Invalid Type of Account'
     )
 });
 
@@ -49,54 +50,26 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                         <>
                             <Form>
                                 <div className="sign-up__row">
-                                    <Field
-                                        name="account_type"
-                                        id="account_type_user_portal"
-                                        type="radio"
-                                        value="User Portal"
-                                        className="hidden"
-                                        disabled={isSubmitting}
-                                        onClick={() => submitForm()}
-                                    />
-                                    <label className="sign-up__item"
-                                           htmlFor="account_type_user_portal">
-                                        <div className="sign-up__item-img">
-                                            <Image src="/img/account-type-1.png" width={64} height={64} alt="Hotel Guest"/>
-                                        </div>
-                                        <span>User Portal</span>
-                                    </label>
-                                    <Field
-                                        name="account_type"
-                                        id="account_dorrs_member"
-                                        type="radio"
-                                        value="DORRS Member"
-                                        className="hidden"
-                                        disabled={isSubmitting}
-                                        onClick={() => submitForm()}
-                                    />
-                                    <label className="sign-up__item"
-                                           htmlFor="account_dorrs_member">
-                                        <div className="sign-up__item-img">
-                                            <Image src="/img/account-type-3.png" width={64} height={64} alt="Employee"/>
-                                        </div>
-                                        <span>DORRS Member</span>
-                                    </label>
-                                    <Field
-                                        name="account_type"
-                                        id="account_dorrs_admin"
-                                        type="radio"
-                                        value="DORRS Admin"
-                                        className="hidden"
-                                        disabled={isSubmitting}
-                                        onClick={() => submitForm()}
-                                    />
-                                    <label className="sign-up__item"
-                                           htmlFor="account_dorrs_admin">
-                                        <div className="sign-up__item-img">
-                                            <Image src="/img/account-type-1.png" width={64} height={64} alt="Vendor"/>
-                                        </div>
-                                        <span>DORRS Admin</span>
-                                    </label>
+                                    {Object.values(AccountType).map((type) => (
+                                        <>
+                                            <Field
+                                                name="account_type"
+                                                id={`account_type_${type}`}
+                                                type="radio"
+                                                value={type}
+                                                className="hidden"
+                                                disabled={isSubmitting}
+                                                onClick={submitForm}
+                                            />
+                                            <label className="sign-up__item" htmlFor={`account_type_${type}`}>
+                                                <div className="sign-up__item-img">
+                                                    <Image src={getAccountTypeImage(type)} width={64} height={64}
+                                                           alt={type}/>
+                                                </div>
+                                                <span>{type}</span>
+                                            </label>
+                                        </>
+                                    ))}
                                 </div>
                                 <ErrorMessage name="account_type" component="div"
                                               className="error-message"/>
