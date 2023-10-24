@@ -4,6 +4,7 @@ import PortalLayout from "../components/layouts/portal/portal-layout";
 import MembershipBlock from "@/components/membership-block";
 import SymbolBlock from "@/components/symbol-block";
 import {useRouter} from "next/router";
+import IndicatorBlock from "@/components/indicator-block";
 
 const Dashboard: NextPageWithLayout = () => {
 
@@ -16,11 +17,12 @@ const Dashboard: NextPageWithLayout = () => {
     return (
         <>
             <div className={'flex-panel-box'}>
-              <MembershipBlock/>
-              <SymbolBlock
-                  isDashboard={false}
-                  onCallback={onCallback}
-              />
+                <MembershipBlock/>
+                <IndicatorBlock/>
+                <SymbolBlock
+                    isDashboard={false}
+                    onCallback={onCallback}
+                />
             </div>
 
 
