@@ -3253,23 +3253,21 @@ body {
             font-weight: 700;
             line-height: normal;
 
+            display: inline-flex;
+            padding: 6px 11.5px;
+            align-items: flex-start;
+            gap: 10px;
+            border-radius: 6px;
+            color: #8e949d;
+            background: #ebeff5;
+
             &.up {
               color: #15B698;
-              display: inline-flex;
-              padding: 6px 11.5px;
-              align-items: flex-start;
-              gap: 10px;
-              border-radius: 6px;
               background: #E8FFF3;
             }
 
             &.down {
               color: #F62423;
-              display: inline-flex;
-              padding: 6px 11.5px;
-              align-items: flex-start;
-              gap: 10px;
-              border-radius: 6px;
               background: #FFF5F8;
             }
           }

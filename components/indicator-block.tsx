@@ -69,17 +69,19 @@ class IndicatorBlock extends React.Component {
             });
     }
 
-    getIndicatorIcon(type: string): any {
+    getIndicatorType(value: number): any {
+        const numericValue = parseFloat(value.toString());
 
-        switch (type.toLowerCase()) {
-            case 'up':
-                return faChevronUp
-            case 'down':
-                return faChevronDown
+        switch (true) {
+            case numericValue > 0:
+                return 'up';
+            case numericValue < 0:
+                return 'down';
             default:
-                return '-'
+                return '';
         }
     }
+
 
     render() {
         return (
@@ -97,9 +99,9 @@ class IndicatorBlock extends React.Component {
                                     <div>Symbols</div>
                                 </div>
                                 <div>
-                                    <div>{this.statisticsSymbol?.value || '-'}</div>
+                                    <div>{this.statisticsSymbol?.total || '-'}</div>
                                     <div
-                                        className={this.statisticsSymbol?.indicator_type || ''}>{this.statisticsSymbol?.percentage_change ? `${this.statisticsSymbol?.percentage_change} %` : '-'}</div>
+                                        className={this.statisticsSymbol?.new ? this.getIndicatorType(this.statisticsSymbol.new) : ''}>{this.statisticsSymbol?.new}</div>
                                 </div>
                             </div>
                             <div className={'indicator__item'}>
@@ -110,9 +112,9 @@ class IndicatorBlock extends React.Component {
                                 </div>
 
                                 <div>
-                                    <div>{this.statisticsCompanyProfile?.value || '-'}</div>
+                                    <div>{this.statisticsCompanyProfile?.total || '-'}</div>
                                     <div
-                                        className={this.statisticsCompanyProfile?.indicator_type || ''}>{this.statisticsCompanyProfile?.percentage_change ? `${this.statisticsCompanyProfile?.percentage_change} %` : '-'} </div>
+                                        className={this.statisticsCompanyProfile?.new ? this.getIndicatorType(this.statisticsCompanyProfile.new) : ''}>{this.statisticsCompanyProfile?.new}</div>
                                 </div>
                             </div>
                             <div className={'indicator__item'}>
@@ -122,9 +124,9 @@ class IndicatorBlock extends React.Component {
                                     <div>Last Sale</div>
                                 </div>
                                 <div>
-                                    <div>{this.statisticsLastSale?.value || '-'}</div>
+                                    <div>{this.statisticsLastSale?.total || '-'}</div>
                                     <div
-                                        className={this.statisticsLastSale?.indicator_type || ''}>{this.statisticsLastSale?.percentage_change ? `${this.statisticsLastSale?.percentage_change} %` : '-'}</div>
+                                        className={this.statisticsLastSale?.new ? this.getIndicatorType(this.statisticsLastSale.new) : ''}>{this.statisticsLastSale?.new}</div>
                                 </div>
                             </div>
                         </div>
