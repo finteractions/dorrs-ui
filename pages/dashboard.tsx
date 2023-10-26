@@ -13,7 +13,7 @@ const Dashboard: NextPageWithLayout = () => {
                 <IndicatorBlock/>
 
             </div>
-            
+
         </>
     )
 }

@@ -12,6 +12,7 @@ import {SecurityType} from "@/enums/security-type";
 import {SecurityType2} from "@/enums/security-type-2";
 import dsinService from "@/services/dsin/dsin-service";
 import {MarketSector} from "@/enums/market-sector";
+import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -43,6 +44,7 @@ const formSchema = Yup.object().shape({
         .label('MVP'),
     security_name: Yup.string().min(3).max(50).required('Required').label('Security Name'),
     security_type: Yup.string().required('Required').label('Security Type'),
+    fifth_character_identifier: Yup.string().label('Fifth Character Identifiers'),
     security_type_2: Yup.string().label('Security Type 2'),
     blockchain: Yup.string().min(3).max(50).label('Blockchain'),
     smart_contract_type: Yup.string().min(3).max(50).label('Smart Contract type'),
@@ -87,6 +89,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             mvp: string;
             security_name: string;
             security_type: string;
+            fifth_character_identifier: string;
             security_type_2: string;
             blockchain: string;
             smart_contract_type: string;
@@ -104,6 +107,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             mvp: (initialData?.mvp || '').toString(),
             security_name: initialData?.security_name || '',
             security_type: initialData?.security_type || '',
+            fifth_character_identifier: initialData?.fifth_character_identifier || '',
             security_type_2: initialData?.security_type_2 || '',
             blockchain: initialData?.blockchain || '',
             smart_contract_type: initialData?.smart_contract_type || '',
@@ -420,7 +424,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Lot Size <i>*</i></div>
+                                                    <div className="input__title">Lot Size (1, 5, 10, 100) <i>*</i></div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -454,7 +458,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Minimum Price Variation (MPV)</div>
+                                                    <div className="input__title">Minimum Price Variation (MPV)  (.01, .05, .10)</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -462,7 +466,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             id="mvp"
                                                             type="text"
                                                             className="input__text"
-                                                            placeholder="Type MVP"
+                                                            placeholder="Type MPV"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
                                                         <ErrorMessage name="mvp" component="div"
@@ -506,6 +510,29 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             ))}
                                                         </Field>
                                                         <ErrorMessage name="security_type" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Fifth Character Identifiers </div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="fifth_character_identifier"
+                                                            id="fifth_character_identifier"
+                                                            as="select"
+                                                            className="b-select"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        >
+                                                            <option value="">Select Fifth Character Identifiers</option>
+                                                            {Object.values(FifthCharacterIdentifier).map((identifier) => (
+                                                                <option key={identifier} value={identifier}>
+                                                                    {identifier}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                        <ErrorMessage name="fifth_character_identifier" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>

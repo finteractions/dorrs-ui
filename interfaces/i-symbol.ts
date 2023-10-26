@@ -15,6 +15,7 @@ export interface ISymbol {
     mvp: number;
     security_name: string;
     security_type: string;
+    fifth_character_identifier: string;
     security_type_2: string;
     blockchain: string;
     smart_contract_type: string;
