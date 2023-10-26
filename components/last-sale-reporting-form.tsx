@@ -20,7 +20,7 @@ import moment from "moment";
 const formSchema = Yup.object().shape({
     origin: Yup.string().min(3).max(4).required('Required'),
     symbol: Yup.string().required('Required'),
-    condition:Yup.string().required('Required'),
+    condition: Yup.string().required('Required'),
     tick_indication: Yup.string().required('Required'),
     quantity: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
@@ -28,7 +28,7 @@ const formSchema = Yup.object().shape({
     price: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).min(0).required('Required'),
-    time: Yup.string().required('Required').matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, 'Invalid time. Example: 23:59:59'),
+    time: Yup.string().required('Required'),
     date: Yup.string().required('Required'),
 });
 
@@ -51,6 +51,11 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
     constructor(props: LastSaleReportProps) {
         super(props);
 
+        const currentDateTime = new Date();
+        const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+        const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+        const initialTime = `${currentHour}:${currentMinute}`;
+
         const initialData = this.props.data || {} as ILastSale;
 
         const initialValues: {
@@ -70,7 +75,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
             tick_indication: initialData?.tick_indication || '',
             quantity: (initialData?.quantity || '').toString(),
             price: (initialData?.price || '').toString(),
-            time: (initialData?.time || '').toString(),
+            time: initialData?.time || initialTime,
             date: (initialData?.date || '').toString(),
             uti: initialData?.uti || '',
         };
@@ -118,7 +123,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(res[0], this.isAdd()) ;
+                this.props.onCallback(res[0], this.isAdd());
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -156,7 +161,16 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                 >
-                                    {({isSubmitting, setFieldValue, isValid, dirty, values, errors, touched, setTouched}) => {
+                                    {({
+                                          isSubmitting,
+                                          setFieldValue,
+                                          isValid,
+                                          dirty,
+                                          values,
+                                          errors,
+                                          touched,
+                                          setTouched
+                                      }) => {
                                         return (
                                             <Form>
                                                 <div className="input">
@@ -266,46 +280,45 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                                 </div>
 
                                                 <div className="input__group">
-                                                <div className="input">
-                                                    <div className="input__title">Date <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <SingleDatePicker
-                                                            numberOfMonths={1}
-                                                            date={values.date ? moment(values.date) : null}
-                                                            onDateChange={date => setFieldValue('date', date?.format('YYYY-MM-DD').toString())}
-                                                            focused={this.state.focusedInput}
-                                                            onFocusChange={({ focused }) => this.setState({ focusedInput: focused })}
-                                                            id="date"
-                                                            displayFormat="YYYY-MM-DD"
-                                                            isOutsideRange={() => false}
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            readOnly={true}
-                                                            placeholder={'Select Date'}
-                                                        />
-                                                        <ErrorMessage name="date" component="div"
-                                                                      className="error-message"/>
+                                                    <div className="input">
+                                                        <div className="input__title">Date <i>*</i></div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <SingleDatePicker
+                                                                numberOfMonths={1}
+                                                                date={values.date ? moment(values.date) : null}
+                                                                onDateChange={date => setFieldValue('date', date?.format('YYYY-MM-DD').toString())}
+                                                                focused={this.state.focusedInput}
+                                                                onFocusChange={({focused}) => this.setState({focusedInput: focused})}
+                                                                id="date"
+                                                                displayFormat="YYYY-MM-DD"
+                                                                isOutsideRange={() => false}
+                                                                disabled={isSubmitting || this.isShow()}
+                                                                readOnly={true}
+                                                                placeholder={'Select Date'}
+                                                            />
+                                                            <ErrorMessage name="date" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
                                                     </div>
-                                                </div>
 
 
-
-                                                <div className="input">
-                                                    <div className="input__title">Time <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="time"
-                                                            id="time"
-                                                            type="text"
-                                                            placeholder="Type Time"
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="time" component="div"
-                                                                      className="error-message"/>
+                                                    <div className="input">
+                                                        <div className="input__title">Time <i>*</i></div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="time"
+                                                                id="time"
+                                                                type="time"
+                                                                placeholder="Type Time"
+                                                                className="input__text"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="time" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
                                                     </div>
-                                                </div>
                                                 </div>
 
                                                 {/*<div className="input">*/}
@@ -366,8 +379,9 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
 
 
                                                 {this.props.action !== 'view' && (
-                                                    <button className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                                            type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                                    <button
+                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                                         Save Sale Report
                                                     </button>
                                                 )}

@@ -9,7 +9,6 @@ interface AssetImageProps {
 }
 
 function AssetImage({alt, src, ...props}: AssetImageProps) {
-    console.log(src)
     const [imageAlt, setImageAlt] = React.useState(alt);
     const [imageSrc, setImageSrc] = React.useState(src);
 
