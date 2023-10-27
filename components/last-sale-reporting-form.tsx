@@ -196,7 +196,7 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
                                                         <Field
                                                             name="symbol_tmp"
                                                             id="symbol_tmp"
-                                                            as={Select} // Use the react-select component here
+                                                            as={Select}
                                                             className="b-select-search"
                                                             placeholder="Select Symbol"
                                                             classNamePrefix="select__react"
