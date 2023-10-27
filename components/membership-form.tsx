@@ -348,7 +348,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                         <option value="">Select a State</option>
                                                         {this.state.usaStates.map((state) => (
                                                             <option key={state.abbreviation} value={state.abbreviation}>
-                                                                {state.name}
+                                                                {state.name} ({state.abbreviation})
                                                             </option>
                                                         ))}
                                                     </Field>

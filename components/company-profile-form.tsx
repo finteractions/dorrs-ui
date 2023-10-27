@@ -12,10 +12,10 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {countries} from "countries-list";
 import PhoneInputField from "@/components/phone-input-field";
 import {UsaStates} from "usa-states";
-import UserImage from "@/components/user-image";
-import slide3Img from "@/public/img/sl3.webp";
-import Image from "next/image";
 import NoDataBlock from "@/components/no-data-block";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowUp, faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
@@ -68,6 +68,28 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         const initialData = this.props.data || {} as ICompanyProfile;
 
+        if (typeof initialData?.company_officers_and_contacts === 'string') {
+            try {
+                const company_officers_and_contacts = JSON.parse(initialData.company_officers_and_contacts);
+                initialData.company_officers_and_contacts = company_officers_and_contacts;
+                if (this.props.data) this.props.data.company_officers_and_contacts = company_officers_and_contacts;
+            } catch (error) {
+                initialData.company_officers_and_contacts = [""];
+                if (this.props.data) this.props.data.company_officers_and_contacts = [""];
+            }
+        }
+
+        if (typeof initialData?.board_of_directors === 'string') {
+            try {
+                const board_of_directors = JSON.parse(initialData.board_of_directors)
+                initialData.board_of_directors = board_of_directors;
+                if (this.props.data) this.props.data.board_of_directors = board_of_directors;
+            } catch (error) {
+                initialData.board_of_directors = [""];
+                if (this.props.data) this.props.data.board_of_directors = [""];
+            }
+        }
+
         const initialValues: {
             symbol: string;
             company_name: string;
@@ -83,8 +105,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             sic_industry_classification: string;
             incorporation_information: string;
             number_of_employees: string;
-            company_officers_and_contacts: string;
-            board_of_directors: string;
+            company_officers_and_contacts: string[];
+            board_of_directors: string[];
             product_and_services: string;
             company_facilities: string;
             transfer_agent: string;
@@ -103,14 +125,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             city: initialData?.city || '',
             state: initialData?.state || '',
             zip_code: initialData?.zip_code || '',
-            country: initialData?.country || '',
+            country: initialData?.country || selectedCountry,
             phone: initialData?.phone || '',
             web_address: initialData?.web_address || '',
             sic_industry_classification: initialData?.sic_industry_classification || '',
             incorporation_information: initialData?.incorporation_information || '',
             number_of_employees: initialData?.number_of_employees || '',
-            company_officers_and_contacts: initialData?.company_officers_and_contacts || '',
-            board_of_directors: initialData?.board_of_directors || '',
+            company_officers_and_contacts: initialData?.company_officers_and_contacts || [""],
+            board_of_directors: initialData?.board_of_directors || [""],
             product_and_services: initialData?.product_and_services || '',
             company_facilities: initialData?.company_facilities || '',
             transfer_agent: initialData?.transfer_agent || '',
@@ -148,6 +170,12 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         for (const [key, value] of Object.entries(values)) {
             formData.append(key, value);
         }
+
+        const officerValues = values.company_officers_and_contacts;
+        formData.append('company_officers_and_contacts', JSON.stringify(officerValues));
+
+        const directorsValues = values.board_of_directors;
+        formData.append('board_of_directors', JSON.stringify(directorsValues));
 
         formData.delete('logo_tmp');
         formData.delete('logo');
@@ -354,75 +382,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                 <div className="input">
                                                     <h4 className="input__group__title">Company Address:</h4>
-                                                    <div className="input">
-                                                        <div className="input__title">Street Address 1
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="street_address_1"
-                                                                id="street_address_1"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Street Address 1"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="street_address_1" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="input">
-                                                        <div className="input__title">Street Address 2
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="street_address_2"
-                                                                id="street_address_2"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Street Address 2"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="street_address_2" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="input">
-                                                        <div className="input__title">City
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="city"
-                                                                id="city"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type City"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="city" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="input">
-                                                        <div className="input__title">Zip Code
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="zip_code"
-                                                                id="zip_code"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Zip Code"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="zip_code" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
 
                                                     <div className="input">
                                                         <div className="input__title">Country</div>
@@ -464,7 +423,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     {this.state.usaStates.map((state) => (
                                                                         <option key={state.abbreviation}
                                                                                 value={state.abbreviation}>
-                                                                            {state.name}
+                                                                            {state.name} ({state.abbreviation})
                                                                         </option>
                                                                     ))}
                                                                 </Field>
@@ -473,6 +432,79 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             </div>
                                                         </div>
                                                     )}
+
+                                                    <div className="input">
+                                                        <div className="input__title">City
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="city"
+                                                                id="city"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type City"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="city" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="input">
+                                                        <div className="input__title">Street Address 1
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="street_address_1"
+                                                                id="street_address_1"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type Street Address 1"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="street_address_1" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+                                                    <div className="input">
+                                                        <div className="input__title">Street Address 2
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="street_address_2"
+                                                                id="street_address_2"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type Street Address 2"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="street_address_2" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div className="input">
+                                                        <div className="input__title">Zip Code
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="zip_code"
+                                                                id="zip_code"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type Zip Code"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="zip_code" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
 
                                                     <div className="input">
                                                         <div className="input__title">Phone
@@ -564,39 +596,98 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
 
                                                 <div className="input">
-                                                    <div className="input__title">Company Officers & Contacts</div>
+                                                    <div className="input__title input__btns">Company Officers &
+                                                        Contacts
+                                                        <button
+                                                            type="button"
+                                                            className='border-grey-btn ripple'
+                                                            onClick={() => {
+                                                                const updatedOfficers = [...values.company_officers_and_contacts, ''];
+                                                                setFieldValue('company_officers_and_contacts', updatedOfficers);
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                        </button></div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="company_officers_and_contacts"
-                                                            id="company_officers_and_contacts"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Company Officers & Contacts"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="company_officers_and_contacts"
-                                                                      component="div"
-                                                                      className="error-message"/>
+                                                        <div className="officer-input">
+                                                            {values.company_officers_and_contacts.map((officer, index) => (
+                                                                <div className={'input__btns'} key={index}>
+                                                                    <Field
+                                                                        name={`company_officers_and_contacts.${index}`}
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Company Officers & Contacts"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        className='border-grey-btn ripple'
+                                                                        onClick={() => {
+                                                                            const updatedOfficers = [...values.company_officers_and_contacts];
+                                                                            updatedOfficers.splice(index, 1);
+                                                                            setFieldValue('company_officers_and_contacts', updatedOfficers);
+                                                                        }}
+                                                                    >
+                                                                        <FontAwesomeIcon className="nav-icon"
+                                                                                         icon={faMinus}/>
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        {errors.company_officers_and_contacts && (
+                                                            <div
+                                                                className="error-message">{errors.company_officers_and_contacts.toString()}</div>
+                                                        )}
                                                     </div>
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Board of Directors</div>
+                                                    <div className="input__title input__btns">Board of Directors
+                                                        <button
+                                                            type="button"
+                                                            className='border-grey-btn ripple'
+                                                            onClick={() => {
+                                                                const updatedBoardOfDirectors = [...values.board_of_directors, ''];
+                                                                setFieldValue('board_of_directors', updatedBoardOfDirectors);
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                        </button></div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="board_of_directors"
-                                                            id="board_of_directors"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Board of Directors"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="board_of_directors" component="div"
-                                                                      className="error-message"/>
+                                                        <div className="officer-input">
+                                                            {values.board_of_directors.map((director, index) => (
+                                                                <div className={'input__btns'} key={index}>
+                                                                    <Field
+                                                                        name={`board_of_directors.${index}`}
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Board of Directors"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        className='border-grey-btn ripple'
+                                                                        onClick={() => {
+                                                                            const updatedBoardOfDirectors = [...values.board_of_directors];
+                                                                            updatedBoardOfDirectors.splice(index, 1);
+                                                                            setFieldValue('board_of_directors', updatedBoardOfDirectors);
+                                                                        }}
+                                                                    >
+                                                                        <FontAwesomeIcon className="nav-icon"
+                                                                                         icon={faMinus}/>
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        {errors.board_of_directors && (
+                                                            <div
+                                                                className="error-message">{errors.board_of_directors.toString()}</div>
+                                                        )}
                                                     </div>
                                                 </div>
+
 
                                                 <div className="input">
                                                     <div className="input__title">Product & Services</div>
@@ -729,7 +820,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
 
                                                     <div className="input">
-                                                        <div className="input__title">Edgar CIK</div>
+                                                        <div className="input__title">Edgar CIK
+                                                            <Link className={'link info-panel-title-link'} href={'https://www.sec.gov/edgar/searchedgar/companysearch'} target={'_blank'}>
+                                                                Company Filings <FontAwesomeIcon className="nav-icon" icon={faArrowUpRightFromSquare}/>
+                                                            </Link>
+                                                        </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
@@ -774,112 +869,145 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                         {this.props.data ? (
                             <div>
 
-                            <h2 className={'view_block_main_title'}>
-                                {this.props.data?.logo && (
-                                    <div className={"company-profile-logo"}>
-                                        <img src={this.props.data?.logo} alt="Logo"/>
-                                    </div>
-                                )}
+                                <h2 className={'view_block_main_title'}>
+                                    {this.props.data?.logo && (
+                                        <div className={"company-profile-logo"}>
+                                            <img src={this.props.data?.logo} alt="Logo"/>
+                                        </div>
+                                    )}
 
-                                {this.props.data?.company_name} ({this.props.data?.security_name})
-                            </h2>
-                            <div className='view_panel'>
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Company Address</div>
-                                        <div>{[this.props.data?.street_address_1, this.props.data?.street_address_2, this.props.data?.city,this.props.data?.zip_code, this.props.data?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
-                                        <div className="mt-2">{this.props.data?.phone}</div>
-                                        <div className="mt-2">{this.props.data?.web_address}</div>
-                                    </div>
-                                </div>
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Business Description</div>
-                                        <div>{this.props.data?.business_description || 'not filled'}</div>
-                                    </div>
-                                </div>
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Company Profile Data</div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">SIC Industry Classification</div>
-                                            <div className="">{this.props.data?.sic_industry_classification || 'not filled'}</div>
-                                        </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Incorporation Information</div>
-                                            <div className="">{this.props.data?.incorporation_information || 'not filled'}</div>
-                                        </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Number of Employees</div>
-                                            <div className="">{this.props.data?.number_of_employees || 'not filled'}</div>
+                                    {this.props.data?.company_name} ({this.props.data?.security_name})
+                                </h2>
+                                <div className='view_panel'>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Company Address</div>
+                                            <div>{[this.props.data?.street_address_1, this.props.data?.street_address_2, this.props.data?.city, this.props.data?.zip_code, this.props.data?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                            <div className="mt-2">{this.props.data?.phone}</div>
+                                            <div className="mt-2">{this.props.data?.web_address}</div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Company Officers & Contacts</div>
-                                        <div>{this.props.data?.company_officers_and_contacts || 'not filled'}</div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Business Description</div>
+                                            <div>{this.props.data?.business_description || 'not filled'}</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="view_block full_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Board of Directors</div>
-                                        <div>{this.props.data?.board_of_directors || 'not filled'}</div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Company Profile Data</div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">SIC Industry Classification</div>
+                                                <div
+                                                    className="">{this.props.data?.sic_industry_classification || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Incorporation Information</div>
+                                                <div
+                                                    className="">{this.props.data?.incorporation_information || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Number of Employees</div>
+                                                <div
+                                                    className="">{this.props.data?.number_of_employees || 'not filled'}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="view_block full_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Product & Services</div>
-                                        <div>{this.props.data?.product_and_services || 'not filled'}</div>
-                                    </div>
-                                </div>
-                                <div className="view_block full_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Company Facilities</div>
-                                        <div>{this.props.data?.company_facilities || 'not filled'}</div>
-                                    </div>
-                                </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Company Officers & Contacts
+                                            </div>
 
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Service Providers</div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Transfer Agent</div>
-                                            <div className="">{this.props.data?.transfer_agent || 'not filled'}</div>
-                                        </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Accounting / Auditing Firm</div>
-                                            <div className="">{this.props.data?.accounting_auditing_firm || 'not filled'}</div>
-                                        </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Investor Relations / Marketing / Communications</div>
-                                            <div className="">{this.props.data?.investor_relations_marketing_communications || 'not filled'}</div>
-                                        </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Securities Counsel</div>
-                                            <div className="">{this.props.data?.securities_counsel || 'not filled'}</div>
+                                            {this.props?.data?.company_officers_and_contacts.length ? (
+
+                                                this.props?.data?.company_officers_and_contacts.map((officer, index) => (
+                                                    <>
+                                                        <div>{officer}</div>
+                                                    </>
+                                                ))
+
+                                            ) : (
+                                                <>not filled</>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Board of Directors
+                                            </div>
 
-                                <div className="view_block">
-                                    <div className="view_block_body">
-                                        <div className="view_block_title">Financial Reporting</div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">US Reporting</div>
-                                            <div className="">{this.props.data?.us_reporting || 'not filled'}</div>
+                                            {this.props?.data?.board_of_directors.length ? (
+
+                                                this.props?.data?.board_of_directors.map((director, index) => (
+                                                    <>
+                                                        <div>{director}</div>
+                                                    </>
+                                                ))
+
+                                            ) : (
+                                                <>not filled</>
+                                            )}
                                         </div>
-                                        <div className="ver">
-                                            <div className="view_block_sub_title">Edgar CIK</div>
-                                            <div className="">{this.props.data?.edgar_cik || 'not filled'}</div>
+                                    </div>
+                                    <div className="view_block full_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Product & Services</div>
+                                            <div>{this.props.data?.product_and_services || 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block full_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Company Facilities</div>
+                                            <div>{this.props.data?.company_facilities || 'not filled'}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Service Providers</div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Transfer Agent</div>
+                                                <div
+                                                    className="">{this.props.data?.transfer_agent || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Accounting / Auditing Firm</div>
+                                                <div
+                                                    className="">{this.props.data?.accounting_auditing_firm || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Investor Relations / Marketing /
+                                                    Communications
+                                                </div>
+                                                <div
+                                                    className="">{this.props.data?.investor_relations_marketing_communications || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Securities Counsel</div>
+                                                <div
+                                                    className="">{this.props.data?.securities_counsel || 'not filled'}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Financial Reporting</div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">US Reporting</div>
+                                                <div className="">{this.props.data?.us_reporting || 'not filled'}</div>
+                                            </div>
+                                            <div className="ver">
+                                                <div className="view_block_sub_title">Edgar CIK</div>
+                                                <div className="">{this.props.data?.edgar_cik || 'not filled'}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                            ) : (
-                                <NoDataBlock/>
-                            )
+                        ) : (
+                            <NoDataBlock/>
+                        )
                         }
                     </>
                 )

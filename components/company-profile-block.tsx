@@ -61,6 +61,22 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
+
+                    if (typeof s.company_profile?.company_officers_and_contacts === 'string') {
+                        try {
+                            s.company_profile.company_officers_and_contacts = JSON.parse(s.company_profile.company_officers_and_contacts);
+                        } catch (error) {
+                            s.company_profile.company_officers_and_contacts = [""];
+                        }
+                    }
+
+                    if (typeof s.company_profile?.board_of_directors === 'string') {
+                        try {
+                            s.company_profile.board_of_directors = JSON.parse(s.company_profile.board_of_directors);
+                        } catch (error) {
+                            s.company_profile.board_of_directors = [""];
+                        }
+                    }
                 });
 
                 this.symbols = data;
@@ -192,13 +208,36 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className="view_block_body">
                                                         <div className="view_block_title">Company Officers & Contacts
                                                         </div>
-                                                        <div>{this.companyProfile.company_officers_and_contacts || 'not filled'}</div>
+
+                                                        {this.companyProfile.company_officers_and_contacts.length ? (
+
+                                                            this.companyProfile.company_officers_and_contacts.map((officer, index) => (
+                                                                <>
+                                                                    <div>{officer}</div>
+                                                                </>
+                                                            ))
+
+                                                        ) : (
+                                                            <>not filled</>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className="view_block full_block">
+                                                <div className="view_block">
                                                     <div className="view_block_body">
-                                                        <div className="view_block_title">Board of Directors</div>
-                                                        <div>{this.companyProfile.board_of_directors || 'not filled'}</div>
+                                                        <div className="view_block_title">Board of Directors
+                                                        </div>
+
+                                                        {this.companyProfile.board_of_directors.length ? (
+
+                                                            this.companyProfile.board_of_directors.map((director, index) => (
+                                                                <>
+                                                                    <div>{director}</div>
+                                                                </>
+                                                            ))
+
+                                                        ) : (
+                                                            <>not filled</>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="view_block full_block">

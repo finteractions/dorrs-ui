@@ -393,7 +393,22 @@ body {
       font-size: 14px;
       line-height: 1;
       color: #75808a;
-      margin: 0 0 7px
+      margin: 0 0 7px;
+
+      .link {
+        margin-left: 10px;
+      }
+    }
+
+    .input__btns {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      > button {
+        min-width: unset;
+        margin-left: 10px;
+      }
     }
 
     .input__coin {
@@ -505,6 +520,10 @@ body {
     .input__wrap {
       position: relative;
       word-break: break-word;
+
+      .input__btns:not(:first-child) {
+        margin-top: 24px;
+      }
     }
 
     .input__wrap.active .show-password {

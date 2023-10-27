@@ -15,8 +15,8 @@ export interface ICompanyProfile {
     sic_industry_classification: string;
     incorporation_information: string;
     number_of_employees: string;
-    company_officers_and_contacts: string;
-    board_of_directors: string;
+    company_officers_and_contacts: string[];
+    board_of_directors: string[];
     product_and_services: string;
     company_facilities: string;
     transfer_agent: string;
