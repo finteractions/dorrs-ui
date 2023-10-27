@@ -8,6 +8,7 @@ import {useRouter} from "next/router";
 import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
 import NoDataBlock from "@/components/no-data-block";
+import {UsaStates} from "usa-states";
 
 
 interface CompanyProfileProps {
@@ -19,6 +20,10 @@ interface CompanyProfileState extends IState, IModalState {
     isOpenCompanyModal: boolean;
     formCompanyAction: string;
     errors: string[];
+    usaStates: {
+        abbreviation: string;
+        name: string;
+    }[],
 }
 
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
@@ -31,6 +36,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     constructor(props: CompanyProfileProps) {
         super(props);
 
+        const usaStates = new UsaStates();
+        const usaStatesList = usaStates.states;
+
         this.companyProfile = null;
         this.symbol = null;
         this.state = {
@@ -40,6 +48,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             errors: [],
             isOpenCompanyModal: false,
             formCompanyAction: 'add',
+            usaStates: usaStatesList,
         }
     }
 
@@ -194,8 +203,21 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                 Information
                                                             </div>
                                                             <div
-                                                                className="">{this.companyProfile.incorporation_information || 'not filled'}</div>
+                                                                className="">
+                                                                {this.companyProfile?.incorporation_information ? (
+
+                                                                    this.state.usaStates.filter(currency => currency.abbreviation === this.companyProfile?.incorporation_information).map(filteredState => (
+                                                                        <React.Fragment
+                                                                            key={filteredState.abbreviation}>
+                                                                            {filteredState.name} ({filteredState.abbreviation})
+                                                                        </React.Fragment>
+                                                                    ))
+                                                                ) : (
+                                                                    <>not filled</>
+                                                                )}
+                                                            </div>
                                                         </div>
+
                                                         <div className="ver">
                                                             <div className="view_block_sub_title">Number of Employees
                                                             </div>

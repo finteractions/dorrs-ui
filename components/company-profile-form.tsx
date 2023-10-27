@@ -16,6 +16,9 @@ import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUp, faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import {SecurityType} from "@/enums/security-type";
+import {SicIndustryClassification} from "@/enums/sic-industry-classification";
+import {CURRENCIES} from "@/constants/currencies";
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
@@ -542,6 +545,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                 <div className="input">
                                                     <h4 className="input__group__title">Company Profile Data</h4>
+
                                                     <div className="input">
                                                         <div className="input__title">SIC Industry Classification</div>
                                                         <div
@@ -549,16 +553,24 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             <Field
                                                                 name="sic_industry_classification"
                                                                 id="sic_industry_classification"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type SIC Industry Classification"
+                                                                as="select"
+                                                                className="b-select"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                            />
+                                                            >
+                                                                <option value="">Select SIC Industry Classification
+                                                                </option>
+                                                                {Object.values(SicIndustryClassification).map((sic) => (
+                                                                    <option key={sic} value={sic}>
+                                                                        {sic}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
                                                             <ErrorMessage name="sic_industry_classification"
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
+
                                                     <div className="input">
                                                         <div className="input__title">Incorporation Information</div>
                                                         <div
@@ -566,16 +578,25 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             <Field
                                                                 name="incorporation_information"
                                                                 id="incorporation_information"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Incorporation Information"
+                                                                as="select"
+                                                                className="b-select"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                            />
+                                                            >
+                                                                <option value="">Select Incorporation Information
+                                                                </option>
+                                                                {this.state.usaStates.map((state) => (
+                                                                    <option key={state.abbreviation}
+                                                                            value={state.abbreviation}>
+                                                                        {state.name} ({state.abbreviation})
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
                                                             <ErrorMessage name="incorporation_information"
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
+
                                                     <div className="input">
                                                         <div className="input__title">Number of Employees</div>
                                                         <div
@@ -821,8 +842,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                     <div className="input">
                                                         <div className="input__title">Edgar CIK
-                                                            <Link className={'link info-panel-title-link'} href={'https://www.sec.gov/edgar/searchedgar/companysearch'} target={'_blank'}>
-                                                                Company Filings <FontAwesomeIcon className="nav-icon" icon={faArrowUpRightFromSquare}/>
+                                                            <Link className={'link info-panel-title-link'}
+                                                                  href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
+                                                                  target={'_blank'}>
+                                                                Company Filings <FontAwesomeIcon className="nav-icon"
+                                                                                                 icon={faArrowUpRightFromSquare}/>
                                                             </Link>
                                                         </div>
                                                         <div
@@ -904,7 +928,18 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Incorporation Information</div>
                                                 <div
-                                                    className="">{this.props.data?.incorporation_information || 'not filled'}</div>
+                                                    className="">
+                                                    {this.props.data?.incorporation_information ? (
+
+                                                        this.state.usaStates.filter(currency => currency.abbreviation === this.props.data?.incorporation_information).map(filteredState => (
+                                                            <React.Fragment key={filteredState.abbreviation}>
+                                                                {filteredState.name} ({filteredState.abbreviation})
+                                                            </React.Fragment>
+                                                        ))
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Number of Employees</div>
