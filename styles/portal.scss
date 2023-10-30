@@ -3337,6 +3337,14 @@ body {
       }
     }
 
+    .truncate-text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 250px;
+      width: 100%;
+      display: block;
+      white-space: nowrap;
+    }
 
   }
 }

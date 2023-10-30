@@ -1,28 +1,28 @@
 import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
-import LastSaleReportingBlock from "@/components/last-sale-reporting-block";
+import CompanyProfilesBlock from "@/components/company-profiles-block";
 import {useRouter} from "next/router";
 
 
-const LastSaleReporting: NextPageWithLayout = () => {
+const CompanyProfile: NextPageWithLayout = () => {
 
     const router = useRouter();
 
     const onCallback = (symbol: string) => {
-        router.push(`/last-sale-reporting/${symbol}`)
+        router.push(`/symbols/${symbol}`)
     }
 
     return (
         <>
             <div className={'flex-panel-box'}>
-              <LastSaleReportingBlock onCallback={onCallback}/>
+                <CompanyProfilesBlock onCallback={onCallback}/>
             </div>
         </>
     )
 }
 
-LastSaleReporting.getLayout = function getLayout(page: ReactElement) {
+CompanyProfile.getLayout = function getLayout(page: ReactElement) {
     return (
         <PortalLayout>
             {page}
@@ -30,6 +30,6 @@ LastSaleReporting.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
-LastSaleReporting.layoutName = "PortalLayout"
+CompanyProfile.layoutName = "PortalLayout"
 
-export default LastSaleReporting
+export default CompanyProfile

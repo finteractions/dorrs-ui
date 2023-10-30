@@ -1,6 +1,7 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {ISymbol} from "@/interfaces/i-symbol";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 class SymbolService extends BaseService {
 
@@ -20,6 +21,10 @@ class SymbolService extends BaseService {
 
     public updateSymbol(data: any, id: number): Promise<any> {
         return apiWebBackendService.put(`${this.PATH}user_assets/${id}/`, data, {}, this.getUserAccessToken());
+    }
+
+    public async getCompanyProfile(): Promise<Array<ICompanyProfile>> {
+        return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
     }
 
     public createCompanyProfile(data: any): Promise<any> {

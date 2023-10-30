@@ -48,6 +48,7 @@
     "react-otp-input": "^3.0.2",
     "react-phone-input-2": "^2.15.1",
     "react-resize-detector": "^9.1.0",
+    "react-router-dom": "^6.17.0",
     "react-select": "^5.7.4",
     "react-tooltip": "^5.13.0",
     "scrollreveal": "^4.0.9",
