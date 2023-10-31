@@ -387,25 +387,55 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <h4 className="input__group__title">Company Address:</h4>
 
                                                     <div className="input">
-                                                        <div className="input__title">Country</div>
+                                                        <div className="input__title">Street Address 1
+                                                        </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
-                                                                name="country"
-                                                                id="country"
-                                                                as="select"
-                                                                className="b-select"
+                                                                name="street_address_1"
+                                                                id="street_address_1"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type Street Address 1"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
-                                                            >
-                                                                <option value="">Select a Country</option>
-                                                                {Object.keys(countries).map((countryCode: string) => (
-                                                                    <option key={countryCode} value={countryCode}>
-                                                                        {countries[countryCode as keyof typeof countries]?.name}
-                                                                    </option>
-                                                                ))}
-                                                            </Field>
-                                                            <ErrorMessage name="country" component="div"
+                                                            />
+                                                            <ErrorMessage name="street_address_1" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="input">
+                                                        <div className="input__title">Street Address 2
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="street_address_2"
+                                                                id="street_address_2"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type Street Address 2"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="street_address_2" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="input">
+                                                        <div className="input__title">City
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="city"
+                                                                id="city"
+                                                                type="text"
+                                                                className="input__text"
+                                                                placeholder="Type City"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="city" component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
@@ -437,60 +467,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     )}
 
                                                     <div className="input">
-                                                        <div className="input__title">City
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="city"
-                                                                id="city"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type City"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="city" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="input">
-                                                        <div className="input__title">Street Address 1
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="street_address_1"
-                                                                id="street_address_1"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Street Address 1"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="street_address_1" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="input">
-                                                        <div className="input__title">Street Address 2
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="street_address_2"
-                                                                id="street_address_2"
-                                                                type="text"
-                                                                className="input__text"
-                                                                placeholder="Type Street Address 2"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage name="street_address_2" component="div"
-                                                                          className="error-message"/>
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div className="input">
                                                         <div className="input__title">Zip Code
                                                         </div>
                                                         <div
@@ -508,6 +484,29 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         </div>
                                                     </div>
 
+                                                    <div className="input">
+                                                        <div className="input__title">Country</div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="country"
+                                                                id="country"
+                                                                as="select"
+                                                                className="b-select"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                                onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
+                                                            >
+                                                                <option value="">Select a Country</option>
+                                                                {Object.keys(countries).map((countryCode: string) => (
+                                                                    <option key={countryCode} value={countryCode}>
+                                                                        {countries[countryCode as keyof typeof countries]?.name}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
+                                                            <ErrorMessage name="country" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
 
                                                     <div className="input">
                                                         <div className="input__title">Phone
