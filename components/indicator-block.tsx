@@ -13,6 +13,7 @@ import symbolService from "@/services/symbol/symbol-service";
 import * as Yup from "yup";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import Select from "react-select";
+import AreaChart from "@/components/chart/area-chart";
 
 
 const formSchema = Yup.object().shape({
@@ -52,7 +53,7 @@ class IndicatorBlock extends React.Component {
             isOpenModal: false,
             formAction: 'add',
             formType: '',
-            symbol: null
+            symbol: null,
         }
 
         this.statisticsSymbol = null;
@@ -279,9 +280,11 @@ class IndicatorBlock extends React.Component {
                                     </button>
                                 </div>
                                 <div className={'indicator__item__graph'}>
-                                    <svg viewBox="0 0 370 149" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M55.2594 48.0879L-2 79.6119V156.001H375V57.8175V19.0007C337.38 -9.74674 281.927 1.79138 248.32 30.5745L206.769 62.4877C178.955 85.651 163.662 84.8257 136.841 62.4877L118.093 48.0879C94.9436 32.5697 81.2689 32.7232 55.2594 48.0879Z" fill="#C9F7F5" stroke="#19D5B2" strokeWidth={3}/>
-                                    </svg>
+                                    <AreaChart
+                                        key={this.statisticsSymbol?.new}
+                                        labels={Object.values(this.statisticsSymbol?.points.map(s => s.time) || [])}
+                                        data={Object.values(this.statisticsSymbol?.points.map(s => s.volume) || [])}
+                                        title={''}/>
                                 </div>
                             </div>
                             <div className={'indicator__item'}>
@@ -305,9 +308,11 @@ class IndicatorBlock extends React.Component {
                                     </button>
                                 </div>
                                 <div className={'indicator__item__graph'}>
-                                    <svg viewBox="0 0 371 125" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M39.0013 34.0495C21.0409 19.4709 11.1465 17.918 -6 34.0495V132H376V36.5398C364.837 26.7912 362 36.5398 346.34 36.5398C330.68 36.5398 338.5 1.5 314.123 1.5H262.474C247.448 1.5 243.5 24.9186 215.938 24.9186C188.377 24.9186 179.684 6.06497 157.13 24.9186L121.333 53.9717C96.2928 71.9373 83.7265 71.3055 63.5475 53.9717L39.0013 34.0495Z" fill="#C9F7F5" stroke="#19D5B2" strokeWidth={3}/>
-                                    </svg>
+                                    <AreaChart
+                                        key={this.statisticsCompanyProfile?.new}
+                                        labels={Object.values(this.statisticsCompanyProfile?.points.map(s => s.time) || [])}
+                                        data={Object.values(this.statisticsCompanyProfile?.points.map(s => s.volume) || [])}
+                                        title={''}/>
                                 </div>
                             </div>
                             <div className={'indicator__item'}>
@@ -331,9 +336,11 @@ class IndicatorBlock extends React.Component {
                                     </button>
                                 </div>
                                 <div className={'indicator__item__graph'}>
-                                    <svg viewBox="0 0 370 149" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M-82.832 69.854L-165 116.637V230H376V84.2931V26.6876C322.015 -15.9746 242.439 1.14838 194.212 43.8635L134.586 91.2238C94.6734 125.599 72.7276 124.374 34.2393 91.2238L7.33469 69.854C-25.8846 46.8244 -45.508 47.0523 -82.832 69.854Z" fill="#C9F7F5" stroke="#19D5B2" strokeWidth={3}/>
-                                    </svg>
+                                    <AreaChart
+                                        key={this.statisticsLastSale?.new}
+                                        labels={Object.values(this.statisticsLastSale?.points.map(s => s.time) || [])}
+                                        data={Object.values(this.statisticsLastSale?.points.map(s => s.volume) || [])}
+                                        title={''}/>
                                 </div>
                             </div>
                         </div>
