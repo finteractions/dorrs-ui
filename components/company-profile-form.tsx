@@ -442,7 +442,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                     {this.state.selectedCountry === selectedCountry && (
                                                         <div className="input">
-                                                            <div className="input__title">State</div>
+                                                            <div className="input__title">State <i>*</i></div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                 <Field

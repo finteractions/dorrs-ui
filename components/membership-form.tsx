@@ -16,9 +16,8 @@ import formatterService from "@/services/formatter/formatter-service";
 const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
-    region: Yup.string().uppercase().required('Required').label('Region Information'),
     state: Yup.string()
-        .when('region', {
+        .when('country', {
             is: (v: string) => v === selectedCountry,
             then: (schema) => schema.required('Required')
         }),
@@ -55,11 +54,11 @@ interface MembershipFormState extends IState {
         abbreviation: string;
         name: string;
     }[],
-    selectedRegion: string;
     isFinra: boolean;
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
     loading: boolean;
+    selectedCountry: string;
     selectedCompany: ICompanySearch | null
     availableCompanies: ICompanySearch[] | [],
     availableCompaniesLoading: boolean
@@ -84,7 +83,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
         const initialData = this.props.data || {} as IMembership;
 
         const initialValues: {
-            region: string;
             state: string;
             is_finra: boolean;
             mpid: string;
@@ -101,7 +99,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             firm: string;
             create_firm: boolean;
         } = {
-            region: initialData?.region || selectedCountry,
             state: initialData?.state || "",
             is_finra: initialData?.is_finra || false,
             mpid: initialData?.mpid || "",
@@ -113,10 +110,10 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             address2: initialData?.address2 || "",
             city: initialData?.city || "",
             zip_code: initialData?.zip_code || "",
-            country: initialData?.country || "",
+            country: initialData?.country || selectedCountry,
             annual_fees: initialData?.annual_fees || "",
             firm: initialData?.firm || "",
-            create_firm: false
+            create_firm: !!initialData?.company_name
         };
 
         const usaStates = new UsaStates();
@@ -126,7 +123,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             success: false,
             formInitialValues: initialValues,
             usaStates: usaStatesList,
-            selectedRegion: initialValues.region,
+            selectedCountry: initialValues.country,
             isFinra: initialValues.is_finra,
             loading: false,
             isApproving: null,
@@ -162,9 +159,9 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
     handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         const selectedRegion = e.target.value;
-        setFieldValue("region", selectedRegion);
+        setFieldValue("country", selectedRegion);
         setFieldValue("state", "");
-        this.setState({selectedRegion: selectedRegion});
+        this.setState({selectedCountry: selectedRegion});
     };
 
     handleFinraChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
@@ -306,55 +303,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                         )}
                                                     </>
                                                 )}
-                                            </div>
-                                        )}
-
-                                        <div className="input">
-                                            <div className="input__title">Region Information <i>*</i></div>
-                                            <div
-                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                <Field
-                                                    name="region"
-                                                    id="region"
-                                                    as="select"
-                                                    className="b-select"
-                                                    disabled={isSubmitting || this.isShow()}
-                                                    onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
-                                                >
-                                                    <option value="">Select a Region</option>
-                                                    {Object.keys(countries).map((countryCode: string) => (
-                                                        <option key={countryCode} value={countryCode}>
-                                                            {countries[countryCode as keyof typeof countries]?.name}
-                                                        </option>
-                                                    ))}
-                                                </Field>
-                                                <ErrorMessage name="region" component="div"
-                                                              className="error-message"/>
-                                            </div>
-                                        </div>
-
-                                        {this.state.selectedRegion === selectedCountry && (
-                                            <div className="input">
-                                                <div className="input__title">State <i>*</i></div>
-                                                <div
-                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                    <Field
-                                                        name="state"
-                                                        id="state"
-                                                        as="select"
-                                                        className="b-select"
-                                                        disabled={isSubmitting || this.isShow()}
-                                                    >
-                                                        <option value="">Select a State</option>
-                                                        {this.state.usaStates.map((state) => (
-                                                            <option key={state.abbreviation} value={state.abbreviation}>
-                                                                {state.name} ({state.abbreviation})
-                                                            </option>
-                                                        ))}
-                                                    </Field>
-                                                    <ErrorMessage name="state" component="div"
-                                                                  className="error-message"/>
-                                                </div>
                                             </div>
                                         )}
 
@@ -559,6 +507,33 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                               className="error-message"/>
                                             </div>
                                         </div>
+
+                                        {this.state.selectedCountry === selectedCountry && (
+                                            <div className="input">
+                                                <div className="input__title">State <i>*</i></div>
+                                                <div
+                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                    <Field
+                                                        name="state"
+                                                        id="state"
+                                                        as="select"
+                                                        className="b-select"
+                                                        disabled={isSubmitting || this.isShow()}
+                                                    >
+                                                        <option value="">Select a State</option>
+                                                        {this.state.usaStates.map((state) => (
+                                                            <option key={state.abbreviation}
+                                                                    value={state.abbreviation}>
+                                                                {state.name} ({state.abbreviation})
+                                                            </option>
+                                                        ))}
+                                                    </Field>
+                                                    <ErrorMessage name="state" component="div"
+                                                                  className="error-message"/>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="input">
                                             <div className="input__title">ZIP code <i>*</i></div>
                                             <div
@@ -624,6 +599,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 </div>
                                             </div>
                                         </div>
+
                                         {this.props.action !== 'view' && (
                                             <button id="add-bank-acc"
                                                     className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
