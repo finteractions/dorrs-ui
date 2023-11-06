@@ -21,6 +21,5 @@ export const getAccountTypeImage = (accountType: AccountType): string => {
 };
 
 export const getAccountTypeDescription = <T extends AccountType>(accountType: T): string => {
-    console.log(accountType)
     return AccountTypeDescriptions[accountType] || '';
 };

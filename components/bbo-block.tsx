@@ -7,30 +7,29 @@ import {createColumnHelper} from "@tanstack/react-table";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
-import lastSaleService from "@/services/last-sale/last-sale-service";
-import {ILastSale} from "@/interfaces/i-last-sale";
+import bboService from "@/services/bbo/bbo-service";
+import {IBBO} from "@/interfaces/i-bbo";
 import formatterService from "@/services/formatter/formatter-service";
-import LastSaleReportingForm from "@/components/last-sale-reporting-form";
-import {Condition} from "@/enums/condition";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
+import BBOForm from "@/components/bbo-form";
 
 
-interface LastSaleReportingState extends IState, IModalState {
+interface BBOState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
-    formData: ILastSale | null;
+    formData: IBBO | null;
     modalTitle: string;
     errors: string[];
-    data: ILastSale[];
-    dataFull: ILastSale[];
+    data: IBBO[];
+    dataFull: IBBO[];
     filterData: any;
 }
 
-interface LastSaleReportingProps extends ICallback {
+interface BBOProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -46,16 +45,16 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
+class BBO extends React.Component<BBOProps, BBOState> {
 
-    state: LastSaleReportingState;
+    state: BBOState;
     errors: Array<string> = new Array<string>();
-    getLastSaleReportingInterval!: NodeJS.Timer;
+    getBBOInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    constructor(props: LastSaleReportingProps, context: IDataContext<null>) {
+    constructor(props: BBOProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -75,11 +74,6 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         const host = `${window.location.protocol}//${window.location.host}`;
 
         columns = [
-            columnHelper.accessor((row) => row.origin, {
-                id: "origin",
-                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
-                header: () => <span>Origin</span>,
-            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
                 image: row.company_profile?.logo
@@ -100,35 +94,60 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                 ,
                 header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.condition, {
-                id: "condition",
+            columnHelper.accessor((row) => row.quote_condition, {
+                id: "quote_condition",
                 cell: (item) => item.getValue(),
-                header: () => <span>Condition</span>,
+                header: () => <span>QC </span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
-                id: "quantity",
+            columnHelper.accessor((row) => row.bid_mpid, {
+                id: "bid_mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>Bid MPID </span>,
+            }),
+            columnHelper.accessor((row) => row.bid_quantity, {
+                id: "bid_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Quantity</span>,
+                header: () => <span>Bid Qty </span>,
             }),
-            columnHelper.accessor((row) => row.price, {
-                id: "price",
+            columnHelper.accessor((row) => row.bid_price, {
+                id: "bid_price",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Price</span>,
+                header: () => <span>Bid Price </span>,
             }),
-            columnHelper.accessor((row) => row.date, {
-                id: "date",
+            columnHelper.accessor((row) => row.bid_date, {
+                id: "bid_date",
                 cell: (item) => item.getValue(),
                 header: () => <span>Date</span>,
             }),
-            columnHelper.accessor((row) => row.time, {
-                id: "time",
+            columnHelper.accessor((row) => row.bid_time, {
+                id: "bid_time",
                 cell: (item) => item.getValue(),
                 header: () => <span>Time</span>,
             }),
-            columnHelper.accessor((row) => row.tick_indication, {
-                id: "tick_indication",
+            columnHelper.accessor((row) => row.offer_mpid, {
+                id: "offer_mpid",
                 cell: (item) => item.getValue(),
-                header: () => <span>Tick Indication</span>,
+                header: () => <span>Offer MPID </span>,
+            }),
+            columnHelper.accessor((row) => row.offer_quantity, {
+                id: "offer_quantity",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Offer Qty </span>,
+            }),
+            columnHelper.accessor((row) => row.offer_price, {
+                id: "offer_price",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Offer Price </span>,
+            }),
+            columnHelper.accessor((row) => row.offer_date, {
+                id: "offer_date",
+                cell: (item) => item.getValue(),
+                header: () => <span>Date</span>,
+            }),
+            columnHelper.accessor((row) => row.offer_time, {
+                id: "offer_time",
+                cell: (item) => item.getValue(),
+                header: () => <span>Time</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
@@ -144,7 +163,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
 
     componentDidMount() {
         this.setState({isLoading: true});
-        this.getLastSaleReporting();
+        this.getBBO();
         // this.startAutoUpdate();
     }
 
@@ -153,23 +172,19 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     }
 
     startAutoUpdate = () => {
-        this.getLastSaleReportingInterval = setInterval(this.getLastSaleReporting, Number(fetchIntervalSec) * 1000);
+        this.getBBOInterval = setInterval(this.getBBO, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate = () => {
-        if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval);
+        if (this.getBBOInterval) clearInterval(this.getBBOInterval);
     }
 
-    getLastSaleReporting = () => {
-        lastSaleService.getLastSaleReporting()
-            .then((res: Array<ILastSale>) => {
+    getBBO = () => {
+        bboService.getBBO()
+            .then((res: Array<IBBO>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
-
-                data.forEach(s => {
-                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
-                })
 
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
@@ -186,7 +201,7 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     filterData = () => {
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
-    openModal = (mode: string, data?: ILastSale) => {
+    openModal = (mode: string, data?: IBBO) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
 
@@ -197,18 +212,18 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
 
     modalTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Sale Report'
+            return 'View BBO'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Sale Report`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} BBO`;
         }
     }
 
     onCallback = async (values: any, open: boolean) => {
-        this.getLastSaleReporting();
+        this.getBBO();
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                this.openModal('edit', values as ILastSale);
+                this.openModal('edit', values as IBBO);
             })
         } else {
             this.closeModal();
@@ -227,15 +242,15 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
-    downloadLastSaleReportingCSV = () => {
-        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.CSV('last_sale_reporting', res);
+    downloadBBOCSV = () => {
+        bboService.downloadBBO(this.state.filterData).then((res) => {
+            downloadFile.CSV('bbo', res);
         })
     }
 
-    downloadLastSaleReportingXLSX = () => {
-        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.XLSX('last_sale_reporting', res);
+    downloadBBOXLSX = () => {
+        bboService.downloadBBO(this.state.filterData).then((res) => {
+            downloadFile.XLSX('bbo', res);
         })
     }
 
@@ -245,22 +260,22 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
             <>
                 <div className="panel">
                     <div className="content__top">
-                        <div className="content__title">Last Sale Reporting</div>
+                        <div className="content__title">Best Bid and Best Offer</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
                             <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingCSV}>
+                                    onClick={this.downloadBBOCSV}>
                                 <span className="file-item__download"></span>
                                 <span>CSV</span>
                             </button>
                             <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingXLSX}>
+                                    onClick={this.downloadBBOXLSX}>
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
                             </button>
                             {this.props.access.create && (
                                 <button className="b-btn ripple"
                                         disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('add')}>Add Sale Report
+                                        onClick={() => this.openModal('add')}>Add BBO
                                 </button>
                             )}
                         </div>
@@ -293,10 +308,10 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('origin', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('origin', item)}
-                                            options={filterService.buildOptions('origin', this.state.dataFull)}
-                                            placeholder="Origin"
+                                            value={filterService.setValue('quote_condition', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('quote_condition', item)}
+                                            options={filterService.buildOptions('quote_condition', this.state.dataFull)}
+                                            placeholder="Quote Condition"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -305,10 +320,10 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('condition', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('condition', item)}
-                                            options={filterService.buildOptions('condition', this.state.dataFull)}
-                                            placeholder="Condition"
+                                            value={filterService.setValue('bid_mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('bid_mpid', item)}
+                                            options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
+                                            placeholder="Bid MPID"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -317,10 +332,10 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('tick_indication', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('tick_indication', item)}
-                                            options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                            placeholder="Tick Indication"
+                                            value={filterService.setValue('offer_mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('offer_mpid', item)}
+                                            options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
+                                            placeholder="Offer MPID"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -333,18 +348,6 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                                             onChange={(item) => this.handleFilterChange('uti', item)}
                                             options={filterService.buildOptions('uti', this.state.dataFull)}
                                             placeholder="UTI"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('date', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('date', item)}
-                                            options={filterService.buildOptions('date', this.state.dataFull)}
-                                            placeholder="Date"
                                         />
                                     </div>
                                     <button
@@ -372,9 +375,9 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`last-sale-reporting ${this.state.formAction}`}
+                                   className={`bbo ${this.state.formAction}`}
                             >
-                                <LastSaleReportingForm
+                                <BBOForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
@@ -391,4 +394,4 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     }
 }
 
-export default portalAccessWrapper(LastSaleReporting, 'LastSaleReporting');
+export default portalAccessWrapper(BBO, 'BBO');

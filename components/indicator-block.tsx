@@ -8,7 +8,7 @@ import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
 import {ISymbol} from "@/interfaces/i-symbol";
 import SymbolForm from "@/components/symbol-form";
-import LastSaleReportForm from "@/components/last-sale-reporting-form";
+import LastSaleReportingForm from "@/components/last-sale-reporting-form";
 import symbolService from "@/services/symbol/symbol-service";
 import * as Yup from "yup";
 import {ErrorMessage, Field, Form, Formik} from "formik";
@@ -185,7 +185,7 @@ class IndicatorBlock extends React.Component {
                 );
             case 'last_sale':
                 return (
-                    <LastSaleReportForm
+                    <LastSaleReportingForm
                         action={this.state.formAction}
                         data={null}
                         onCallback={this.onCallback}
@@ -224,7 +224,6 @@ class IndicatorBlock extends React.Component {
                                                     label: item.symbol,
                                                 }))}
                                                 onChange={(selectedOption: any) => {
-                                                    console.log(selectedOption)
                                                     setFieldValue('symbol', selectedOption.value.symbol);
                                                 }}
                                             />

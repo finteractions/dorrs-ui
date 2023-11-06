@@ -2,7 +2,8 @@ const comparison_matrix: Record<string, string> = {
     'SymbolBlock': 'security',
     'CompanyProfile': 'company_profile',
     'LastSaleReporting':'last_sale_reporting',
-    'LastSaleDataHistory':'last_sale_data_history'
+    'LastSaleDataHistory':'last_sale_data_history',
+    'BBO':'bbo',
 }
 
 function getAccessRulesByComponent(component_name: string, access_matrix: any[]) {

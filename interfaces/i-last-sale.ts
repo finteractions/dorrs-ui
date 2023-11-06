@@ -1,3 +1,5 @@
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
+
 export interface ILastSale {
     id: number;
     firm_name: string;
@@ -15,4 +17,5 @@ export interface ILastSale {
     updated_at: string;
     user_name?: string;
     user_id?: string;
+    company_profile?: ICompanyProfile
 }

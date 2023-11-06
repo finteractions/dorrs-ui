@@ -32,23 +32,23 @@ const formSchema = Yup.object().shape({
     date: Yup.string().required('Required'),
 });
 
-interface LastSaleReportState extends IState {
+interface LastSaleReportingState extends IState {
     formInitialValues: {};
     loading: boolean;
     focusedInput: any;
 }
 
-interface LastSaleReportProps extends ICallback {
+interface LastSaleReportingProps extends ICallback {
     action: string;
     data: ILastSale | null;
     onCancel?: () => void;
 }
 
-class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleReportState> {
+class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
-    state: LastSaleReportState;
+    state: LastSaleReportingState;
 
-    constructor(props: LastSaleReportProps) {
+    constructor(props: LastSaleReportingProps) {
         super(props);
 
         const currentDateTime = new Date();
@@ -118,8 +118,8 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
         // data.date = moment(values.date).format('YYYY-MM-DD');
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            lastSaleService.updateLastSaleReport(values, this.props.data?.id || 0) :
-            lastSaleService.createLastSaleReport(values);
+            lastSaleService.updateLastSaleReporting(values, this.props.data?.id || 0) :
+            lastSaleService.createLastSaleReporting(values);
 
         await request
             .then(((res: any) => {
@@ -403,4 +403,4 @@ class LastSaleReportForm extends React.Component<LastSaleReportProps, LastSaleRe
     }
 }
 
-export default LastSaleReportForm;
+export default LastSaleReportingForm;

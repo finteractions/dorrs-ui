@@ -1773,7 +1773,7 @@ body {
       -o-transition: .3s ease-in-out;
       transition: .3s ease-in-out;
 
-      &:hover {
+      &:hover, &.active {
         background: #c5cacf;
         color: #000
       }
@@ -3221,7 +3221,27 @@ body {
       }
 
       &.view .modal__content {
-        min-height: 822px;
+        min-height: 826px;
+      }
+    }
+
+    .bbo {
+
+      .modal__content {
+        display: flex;
+        flex-direction: column;
+
+        .loader-block {
+          margin: auto;
+        }
+      }
+
+      &.add .modal__content, &.edit .modal__content {
+        min-height: 741px;
+      }
+
+      &.view .modal__content {
+        min-height: 741px;
       }
     }
 
