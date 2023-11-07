@@ -129,12 +129,12 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             bid_quantity: (initialData?.bid_quantity || '').toString(),
             bid_price: (initialData?.bid_price || '').toString(),
             bid_date: (initialData?.bid_date || '').toString(),
-            bid_time: initialData?.bid_time || initialTime,
+            bid_time: [QuoteCondition.b, QuoteCondition.h].includes((initialData?.quote_condition || '').toUpperCase() as QuoteCondition) ?  (initialData?.bid_time || initialTime) : '',
             offer_mpid: initialData?.offer_mpid || '',
             offer_quantity: (initialData?.offer_quantity || '').toString(),
             offer_price: (initialData?.offer_price || '').toString(),
             offer_date: (initialData?.offer_date || '').toString(),
-            offer_time: initialData?.offer_time || initialTime,
+            offer_time: [QuoteCondition.a, QuoteCondition.h].includes((initialData?.quote_condition || '').toUpperCase() as QuoteCondition) ?  (initialData?.offer_time || initialTime) : '',
             uti: initialData?.uti || '',
         };
 
@@ -253,7 +253,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                           setTouched
                                       }) => {
                                         return (
-                                            <Form>
+                                            <Form className={`quote_condition_${values.quote_condition}`}>
                                                 <div className="input">
                                                     <div className="input__title">Symbol <i>*</i></div>
                                                     <div
@@ -528,7 +528,6 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                         </div>
                                                     </div>
                                                 )}
-
 
                                                 {this.props.action !== 'view' && (
                                                     <button

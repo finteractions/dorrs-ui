@@ -15,6 +15,8 @@ import symbolService from "@/services/symbol/symbol-service";
 import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import {QuoteCondition} from "@/enums/quote-condition";
+import NoDataBlock from "@/components/no-data-block";
 
 
 interface BBOPerSymbolProps {
@@ -171,6 +173,10 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
 
+                data.forEach(s => {
+                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                })
+
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });
@@ -216,8 +222,9 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
     }
 
     getChart = (chart: string) => {
-        this.setState({isLoadingChart: true, chart: chart});
-        this.getBBOChart();
+        this.setState({ isLoadingChart: true, chart: chart }, () => {
+            this.getBBOChart();
+        });
     }
 
     render() {
@@ -268,12 +275,23 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
                                                     <span>Bid</span>
                                                 </button>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.chart === 's' ? 'active' : ''}`}
-                                                    onClick={() => this.getChart('s')}>
+                                                    className={`border-grey-btn ripple d-flex ${this.state.chart === 'a' ? 'active' : ''}`}
+                                                    onClick={() => this.getChart('a')}>
                                                     <span>Offer</span>
                                                 </button>
                                             </div>
-                                            <TradingViewWidget data={this.charts}/>
+                                            {this.charts.length ? (
+                                                <TradingViewWidget data={this.charts}/>
+                                            ) : (
+                                                <>
+                                                    <div className="no-chart">
+                                                        <NoDataBlock primaryText="No Chart available yet"/>
+                                                    </div>
+
+                                                </>
+
+                                            )}
+
                                         </>
                                     )}
 

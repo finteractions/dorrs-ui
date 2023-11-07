@@ -16,6 +16,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import BBOForm from "@/components/bbo-form";
+import {QuoteCondition} from "@/enums/quote-condition";
 
 
 interface BBOState extends IState, IModalState {
@@ -186,6 +187,10 @@ class BBO extends React.Component<BBOProps, BBOState> {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
 
+                data.forEach(s => {
+                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                })
+
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });
@@ -223,6 +228,7 @@ class BBO extends React.Component<BBOProps, BBOState> {
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
+                console.log(values)
                 this.openModal('edit', values as IBBO);
             })
         } else {

@@ -3235,14 +3235,6 @@ body {
           margin: auto;
         }
       }
-
-      &.add .modal__content, &.edit .modal__content {
-        min-height: 741px;
-      }
-
-      &.view .modal__content {
-        min-height: 741px;
-      }
     }
 
     .indicators {
@@ -3272,16 +3264,16 @@ body {
         overflow: hidden;
         min-width: 270px;
 
-        .indicator__item__graph{
+        .indicator__item__graph {
           display: flex;
           margin-top: 30px;
           flex: 0 0 100%;
 
-          svg{
+          svg {
             margin-top: auto;
             width: 100%;
 
-            path{
+            path {
               stroke: #718494;
               fill: #d4dadf;
             }
@@ -3365,7 +3357,6 @@ body {
       display: block;
       white-space: nowrap;
     }
-
   }
 }
 
