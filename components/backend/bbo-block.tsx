@@ -203,7 +203,7 @@ class BBOBlock extends React.Component<{}> {
         if (mode === 'delete') {
             return 'Do you want to remove this BBO?';
         } else if (mode === 'view') {
-            return 'View Last Sale'
+            return 'View BBO'
         } else {
             return `${mode === 'edit' ? 'Edit' : 'Add'} BBO`;
         }
