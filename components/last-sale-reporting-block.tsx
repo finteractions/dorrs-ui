@@ -19,7 +19,7 @@ import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 
 
-interface LastSaleReportingState extends IState, IModalState {
+interface LastSaleReportingBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
     formData: ILastSale | null;
@@ -30,7 +30,7 @@ interface LastSaleReportingState extends IState, IModalState {
     filterData: any;
 }
 
-interface LastSaleReportingProps extends ICallback {
+interface LastSaleReportingBlockProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -46,16 +46,16 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
+class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps, LastSaleReportingBlockState> {
 
-    state: LastSaleReportingState;
+    state: LastSaleReportingBlockState;
     errors: Array<string> = new Array<string>();
     getLastSaleReportingInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    constructor(props: LastSaleReportingProps, context: IDataContext<null>) {
+    constructor(props: LastSaleReportingBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -391,4 +391,4 @@ class LastSaleReporting extends React.Component<LastSaleReportingProps, LastSale
     }
 }
 
-export default portalAccessWrapper(LastSaleReporting, 'LastSaleReporting');
+export default portalAccessWrapper(LastSaleReportingBlock, 'LastSaleReportingBlock');

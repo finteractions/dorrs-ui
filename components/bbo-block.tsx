@@ -19,7 +19,7 @@ import BBOForm from "@/components/bbo-form";
 import {QuoteCondition} from "@/enums/quote-condition";
 
 
-interface BBOState extends IState, IModalState {
+interface BBOBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
     formData: IBBO | null;
@@ -30,7 +30,7 @@ interface BBOState extends IState, IModalState {
     filterData: any;
 }
 
-interface BBOProps extends ICallback {
+interface BBOBlockProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -46,16 +46,16 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class BBO extends React.Component<BBOProps, BBOState> {
+class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
 
-    state: BBOState;
+    state: BBOBlockState;
     errors: Array<string> = new Array<string>();
     getBBOInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    constructor(props: BBOProps, context: IDataContext<null>) {
+    constructor(props: BBOBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -118,12 +118,12 @@ class BBO extends React.Component<BBOProps, BBOState> {
             columnHelper.accessor((row) => row.bid_date, {
                 id: "bid_date",
                 cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
+                header: () => <span>Bid Date</span>,
             }),
             columnHelper.accessor((row) => row.bid_time, {
                 id: "bid_time",
                 cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
+                header: () => <span>Bid Time</span>,
             }),
             columnHelper.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
@@ -143,12 +143,12 @@ class BBO extends React.Component<BBOProps, BBOState> {
             columnHelper.accessor((row) => row.offer_date, {
                 id: "offer_date",
                 cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
+                header: () => <span>Offer Date</span>,
             }),
             columnHelper.accessor((row) => row.offer_time, {
                 id: "offer_time",
                 cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
+                header: () => <span>Offer Time</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
@@ -400,4 +400,4 @@ class BBO extends React.Component<BBOProps, BBOState> {
     }
 }
 
-export default portalAccessWrapper(BBO, 'BBO');
+export default portalAccessWrapper(BBOBlock, 'BBOBlock');

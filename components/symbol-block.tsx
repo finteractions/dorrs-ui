@@ -115,17 +115,35 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             }), {
                 id: "symbol",
                 cell: (item) =>
-                    <div onClick={() => {
-                        this.navigate(item.getValue().symbol)
-                    }}
-                         className={`table-image cursor-pointer link`}
-                    >
-                        <div className="table-image-container">
-                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                        width={28} height={28}/>
-                        </div>
-                        {item.getValue().symbol}
-                    </div>
+                    <>
+                        {companyProfileAccess.view && (
+                            <div onClick={() => {
+                                this.navigate(item.getValue().symbol)
+                            }}
+                                 className={`table-image cursor-pointer link`}
+                            >
+                                <div className="table-image-container">
+                                    <AssetImage alt=''
+                                                src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                                width={28} height={28}/>
+                                </div>
+                                {item.getValue().symbol}
+                            </div>
+                        )}
+                        {!companyProfileAccess.view && (
+                            <div className={`table-image`}
+                            >
+                                <div className="table-image-container">
+                                    <AssetImage alt=''
+                                                src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                                width={28} height={28}/>
+                                </div>
+                                {item.getValue().symbol}
+                            </div>
+                        )}
+                    </>
+
+
                 ,
                 header: () => <span>Symbol</span>,
             }),

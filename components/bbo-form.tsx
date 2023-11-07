@@ -124,17 +124,17 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             uti: string;
         } = {
             symbol: initialData?.symbol_name || '',
-            quote_condition: (initialData?.quote_condition || '').toLowerCase(),
+            quote_condition: (initialData?.quote_condition || QuoteCondition.h).toLowerCase(),
             bid_mpid: initialData?.bid_mpid || '',
             bid_quantity: (initialData?.bid_quantity || '').toString(),
             bid_price: (initialData?.bid_price || '').toString(),
             bid_date: (initialData?.bid_date || '').toString(),
-            bid_time: [QuoteCondition.b, QuoteCondition.h].includes((initialData?.quote_condition || '').toUpperCase() as QuoteCondition) ?  (initialData?.bid_time || initialTime) : '',
+            bid_time: [QuoteCondition.b, QuoteCondition.h].includes((initialData?.quote_condition || QuoteCondition.h).toUpperCase() as QuoteCondition) ?  (initialData?.bid_time || initialTime) : '',
             offer_mpid: initialData?.offer_mpid || '',
             offer_quantity: (initialData?.offer_quantity || '').toString(),
             offer_price: (initialData?.offer_price || '').toString(),
             offer_date: (initialData?.offer_date || '').toString(),
-            offer_time: [QuoteCondition.a, QuoteCondition.h].includes((initialData?.quote_condition || '').toUpperCase() as QuoteCondition) ?  (initialData?.offer_time || initialTime) : '',
+            offer_time: [QuoteCondition.a, QuoteCondition.h].includes((initialData?.quote_condition || QuoteCondition.h).toUpperCase() as QuoteCondition) ?  (initialData?.offer_time || initialTime) : '',
             uti: initialData?.uti || '',
         };
 
@@ -297,7 +297,6 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                             disabled={isSubmitting || this.isShow()}
                                                             onChange={(e: any) => this.handleQuoteConditionChange(e, setFieldValue)}
                                                         >
-                                                            <option value="">Select Quote Condition</option>
                                                             {Object.keys(QuoteCondition).map((item) => (
                                                                 <option key={item} value={item}>
                                                                     {QuoteCondition[item as keyof typeof QuoteCondition]}

@@ -11,31 +11,31 @@ import Modal from "@/components/modal";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
-import {ILastSale} from "@/interfaces/i-last-sale";
-import {Condition} from "@/enums/condition";
+import {IBBO} from "@/interfaces/i-bbo";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
+import {QuoteCondition} from "@/enums/quote-condition";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-interface LastSalesBlockState {
+interface BBOBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: ILastSale | null;
+    formData: IBBO | null;
     formAction: string;
-    data: ILastSale[];
+    data: IBBO[];
     errors: string[];
     modalTitle: string;
-    dataFull: ILastSale[];
+    dataFull: IBBO[];
     filterData: any;
     showSymbolForm: boolean;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
-class LastSalesBlock extends React.Component<{}> {
-    state: LastSalesBlockState;
+class BBOBlock extends React.Component<{}> {
+    state: BBOBlockState;
     getAssetsInterval!: NodeJS.Timer;
 
     constructor(props: {}) {
@@ -73,11 +73,6 @@ class LastSalesBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Firm</span>,
             }),
-            columnHelper.accessor((row) => row.origin, {
-                id: "origin",
-                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
-                header: () => <span>Origin</span>,
-            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
                 image: row.company_profile?.logo
@@ -95,53 +90,74 @@ class LastSalesBlock extends React.Component<{}> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.condition, {
-                id: "condition",
+            columnHelper.accessor((row) => row.quote_condition, {
+                id: "quote_condition",
                 cell: (item) => item.getValue(),
-                header: () => <span>Condition</span>,
+                header: () => <span>QC </span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
-                id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Quantity</span>,
+            columnHelper.accessor((row) => row.bid_mpid, {
+                id: "bid_mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>Bid MPID </span>,
             }),
-            columnHelper.accessor((row) => row.price, {
-                id: "price",
+            columnHelper.accessor((row) => row.bid_quantity, {
+                id: "bid_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Price</span>,
+                header: () => <span>Bid Qty </span>,
+            }),
+            columnHelper.accessor((row) => row.bid_price, {
+                id: "bid_price",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Bid Price </span>,
             }),
             columnHelper.accessor((row) => ({
-                date: row.date,
-                time: row.time
+                date: row.bid_date,
+                time: row.bid_time
             }), {
-                id: "datetime",
+                id: "bid_datetime",
                 cell: (item) => <div>
                     <span>{item.getValue().date}</span><br/>
                     <span>{item.getValue().time}</span>
                 </div>,
-                header: () => <span>Date <br/>Time</span>,
+                header: () => <span>Bid <br/>Date / Time</span>,
             }),
-            columnHelper.accessor((row) => row.tick_indication, {
-                id: "tick_indication",
+            columnHelper.accessor((row) => row.offer_mpid, {
+                id: "offer_mpid",
                 cell: (item) => item.getValue(),
-                header: () => <span>Tick <br/> Ind.</span>,
+                header: () => <span>Offer MPID </span>,
+            }),
+            columnHelper.accessor((row) => row.offer_quantity, {
+                id: "offer_quantity",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Offer Qty </span>,
+            }),
+            columnHelper.accessor((row) => row.offer_price, {
+                id: "offer_price",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Offer Price </span>,
+            }),
+            columnHelper.accessor((row) => ({
+                date: row.offer_date,
+                time: row.offer_time
+            }), {
+                id: "offer_datetime",
+                cell: (item) => <div>
+                    <span>{item.getValue().date}</span><br/>
+                    <span>{item.getValue().time}</span>
+                </div>,
+                header: () => <span>Offer <br/>Date / Time</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
-            columnHelper.accessor((row) => row.created_at, {
-                id: "created_at",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created Date</span>,
-            }),
         ];
     }
 
     componentDidMount() {
         this.setState({loading: true});
-        this.getLastSales();
+        this.getBBO();
         this.startAutoUpdate();
     }
 
@@ -149,13 +165,13 @@ class LastSalesBlock extends React.Component<{}> {
         this.stopAutoUpdate();
     }
 
-    getLastSales = () => {
-        adminService.getLastSales()
-            .then((res: ILastSale[]) => {
+    getBBO = () => {
+        adminService.getBBO()
+            .then((res: IBBO[]) => {
                 const data = res?.sort((a, b) => a.id - b.id) || [];
 
                 data.forEach(s => {
-                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -171,7 +187,7 @@ class LastSalesBlock extends React.Component<{}> {
     }
 
     startAutoUpdate(): void {
-        this.getAssetsInterval = setInterval(this.getLastSales, Number(fetchIntervalSec) * 1000);
+        this.getAssetsInterval = setInterval(this.getBBO, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate(): void {
@@ -185,11 +201,11 @@ class LastSalesBlock extends React.Component<{}> {
 
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
-            return 'Do you want to remove this Last Sale?';
+            return 'Do you want to remove this BBO?';
         } else if (mode === 'view') {
             return 'View Last Sale'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Last Sale`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} BBO`;
         }
     }
 
@@ -200,7 +216,7 @@ class LastSalesBlock extends React.Component<{}> {
 
     submitForm(): void {
         this.setState({isOpenModal: false});
-        this.getLastSales();
+        this.getBBO();
     }
 
     handleResetButtonClick = () => {
@@ -222,19 +238,19 @@ class LastSalesBlock extends React.Component<{}> {
 
 
     onCallback = async (values: any, step: boolean) => {
-        this.getLastSales();
+        this.getBBO();
         this.closeModal();
     };
 
-    downloadLastSaleReportingCSV = () => {
-        adminService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.CSV('last_sale_reporting', res);
+    downloadBBOCSV = () => {
+        adminService.downBBO(this.state.filterData).then((res) => {
+            downloadFile.CSV('bbo', res);
         })
     }
 
-    downloadLastSaleReportingXLSX = () => {
-        adminService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.XLSX('last_sale_reporting', res);
+    downloadBBOXLSX = () => {
+        adminService.downBBO(this.state.filterData).then((res) => {
+            downloadFile.XLSX('bbo', res);
         })
     }
 
@@ -244,15 +260,15 @@ class LastSalesBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Last Sale Reporting</div>
+                        <div className="content__title">Best Bid and Best Offer</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
                             <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingCSV}>
+                                    onClick={this.downloadBBOCSV}>
                                 <span className="file-item__download"></span>
                                 <span>CSV</span>
                             </button>
                             <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingXLSX}>
+                                    onClick={this.downloadBBOXLSX}>
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
                             </button>
@@ -322,10 +338,10 @@ class LastSalesBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('origin', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('origin', item)}
-                                                options={filterService.buildOptions('origin', this.state.dataFull)}
-                                                placeholder="Origin"
+                                                value={filterService.setValue('quote_condition', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('quote_condition', item)}
+                                                options={filterService.buildOptions('quote_condition', this.state.dataFull)}
+                                                placeholder="Quote Condition"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -334,10 +350,10 @@ class LastSalesBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('condition', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('condition', item)}
-                                                options={filterService.buildOptions('condition', this.state.dataFull)}
-                                                placeholder="Condition"
+                                                value={filterService.setValue('bid_mpid', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('bid_mpid', item)}
+                                                options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
+                                                placeholder="Bid MPID"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -346,10 +362,10 @@ class LastSalesBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('tick_indication', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('tick_indication', item)}
-                                                options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                                placeholder="Tick Indication"
+                                                value={filterService.setValue('offer_mpid', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('offer_mpid', item)}
+                                                options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
+                                                placeholder="Offer MPID"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -362,18 +378,6 @@ class LastSalesBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('uti', item)}
                                                 options={filterService.buildOptions('uti', this.state.dataFull)}
                                                 placeholder="UTI"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('date', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('date', item)}
-                                                options={filterService.buildOptions('date', this.state.dataFull)}
-                                                placeholder="Date"
                                             />
                                         </div>
                                         <button
@@ -427,45 +431,75 @@ class LastSalesBlock extends React.Component<{}> {
                                     className="box__wrap">{this.state.formData?.user_id || ''}</div>
                             </div>
                             <div className="view-form-box">
-                                <div className="box__title">Origin</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.origin || ''}</div>
-                            </div>
-                            <div className="view-form-box">
                                 <div className="box__title">Symbol</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.symbol_name || ''}</div>
                             </div>
                             <div className="view-form-box">
-                                <div className="box__title">Condition</div>
+                                <div className="box__title">Quote Condition</div>
                                 <div
-                                    className="box__wrap">{this.state.formData?.condition}</div>
+                                    className="box__wrap">{this.state.formData?.quote_condition}</div>
                             </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Tick Indication</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.tick_indication}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Quantity</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.quantity ? formatterService.numberFormat(parseFloat(this.state.formData.quantity)) : ''}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Price</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.price ? formatterService.numberFormat(parseFloat(this.state.formData.price)) : ''}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Date</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.date}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Time</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.time}</div>
-                            </div>
+                            {[QuoteCondition.b, QuoteCondition.h].includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
+                                <>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Bid MPID</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.bid_mpid}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title"></div>
+                                        <div
+                                            className="box__wrap"></div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Bid Qty</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.bid_quantity ? formatterService.numberFormat(parseFloat(this.state.formData.bid_quantity)) : ''}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Bid Price</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.bid_price ? formatterService.numberFormat(parseFloat(this.state.formData.bid_price)) : ''}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Bid Date</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.bid_date}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Bid Time</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.bid_time}</div>
+                                    </div>
+                                </>
+                            )}
+
+                            {[QuoteCondition.a, QuoteCondition.h].includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
+                                <>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Offer MPID</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.offer_mpid}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title"></div>
+                                        <div
+                                            className="box__wrap"></div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Offer Date</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.offer_date}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Offer Time</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.offer_time}</div>
+                                    </div>
+                                </>
+                            )}
+
                             <div className="view-form-box">
                                 <div className="box__title">Universal Transaction ID (UTI)</div>
                                 <div
@@ -485,4 +519,4 @@ class LastSalesBlock extends React.Component<{}> {
     }
 }
 
-export default LastSalesBlock;
+export default BBOBlock;

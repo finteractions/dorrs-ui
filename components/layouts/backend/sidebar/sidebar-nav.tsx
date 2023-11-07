@@ -115,6 +115,17 @@ const MENU_LIST: MenuItem[] = [
             }
         ]
     },
+    {
+        text: 'BBO Management',
+        href: '#',
+        icon: faBook,
+        submenus: [
+            {
+                text: 'Best Bid and Best Offer',
+                href: "/backend/best-bid-and-best-offer",
+            }
+        ]
+    },
     // {
     //     text: 'Trade Management',
     //     href: "/backend/trade-management",

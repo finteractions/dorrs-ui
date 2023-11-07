@@ -265,4 +265,4 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
 
 }
 
-export default portalAccessWrapper(CompanyProfilesBlock, 'CompanyProfile');
+export default portalAccessWrapper(CompanyProfilesBlock, 'CompanyProfileBlock');

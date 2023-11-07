@@ -6,12 +6,12 @@ import {IActivityLog} from "@/interfaces/i-activity-log";
 import {IUserDetail} from "@/interfaces/i-user-detail";
 import {IUser} from "@/interfaces/i-user";
 import {IBlacklist} from "@/interfaces/i-blacklist";
-import {any} from "prop-types";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {IPermission} from "@/interfaces/i-permission";
 import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {IDoc} from "@/interfaces/i-doc";
+import {IBBO} from "@/interfaces/i-bbo";
 
 class AdminService extends BaseService {
 
@@ -283,6 +283,15 @@ class AdminService extends BaseService {
 
     public async assignAccountType(data: any): Promise<IResponseApi> {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_account_type/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getBBO(): Promise<IBBO[]> {
+        return (await apiWebBackendService.get<IResponse<IBBO[]>>(`${this.PATH}bbo/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    }
+
+    public async downBBO(data: any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_bbo/`, data, {}, this.getAdminToken()));
     }
 
 }
