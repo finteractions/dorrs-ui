@@ -14,7 +14,7 @@ import {IFirm} from "@/interfaces/i-firm";
 import {IBBO} from "@/interfaces/i-bbo";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
-import {QuoteCondition} from "@/enums/quote-condition";
+import {getBidQuoteCondition, getOfferQuoteCondition, QuoteCondition} from "@/enums/quote-condition";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -440,7 +440,7 @@ class BBOBlock extends React.Component<{}> {
                                 <div
                                     className="box__wrap">{this.state.formData?.quote_condition}</div>
                             </div>
-                            {[QuoteCondition.b, QuoteCondition.h].includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
+                            {getBidQuoteCondition().includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
                                 <>
                                     <div className="view-form-box">
                                         <div className="box__title">Bid MPID</div>
@@ -475,7 +475,7 @@ class BBOBlock extends React.Component<{}> {
                                 </>
                             )}
 
-                            {[QuoteCondition.a, QuoteCondition.h].includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
+                            {getOfferQuoteCondition().includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
                                 <>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer MPID</div>

@@ -13,7 +13,12 @@ import NumericInputField from "@/components/numeric-input-field";
 import Select from "react-select";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment";
-import {getQuoteConditionDescriptions, QuoteCondition} from "@/enums/quote-condition";
+import {
+    getBidQuoteCondition,
+    getOfferQuoteCondition,
+    getQuoteConditionDescriptions,
+    QuoteCondition
+} from "@/enums/quote-condition";
 
 
 const formSchema = Yup.object().shape({
@@ -22,61 +27,61 @@ const formSchema = Yup.object().shape({
 
     bid_mpid: Yup.string().min(3).max(12).label('Bid MPID')
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.b, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getBidQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     bid_quantity: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Bid Qty').min(0)
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.b, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getBidQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     bid_price: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Bid Price').min(0).label('Bid price')
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.b, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getBidQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     bid_date: Yup.string().label('Bid Date')
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.b, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getBidQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     bid_time: Yup.string().label('Bid Time')
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.b, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getBidQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
 
     offer_mpid: Yup.string().min(3).max(12).label('Offer MPID')
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.a, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getOfferQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     offer_quantity: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Offer Qty').min(0)
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.a, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getOfferQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     offer_price: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Offer Price').min(0)
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.a, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getOfferQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     offer_date: Yup.string()
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.a, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getOfferQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
     offer_time: Yup.string()
         .when('quote_condition', {
-            is: (v: string) => [QuoteCondition.a, QuoteCondition.h].includes((v || '').toUpperCase() as QuoteCondition),
+            is: (v: string) => getOfferQuoteCondition().includes((v || '').toUpperCase() as QuoteCondition),
             then: (schema) => schema.required('Required')
         }),
 });
@@ -124,17 +129,17 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             uti: string;
         } = {
             symbol: initialData?.symbol_name || '',
-            quote_condition: (initialData?.quote_condition || QuoteCondition.h).toLowerCase(),
+            quote_condition: (initialData?.quote_condition || QuoteCondition.c).toLowerCase(),
             bid_mpid: initialData?.bid_mpid || '',
             bid_quantity: (initialData?.bid_quantity || '').toString(),
             bid_price: (initialData?.bid_price || '').toString(),
             bid_date: (initialData?.bid_date || '').toString(),
-            bid_time: [QuoteCondition.b, QuoteCondition.h].includes((initialData?.quote_condition || QuoteCondition.h).toUpperCase() as QuoteCondition) ?  (initialData?.bid_time || initialTime) : '',
+            bid_time: getBidQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.bid_time || initialTime) : '',
             offer_mpid: initialData?.offer_mpid || '',
             offer_quantity: (initialData?.offer_quantity || '').toString(),
             offer_price: (initialData?.offer_price || '').toString(),
             offer_date: (initialData?.offer_date || '').toString(),
-            offer_time: [QuoteCondition.a, QuoteCondition.h].includes((initialData?.quote_condition || QuoteCondition.h).toUpperCase() as QuoteCondition) ?  (initialData?.offer_time || initialTime) : '',
+            offer_time: getOfferQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.offer_time || initialTime) : '',
             uti: initialData?.uti || '',
         };
 
@@ -221,8 +226,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
         const initialTime = `${currentHour}:${currentMinute}`;
 
-        if ([QuoteCondition.b, QuoteCondition.h].includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("bid_time", initialTime);
-        if ([QuoteCondition.a, QuoteCondition.h].includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("offer_time", initialTime);
+        if (getBidQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("bid_time", initialTime);
+        if (getOfferQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("offer_time", initialTime);
     };
 
     render() {
@@ -309,7 +314,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                     </div>
                                                 </div>
 
-                                                {[QuoteCondition.b, QuoteCondition.h].includes(values.quote_condition.toUpperCase() as QuoteCondition) && (
+                                                {getBidQuoteCondition().includes(values.quote_condition.toUpperCase() as QuoteCondition) && (
                                                     <>
                                                         <div className="input">
                                                             <div className="input__title">Bid MPID <i>*</i></div>
@@ -407,7 +412,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                     </>
                                                 )}
 
-                                                {[QuoteCondition.a, QuoteCondition.h].includes(values.quote_condition.toUpperCase() as QuoteCondition) && (
+                                                {getOfferQuoteCondition().includes(values.quote_condition.toUpperCase() as QuoteCondition) && (
                                                     <>
                                                         <div className="input">
                                                             <div className="input__title">Offer MPID <i>*</i></div>
