@@ -83,12 +83,12 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
             columnHelper.accessor((row) => row.bid_date, {
                 id: "bid_date",
                 cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
+                header: () => <span>Bid Date</span>,
             }),
             columnHelper.accessor((row) => row.bid_time, {
                 id: "bid_time",
                 cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
+                header: () => <span>Bid Time</span>,
             }),
             columnHelper.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
@@ -108,12 +108,12 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
             columnHelper.accessor((row) => row.offer_date, {
                 id: "offer_date",
                 cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
+                header: () => <span>Offer Date</span>,
             }),
             columnHelper.accessor((row) => row.offer_time, {
                 id: "offer_time",
                 cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
+                header: () => <span>Offer Time</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
