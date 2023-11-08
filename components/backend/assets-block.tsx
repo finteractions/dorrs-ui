@@ -17,6 +17,7 @@ import CompanyProfile from "@/components/company-profile-form";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import downloadFile from "@/services/download-file/download-file";
+import {faComment} from "@fortawesome/free-solid-svg-icons";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -168,13 +169,21 @@ class AssetsBlock extends React.Component<{}> {
             //     cell: (item) => item.getValue(),
             //     header: () => <span>Smart Contract type </span>,
             // }),
-            columnHelper.accessor((row) => row.status, {
+            columnHelper.accessor((row) => ({
+                comment_status: row.change_reason_status,
+                comment: row.change_reason,
+                status: row.status
+            }), {
                 id: "status",
                 cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                        {item.getValue()}
-                    </div>
-                ,
+                    <div className='status-panel'>
+                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                            {item.getValue().status}
+                        </div>
+                        {item.getValue().comment_status ?
+                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
+                                className="nav-icon" icon={faComment}/></div> : ''}
+                    </div>,
                 header: () => <span>Status</span>,
             }),
             columnHelper.accessor((row) => row.updated_at, {
@@ -211,6 +220,7 @@ class AssetsBlock extends React.Component<{}> {
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    s.change_reason_status = !!s.change_reason
 
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;

@@ -328,7 +328,7 @@ body {
     textarea {
       font-family: "Work Sans", sans-serif;
       width: 100%;
-      height: 310px;
+      //height: 310px;
       background: #f8fbff;
       border: 1px solid #c5cacf;
       border-radius: 4px;
@@ -2416,6 +2416,10 @@ body {
       background: #34cb68
     }
 
+    .table__status.table__status-changed:before {
+      background: #34cb68
+    }
+
     .table__status.table__status-debit:before {
       background: #3d7da2
     }
@@ -3356,6 +3360,16 @@ body {
       width: 100%;
       display: block;
       white-space: nowrap;
+    }
+
+    .status-panel {
+      display: flex;
+      align-items: center;
+      column-gap: 10px;
+
+      .status-comment {
+        color: #3d7da2;
+      }
     }
   }
 }

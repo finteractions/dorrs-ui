@@ -13,6 +13,8 @@ import {SecurityType2} from "@/enums/security-type-2";
 import dsinService from "@/services/dsin/dsin-service";
 import {MarketSector} from "@/enums/market-sector";
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
+import {SingleDatePicker} from "react-dates";
+import moment from "moment";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -48,6 +50,26 @@ const formSchema = Yup.object().shape({
     security_type_2: Yup.string().label('Security Type 2'),
     blockchain: Yup.string().min(3).max(50).label('Blockchain'),
     smart_contract_type: Yup.string().min(3).max(50).label('Smart Contract type'),
+    isNewSymbol: Yup.boolean(),
+    date_entered: Yup.string(),
+    time_entered: Yup.string(),
+    date_effective: Yup.string().when('isNewSymbol', {
+        is: (isNewSymbol: boolean) => isNewSymbol,
+        then: (schema) => schema.required('Required')
+    }),
+    time_effective: Yup.string().when('isNewSymbol', {
+        is: (isNewSymbol: boolean) => isNewSymbol,
+        then: (schema) => schema.required('Required')
+    }),
+    new_symbol: Yup.string().when('isNewSymbol', {
+        is: (isNewSymbol: boolean) => isNewSymbol,
+        then: (schema) => schema.required('Required')
+    }),
+    new_security_name: Yup.string().when('isNewSymbol', {
+        is: (isNewSymbol: boolean) => isNewSymbol,
+        then: (schema) => schema.required('Required')
+    }),
+    change_reason: Yup.string()
 
 });
 
@@ -57,6 +79,8 @@ interface SymbolFormState extends IState {
     isApproving: boolean | null;
     loading: boolean;
     isDeleting: boolean;
+    focusedInputDateEntered: any;
+    focusedInputDateEffective: any;
 }
 
 interface SymbolFormProps extends ICallback {
@@ -72,6 +96,11 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     constructor(props: SymbolFormProps) {
         super(props);
+
+        const currentDateTime = new Date();
+        const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+        const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+        const initialTime = `${currentHour}:${currentMinute}`;
 
         const initialData = this.props.data || {} as ISymbol;
 
@@ -93,6 +122,14 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             security_type_2: string;
             blockchain: string;
             smart_contract_type: string;
+            isNewSymbol: boolean;
+            date_entered: string;
+            time_entered: string;
+            date_effective: string;
+            time_effective: string;
+            status: string;
+            change_reason: string;
+
         } = {
             reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
             symbol: initialData?.symbol || '',
@@ -111,6 +148,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             security_type_2: initialData?.security_type_2 || '',
             blockchain: initialData?.blockchain || '',
             smart_contract_type: initialData?.smart_contract_type || '',
+            isNewSymbol: (initialData?.status || '').toLowerCase() === FormStatus.APPROVED.toLowerCase() && this.props.action === 'edit',
+            date_entered: initialData?.date_entered || '',
+            time_entered: initialData?.time_entered || initialTime,
+            date_effective: initialData?.date_effective || '',
+            time_effective: initialData?.time_effective || initialTime,
+            status: initialData?.status || '',
+            change_reason: initialData?.change_reason || ''
         };
 
         this.state = {
@@ -120,6 +164,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             isApproving: null,
             isConfirmedApproving: false,
             isDeleting: false,
+            focusedInputDateEntered: null,
+            focusedInputDateEffective: null
         };
 
     }
@@ -143,7 +189,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     };
 
     isShow(): boolean {
-        return this.props.action === 'view';
+        return this.props.action === 'view' || (this.state.formInitialValues as ISymbol)?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase();
     }
 
     handleApprove = async (values: any) => {
@@ -181,6 +227,11 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
         const dsin = dsinService.generate(alphanumericValue)
         setFieldValue('dsin', dsin);
+    }
+
+    handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
+        const alphanumericValue = value.slice(0, 5).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        setFieldValue('new_symbol', alphanumericValue);
     }
 
     render() {
@@ -262,6 +313,154 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     </div>
                                                 )}
 
+                                                {(values.isNewSymbol) && (
+                                                    <>
+                                                        <div className="input">
+                                                            <h4 className="input__group__title">New Security Name</h4>
+                                                            <div className="input__group">
+                                                                <div className="input">
+                                                                    <div className="input__title">Date <i>*</i></div>
+                                                                    <div
+                                                                        className={`input__wrap`}>
+                                                                        <SingleDatePicker
+                                                                            numberOfMonths={1}
+                                                                            date={moment()}
+                                                                            onDateChange={date => setFieldValue('date_entered', date?.format('YYYY-MM-DD').toString())}
+                                                                            focused={this.state.focusedInputDateEntered}
+                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
+                                                                            id="date_entered"
+                                                                            displayFormat="YYYY-MM-DD"
+                                                                            isOutsideRange={() => false}
+                                                                            readOnly={true}
+                                                                            disabled={true}
+                                                                            placeholder={'Select Date'}
+                                                                        />
+                                                                        <ErrorMessage name="date_entered"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div className="input">
+                                                                    <div className="input__title">Time <i>*</i></div>
+                                                                    <div
+                                                                        className={`input__wrap`}>
+                                                                        <Field
+                                                                            name="time_entered"
+                                                                            id="time_entered"
+                                                                            type="time"
+                                                                            placeholder="Type Time"
+                                                                            className="input__text"
+                                                                            readOnly={true}
+                                                                            disabled={true}
+                                                                        />
+                                                                        <ErrorMessage name="time_entered"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="input__group">
+                                                                <div className="input">
+                                                                    <div className="input__title">Effective
+                                                                        Date <i>*</i>
+                                                                    </div>
+                                                                    <div
+                                                                        className={`input__wrap`}>
+                                                                        <SingleDatePicker
+                                                                            numberOfMonths={1}
+                                                                            date={values.date_effective ? moment(values.date_effective) : null}
+                                                                            onDateChange={date => setFieldValue('date_effective', date?.format('YYYY-MM-DD').toString())}
+                                                                            focused={this.state.focusedInputDateEffective}
+                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
+                                                                            id="date_effective"
+                                                                            displayFormat="YYYY-MM-DD"
+                                                                            isOutsideRange={() => false}
+                                                                            readOnly={true}
+                                                                            placeholder={'Select Date'}
+                                                                        />
+                                                                        <ErrorMessage name="date_effective"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div className="input">
+                                                                    <div className="input__title">Effective
+                                                                        Time <i>*</i>
+                                                                    </div>
+                                                                    <div
+                                                                        className={`input__wrap`}>
+                                                                        <Field
+                                                                            name="time_effective"
+                                                                            id="time_effective"
+                                                                            type="time"
+                                                                            placeholder="Type Time"
+                                                                            className="input__text"
+                                                                        />
+                                                                        <ErrorMessage name="time_effective"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="input">
+                                                                <div className="input__title">Symbol <i>*</i></div>
+                                                                <div
+                                                                    className={`input__wrap`}>
+                                                                    <Field
+                                                                        name="new_symbol"
+                                                                        id="new_symbol"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Symbol"
+                                                                        onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                    />
+                                                                    <ErrorMessage name="new_symbol" component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="input">
+                                                                <div className="input__title">Security Name <i>*</i>
+                                                                </div>
+                                                                <div
+                                                                    className={`input__wrap`}>
+                                                                    <Field
+                                                                        name="new_security_name"
+                                                                        id="new_security_name"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Security Name"
+                                                                    />
+                                                                    <ErrorMessage name="new_security_name"
+                                                                                  component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+                                                            <div className="input">
+                                                                <div className="input__title">Change Reason</div>
+                                                                <div className="input__wrap">
+                                                                    <Field
+                                                                        name="change_reason"
+                                                                        id="bank_address"
+                                                                        as="textarea"
+                                                                        rows="3"
+                                                                        className="input__textarea"
+                                                                        placeholder="Type change reason"
+                                                                        disabled={isSubmitting}
+                                                                    />
+                                                                    <ErrorMessage name="change_reason" component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <hr className={'mb-24'}/>
+                                                    </>
+                                                )}
                                                 <div className="input">
                                                     <div className="input__title">Reason for Entry <i>*</i></div>
                                                     <div
@@ -278,14 +477,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             <option disabled={true} value="New Ticker Symbol">New
                                                                 Security Name
                                                             </option>
-                                                            <option disabled={true} value="New Ticker Symbol">Deleted
-                                                                Date
-                                                            </option>
-                                                            <option disabled={true} value="New Ticker Symbol">Effective
-                                                                Date of Change
-                                                            </option>
-                                                            <option disabled={true} value="New Ticker Symbol">Reason for
-                                                                the Change
+                                                            <option disabled={true} value="Symbol Deletion">Symbol
+                                                                Deletion
                                                             </option>
                                                         </Field>
                                                         <ErrorMessage name="reason_for_entry" component="div"
@@ -424,7 +617,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Lot Size (1, 5, 10, 100) <i>*</i></div>
+                                                    <div className="input__title">Lot Size (1, 5, 10, 100) <i>*</i>
+                                                    </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -458,7 +652,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Minimum Price Variation (MPV)  (.01, .05, .10)</div>
+                                                    <div className="input__title">Minimum Price Variation (MPV) (.01,
+                                                        .05, .10)
+                                                    </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
@@ -515,7 +711,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Fifth Character Identifiers </div>
+                                                    <div className="input__title">Fifth Character Identifiers</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
