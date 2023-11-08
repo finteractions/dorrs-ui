@@ -13,8 +13,10 @@ import {SecurityType2} from "@/enums/security-type-2";
 import dsinService from "@/services/dsin/dsin-service";
 import {MarketSector} from "@/enums/market-sector";
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
-import {SingleDatePicker} from "react-dates";
 import moment from "moment";
+import 'react-dates/initialize'; // necessary for latest version
+import {SingleDatePicker} from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),

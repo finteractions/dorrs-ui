@@ -262,11 +262,8 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     }
 
     openModal = (mode: string, data?: ISymbol) => {
-        setTimeout(() => {
-            this.setState({isOpenModal: true, symbol: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
-            this.cancelCompanyForm();
-        });
-
+        this.setState({isOpenModal: true, symbol: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+        this.cancelCompanyForm();
     }
 
     openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
