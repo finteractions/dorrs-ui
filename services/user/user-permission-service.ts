@@ -1,6 +1,6 @@
 const comparison_matrix: Record<string, string> = {
     'SymbolBlock': 'security',
-    'CompanyProfile': 'company_profile',
+    'CompanyProfileBlock': 'company_profile',
     'LastSaleReportingBlock':'last_sale_reporting',
     'LastSaleDataHistoryBlock':'last_sale_data_history',
     'BBOBlock':'bbo',

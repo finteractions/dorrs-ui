@@ -62,7 +62,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         this.context = context;
 
         const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
-            'CompanyProfile',
+            'CompanyProfileBlock',
             this.context.userProfile.access
         );
 

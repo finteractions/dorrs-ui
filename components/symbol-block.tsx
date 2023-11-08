@@ -72,7 +72,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         this.context = context;
 
         const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
-            'CompanyProfile',
+            'CompanyProfileBlock',
             this.context.userProfile.access
         );
 
