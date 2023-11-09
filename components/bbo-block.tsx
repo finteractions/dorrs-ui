@@ -228,7 +228,6 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                console.log(values)
                 this.openModal('edit', values as IBBO);
             })
         } else {

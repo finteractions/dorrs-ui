@@ -19,6 +19,7 @@ import {
     getQuoteConditionDescriptions,
     QuoteCondition
 } from "@/enums/quote-condition";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 
 const formSchema = Yup.object().shape({
@@ -158,7 +159,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             .then((res: Array<ISymbol>) => {
                 const data: ISymbol[] = res?.sort((a, b) => {
                     return a.symbol.localeCompare(b.symbol);
-                }).filter(s => s.status.toLowerCase() === 'approved') || [];
+                }).filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus)) || [];
 
                 this.symbols = data;
             })

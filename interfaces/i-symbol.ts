@@ -25,7 +25,9 @@ export interface ISymbol {
     approved_date_time: string;
     company_profile: ICompanyProfile | null;
     company_profile_status: string;
-    isNewSymbol?: boolean;
+    new_symbol?: string;
+    new_security_name?: string;
+    is_new_symbol?: boolean;
     date_entered?: string;
     time_entered?: string;
     date_effective?: string;

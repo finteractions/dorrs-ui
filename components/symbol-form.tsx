@@ -2,7 +2,7 @@ import React from 'react';
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
-import {FormStatus} from "@/enums/form-status";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
@@ -52,23 +52,23 @@ const formSchema = Yup.object().shape({
     security_type_2: Yup.string().label('Security Type 2'),
     blockchain: Yup.string().min(3).max(50).label('Blockchain'),
     smart_contract_type: Yup.string().min(3).max(50).label('Smart Contract type'),
-    isNewSymbol: Yup.boolean(),
+    is_new_symbol: Yup.boolean(),
     date_entered: Yup.string(),
     time_entered: Yup.string(),
-    date_effective: Yup.string().when('isNewSymbol', {
-        is: (isNewSymbol: boolean) => isNewSymbol,
+    date_effective: Yup.string().when('is_new_symbol', {
+        is: (is_new_symbol: boolean) => is_new_symbol,
         then: (schema) => schema.required('Required')
     }),
-    time_effective: Yup.string().when('isNewSymbol', {
-        is: (isNewSymbol: boolean) => isNewSymbol,
+    time_effective: Yup.string().when('is_new_symbol', {
+        is: (is_new_symbol: boolean) => is_new_symbol,
         then: (schema) => schema.required('Required')
     }),
-    new_symbol: Yup.string().when('isNewSymbol', {
-        is: (isNewSymbol: boolean) => isNewSymbol,
+    new_symbol: Yup.string().when('is_new_symbol', {
+        is: (is_new_symbol: boolean) => is_new_symbol,
         then: (schema) => schema.required('Required')
     }),
-    new_security_name: Yup.string().when('isNewSymbol', {
-        is: (isNewSymbol: boolean) => isNewSymbol,
+    new_security_name: Yup.string().when('is_new_symbol', {
+        is: (is_new_symbol: boolean) => is_new_symbol,
         then: (schema) => schema.required('Required')
     }),
     change_reason: Yup.string()
@@ -124,7 +124,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             security_type_2: string;
             blockchain: string;
             smart_contract_type: string;
-            isNewSymbol: boolean;
+            is_new_symbol: boolean;
+            new_symbol: string;
+            new_security_name: string;
             date_entered: string;
             time_entered: string;
             date_effective: string;
@@ -150,11 +152,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             security_type_2: initialData?.security_type_2 || '',
             blockchain: initialData?.blockchain || '',
             smart_contract_type: initialData?.smart_contract_type || '',
-            isNewSymbol: (initialData?.status || '').toLowerCase() === FormStatus.APPROVED.toLowerCase() && this.props.action === 'edit',
-            date_entered: initialData?.date_entered || '',
+            is_new_symbol: getApprovedFormStatus().includes((initialData?.status || '').toLowerCase() as FormStatus) && this.props.action === 'edit',
+            date_entered: initialData?.date_entered || moment().format('YYYY-MM-DD'),
             time_entered: initialData?.time_entered || initialTime,
             date_effective: initialData?.date_effective || '',
             time_effective: initialData?.time_effective || initialTime,
+            new_symbol: initialData?.new_symbol || '',
+            new_security_name: initialData?.new_security_name || '',
             status: initialData?.status || '',
             change_reason: initialData?.change_reason || ''
         };
@@ -191,7 +195,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     };
 
     isShow(): boolean {
-        return this.props.action === 'view' || (this.state.formInitialValues as ISymbol)?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase();
+        return this.props.action === 'view' || getApprovedFormStatus().includes((this.state.formInitialValues as ISymbol)?.status.toLowerCase() as FormStatus);
     }
 
     handleApprove = async (values: any) => {
@@ -259,7 +263,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                             <Form id="bank-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (
                                                     <div className='approve-form'>
-                                                        {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
+                                                        {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
                                                             <>
                                                                 <div className='approve-form-text'>
                                                                     <>
@@ -315,7 +319,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     </div>
                                                 )}
 
-                                                {(values.isNewSymbol) && (
+                                                {(values.is_new_symbol) && (
                                                     <>
                                                         <div className="input">
                                                             <h4 className="input__group__title">New Security Name</h4>
@@ -326,7 +330,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         className={`input__wrap`}>
                                                                         <SingleDatePicker
                                                                             numberOfMonths={1}
-                                                                            date={moment()}
+                                                                            date={values.date_entered ? moment(values.date_entered) : null}
                                                                             onDateChange={date => setFieldValue('date_entered', date?.format('YYYY-MM-DD').toString())}
                                                                             focused={this.state.focusedInputDateEntered}
                                                                             onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}

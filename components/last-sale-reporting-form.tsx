@@ -15,6 +15,7 @@ import NumericInputField from "@/components/numeric-input-field";
 import Select from "react-select";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 
 const formSchema = Yup.object().shape({
@@ -94,7 +95,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             .then((res: Array<ISymbol>) => {
                 const data: ISymbol[] = res?.sort((a, b) => {
                     return a.symbol.localeCompare(b.symbol);
-                }).filter(s => s.status.toLowerCase() === 'approved') || [];
+                }).filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus)) || [];
 
                 this.symbols = data;
             })
