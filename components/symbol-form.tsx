@@ -14,7 +14,7 @@ import dsinService from "@/services/dsin/dsin-service";
 import {MarketSector} from "@/enums/market-sector";
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
 import moment from "moment";
-import 'react-dates/initialize'; // necessary for latest version
+import 'react-dates/initialize';
 import {SingleDatePicker} from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
 

@@ -14,6 +14,7 @@ import * as Yup from "yup";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import Select from "react-select";
 import AreaChart from "@/components/chart/area-chart";
+import BBOForm from "@/components/bbo-form";
 
 
 const formSchema = Yup.object().shape({
@@ -43,6 +44,7 @@ class IndicatorBlock extends React.Component {
     statisticsSymbol: IIndicator | null;
     statisticsCompanyProfile: IIndicator | null;
     statisticsLastSale: IIndicator | null;
+    statisticsBBO: IIndicator | null;
 
     constructor(props: {}) {
         super(props);
@@ -59,6 +61,7 @@ class IndicatorBlock extends React.Component {
         this.statisticsSymbol = null;
         this.statisticsCompanyProfile = null;
         this.statisticsLastSale = null;
+        this.statisticsBBO = null;
     }
 
     componentDidMount() {
@@ -89,6 +92,7 @@ class IndicatorBlock extends React.Component {
                 this.statisticsSymbol = res.find(s => s.type === 'symbol') || null;
                 this.statisticsCompanyProfile = res.find(s => s.type === 'company_profile') || null;
                 this.statisticsLastSale = res.find(s => s.type === 'last_sale') || null;
+                this.statisticsBBO = res.find(s => s.type === 'bbo') || null;
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -144,6 +148,8 @@ class IndicatorBlock extends React.Component {
                 return `${add} Company Profile`;
             case 'last_sale':
                 return `${add} Last Sale`;
+            case 'bbo':
+                return `${add} BBO`;
             case 'symbol_list':
                 return `Select Symbol`;
         }
@@ -186,6 +192,14 @@ class IndicatorBlock extends React.Component {
             case 'last_sale':
                 return (
                     <LastSaleReportingForm
+                        action={this.state.formAction}
+                        data={null}
+                        onCallback={this.onCallback}
+                    />
+                );
+            case 'bbo':
+                return (
+                    <BBOForm
                         action={this.state.formAction}
                         data={null}
                         onCallback={this.onCallback}
@@ -339,6 +353,34 @@ class IndicatorBlock extends React.Component {
                                         key={this.statisticsLastSale?.new}
                                         labels={Object.values(this.statisticsLastSale?.points.map(s => s.time) || [])}
                                         data={Object.values(this.statisticsLastSale?.points.map(s => s.volume) || [])}
+                                        title={''}/>
+                                </div>
+                            </div>
+                            <div className={'indicator__item'}>
+                                <div className={''}>
+                                    <div
+                                        dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>'}}/>
+                                    <div>Best Bid and Best Offer</div>
+                                </div>
+                                <div>
+                                    <div>
+                                        <div>{this.statisticsBBO?.total || '-'}</div>
+                                        <div
+                                            className={this.statisticsBBO?.new ? this.getIndicatorType(this.statisticsBBO.new) : ''}>{this.statisticsBBO?.new}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className='b-btn ripple'
+                                        onClick={() => this.openModal('bbo')}
+                                    >
+                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                    </button>
+                                </div>
+                                <div className={'indicator__item__graph'}>
+                                    <AreaChart
+                                        key={this.statisticsBBO?.new}
+                                        labels={Object.values(this.statisticsBBO?.points.map(s => s.time) || [])}
+                                        data={Object.values(this.statisticsBBO?.points.map(s => s.volume) || [])}
                                         title={''}/>
                                 </div>
                             </div>
