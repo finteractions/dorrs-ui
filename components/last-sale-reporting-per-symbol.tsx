@@ -101,23 +101,27 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     componentDidMount() {
         this.setState({isLoading: true});
-        this.getSymbols();
-        this.getLastSaleReportingChart();
-        this.getLastSaleReporting();
-
+        this.getSymbols()
+            .then(() => this.getLastSaleReportingChart())
+            .then(() => this.getLastSaleReporting())
+            .finally(() => this.setState({isLoading: false}))
     }
 
     getLastSaleReportingChart = () => {
-        lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol)
-            .then((res: Array<ITradingView>) => {
-                this.charts = res;
-            })
-            .catch((errors: IError) => {
+        return new Promise((resolve) => {
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol)
+                .then((res: Array<ITradingView>) => {
+                    this.charts = res;
+                })
+                .catch((errors: IError) => {
 
-            })
-            .finally(() => {
-                this.setState({isLoadingChart: false});
-            });
+                })
+                .finally(() => {
+                    this.setState({isLoadingChart: false});
+                    resolve(true);
+                });
+        });
+
     }
 
     filterData = () => {
@@ -125,44 +129,49 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     }
 
     getSymbols = () => {
-        symbolService.getSymbols()
-            .then((res: Array<ISymbol>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+        return new Promise((resolve) => {
+            symbolService.getSymbols()
+                .then((res: Array<ISymbol>) => {
+                    const data = res?.sort((a, b) => {
+                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    }) || [];
 
-                const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
-                this.companyProfile = symbol?.company_profile || null;
-            })
-            .catch((errors: IError) => {
+                    const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
+                    this.companyProfile = symbol?.company_profile || null;
+                })
+                .catch((errors: IError) => {
 
-            })
-            .finally(() => {
-
-            });
+                })
+                .finally(() => {
+                    resolve(true)
+                });
+        });
     }
 
     getLastSaleReporting = () => {
-        lastSaleService.getLastSaleReportingBySymbol(this.props.symbol)
-            .then((res: Array<ILastSale>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+        return new Promise((resolve) => {
+            lastSaleService.getLastSaleReportingBySymbol(this.props.symbol)
+                .then((res: Array<ILastSale>) => {
+                    const data = res?.sort((a, b) => {
+                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    }) || [];
 
-                data.forEach(s => {
-                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                    data.forEach(s => {
+                        s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                    })
+
+                    this.setState({dataFull: data, data: data}, () => {
+                        this.filterData();
+                    });
                 })
+                .catch((errors: IError) => {
 
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
+                })
+                .finally(() => {
+                    resolve(true);
                 });
-            })
-            .catch((errors: IError) => {
+        });
 
-            })
-            .finally(() => {
-                this.setState({isLoading: false});
-            });
     }
     handleBack = () => {
         const router = useRouter();

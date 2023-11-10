@@ -125,23 +125,27 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
     componentDidMount() {
         this.setState({isLoading: true});
-        this.getSymbols();
-        this.getBBOChart();
-        this.getBBO();
-
+        this.getSymbols()
+            .then(() => this.getBBOChart())
+            .then(() => this.getBBO())
+            .finally(() => this.setState({isLoading: false}))
     }
 
     getBBOChart = () => {
-        bboService.getBBOChartBySymbol(this.props.symbol, this.state.chart)
-            .then((res: Array<ITradingView>) => {
-                this.charts = res;
-            })
-            .catch((errors: IError) => {
+        return new Promise((resolve) => {
+            bboService.getBBOChartBySymbol(this.props.symbol, this.state.chart)
+                .then((res: Array<ITradingView>) => {
+                    this.charts = res;
+                })
+                .catch((errors: IError) => {
 
-            })
-            .finally(() => {
-                this.setState({isLoadingChart: false});
-            });
+                })
+                .finally(() => {
+                    this.setState({isLoadingChart: false})
+                    resolve(true);
+                });
+        })
+
     }
 
     filterData = () => {
@@ -149,44 +153,50 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
     }
 
     getSymbols = () => {
-        symbolService.getSymbols()
-            .then((res: Array<ISymbol>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+        return new Promise((resolve) => {
+            symbolService.getSymbols()
+                .then((res: Array<ISymbol>) => {
+                    const data = res?.sort((a, b) => {
+                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    }) || [];
 
-                const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
-                this.companyProfile = symbol?.company_profile || null;
-            })
-            .catch((errors: IError) => {
+                    const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
+                    this.companyProfile = symbol?.company_profile || null;
+                })
+                .catch((errors: IError) => {
 
-            })
-            .finally(() => {
+                })
+                .finally(() => {
+                    resolve(true)
+                });
+        })
 
-            });
     }
 
     getBBO = () => {
-        bboService.getBBOBySymbol(this.props.symbol)
-            .then((res: Array<IBBO>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+        return new Promise((resolve) => {
+            bboService.getBBOBySymbol(this.props.symbol)
+                .then((res: Array<IBBO>) => {
+                    const data = res?.sort((a, b) => {
+                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+                    }) || [];
 
-                data.forEach(s => {
-                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                    data.forEach(s => {
+                        s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                    })
+
+                    this.setState({dataFull: data, data: data}, () => {
+                        this.filterData();
+                    });
                 })
+                .catch((errors: IError) => {
 
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
+                })
+                .finally(() => {
+                    resolve(true);
                 });
-            })
-            .catch((errors: IError) => {
+        })
 
-            })
-            .finally(() => {
-                this.setState({isLoading: false});
-            });
     }
     handleBack = () => {
         const router = useRouter();
@@ -222,7 +232,7 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
     }
 
     getChart = (chart: string) => {
-        this.setState({ isLoadingChart: true, chart: chart }, () => {
+        this.setState({isLoadingChart: true, chart: chart}, () => {
             this.getBBOChart();
         });
     }
