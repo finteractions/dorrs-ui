@@ -21,6 +21,7 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 const formSchema = Yup.object().shape({
     origin: Yup.string().min(3).max(4).required('Required'),
     symbol: Yup.string().required('Required'),
+    symbol_suffix: Yup.string().min(2).max(3),
     condition: Yup.string().required('Required'),
     tick_indication: Yup.string().required('Required'),
     quantity: Yup.number().transform((value, originalValue) => {
@@ -62,6 +63,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         const initialValues: {
             origin: string;
             symbol: string;
+            symbol_suffix: string;
             condition: string;
             tick_indication: string;
             quantity: string;
@@ -72,6 +74,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         } = {
             origin: initialData?.origin || '',
             symbol: initialData?.symbol_name || '',
+            symbol_suffix: initialData?.symbol_name || '',
             condition: (initialData?.condition || '').toLowerCase(),
             tick_indication: initialData?.tick_indication || '',
             quantity: (initialData?.quantity || '').toString(),
@@ -107,6 +110,11 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             });
 
 
+    }
+
+    handleSymbolSuffix(value: any, values: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
+        const alphanumericValue = value.slice(0, 3).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        setFieldValue('symbol_suffix', alphanumericValue);
     }
 
     handleSubmit = async (values: ILastSale, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
@@ -218,6 +226,23 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                         />
                                                         <Field type="hidden" name="symbol" id="symbol"/>
                                                         <ErrorMessage name="symbol" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+                                                <div className="input">
+                                                    <div className="input__title">Symbol Suffix</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="symbol_suffix"
+                                                            id="symbol_suffix"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Symbol Suffix"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            onChange={(e: any) => this.handleSymbolSuffix(e.target.value, values, setFieldValue)}
+                                                        />
+                                                        <ErrorMessage name="symbol_suffix" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>

@@ -95,6 +95,11 @@ class LastSalesBlock extends React.Component<{}> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.symbol_suffix, {
+                id: "symbol_suffix",
+                cell: (item) => item.getValue(),
+                header: () => <span>Symbol Suffix</span>,
+            }),
             columnHelper.accessor((row) => row.condition, {
                 id: "condition",
                 cell: (item) => item.getValue(),

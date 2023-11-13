@@ -6,6 +6,7 @@ export interface ILastSale {
     origin: string;
     symbol_name: string;
     symbol: string;
+    symbol_suffix: string;
     condition: string;
     tick_indication: string;
     quantity: string;
