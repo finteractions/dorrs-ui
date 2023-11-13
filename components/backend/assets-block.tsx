@@ -170,8 +170,8 @@ class AssetsBlock extends React.Component<{}> {
             //     header: () => <span>Smart Contract type </span>,
             // }),
             columnHelper.accessor((row) => ({
-                comment_status: row.change_reason_status,
-                comment: row.change_reason,
+                comment_status: row.reason_change_status || row.reason_delete_status,
+                comment: row.reason_change || row.reason_delete,
                 status: row.status
             }), {
                 id: "status",
@@ -220,7 +220,8 @@ class AssetsBlock extends React.Component<{}> {
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-                    s.change_reason_status = !!s.change_reason
+                    s.reason_change_status = !!s.reason_change
+                    s.reason_delete_status = !!s.reason_delete
 
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
@@ -266,7 +267,7 @@ class AssetsBlock extends React.Component<{}> {
 
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
-            return 'Do you want to remove this symbol?';
+            return 'Do you want to delete this symbol?';
         } else if (mode === 'view') {
             return 'View Symbol'
         } else {

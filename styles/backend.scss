@@ -355,6 +355,17 @@
     max-height: 465px
   }
 
+  .input__group {
+    display: flex;
+    margin-bottom: 24px;
+    column-gap: 15px;
+
+    .input {
+      flex: 1;
+      margin-bottom: 0 !important;
+    }
+  }
+
   .input {
     position: relative
   }
@@ -659,6 +670,35 @@
 
   select {
     outline: 0
+  }
+
+  .SingleDatePicker {
+    width: 100%;
+
+    .SingleDatePickerInput {
+      width: 100%;
+      border: 1px solid #718494;
+      border-radius: 6px;
+      overflow: hidden;
+      background: initial !important;
+
+      .DateInput {
+        width: 100%;
+        background: initial !important;
+
+        .DateInput_input {
+          background: initial !important;
+          font-size: 14px;
+          font-weight: 400;
+          padding: 0 16px;
+          height: 38px;
+          color: #718494;
+          font-style: normal;
+        }
+      }
+
+    }
+
   }
 
   .b-select {

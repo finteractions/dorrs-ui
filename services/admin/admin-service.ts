@@ -147,10 +147,7 @@ class AdminService extends BaseService {
         return apiWebBackendService.delete<IResponseApi>(`${this.PATH}asset_management/${id}/`, {}, {}, this.getAdminToken());
     }
 
-    public async updateAsset(id: number, is_approved: boolean): Promise<IResponseApi> {
-        const data = {
-            status: is_approved ? 'approved' : 'rejected',
-        }
+    public async updateAsset(data: any, id:number): Promise<IResponseApi> {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management/${id}/`, data, {}, this.getAdminToken());
     }
 
