@@ -7,12 +7,13 @@ import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-pe
 
 const Symbol: NextPageWithLayout = () => {
     const router = useRouter();
-    const symbol = router.query.symbol as string;
-
+    const symbolQuery = router.query.symbol as string;
+    const [symbol, symbolSuffix] = symbolQuery.split(':')
     return (
         <div className="flex-panel-box">
             <LastSaleReportingPerSymbolBlock
                 symbol={symbol}
+                symbolSuffix={symbolSuffix}
             />
         </div>
     )

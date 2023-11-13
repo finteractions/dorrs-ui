@@ -74,7 +74,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         } = {
             origin: initialData?.origin || '',
             symbol: initialData?.symbol_name || '',
-            symbol_suffix: initialData?.symbol_name || '',
+            symbol_suffix: initialData?.symbol_suffix || '',
             condition: (initialData?.condition || '').toLowerCase(),
             tick_indication: initialData?.tick_indication || '',
             quantity: (initialData?.quantity || '').toString(),

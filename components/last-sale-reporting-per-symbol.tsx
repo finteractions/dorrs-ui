@@ -19,6 +19,7 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
+    symbolSuffix: string;
 }
 
 interface LastSaleReportingPerSymbolState extends IState {
@@ -109,7 +110,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     getLastSaleReportingChart = () => {
         return new Promise((resolve) => {
-            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol)
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
                 })
@@ -150,7 +151,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     getLastSaleReporting = () => {
         return new Promise((resolve) => {
-            lastSaleService.getLastSaleReportingBySymbol(this.props.symbol)
+            lastSaleService.getLastSaleReportingBySymbol(this.props.symbol, this.props.symbolSuffix)
                 .then((res: Array<ILastSale>) => {
                     const data = res?.sort((a, b) => {
                         return Date.parse(b.updated_at) - Date.parse(a.updated_at);
@@ -238,7 +239,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                                 {this.companyProfile.company_name} ({this.companyProfile.security_name})
                                             </>
                                         ) : (
-                                            <>{this.props.symbol}</>
+                                            <>{this.props.symbol}{this.props.symbolSuffix ? `:${this.props.symbolSuffix}` : ``}</>
                                         )}
                                     </h2>
 

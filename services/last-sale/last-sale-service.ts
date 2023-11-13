@@ -22,12 +22,26 @@ class LastSaleService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}reporting/${id}/`, data, {}, this.getUserAccessToken());
     }
 
-    public async getLastSaleReportingBySymbol(symbol: string): Promise<Array<ILastSale>> {
-        return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(`${this.PATH}reporting/?symbol=${symbol}`, {}, this.getUserAccessToken())).data;
+    public async getLastSaleReportingBySymbol(symbol: string, symbolSuffix: string): Promise<Array<ILastSale>> {
+        let queryString = `symbol=${symbol}`;
+
+        if (symbolSuffix !== null && symbolSuffix !== undefined) {
+            queryString += `&symbol_suffix=${symbolSuffix}`;
+        }
+
+        const url = `${this.PATH}reporting/?${queryString}`;
+        return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(url, {}, this.getUserAccessToken())).data;
     }
 
-    public async getLastSaleReportingChartBySymbol(symbol: string): Promise<Array<ITradingView>> {
-        return (await apiWebBackendService.get<IResponse<Array<ITradingView>>>(`${this.PATH}chart/?symbol=${symbol}`, {}, this.getUserAccessToken())).data;
+    public async getLastSaleReportingChartBySymbol(symbol: string, symbolSuffix: string): Promise<Array<ITradingView>> {
+        let queryString = `symbol=${symbol}`;
+
+        if (symbolSuffix !== null && symbolSuffix !== undefined) {
+            queryString += `&symbol_suffix=${symbolSuffix}`;
+        }
+
+        const url = `${this.PATH}chart/?${queryString}`;
+        return (await apiWebBackendService.get<IResponse<Array<ITradingView>>>(url, {}, this.getUserAccessToken())).data;
     }
 
     public async downloadLastSales(data: any): Promise<string> {

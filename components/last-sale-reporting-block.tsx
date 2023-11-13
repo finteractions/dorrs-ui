@@ -82,12 +82,13 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
+                symbol_suffix: row.symbol_suffix,
                 image: row.company_profile?.logo
             }), {
                 id: "symbol",
                 cell: (item) =>
                     <div onClick={() => {
-                        this.navigate(item.getValue().symbol)
+                        this.navigate(item.getValue().symbol, item.getValue().symbol_suffix)
                     }}
                          className={`table-image cursor-pointer link`}
                     >
@@ -143,8 +144,8 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
         ];
     }
 
-    navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+    navigate = (symbol: string, symbol_suffix: string) => {
+        this.props.onCallback(symbol, symbol_suffix);
     }
 
     componentDidMount() {

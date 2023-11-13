@@ -9,8 +9,9 @@ const LastSaleReporting: NextPageWithLayout = () => {
 
     const router = useRouter();
 
-    const onCallback = (symbol: string) => {
-        router.push(`/last-sale-reporting/${symbol}`)
+    const onCallback = (symbol: string, symbol_suffix: string) => {
+        symbol_suffix ? router.push(`/last-sale-reporting/${symbol}:${symbol_suffix}`) : router.push(`/last-sale-reporting/${symbol}`)
+
     }
 
     return (
