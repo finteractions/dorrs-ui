@@ -1,4 +1,5 @@
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import {IActivityStorage} from "@/interfaces/i-activity-storage";
 
 export interface ISymbol {
     id: number;
@@ -45,4 +46,5 @@ export interface ISymbol {
     reason_delete_status?: boolean;
     deleted_by: string;
     deleted_date_time: string;
+    history: Array<IActivityStorage>;
 }

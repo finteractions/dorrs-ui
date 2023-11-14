@@ -521,6 +521,25 @@ body {
       position: relative;
       word-break: break-word;
 
+      .table {
+        tbody {
+          tr {
+            td {
+
+            }
+          }
+        }
+
+        thead {
+          tr {
+            th {
+              font-weight: 400;
+              color: #828c97;
+            }
+          }
+        }
+      }
+
       .input__btns:not(:first-child) {
         margin-top: 24px;
       }

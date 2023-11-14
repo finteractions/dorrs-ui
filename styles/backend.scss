@@ -496,6 +496,16 @@
   .input__wrap {
     position: relative;
     word-break: break-word;
+
+    .table {
+      background: unset;
+      box-shadow: unset;
+
+      thead tr th {
+        background: unset;
+        box-shadow: unset;
+      }
+    }
   }
 
   .input__wrap.active .show-password {
@@ -4304,5 +4314,7 @@
     width: 100%;
     display: block;
   }
+
+
 }
 
