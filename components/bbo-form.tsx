@@ -23,6 +23,7 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 
 const formSchema = Yup.object().shape({
+    origin: Yup.string().min(3).max(4).required('Required'),
     symbol: Yup.string().required('Required'),
     quote_condition: Yup.string().required('Required'),
 
@@ -115,6 +116,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
         const initialData = this.props.data || {} as IBBO;
 
         const initialValues: {
+            origin: string;
             symbol: string;
             quote_condition: string;
             bid_mpid: string;
@@ -129,6 +131,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             offer_time: string;
             uti: string;
         } = {
+            origin: initialData?.origin || '',
             symbol: initialData?.symbol_name || '',
             quote_condition: (initialData?.quote_condition || QuoteCondition.c).toLowerCase(),
             bid_mpid: initialData?.bid_mpid || '',
@@ -260,6 +263,22 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                       }) => {
                                         return (
                                             <Form className={`quote_condition_${values.quote_condition}`}>
+                                                <div className="input">
+                                                    <div className="input__title">Origin <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="origin"
+                                                            id="origin"
+                                                            type="text"
+                                                            placeholder="Type Origin"
+                                                            className="input__text"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="origin" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
                                                 <div className="input">
                                                     <div className="input__title">Symbol <i>*</i></div>
                                                     <div

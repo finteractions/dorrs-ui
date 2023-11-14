@@ -75,6 +75,11 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
         const host = `${window.location.protocol}//${window.location.host}`;
 
         columns = [
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
                 image: row.company_profile?.logo
@@ -305,6 +310,18 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
                                             onChange={(item) => this.handleFilterChange('symbol_name', item)}
                                             options={filterService.buildOptions('symbol_name', this.state.dataFull)}
                                             placeholder="Symbol"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('origin', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('origin', item)}
+                                            options={filterService.buildOptions('origin', this.state.dataFull)}
+                                            placeholder="Origin"
                                         />
                                     </div>
                                     <div className="input__wrap">

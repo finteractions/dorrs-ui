@@ -60,6 +60,11 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
 
         columns = [
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => row.quote_condition, {
                 id: "quote_condition",
                 cell: (item) => item.getValue(),
@@ -322,6 +327,18 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
 
                                     <div className="content__filter mb-3">
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('origin', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('origin', item)}
+                                                options={filterService.buildOptions('origin', this.state.dataFull)}
+                                                placeholder="Origin"
+                                            />
+                                        </div>
                                         <div className="input__wrap">
                                             <Select
                                                 className="select__react"

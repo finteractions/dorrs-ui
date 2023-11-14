@@ -2,6 +2,7 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 export interface IBBO {
     id: number;
+    origin: string;
     symbol_name: string;
     symbol: string;
     quote_condition: string;
