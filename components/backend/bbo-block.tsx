@@ -448,6 +448,11 @@ class BBOBlock extends React.Component<{}> {
                                     className="box__wrap">{this.state.formData?.user_id || ''}</div>
                             </div>
                             <div className="view-form-box">
+                                <div className="box__title">Origin</div>
+                                <div
+                                    className="box__wrap">{this.state.formData?.origin || ''}</div>
+                            </div>
+                            <div className="view-form-box">
                                 <div className="box__title">Symbol</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.symbol_name || ''}</div>
@@ -463,11 +468,6 @@ class BBOBlock extends React.Component<{}> {
                                         <div className="box__title">Bid MPID</div>
                                         <div
                                             className="box__wrap">{this.state.formData?.bid_mpid}</div>
-                                    </div>
-                                    <div className="view-form-box">
-                                        <div className="box__title"></div>
-                                        <div
-                                            className="box__wrap"></div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Qty</div>
@@ -498,11 +498,6 @@ class BBOBlock extends React.Component<{}> {
                                         <div className="box__title">Offer MPID</div>
                                         <div
                                             className="box__wrap">{this.state.formData?.offer_mpid}</div>
-                                    </div>
-                                    <div className="view-form-box">
-                                        <div className="box__title"></div>
-                                        <div
-                                            className="box__wrap"></div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer Date</div>
