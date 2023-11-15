@@ -201,14 +201,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             reason_delete: initialData?.reason_delete || '',
             status: initialData?.status || ''
         };
-
-        const test: Array<IActivityStorage> = [
-            {
-                action: 'delete',
-                details: `FIO (ROLE) deleted the Symbol: ${initialData?.symbol} at 2023-11-13 18:50`
-            },
-        ];
-
+        console.log(initialData?.history)
         this.state = {
             success: false,
             formInitialValues: initialValues,
@@ -220,7 +213,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             focusedInputDateEffective: null,
             focusedInputDateEnteredDelete: null,
             focusedInputDateEffectiveDelete: null,
-            history: initialData?.history || test
+            history: initialData?.history || []
         };
 
         columns = [
@@ -1032,7 +1025,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             <div className="input__title">History Log</div>
                                                             <div
                                                                 className={`input__wrap`}>
-                                                                {this.state.history ? (
+                                                                {this.state.history.length > 0 ? (
                                                                     <Table columns={columns}
                                                                            data={this.state.history}
                                                                            searchPanel={false}
