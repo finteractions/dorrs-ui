@@ -374,6 +374,11 @@ body {
         flex: 1;
         margin-bottom: 0 !important;
       }
+
+      .input__text.dsin {
+        max-width: unset;
+        margin: unset;
+      }
     }
 
     .input {
@@ -381,7 +386,7 @@ body {
     }
 
     .input:not(:last-child) {
-      margin-bottom: 24px
+      margin-bottom: 14px
     }
 
     //.input:last-child {
@@ -408,6 +413,8 @@ body {
       > button {
         min-width: unset;
         margin-left: 10px;
+        border: 1px solid #718494;
+        color: #718494;
       }
     }
 
@@ -456,10 +463,10 @@ body {
 
     .input__text {
       width: 100%;
-      height: 40px;;
+      height: 35px;;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      padding: 0 16px;
+      padding: 0 10px;
       font-family: "Work Sans", sans-serif;
       font-weight: 400;
       font-size: 14px;
@@ -728,6 +735,7 @@ body {
         border-radius: 6px;
         overflow: hidden;
         background: initial !important;
+        height: 35px;
 
         .DateInput {
           width: 100%;
@@ -738,7 +746,7 @@ body {
             font-size: 14px;
             font-weight: 400;
             padding: 0 16px;
-            height: 38px;
+            height: 35px;
             color: #718494;
             font-style: normal;
           }
@@ -751,7 +759,7 @@ body {
     .b-select-search {
       font-weight: 400;
       font-size: 14px;
-      height: 40px;
+      height: 35px;
       color: #718494;
 
       .select__react__control {
@@ -772,7 +780,7 @@ body {
 
     .b-select {
       width: 100%;
-      height: 40px;;
+      height: 35px;;
       border: 1px solid #718494;
       border-radius: 6px;
       -webkit-box-sizing: border-box;
@@ -1022,19 +1030,19 @@ body {
       width: 24px;
       height: 24px;
       position: absolute;
-      top: 40px;
-      right: 40px;
+      top: 20px;
+      right: 20px;
       font-size: 24px
     }
 
     .modal__content {
       width: 100%;
-      max-width: 545px;
+      max-width: 718px;
       margin: 0 auto;
       pointer-events: auto;
       background: #f8fbff;
       position: relative;
-      padding: 70px 40px 40px;
+      padding: 40px 20px 20px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
       border-radius: 12px;
@@ -1137,15 +1145,15 @@ body {
 
     @media(max-width: 767px) {
       .modal-overlay .modal-close {
-        top: 10px;
-        right: 10px
+        top: 20px;
+        right: 20px
       }
       .modal__content .bank-delete .border-btn {
         margin: 0 10px 0 0
       }
       .modal__content {
         max-width: calc(100% - 30px);
-        padding: 45px 15px 30px
+        padding: 40px 20px 20px;
       }
       //.exchange-modal .modal__content {
       //  max-width: calc(100% - 30px)
@@ -1862,7 +1870,7 @@ body {
         max-width: 100%;
 
         .content__top {
-          padding: 20px 30px;
+          padding: 20px 20px;
           margin: 0;
           border-bottom: 1px solid #EFF2F5;
           display: flex;
@@ -1878,23 +1886,23 @@ body {
           }
 
           .content__title_btns {
-            margin: -10px 0;
+            margin: 0 0;
           }
         }
 
         .content__bottom {
-          padding: 20px 30px;
+          padding: 20px 20px;
 
           .table {
-            margin: -20px -30px 0px -30px;
+            margin: -20px -20px 0px -20px;
 
             tr {
               td:first-child, th:first-child {
-                padding-left: 30px;
+                padding-left: 20px;
               }
 
               td:last-child, th:last-child {
-                padding-right: 30px;
+                padding-right: 20px;
               }
             }
           }
@@ -2269,7 +2277,7 @@ body {
           th {
             font-size: 12px;
             font-weight: 600;
-            padding: 5px;
+            padding: 2px;
             height: 42px;
 
             .sort-th-box {
@@ -2291,8 +2299,8 @@ body {
             td {
               border-top: 1px solid #EFF2F5;
               font-size: 14px;
-              padding: 5px;
-              height: 42px;
+              padding: 2px;
+              height: 35px;
               color: #7E8299;
 
               .black-text {
@@ -3047,6 +3055,10 @@ body {
       font-size: 23px;
       text-align: center;
       background-color: #edf0f5;
+
+      &.blue {
+        background-color: #1f8ceb30;
+      }
     }
 
     .input__text.uti {

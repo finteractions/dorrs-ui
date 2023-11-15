@@ -592,7 +592,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                                 <p className={'mt-1'}>
                                                                                                     <span
                                                                                                         className={'fw-bold '}>
-                                                                                                        Notice:
+                                                                                                        Notice: {' '}
                                                                                                     </span>{
                                                                                                     getAccountTypeDescription((this.state.selectedAccountType || this.state.formAccountTypeInitialValues.account_type) as AccountType)}
                                                                                                 </p>

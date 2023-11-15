@@ -22,6 +22,9 @@ import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IActivityStorage} from "@/interfaces/i-activity-storage";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEdit, faMinus} from "@fortawesome/free-solid-svg-icons";
+import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -58,6 +61,7 @@ const formSchema = Yup.object().shape({
     blockchain: Yup.string().min(3).max(50).label('Blockchain'),
     smart_contract_type: Yup.string().min(3).max(50).label('Smart Contract type'),
     is_change: Yup.boolean(),
+    new_dsin: Yup.string().label('DSIN'),
     date_entered_change: Yup.string(),
     time_entered_change: Yup.string(),
     date_effective_change: Yup.string().when('is_change', {
@@ -148,6 +152,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             blockchain: string;
             smart_contract_type: string;
             is_change: boolean;
+            new_dsin: string;
             new_symbol: string;
             new_security_name: string;
             date_entered_change: string;
@@ -181,7 +186,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             security_type_2: initialData?.security_type_2 || '',
             blockchain: initialData?.blockchain || '',
             smart_contract_type: initialData?.smart_contract_type || '',
-            is_change: (getBuildableFormStatuses().includes((initialData?.status || '').toLowerCase() as FormStatus) && this.props.action === 'edit'),
+            is_change: !!initialData?.new_symbol && !!initialData?.new_security_name,
+            new_dsin: dsinService.generate(initialData?.new_symbol || ''),
             date_entered_change: initialData?.date_entered_change || moment().format('YYYY-MM-DD'),
             time_entered_change: initialData?.time_entered_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
@@ -201,7 +207,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             reason_delete: initialData?.reason_delete || '',
             status: initialData?.status || ''
         };
-        console.log(initialData?.history)
+
         this.state = {
             success: false,
             formInitialValues: initialValues,
@@ -301,6 +307,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
         const alphanumericValue = value.slice(0, 5).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         setFieldValue('new_symbol', alphanumericValue);
+
+        const dsin = dsinService.generate(alphanumericValue)
+        setFieldValue('new_dsin', dsin);
     }
 
     buttonText = () => {
@@ -412,154 +421,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     </div>
                                                 )}
 
-                                                {(values.is_change) && (
-                                                    <>
-                                                        <div className="input">
-                                                            <h4 className="input__group__title">New Security Name</h4>
-                                                            <div className="input__group">
-                                                                <div className="input">
-                                                                    <div className="input__title">Date <i>*</i></div>
-                                                                    <div
-                                                                        className={`input__wrap`}>
-                                                                        <SingleDatePicker
-                                                                            numberOfMonths={1}
-                                                                            date={values.date_entered_change ? moment(values.date_entered_change) : null}
-                                                                            onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
-                                                                            focused={this.state.focusedInputDateEntered}
-                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
-                                                                            id="date_entered_change"
-                                                                            displayFormat="YYYY-MM-DD"
-                                                                            isOutsideRange={() => false}
-                                                                            readOnly={true}
-                                                                            disabled={true}
-                                                                            placeholder={'Select Date'}
-                                                                        />
-                                                                        <ErrorMessage name="date_entered_change"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
-                                                                </div>
-
-
-                                                                <div className="input">
-                                                                    <div className="input__title">Time <i>*</i></div>
-                                                                    <div
-                                                                        className={`input__wrap`}>
-                                                                        <Field
-                                                                            name="time_entered_change"
-                                                                            id="time_entered_change"
-                                                                            type="time"
-                                                                            placeholder="Type Time"
-                                                                            className="input__text"
-                                                                            readOnly={true}
-                                                                            disabled={true}
-                                                                        />
-                                                                        <ErrorMessage name="time_entered_change"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="input__group">
-                                                                <div className="input">
-                                                                    <div className="input__title">Effective
-                                                                        Date <i>*</i>
-                                                                    </div>
-                                                                    <div
-                                                                        className={`input__wrap`}>
-                                                                        <SingleDatePicker
-                                                                            numberOfMonths={1}
-                                                                            date={values.date_effective_change ? moment(values.date_effective_change) : null}
-                                                                            onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
-                                                                            focused={this.state.focusedInputDateEffective}
-                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
-                                                                            id="date_effective_change"
-                                                                            displayFormat="YYYY-MM-DD"
-                                                                            isOutsideRange={() => false}
-                                                                            readOnly={true}
-                                                                            placeholder={'Select Date'}
-                                                                        />
-                                                                        <ErrorMessage name="date_effective_change"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
-                                                                </div>
-
-
-                                                                <div className="input">
-                                                                    <div className="input__title">Effective
-                                                                        Time <i>*</i>
-                                                                    </div>
-                                                                    <div
-                                                                        className={`input__wrap`}>
-                                                                        <Field
-                                                                            name="time_effective_change"
-                                                                            id="time_effective_change"
-                                                                            type="time"
-                                                                            placeholder="Type Time"
-                                                                            className="input__text"
-                                                                        />
-                                                                        <ErrorMessage name="time_effective_change"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="input">
-                                                                <div className="input__title">Symbol <i>*</i></div>
-                                                                <div
-                                                                    className={`input__wrap`}>
-                                                                    <Field
-                                                                        name="new_symbol"
-                                                                        id="new_symbol"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Symbol"
-                                                                        onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
-                                                                    />
-                                                                    <ErrorMessage name="new_symbol" component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="input">
-                                                                <div className="input__title">Security Name <i>*</i>
-                                                                </div>
-                                                                <div
-                                                                    className={`input__wrap`}>
-                                                                    <Field
-                                                                        name="new_security_name"
-                                                                        id="new_security_name"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Security Name"
-                                                                    />
-                                                                    <ErrorMessage name="new_security_name"
-                                                                                  component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-                                                            <div className="input">
-                                                                <div className="input__title">Change Reason</div>
-                                                                <div className="input__wrap">
-                                                                    <Field
-                                                                        name="reason_change"
-                                                                        id="reason_change"
-                                                                        as="textarea"
-                                                                        rows="3"
-                                                                        className="input__textarea"
-                                                                        placeholder="Type change reason"
-                                                                        disabled={isSubmitting}
-                                                                    />
-                                                                    <ErrorMessage name="reason_change" component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <hr className={'mb-24'}/>
-                                                    </>
-                                                )}
 
                                                 {(values.is_delete) && (
                                                     <>
@@ -706,23 +567,249 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             </div>
                                                         </div>
 
-                                                        <div className="input">
-                                                            <div className="input__title">Symbol <i>*</i></div>
-                                                            <div
-                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                <Field
-                                                                    name="symbol"
-                                                                    id="symbol"
-                                                                    type="text"
-                                                                    className="input__text"
-                                                                    placeholder="Type Symbol"
-                                                                    disabled={isSubmitting || this.isShow()}
-                                                                    onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
-                                                                />
-                                                                <ErrorMessage name="symbol" component="div"
-                                                                              className="error-message"/>
-                                                            </div>
-                                                        </div>
+
+                                                        {(!values.is_change) && (
+                                                            <>
+                                                                <div className="input">
+                                                                    <div className="input__title">Symbol <i>*</i></div>
+                                                                    <div
+                                                                        className={`input__btns ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                        <Field
+                                                                            name="symbol"
+                                                                            id="symbol"
+                                                                            type="text"
+                                                                            className="input__text"
+                                                                            placeholder="Type Symbol"
+                                                                            disabled={isSubmitting || this.isShow()}
+                                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
+                                                                        />
+                                                                        {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
+                                                                            <button
+                                                                                type="button"
+                                                                                className='border-grey-btn ripple'
+                                                                                onClick={() => {
+                                                                                    setFieldValue('is_change', true);
+                                                                                }}
+                                                                            >
+                                                                                <FontAwesomeIcon className="nav-icon"
+                                                                                                 icon={faEdit}/>
+                                                                            </button>
+                                                                        )}
+
+                                                                        <ErrorMessage name="symbol" component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        {(values.is_change) && (
+                                                            <>
+                                                                <hr className={'mb-24'}/>
+                                                                <div className="input">
+                                                                    <div className="input__group">
+                                                                        <div className="input">
+                                                                            <div className="input__title">Date <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <SingleDatePicker
+                                                                                    numberOfMonths={1}
+                                                                                    date={values.date_entered_change ? moment(values.date_entered_change) : null}
+                                                                                    onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                    focused={this.state.focusedInputDateEntered}
+                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
+                                                                                    id="date_entered_change"
+                                                                                    displayFormat="YYYY-MM-DD"
+                                                                                    isOutsideRange={() => false}
+                                                                                    readOnly={true}
+                                                                                    disabled={true}
+                                                                                    placeholder={'Select Date'}
+                                                                                />
+                                                                                <ErrorMessage name="date_entered_change"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <div className="input">
+                                                                            <div className="input__title">Time <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <Field
+                                                                                    name="time_entered_change"
+                                                                                    id="time_entered_change"
+                                                                                    type="time"
+                                                                                    placeholder="Type Time"
+                                                                                    className="input__text"
+                                                                                    readOnly={true}
+                                                                                    disabled={true}
+                                                                                />
+                                                                                <ErrorMessage name="time_entered_change"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="input__group">
+                                                                        <div className="input">
+                                                                            <div className="input__title">Effective
+                                                                                Date <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <SingleDatePicker
+                                                                                    numberOfMonths={1}
+                                                                                    date={values.date_effective_change ? moment(values.date_effective_change) : null}
+                                                                                    onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                    focused={this.state.focusedInputDateEffective}
+                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
+                                                                                    id="date_effective_change"
+                                                                                    displayFormat="YYYY-MM-DD"
+                                                                                    isOutsideRange={() => false}
+                                                                                    readOnly={true}
+                                                                                    placeholder={'Select Date'}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="date_effective_change"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <div className="input">
+                                                                            <div className="input__title">Effective
+                                                                                Time <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <Field
+                                                                                    name="time_effective_change"
+                                                                                    id="time_effective_change"
+                                                                                    type="time"
+                                                                                    placeholder="Type Time"
+                                                                                    className="input__text"
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="time_effective_change"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input">
+                                                                        <div className="input__title">Symbol <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap`}>
+                                                                            <Field
+                                                                                name="new_symbol"
+                                                                                id="new_symbol"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Symbol"
+                                                                                onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                            />
+                                                                            <ErrorMessage name="new_symbol"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input">
+                                                                        <div className="input__title">Security
+                                                                            Name <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap`}>
+                                                                            <Field
+                                                                                name="new_security_name"
+                                                                                id="new_security_name"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Security Name"
+                                                                            />
+                                                                            <ErrorMessage name="new_security_name"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="input">
+                                                                        <div className="input__title">Change Reason
+                                                                        </div>
+                                                                        <div className="input__wrap">
+                                                                            <Field
+                                                                                name="reason_change"
+                                                                                id="reason_change"
+                                                                                as="textarea"
+                                                                                rows="3"
+                                                                                className="input__textarea"
+                                                                                placeholder="Type change reason"
+                                                                                disabled={isSubmitting}
+                                                                            />
+                                                                            <ErrorMessage name="reason_change"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="input">
+                                                                        <div className="input__title">Digital Security
+                                                                            Identifier
+                                                                            Number -
+                                                                            DSIN
+                                                                        </div>
+                                                                        <div className="input__group mb-0">
+                                                                            <div className="input">
+                                                                                <div className="input__title">Current
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
+                                                                                    <Field
+                                                                                        name="dsin"
+                                                                                        id="dsin"
+                                                                                        type="text"
+                                                                                        className="input__text dsin"
+                                                                                        disabled={true}
+                                                                                    />
+                                                                                    <ErrorMessage name="dsin"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className="input__title">Destination
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
+                                                                                    <Field
+                                                                                        name="new_dsin"
+                                                                                        id="new_dsin"
+                                                                                        type="text"
+                                                                                        className="input__text dsin blue"
+                                                                                        disabled={true}
+                                                                                    />
+                                                                                    <ErrorMessage name="new_dsin"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className={'input__title mt-2'}>
+                                                                            <span
+                                                                                className={'fw-bold '}>Notice: </span> if
+                                                                            you change the Symbol the DSIN is changed
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr className={'mb-24'}/>
+                                                            </>
+                                                        )}
+
 
                                                         <div className="input">
                                                             <div className="input__title">External Security Identifier

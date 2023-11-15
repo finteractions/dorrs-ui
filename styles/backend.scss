@@ -273,7 +273,7 @@
   }
 
   .border-btn {
-    height: 30px;
+    height: 35px;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -364,6 +364,11 @@
       flex: 1;
       margin-bottom: 0 !important;
     }
+
+    .input__text.dsin {
+      max-width: unset;
+      margin: unset;
+    }
   }
 
   .input {
@@ -371,7 +376,7 @@
   }
 
   .input:not(:last-child) {
-    margin-bottom: 24px
+    margin-bottom: 14px
   }
 
   .input:last-child {
@@ -431,10 +436,10 @@
 
   .input__text {
     width: 100%;
-    height: 40px;;
+    height: 35px;;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    padding: 0 16px;
+    padding: 0 10px;
     font-family: "Work Sans", sans-serif;
     font-weight: 400;
     font-size: 14px;
@@ -713,7 +718,7 @@
 
   .b-select {
     width: 100%;
-    height: 40px;
+    height: 35px;
     border: 1px solid #718494;
     border-radius: 6px;
     -webkit-box-sizing: border-box;
@@ -963,8 +968,8 @@
     width: 24px;
     height: 24px;
     position: absolute;
-    top: 40px;
-    right: 40px;
+    top: 20px;
+    right: 20px;
     font-size: 24px
   }
 
@@ -975,7 +980,7 @@
     pointer-events: auto;
     background: #f8fbff;
     position: relative;
-    padding: 70px 40px 40px;
+    padding: 40px 20px 20px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box
   }
@@ -1089,7 +1094,7 @@
     }
     .modal__content {
       max-width: calc(100% - 30px);
-      padding: 45px 15px 30px
+      padding: 40px 20px 20px;
     }
     //.exchange-modal .modal__content {
     //  max-width: calc(100% - 30px)
@@ -2262,7 +2267,7 @@
 
   .border-grey-btn {
     min-width: 100px;
-    height: 30px;
+    height: 35px;
     padding: 0 10px;
     border: 1px solid #c5cacf;
     font-weight: 600;
@@ -3807,8 +3812,8 @@
     }
 
     .modal-close {
-      top: 25px;
-      right: 25px;
+      top: 20px;
+      right: 20px;
     }
   }
 
@@ -4159,6 +4164,10 @@
     padding: 10px;
     font-size: 23px;
     text-align: center;
+
+    &.blue {
+      background-color: #1f8ceb30;
+    }
   }
 
   .head_permission_rule {
@@ -4313,6 +4322,19 @@
     max-width: 200px;
     width: 100%;
     display: block;
+  }
+
+  .input__btns {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    > button {
+      min-width: unset;
+      margin-left: 10px;
+      border: 1px solid #718494;
+      color: #718494;
+    }
   }
 
 

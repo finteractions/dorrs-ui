@@ -11,6 +11,7 @@ import Pagination from "@/components/table/pagination";
 import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit, faEye, faTrashCan, faClose} from "@fortawesome/free-solid-svg-icons";
+import {FormStatus} from "@/enums/form-status";
 
 const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
     searchValue = searchValue?.trim();
@@ -174,6 +175,10 @@ const Table = ({
         return !editable;
     };
 
+    const isDeleteButtonDisabled = (row: any) => {
+        return (row as { [key: string]: any })?.['status'].toLowerCase() === FormStatus.DELETED
+    };
+
     const [currentPage, setCurrentPage] = React.useState(0);
 
     React.useEffect(() => {
@@ -241,20 +246,20 @@ const Table = ({
                                         ) : ''}
                                     </tr>
                                     {filter && (
-                                    <tr>
-                                        {headers.map((header) => {
-                                            return (
-                                                <th key={header.id}>
-                                                    {filter && (
-                                                        <>
-                                                            {renderFilter(header.column)}
-                                                        </>
-                                                    )}
-                                                </th>
-                                            );
-                                        })}
+                                        <tr>
+                                            {headers.map((header) => {
+                                                return (
+                                                    <th key={header.id}>
+                                                        {filter && (
+                                                            <>
+                                                                {renderFilter(header.column)}
+                                                            </>
+                                                        )}
+                                                    </th>
+                                                );
+                                            })}
 
-                                        <th className={filter ? 'reset-filter' : ''}>
+                                            <th className={filter ? 'reset-filter' : ''}>
                                                 {filter && (
                                                     <div className='admin-table-actions'>
                                                         <button
@@ -264,9 +269,9 @@ const Table = ({
                                                     </div>
 
                                                 )}
-                                        </th>
+                                            </th>
 
-                                    </tr>
+                                        </tr>
                                     )}
                                     </thead>
                                     <tbody>
@@ -278,7 +283,8 @@ const Table = ({
                                             }}
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => (
-                                                <td colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtns ? 2 : 1} key={cell.id}>
+                                                <td colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtns ? 2 : 1}
+                                                    key={cell.id}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
@@ -298,23 +304,30 @@ const Table = ({
                                                             <button
                                                                 disabled={isEditButtonDisabled(row.original)}
                                                                 onClick={() => block.openModal('edit', row.original)}
-                                                                className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) ? 'disable' : ''}`}><FontAwesomeIcon
-                                                                className="nav-icon" icon={faEdit}/></button>
+                                                                className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                <FontAwesomeIcon
+                                                                    className="nav-icon" icon={faEdit}/></button>
                                                         )}
                                                         {deleteBtn && (!access || access.delete) && (
                                                             <button
+                                                                disabled={isDeleteButtonDisabled(row.original)}
                                                                 onClick={() => block.openModal('delete', row.original)}
-                                                                className='admin-table-btn ripple'><FontAwesomeIcon
-                                                                className="nav-icon" icon={faTrashCan}/></button>
+                                                                className={`admin-table-btn ripple ${isDeleteButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                <FontAwesomeIcon
+                                                                    className="nav-icon" icon={faTrashCan}/></button>
                                                         )}
                                                         {customBtns && (
                                                             Object.entries(customBtns).map(([key, value]) => (
-                                                                    <div key={key}>
-                                                                        <button
-                                                                            disabled={(row.original as {[key: string]: any})[value+'BtnDisabled']}
-                                                                            onClick={() => block.customBtnAction(value, row.original)}
-                                                                            className={`custom-btn admin-table-btn ripple ${(row.original as {[key: string]: any})[value+'BtnDisabled']? 'disable' : ''}`}>{key}</button>
-                                                                    </div>
+                                                                <div key={key}>
+                                                                    <button
+                                                                        disabled={(row.original as {
+                                                                            [key: string]: any
+                                                                        })[value + 'BtnDisabled']}
+                                                                        onClick={() => block.customBtnAction(value, row.original)}
+                                                                        className={`custom-btn admin-table-btn ripple ${(row.original as {
+                                                                            [key: string]: any
+                                                                        })[value + 'BtnDisabled'] ? 'disable' : ''}`}>{key}</button>
+                                                                </div>
                                                             ))
                                                         )}
 
