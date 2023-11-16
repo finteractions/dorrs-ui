@@ -47,4 +47,5 @@ export interface ISymbol {
     deleted_by: string;
     deleted_date_time: string;
     history: Array<IActivityStorage>;
+    symbol_suffix: string;
 }

@@ -4337,6 +4337,15 @@
     }
   }
 
+  .truncate-text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150px;
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+  }
+
 
 }
 

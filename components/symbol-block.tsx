@@ -148,7 +148,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
-
+            columnHelper.accessor((row) => row.symbol_suffix, {
+                id: "symbol_suffix",
+                cell: (item) => <span className={'truncate-text'} title={item.getValue()}>{item.getValue()}</span>,
+                header: () => <span>Symbol Suffix </span>,
+            }),
             columnHelper.accessor((row) => row.primary_ats, {
                 id: "primary_ats",
                 cell: (item) => item.getValue(),

@@ -437,9 +437,19 @@ class LastSalesBlock extends React.Component<{}> {
                                     className="box__wrap">{this.state.formData?.origin || ''}</div>
                             </div>
                             <div className="view-form-box">
+                                <div className="box__title"></div>
+                                <div
+                                    className="box__wrap"></div>
+                            </div>
+                            <div className="view-form-box">
                                 <div className="box__title">Symbol</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.symbol_name || ''}</div>
+                            </div>
+                            <div className="view-form-box">
+                                <div className="box__title">Symbol Suffix</div>
+                                <div
+                                    className="box__wrap">{this.state.formData?.symbol_suffix || ''}</div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Condition</div>

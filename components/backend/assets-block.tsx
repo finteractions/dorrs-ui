@@ -98,6 +98,11 @@ class AssetsBlock extends React.Component<{}> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.symbol_suffix, {
+                id: "symbol_suffix",
+                cell: (item) => <span className={'truncate-text'} title={item.getValue()}>{item.getValue()}</span>,
+                header: () => <span>Symbol Suffix </span>,
+            }),
             columnHelper.accessor((row) => row.reason_for_entry, {
                 id: "reason_for_entry",
                 cell: (item) => item.getValue(),
@@ -226,7 +231,6 @@ class AssetsBlock extends React.Component<{}> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
-
                     s.company_profile_status = s.company_profile?.status ? s.company_profile.status :  '-'
                 })
 

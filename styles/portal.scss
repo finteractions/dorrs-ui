@@ -3253,11 +3253,11 @@ body {
       }
 
       &.add .modal__content, &.edit .modal__content {
-        min-height: 881px;
+        min-height: 794px;
       }
 
       &.view .modal__content {
-        min-height: 826px;
+        min-height: 755px;
       }
     }
 
@@ -3397,7 +3397,7 @@ body {
     .truncate-text {
       text-overflow: ellipsis;
       overflow: hidden;
-      max-width: 250px;
+      max-width: 150px;
       width: 100%;
       display: block;
       white-space: nowrap;
