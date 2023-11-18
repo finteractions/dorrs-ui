@@ -176,7 +176,7 @@ const Table = ({
     };
 
     const isDeleteButtonDisabled = (row: any) => {
-        return (row as { [key: string]: any })?.['status'].toLowerCase() === FormStatus.DELETED
+        return row && row['status']?.toLowerCase() === FormStatus.DELETED;
     };
 
     const [currentPage, setCurrentPage] = React.useState(0);

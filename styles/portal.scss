@@ -1139,6 +1139,10 @@ body {
       background: #75808a
     }
 
+    .modal__content .view_panel {
+      row-gap: 20px;
+    }
+
     .exchange-modal .modal__content {
       max-width: 400px
     }
@@ -1949,7 +1953,7 @@ body {
     }
 
     .section {
-      margin: 48px 0;
+      margin: 25px 0;
       //padding: 0 0 48px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
@@ -2217,7 +2221,7 @@ body {
 
       .select__react {
         .select__react__control {
-          min-height: 30px;
+          min-height: 35px;
 
           .select__react__value-container {
             padding: 2px 0 2px 5px;
@@ -2262,8 +2266,8 @@ body {
       }
 
       .content__filter-clear {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
       }
     }
 
@@ -2453,6 +2457,10 @@ body {
     }
 
     .table__status.table__status-credit:before {
+      background: #34cb68
+    }
+
+    .table__status.table__status-added:before {
       background: #34cb68
     }
 
@@ -2670,7 +2678,7 @@ body {
     .bank-empty__ico {
       width: 40px;
       height: 40px;
-      margin: 0 auto 12px
+      margin: 12px auto 12px
     }
 
     .bank-empty b {
@@ -2752,7 +2760,7 @@ body {
       -webkit-box-flex: 1;
       -ms-flex-positive: 1;
       flex-grow: 1;
-      padding: 32px;
+      padding: 20px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
       background: #fff;
@@ -3145,8 +3153,12 @@ body {
     }
 
     .big_modal .modal__content {
-      max-width: 950px;
+      max-width: 1300px
     }
+
+    //.report-modal .modal__content {
+    //  min-height: 600px;
+    //}
 
     .view_block_main_title {
       display: flex;
@@ -3235,9 +3247,10 @@ body {
         font-weight: 400;
         color: #333333;
         border: 1px solid #dbdbdb;
-        height: 30px;
+        height: 35px;
         font-size: 13px;
         margin-bottom: 24px;
+        background-color: transparent;
       }
     }
 
@@ -3411,6 +3424,19 @@ body {
       .status-comment {
         color: #3d7da2;
       }
+    }
+
+    .px-20 {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .bold {
+      font-weight: 600;
+    }
+
+    .d-none {
+      display: none;;
     }
   }
 }
