@@ -66,13 +66,18 @@ class ReportsService extends BaseService {
         const d3 = [
             {
                 symbol: 'TEST1',
-                status: 'deleted',
-                date: '2023-11-14'
+                status: 'approved',
+                date: '2023-11-01'
             },
             {
                 symbol: 'TEST2',
-                status: 'added',
-                date: '2023-11-14'
+                status: 'deleted',
+                date: '2023-11-02'
+            },
+            {
+                symbol: 'TEST3',
+                status: 'deleted',
+                date: '2023-11-03'
             },
         ]
         let res: Array<IReportLastSaleTotalByAlternativeTradingSystem | IReportLastSaleTotalForEachSymbol | IReportNumberOfSymbolAdditionsAndDeletions> = [];

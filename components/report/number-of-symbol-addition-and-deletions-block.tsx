@@ -1,24 +1,24 @@
 import React from 'react';
-import Modal from "@/components/modal";
 import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
-import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
 import NoDataBlock from "@/components/no-data-block";
 import {IWeeklyMonthlyReport} from "@/interfaces/i-weekly-monthly-report";
-import LastSaleTotalsTableBlock from "@/components/report/last-sale-totals-table-block";
 import {
     IReportNumberOfSymbolAdditionsAndDeletions
 } from "@/interfaces/i-report-number-of-symbol-additions-and-deletions";
 import AssetImage from "@/components/asset-image";
-import {getReportTypeName, ReportType} from "@/enums/report-type";
+import {FormStatus} from "@/enums/form-status";
 
 
 interface ReportNumberOfSymbolAdditionsAndDeletionsState extends IState, IModalState {
     errors: string[];
-    data: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
-    dataFull: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
-    filterData: any;
+    dataAdded: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
+    dataFullAdded: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
+    filterDataAdded: any;
+    dataDeleted: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
+    dataFullDeleted: Array<IReportNumberOfSymbolAdditionsAndDeletions>;
+    filterDataDeleted: any;
     report: IWeeklyMonthlyReport | null;
     reportDetail: IReportNumberOfSymbolAdditionsAndDeletions | null;
 }
@@ -43,9 +43,12 @@ class ReportLastSaleTotalsByAlternativeTradingSystem extends React.Component<Rep
             success: false,
             isOpenModal: false,
             errors: [],
-            data: [],
-            dataFull: [],
-            filterData: [],
+            dataAdded: [],
+            dataFullAdded: [],
+            filterDataAdded: [],
+            dataDeleted: [],
+            dataFullDeleted: [],
+            filterDataDeleted: [],
             reportDetail: null,
             report: props.report
         }
@@ -69,15 +72,7 @@ class ReportLastSaleTotalsByAlternativeTradingSystem extends React.Component<Rep
                 ,
                 header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.status, {
-                id: "status",
-                cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                        {item.getValue().charAt(0).toUpperCase() + item.getValue().slice(1)}
-                    </div>
-                ,
-                header: () => <span>Status</span>,
-            }),
+
             columnHelper.accessor((row) => row.date, {
                 id: "date",
                 cell: (item) => item.getValue(),
@@ -87,52 +82,83 @@ class ReportLastSaleTotalsByAlternativeTradingSystem extends React.Component<Rep
     }
 
     componentDidMount() {
-        this.setState({dataFull: this.props.data, data: this.props.data}, () => {
-            this.filterData();
-        });
+        const added = this.props.data.filter(s => s.status === FormStatus.APPROVED);
+        const deleted = this.props.data.filter(s => s.status === FormStatus.DELETED);
+        this.setState({
+                dataFullAdded: added,
+                dataAdded: added
+            },
+            () => {
+                this.filterDataAdded();
+            });
+
+        this.setState({
+                dataFullDeleted: deleted,
+                dataDeleted: deleted
+            },
+            () => {
+                this.filterDataDeleted();
+            });
     }
 
 
-    handleFilterChange = (prop_name: string, item: any): void => {
+    handleFilterChangeAdded = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
+            filterDataAdded: {...this.state.filterDataAdded, [prop_name]: item?.value || ''}
         }), () => {
-            this.filterData();
+            this.filterDataAdded();
         });
     }
 
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    handleFilterChangeDeleted = (prop_name: string, item: any): void => {
+        this.setState(({
+            filterDataDeleted: {...this.state.filterDataDeleted, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterDataDeleted();
+        });
+    }
+
+    filterDataAdded = () => {
+        this.setState({dataAdded: filterService.filterData(this.state.filterDataAdded, this.state.dataFullAdded)});
+    }
+
+    filterDataDeleted = () => {
+        this.setState({dataDeleted: filterService.filterData(this.state.filterDataDeleted, this.state.dataFullDeleted)});
+    }
+
+    getRenderTable = (data: any, title: string) => {
+        return (
+            <>
+                <div className={'content__top'}>
+                    <div className={'content__title'}>
+                        {title} Symbols: {data.length ? data.length : 0}
+                    </div>
+                </div>
+                <div className="content__bottom">
+                    {data.length ? (
+                        <Table columns={columns}
+                               data={data}
+                               searchPanel={true}
+                               block={this}
+                               editBtn={false}
+                               viewBtn={false}
+                               deleteBtn={false}
+                        />
+                    ) : (
+                        <NoDataBlock/>
+                    )}
+                </div>
+            </>
+        )
     }
 
     render() {
         return (
 
             <>
-                <div className="content__top">
-                    <div className="content__title">
-                        <div
-                            className="content__title">{getReportTypeName(ReportType[this.state.report?.report.toUpperCase() as keyof typeof ReportType])}</div>
-                    </div>
-                </div>
-
-                <>
-                    <div className="content__bottom">
-                        {this.state.data.length ? (
-                            <Table columns={columns}
-                                   data={this.state.data}
-                                   searchPanel={true}
-                                   block={this}
-                                   editBtn={false}
-                                   viewBtn={false}
-                                   deleteBtn={false}
-                            />
-                        ) : (
-                            <NoDataBlock/>
-                        )}
-                    </div>
-                </>
-
+                {this.getRenderTable(this.state.dataAdded, 'Added')}
+                <hr className={'mb-24'}/>
+                {this.getRenderTable(this.state.dataDeleted, 'Deleted')}
             </>
 
         )
