@@ -57,7 +57,7 @@ class ReportLastSaleTotalsForEachSymbol extends React.Component<ReportLastSaleTo
             }),
             columnHelper.accessor((row) => row.total_number_of_transactions, {
                 id: "total_number_of_transactions",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), 0),
                 header: () => <span>Total Number of Transactions </span>,
             }),
             columnHelper.accessor((row) => row.total_number_of_quantity, {
@@ -150,7 +150,7 @@ class ReportLastSaleTotalsForEachSymbol extends React.Component<ReportLastSaleTo
                                 </div>
                                 <div className={'view_block'}>
                                     <div className={'view_block_title bold'}>Total Number of Transactions</div>
-                                    <div>{formatterService.numberFormat(Number(this.state.reportDetail?.total_number_of_transactions))}</div>
+                                    <div>{formatterService.numberFormat(Number(this.state.reportDetail?.total_number_of_transactions), 0)}</div>
                                 </div>
                                 <div className={'view_block'}>
                                     <div className={'view_block_title bold'}>Total Number of Quantity</div>
@@ -168,7 +168,7 @@ class ReportLastSaleTotalsForEachSymbol extends React.Component<ReportLastSaleTo
                         </div>
                         {this.state.reportDetail ? (
                             <>
-                                <LastSaleTotalsTableBlock report={this.state.report}/>
+                                <LastSaleTotalsTableBlock report={this.state.report} symbol={this.state.reportDetail.symbol}/>
                             </>
                         ) : (
                             <NoDataBlock/>

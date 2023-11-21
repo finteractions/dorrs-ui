@@ -6,11 +6,11 @@ import filterService from "@/services/filter/filter";
 import NoDataBlock from "@/components/no-data-block";
 import {IWeeklyMonthlyReport} from "@/interfaces/i-weekly-monthly-report";
 import AssetImage from "@/components/asset-image";
-import lastSaleService from "@/services/last-sale/last-sale-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
 import LoaderBlock from "@/components/loader-block";
 import reportsService from "@/services/reports/reports-service";
+import {instanceOf} from "prop-types";
 
 
 interface ReportLastSaleTotalsTableState extends IState {
@@ -25,6 +25,8 @@ interface ReportLastSaleTotalsTableState extends IState {
 
 interface ReportLastSaleTotalsTableProps {
     report: IWeeklyMonthlyReport | null;
+    ats?: string;
+    symbol?: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -122,8 +124,18 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
     }
 
     getDetails = () => {
-        // lastSaleService.getLastSaleReporting()
-        reportsService.getDetails(this.state.report)
+        let data: any = {};
+
+        if (this.props.ats) {
+            data.ats = this.props.ats
+        }
+
+        if (this.props.symbol) {
+            data.symbol = this.props.symbol
+        }
+        data = Object.assign({}, this.state.report, data);
+
+        reportsService.getDetails(data)
             .then((res: Array<ILastSale>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);

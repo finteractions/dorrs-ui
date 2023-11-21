@@ -15,6 +15,9 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import Select from "react-select";
 import AreaChart from "@/components/chart/area-chart";
 import BBOForm from "@/components/bbo-form";
+import UserPermissionService from "@/services/user/user-permission-service";
+import {IDataContext} from "@/interfaces/i-data-context";
+import {DataContext} from "@/contextes/data-context";
 
 
 const formSchema = Yup.object().shape({
@@ -35,6 +38,9 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class IndicatorBlock extends React.Component {
 
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
     symbols: Array<ISymbol> = new Array<ISymbol>();
 
     state: IndicatorBlockState;
@@ -46,8 +52,16 @@ class IndicatorBlock extends React.Component {
     statisticsLastSale: IIndicator | null;
     statisticsBBO: IIndicator | null;
 
-    constructor(props: {}) {
+    access = {
+        symbols: false,
+        companyProfile: false,
+        lastSale: false,
+        bestBidAndBestOffer: false,
+    }
+
+    constructor(props: {}, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.state = {
             success: false,
@@ -62,6 +76,34 @@ class IndicatorBlock extends React.Component {
         this.statisticsCompanyProfile = null;
         this.statisticsLastSale = null;
         this.statisticsBBO = null;
+
+        const symbolsAccess = UserPermissionService.getAccessRulesByComponent(
+            'SymbolBlock',
+            this.context.userProfile.access
+        );
+
+        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
+            'CompanyProfileBlock',
+            this.context.userProfile.access
+        );
+
+        const lastSaleReportingAccess = UserPermissionService.getAccessRulesByComponent(
+            'LastSaleReportingBlock',
+            this.context.userProfile.access
+        );
+
+        const bestBidAndBestOfferAccess = UserPermissionService.getAccessRulesByComponent(
+            'BBOBlock',
+            this.context.userProfile.access
+        );
+
+        this.access = {
+            symbols: symbolsAccess.create,
+            companyProfile: companyProfileAccess.create,
+            lastSale: lastSaleReportingAccess.create,
+            bestBidAndBestOffer: bestBidAndBestOfferAccess.create
+        }
+
     }
 
     componentDidMount() {
@@ -284,13 +326,16 @@ class IndicatorBlock extends React.Component {
                                             className={this.statisticsSymbol?.new ? this.getIndicatorType(this.statisticsSymbol.new) : ''}>{this.statisticsSymbol?.new}</div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        className='b-btn ripple'
-                                        onClick={() => this.openModal('symbol')}
-                                    >
-                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                    </button>
+                                    {this.access.symbols && (
+                                        <button
+                                            type="button"
+                                            className='b-btn ripple'
+                                            onClick={() => this.openModal('symbol')}
+                                        >
+                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                        </button>
+                                    )}
+
                                 </div>
                                 <div className={'indicator__item__graph'}>
                                     <AreaChart
@@ -312,13 +357,15 @@ class IndicatorBlock extends React.Component {
                                         <div
                                             className={this.statisticsCompanyProfile?.new ? this.getIndicatorType(this.statisticsCompanyProfile.new) : ''}>{this.statisticsCompanyProfile?.new}</div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className='b-btn ripple'
-                                        onClick={() => this.openModal('symbol_list')}
-                                    >
-                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                    </button>
+                                    {this.access.companyProfile && (
+                                        <button
+                                            type="button"
+                                            className='b-btn ripple'
+                                            onClick={() => this.openModal('symbol_list')}
+                                        >
+                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                        </button>
+                                    )}
                                 </div>
                                 <div className={'indicator__item__graph'}>
                                     <AreaChart
@@ -340,13 +387,15 @@ class IndicatorBlock extends React.Component {
                                         <div
                                             className={this.statisticsLastSale?.new ? this.getIndicatorType(this.statisticsLastSale.new) : ''}>{this.statisticsLastSale?.new}</div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className='b-btn ripple'
-                                        onClick={() => this.openModal('last_sale')}
-                                    >
-                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                    </button>
+                                    {this.access.lastSale && (
+                                        <button
+                                            type="button"
+                                            className='b-btn ripple'
+                                            onClick={() => this.openModal('last_sale')}
+                                        >
+                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                        </button>
+                                    )}
                                 </div>
                                 <div className={'indicator__item__graph'}>
                                     <AreaChart
@@ -368,13 +417,15 @@ class IndicatorBlock extends React.Component {
                                         <div
                                             className={this.statisticsBBO?.new ? this.getIndicatorType(this.statisticsBBO.new) : ''}>{this.statisticsBBO?.new}</div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className='b-btn ripple'
-                                        onClick={() => this.openModal('bbo')}
-                                    >
-                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                    </button>
+                                    {this.access.bestBidAndBestOffer && (
+                                        <button
+                                            type="button"
+                                            className='b-btn ripple'
+                                            onClick={() => this.openModal('bbo')}
+                                        >
+                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                        </button>
+                                    )}
                                 </div>
                                 <div className={'indicator__item__graph'}>
                                     <AreaChart

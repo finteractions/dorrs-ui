@@ -21,6 +21,7 @@ import {
 import {
     IReportNumberOfSymbolAdditionsAndDeletions
 } from "@/interfaces/i-report-number-of-symbol-additions-and-deletions";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 
 interface WeeklyAndMonthlyReportsBlockState extends IState {
     isLoading: boolean;
@@ -84,7 +85,7 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                 return <LastSaleTotalsByAlternativeTradingSystemBlock report={this.state.reportProps}
                                                                       data={this.state.data}
                                                                       onCallback={this.onCallback}/>;
-            case ReportType.LAST_SALE_FOR_EACH_SYMBOL:
+            case ReportType.LAST_SALE_TOTALS_FOR_EACH_SYMBOL:
                 return <LastSaleTotalsForEachSymbolBlock report={this.state.reportProps}
                                                          data={this.state.data}
                                                          onCallback={this.onCallback}/>;
@@ -298,5 +299,4 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
         );
     }
 }
-// export default portalAccessWrapper(WeeklyAndMonthlyReportsBlock, 'WeeklyAndMonthlyReportsBlock');
-export default WeeklyAndMonthlyReportsBlock;
+export default portalAccessWrapper(WeeklyAndMonthlyReportsBlock, 'WeeklyAndMonthlyReportsBlock');
