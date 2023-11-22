@@ -175,14 +175,14 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                             className={`content__title_btns content__filter download-buttons justify-content-end`}>
                             <button
                                 className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
-                                disabled={this.state.isReportLoading}
+                                disabled={this.state.isReportLoading || !this.state.reportProps?.date}
                                 onClick={this.downloadReportCSV}>
                                 <span className="file-item__download"></span>
                                 <span>CSV</span>
                             </button>
                             <button
                                 className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
-                                disabled={this.state.isReportLoading}
+                                disabled={this.state.isReportLoading || !this.state.reportProps?.date}
                                 onClick={this.downloadReportXLSX}>
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
