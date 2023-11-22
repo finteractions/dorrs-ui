@@ -22,6 +22,7 @@ import {
     IReportNumberOfSymbolAdditionsAndDeletions
 } from "@/interfaces/i-report-number-of-symbol-additions-and-deletions";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import downloadFile from "@/services/download-file/download-file";
 
 interface WeeklyAndMonthlyReportsBlockState extends IState {
     isLoading: boolean;
@@ -147,6 +148,22 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
         })
     };
 
+    downloadReportCSV = () => {
+        if (this.formRef.current) {
+            reportsService.downloadSummaryReport(this.formRef.current.values).then((res) => {
+                downloadFile.CSV(`${this.formRef.current?.values.report}_${this.formRef.current?.values.date}` || 'report', res);
+            })
+        }
+    }
+
+    downloadReportXLSX = () => {
+        if (this.formRef.current) {
+            reportsService.downloadSummaryReport(this.formRef.current.values).then((res) => {
+                downloadFile.XLSX(`${this.formRef.current?.values.report}_${this.formRef.current?.values.date}` || 'report', res);
+            })
+        }
+    }
+
 
     render() {
         return (
@@ -155,7 +172,21 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                     <div className="content__top">
                         <div className="content__title">Weekly and Monthly Reports</div>
                         <div
-                            className="content__title_btns content__filter download-buttons justify-content-end">
+                            className={`content__title_btns content__filter download-buttons justify-content-end`}>
+                            <button
+                                className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                disabled={this.state.isReportLoading}
+                                onClick={this.downloadReportCSV}>
+                                <span className="file-item__download"></span>
+                                <span>CSV</span>
+                            </button>
+                            <button
+                                className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                disabled={this.state.isReportLoading}
+                                onClick={this.downloadReportXLSX}>
+                                <span className="file-item__download"></span>
+                                <span>XLSX</span>
+                            </button>
                         </div>
                     </div>
                     {this.state.isLoading ? (
@@ -299,4 +330,5 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
         );
     }
 }
+
 export default portalAccessWrapper(WeeklyAndMonthlyReportsBlock, 'WeeklyAndMonthlyReportsBlock');

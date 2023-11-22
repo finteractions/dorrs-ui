@@ -11,6 +11,7 @@ import {Condition} from "@/enums/condition";
 import LoaderBlock from "@/components/loader-block";
 import reportsService from "@/services/reports/reports-service";
 import {instanceOf} from "prop-types";
+import downloadFile from "@/services/download-file/download-file";
 
 
 interface ReportLastSaleTotalsTableState extends IState {
@@ -21,6 +22,7 @@ interface ReportLastSaleTotalsTableState extends IState {
     dataFull: ILastSale[];
     filterData: any;
     report: IWeeklyMonthlyReport | null;
+    params: any;
 }
 
 interface ReportLastSaleTotalsTableProps {
@@ -40,6 +42,16 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
     constructor(props: ReportLastSaleTotalsTableProps) {
         super(props);
 
+        let params: any = {};
+        if (this.props.ats) {
+            params.ats = this.props.ats
+        }
+
+        if (this.props.symbol) {
+            params.symbol = this.props.symbol
+        }
+        params = Object.assign({}, params, props.report);
+
         this.state = {
             success: false,
             isLoading: true,
@@ -48,7 +60,8 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
             data: [],
             dataFull: [],
             filterData: [],
-            report: props.report
+            report: props.report,
+            params: params
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -124,18 +137,8 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
     }
 
     getDetails = () => {
-        let data: any = {};
 
-        if (this.props.ats) {
-            data.ats = this.props.ats
-        }
-
-        if (this.props.symbol) {
-            data.symbol = this.props.symbol
-        }
-        data = Object.assign({}, this.state.report, data);
-
-        reportsService.getDetails(data)
+        reportsService.getDetails(this.state.params)
             .then((res: Array<ILastSale>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
@@ -173,6 +176,18 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
+    downloadLastSalesCSV = () => {
+        reportsService.downloadDetailsReport(this.state.params).then((res) => {
+            downloadFile.CSV(`${this.state.report?.report}_${this.state.report?.date}-last-sales` || 'last-sales', res);
+        })
+    }
+
+    downloadLastSalesXLSX = () => {
+        reportsService.downloadDetailsReport(this.state.params).then((res) => {
+            downloadFile.XLSX(`${this.state.report?.report}_${this.state.report?.date}-last-sales` || 'last-sales', res);
+        })
+    }
+
     render() {
         return (
 
@@ -185,6 +200,20 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
                             {this.state.data.length ? (
                                 <div className={''}>
                                     <div className={'content__bottom'}>
+                                        <div
+                                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                            <button className="border-grey-btn ripple d-flex"
+                                                    onClick={this.downloadLastSalesCSV}>
+                                                <span className="file-item__download"></span>
+                                                <span>CSV</span>
+                                            </button>
+                                            <button className="border-grey-btn ripple d-flex"
+                                                    onClick={this.downloadLastSalesXLSX}>
+                                                <span className="file-item__download"></span>
+                                                <span>XLSX</span>
+                                            </button>
+                                        </div>
+
                                         <Table columns={columns}
                                                data={this.state.data}
                                                searchPanel={true}
