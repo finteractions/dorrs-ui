@@ -14,4 +14,5 @@ export interface IUserProfile {
     state: string;
     house_number: string;
     firm?: IFirm
+    customer?: string;
 }

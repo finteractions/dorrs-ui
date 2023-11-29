@@ -6,14 +6,13 @@ import {
     faChevronUp,
     faUserTie,
     faGauge,
-    faSearchDollar,
-    faMoneyBillTrendUp,
     faWallet,
     faUser,
     faDollarSign,
     faBuilding,
     faBook,
-    faFileArchive
+    faFileArchive,
+    faHandHoldingUsd
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -155,6 +154,12 @@ const MENU_LIST: MenuItem[] = [
         text: 'Balances Screen',
         href: "/backend/balances-screen",
         icon: faWallet,
+        submenus: []
+    },
+    {
+        text: 'Fees',
+        href: "/backend/fees",
+        icon: faHandHoldingUsd,
         submenus: []
     },
     {

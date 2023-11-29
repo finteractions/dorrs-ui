@@ -12,6 +12,7 @@ import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {IDoc} from "@/interfaces/i-doc";
 import {IBBO} from "@/interfaces/i-bbo";
+import {IFees} from "@/interfaces/i-fees";
 
 class AdminService extends BaseService {
 
@@ -147,7 +148,7 @@ class AdminService extends BaseService {
         return apiWebBackendService.delete<IResponseApi>(`${this.PATH}asset_management/${id}/`, {}, {}, this.getAdminToken());
     }
 
-    public async updateAsset(data: any, id:number): Promise<IResponseApi> {
+    public async updateAsset(data: any, id: number): Promise<IResponseApi> {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management/${id}/`, data, {}, this.getAdminToken());
     }
 
@@ -282,6 +283,10 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_account_type/`, data, {}, this.getAdminToken()));
     }
 
+    public async assignCustomerType(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_customer_type/`, data, {}, this.getAdminToken()));
+    }
+
     public async getBBO(): Promise<IBBO[]> {
         return (await apiWebBackendService.get<IResponse<IBBO[]>>(`${this.PATH}bbo/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
@@ -289,6 +294,14 @@ class AdminService extends BaseService {
     public async downBBO(data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_bbo/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getFees(): Promise<IFees[]> {
+        return (await apiWebBackendService.get<IResponse<IFees[]>>(`${this.PATH}fees/`, {}, this.getAdminToken())).data;
+    }
+
+    public async setFees(id:number,data: any): Promise<IResponseApi> {
+        return apiWebBackendService.put<IResponseApi>(`${this.PATH}fees/${id}/`, data, {}, this.getAdminToken());
     }
 
 }

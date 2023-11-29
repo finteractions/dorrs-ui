@@ -12,6 +12,7 @@ import {FormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
+import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 
 const selectedCountry = 'US';
 
@@ -41,6 +42,7 @@ const formSchema = Yup.object().shape({
     zip_code: Yup.string().min(3).max(50).required('Required').label('ZIP code'),
     country: Yup.string().required('Required').label('Country'),
     annual_fees: Yup.string().required('Required').label('Annual Fees'),
+    customer_type: Yup.string().required('Required').label('Customer'),
     firm: Yup.string(),
     create_firm: Yup.boolean().when('firm', {
         is: (firm: any) => !firm || firm.trim() === '',
@@ -96,6 +98,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             zip_code: string;
             country: string;
             annual_fees: string;
+            customer_type: string;
             firm: string;
             create_firm: boolean;
         } = {
@@ -113,6 +116,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             country: initialData?.country || selectedCountry,
             annual_fees: initialData?.annual_fees || "",
             firm: initialData?.firm || "",
+            customer_type: initialData?.customer_type || "",
             create_firm: !!initialData?.company_name
         };
 
@@ -135,7 +139,9 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
     }
 
-    handleSubmit = async (values: Record<string, string | boolean | null>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleSubmit = async (values: Record<string, string | boolean | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
         this.setState({errorMessages: null});
 
         const request: Promise<any> = this.props.action == 'edit' ?
@@ -562,9 +568,9 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     disabled={isSubmitting || this.isShow()}
                                                 >
                                                     <option value="">Select a Country</option>
-                                                    {Object.keys(countries).map((countryCode: string) => (
-                                                        <option key={countryCode} value={countryCode}>
-                                                            {countries[countryCode as keyof typeof countries]?.name}
+                                                    {Object.keys(CustomerType).map((customer: string) => (
+                                                        <option key={customer} value={customer}>
+                                                            {customer}
                                                         </option>
                                                     ))}
                                                 </Field>
@@ -597,6 +603,28 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     <ErrorMessage name="annual_fees" component="div"
                                                                   className="error-message"/>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        <div className="input">
+                                            <div className="input__title">Customer <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="customer_type"
+                                                    id="customer_type"
+                                                    as="select"
+                                                    className="b-select"
+                                                    disabled={isSubmitting || this.isShow()}
+                                                >
+                                                    <option value="">Select a Customer</option>
+                                                    {Object.values(CustomerType).map((customer: string) => (
+                                                        <option key={customer} value={customer}>
+                                                            {getCustomerTypeName(customer as CustomerType)}
+                                                        </option>
+                                                    ))}
+                                                </Field>
+                                                <ErrorMessage name="customer_type" component="div"
+                                                              className="error-message"/>
                                             </div>
                                         </div>
 

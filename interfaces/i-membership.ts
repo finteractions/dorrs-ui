@@ -15,6 +15,7 @@ interface IMembership {
     zip_code: string;
     country: string;
     annual_fees: string;
+    customer_type: string;
     user_id: string;
     status: string;
     comment: string;

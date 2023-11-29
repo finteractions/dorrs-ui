@@ -14,6 +14,22 @@ interface NumericInputFieldProps {
 }
 
 class NumericInputField extends React.Component<NumericInputFieldProps> {
+
+    handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { field, form, handleChange } = this.props;
+        const { name } = field;
+
+        if (event.target) {
+            const inputValue = event.target.value;
+
+            if (inputValue !== "" && parseFloat(inputValue) < 0) {
+                form.setFieldValue(name, "");
+            } else {
+                if (handleChange) handleChange(event);
+                form.setFieldValue(name, inputValue);
+            }
+        }
+    };
     render() {
         const {field, form, placeholder, className, decimalScale, disabled, handleChange} = this.props;
         const {name} = field;
@@ -30,10 +46,7 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
                     placeholder={placeholder}
                     decimalScale={decimalScale}
                     disabled={disabled}
-                    onChange={(event) => {
-                        if (handleChange) handleChange(event);
-                        form.setFieldValue(name, event.target.value);
-                    }}
+                    onChange={this.handleChange}
                     onBlur={field.onBlur}
                     value={field.value}
                 />

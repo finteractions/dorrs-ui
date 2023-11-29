@@ -8,6 +8,7 @@ export interface IUser {
     mobile_number: string;
     email_verified: boolean;
     account_type: string;
+    customer_type: string;
     is_blocked: boolean;
     firm?: IFirm | null;
 }

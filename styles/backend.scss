@@ -4214,8 +4214,16 @@
     display: flex;
   }
 
+  .d-inline-flex {
+    //display: inline-flex;
+  }
+
   .justify-content-center {
     justify-content: center;
+  }
+
+  .justify-content-between {
+    justify-content: space-between;
   }
 
   .company-profile-logo {
@@ -4346,6 +4354,16 @@
     white-space: nowrap;
   }
 
+  .link {
+    text-decoration-line: underline;
+    -webkit-font-feature-settings: "kern" off;
+    font-feature-settings: "kern" off;
+    color: #1F8CEB;
+    -webkit-transition: .3s ease-in-out;
+    -o-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+    text-decoration: underline;
+  }
 
 }
 

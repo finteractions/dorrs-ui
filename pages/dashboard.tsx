@@ -11,7 +11,6 @@ const Dashboard: NextPageWithLayout = () => {
             <div className={'flex-panel-box'}>
                 <MembershipBlock/>
                 <IndicatorBlock/>
-
             </div>
 
         </>

@@ -18,6 +18,7 @@ import BBOForm from "@/components/bbo-form";
 import UserPermissionService from "@/services/user/user-permission-service";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 
 const formSchema = Yup.object().shape({
@@ -150,7 +151,7 @@ class IndicatorBlock extends React.Component {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
-                this.symbols = data.filter(s => !s.company_profile)
+                this.symbols = data.filter(s => !s.company_profile && getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus))
 
             })
             .catch((errors: IError) => {

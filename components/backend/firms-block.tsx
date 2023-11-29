@@ -11,7 +11,7 @@ import Modal from "@/components/modal";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
-import FirmForm from "@/components/firm-form";
+import FirmForm from "@/components/backend/firm-form";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];

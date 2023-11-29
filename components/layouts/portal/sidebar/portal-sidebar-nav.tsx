@@ -7,7 +7,7 @@ import Link from 'next/link'
 import {AuthAdminContext} from "@/contextes/auth-admin-context";
 import {useRouter} from "next/router";
 import userPermissionService from "@/services/user/user-permission-service";
-import { DataContext } from "@/contextes/data-context";
+import {DataContext} from "@/contextes/data-context";
 
 type PortalSidebarNavItemProps = {
     href: string;
@@ -77,6 +77,14 @@ const MENU_LIST: MenuItem[] = [
         submenus: [],
         onlyAdmin: false,
         permission_key: 'weekly_and_monthly_reports'
+    },
+    {
+        text: 'Tariffs',
+        href: "tariffs",
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
+        submenus: [],
+        onlyAdmin: false,
+        permission_key: 'weekly_and_monthly_reports'
     }
 ]
 
@@ -94,7 +102,7 @@ const PortalSidebarNavItem = (props: PortalSidebarNavItemProps) => {
         <Nav.Item>
             <Link href={href} passHref legacyBehavior>
                 <Nav.Link className={`${active ? 'active' : ''} px-3 py-2 d-flex align-items-center`}>
-                    {icon ?  <div dangerouslySetInnerHTML={{ __html: icon }} />
+                    {icon ? <div dangerouslySetInnerHTML={{__html: icon}}/>
                         : <span className=""/>}
                     {children}
                 </Nav.Link>
@@ -133,7 +141,7 @@ const PortalSidebarNavGroupToggle = (props: PortalSidebarNavGroupToggleProps) =>
             onClick={decoratedOnClick}
         >
             {/*<FontAwesomeIcon className="nav-icon ms-n3" icon={icon}/>*/}
-            {icon &&  <div dangerouslySetInnerHTML={{ __html: icon }} />}
+            {icon && <div dangerouslySetInnerHTML={{__html: icon}}/>}
             {children}
             <div className="nav-chevron ms-auto text-end">
                 <FontAwesomeIcon size="xs" icon={faChevronUp}/>
@@ -159,7 +167,7 @@ const PortalSidebarNavGroup = (props: PortalSidebarNavGroupProps) => {
     return (
         <Accordion as="li" bsPrefix="nav-group" className={classNames({show: isShow})}>
             <PortalSidebarNavGroupToggle icon={toggleIcon} eventKey="0"
-                                   setIsShow={setIsShow}>{toggleText}</PortalSidebarNavGroupToggle>
+                                         setIsShow={setIsShow}>{toggleText}</PortalSidebarNavGroupToggle>
             <Accordion.Collapse eventKey="0">
                 <ul className="nav-group-items list-unstyled">
                     {children}
@@ -188,13 +196,15 @@ export default function PortalSidebarNav() {
                     {menu.submenus.length > 0 ? (
                         <PortalSidebarNavGroup key={idx} toggleIcon={menu.icon} toggleText={menu.text}>
                             {menu.submenus.map((subMenu, idxx) => (
-                                <PortalSidebarNavItem active={activeLink(menu.href, router.pathname)} key={idxx} href={subMenu.href}>
+                                <PortalSidebarNavItem active={activeLink(menu.href, router.pathname)} key={idxx}
+                                                      href={subMenu.href}>
                                     {subMenu.text}
                                 </PortalSidebarNavItem>
                             ))}
                         </PortalSidebarNavGroup>
                     ) : (
-                        <PortalSidebarNavItem  active={activeLink(menu.href, router.pathname)} key={idx} icon={menu.icon} href={menu.href}>
+                        <PortalSidebarNavItem active={activeLink(menu.href, router.pathname)} key={idx} icon={menu.icon}
+                                              href={menu.href}>
                             {menu.text}
                         </PortalSidebarNavItem>
                     )}

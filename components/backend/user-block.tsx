@@ -21,6 +21,7 @@ import {faClose, faEdit, faEye, faCheck} from "@fortawesome/free-solid-svg-icons
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
+import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 
 const formFirmSchema = Yup.object().shape({
     firm_id: Yup.number().required('Required').label('Firm'),
@@ -29,6 +30,10 @@ const formFirmSchema = Yup.object().shape({
 
 const formAccountTypeSchema = Yup.object().shape({
     account_type: Yup.string().required('Required').label('Account Type'),
+});
+
+const formCustomerTypeSchema = Yup.object().shape({
+    customer_type: Yup.string().required('Required').label('Customer'),
 });
 
 interface UserBlockState extends IState {
@@ -43,9 +48,12 @@ interface UserBlockState extends IState {
     firms: Array<IFirm> | null
     isUserFirmEdit: boolean;
     isUserAccountTypeEdit: boolean;
+    isUserCustomerTypeEdit: boolean;
     formFirmInitialValues: { firm_id: number | null },
     formAccountTypeInitialValues: { account_type: string | null },
+    formCustomerTypeInitialValues: { customer_type: string | null },
     selectedAccountType: string
+    selectedCustomerType: string
 }
 
 interface UserBlockProps {
@@ -72,9 +80,12 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             firms: null,
             isUserFirmEdit: false,
             isUserAccountTypeEdit: false,
+            isUserCustomerTypeEdit: false,
             formFirmInitialValues: {firm_id: null},
             formAccountTypeInitialValues: {account_type: null},
-            selectedAccountType: ''
+            formCustomerTypeInitialValues: {customer_type: null},
+            selectedAccountType: '',
+            selectedCustomerType: ''
         };
     }
 
@@ -149,11 +160,13 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                 const user = res[0] as IUserDetail;
                 const firm_id = user.user_id?.firm?.id || null;
                 const account_type = user.user_id?.account_type || null;
+                const customer_type = user.user_id?.customer_type || null;
 
                 this.setState({
                     data: user,
                     formFirmInitialValues: {firm_id: firm_id},
-                    formAccountTypeInitialValues: {account_type: account_type}
+                    formAccountTypeInitialValues: {account_type: account_type},
+                    formCustomerTypeInitialValues: {customer_type: customer_type}
                 });
 
                 if (res[0].approved_by) {
@@ -188,6 +201,10 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         this.setState({isUserAccountTypeEdit: !this.state.isUserAccountTypeEdit})
     }
 
+    editCustomerType = () => {
+        this.setState({isUserCustomerTypeEdit: !this.state.isUserCustomerTypeEdit})
+    }
+
     handleFirmSubmit = async (values: Record<string, number | null>, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
@@ -216,6 +233,12 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         this.setState({selectedAccountType: selectedAccountType});
     };
 
+    handleCustomerTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        const selectedCustomerType = e.target.value;
+        setFieldValue("customer_type", selectedCustomerType);
+        this.setState({selectedCustomerType: selectedCustomerType});
+    };
+
     handleAccountTypeSubmit = async (values: Record<string, string | null>, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
@@ -235,6 +258,28 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             }).finally(() => {
                 setSubmitting(false);
                 this.setState({isUserAccountTypeEdit: false})
+            });
+    };
+
+    handleCustomerTypeSubmit = async (values: Record<string, string | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.setState({errorMessages: null});
+
+        const data = {
+            user_id: this.state.data?.user_id.email,
+            customer_type: values.customer_type
+        }
+
+        await adminService.assignCustomerType(data)
+            .then(((res: any) => {
+                this.getUser(this.props.user_id);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+                this.setState({isUserCustomerTypeEdit: false})
             });
     };
 
@@ -646,6 +691,106 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
 
                                                         </div>
                                                     </div>
+
+                                                    {this.state.data?.user_id?.customer_type && (
+                                                        <div className="mb-3">
+                                                            <div className="info-panel-section-title mb-2">
+                                                                <div className='info-panel-title-text'>Customer</div>
+                                                            </div>
+                                                            <div className={'d-flex align-items-center'}>
+                                                                <div>
+                                                                    {!this.state.isUserCustomerTypeEdit ? (
+                                                                        <>
+                                                                            {this.state.data?.user_id?.customer_type ? getCustomerTypeName(this.state.data?.user_id?.customer_type as CustomerType) : '-'}</>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Formik
+                                                                                initialValues={this.state.formCustomerTypeInitialValues}
+                                                                                validationSchema={formCustomerTypeSchema}
+                                                                                onSubmit={this.handleCustomerTypeSubmit}
+                                                                            >
+                                                                                {({
+                                                                                      isSubmitting,
+                                                                                      setFieldValue,
+                                                                                      errors
+                                                                                  }) => {
+                                                                                    return (
+                                                                                        <Form id={'firm-user'}
+                                                                                              className={'edit-form-small align-items-start'}>
+                                                                                            <div className="input">
+                                                                                                <div
+                                                                                                    className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                                                                    <Field
+                                                                                                        name="customer_type"
+                                                                                                        id="customer_type"
+                                                                                                        as="select"
+                                                                                                        className="b-select"
+                                                                                                        disabled={isSubmitting}
+                                                                                                        onChange={(e: any) => this.handleCustomerTypeChange(e, setFieldValue)}
+                                                                                                    >
+                                                                                                        <option
+                                                                                                            value="">Select
+                                                                                                            a Customer
+                                                                                                        </option>
+                                                                                                        {Object.values(CustomerType).map((type) => (
+                                                                                                            <option
+                                                                                                                key={type}
+                                                                                                                value={type}>
+                                                                                                                {getCustomerTypeName(type as CustomerType)}
+                                                                                                            </option>
+                                                                                                        ))}
+                                                                                                    </Field>
+                                                                                                    <ErrorMessage
+                                                                                                        name="customer_type"
+                                                                                                        component="div"
+                                                                                                        className="error-message"/>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <>
+                                                                                                <div
+                                                                                                    className='admin-table-actions ml-20px'>
+                                                                                                    <button
+                                                                                                        type="submit"
+                                                                                                        className='admin-table-btn ripple'>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            className="nav-icon"
+                                                                                                            icon={faCheck}/>
+                                                                                                    </button>
+                                                                                                    <button
+                                                                                                        onClick={this.editCustomerType}
+                                                                                                        className='admin-table-btn ripple'>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            className="nav-icon"
+                                                                                                            icon={faClose}/>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </>
+                                                                                        </Form>
+                                                                                    );
+                                                                                }}
+                                                                            </Formik>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className='admin-table-actions ml-20px'>
+                                                                    {!this.state.isUserCustomerTypeEdit ? (
+                                                                        <>
+                                                                            <button
+                                                                                onClick={this.editCustomerType}
+                                                                                className='admin-table-btn ripple'>
+                                                                                <FontAwesomeIcon
+                                                                                    className="nav-icon" icon={faEdit}/>
+                                                                            </button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <></>
+                                                                    )}
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    )}
 
                                                     <div className="mb-3">
                                                         <div className="info-panel-section-title mb-2">
