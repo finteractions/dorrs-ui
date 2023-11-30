@@ -5,13 +5,13 @@ import FiatBlock from "@/components/fiat-block";
 import FeesBlock from "@/components/backend/fees-block";
 
 
-const Tariffs: NextPageWithLayout = () => {
+const Fees: NextPageWithLayout = () => {
     return (
         <FeesBlock />
     )
 }
 
-Tariffs.getLayout = function getLayout(page: ReactElement) {
+Fees.getLayout = function getLayout(page: ReactElement) {
     return (
         <PortalLayout>
             {page}
@@ -19,6 +19,6 @@ Tariffs.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
-Tariffs.layoutName = "PortalLayout"
+Fees.layoutName = "PortalLayout"
 
-export default Tariffs
+export default Fees

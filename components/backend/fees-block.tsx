@@ -321,7 +321,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                 <div className="flex-panel-box">
                     <div className={'panel'}>
                         <div className="content__top">
-                            <div className="content__title">{isAdmin ? 'Fees Management' : 'Tariffs'}</div>
+                            <div className="content__title">{isAdmin ? 'Fees Management' : 'Fees'}</div>
                         </div>
 
                         <div className={'content__bottom'}>
