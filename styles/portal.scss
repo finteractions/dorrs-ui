@@ -1428,7 +1428,7 @@ body {
 
         .sidebar-nav .nav-link {
           padding: 10px 0 !important;
-          width: 24px!important;
+          width: 24px !important;
           margin: auto;
           overflow: hidden;
           font-size: 0;
@@ -2501,6 +2501,15 @@ body {
       background: #b8bec5
     }
 
+    .table__status.table__status-open:before {
+      background: #3d7da2
+    }
+
+    .table__status.table__status-payment-due:before {
+      background: #FFA800
+    }
+
+
     @media(max-width: 1299px) {
       .assets__item-block.big {
         width: 100%
@@ -3539,6 +3548,36 @@ body {
 
     .sidebar .sidebar-nav .nav-group.show {
       background-color: unset;
+    }
+
+    .margin-0 {
+      margin: 0;
+    }
+
+    .content__top {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      margin: 0 0 32px
+    }
+
+    .content__top.mb-48 {
+      margin-bottom: 48px
+    }
+
+    .content__title {
+      //font-family: "TA Typefire";
+      font-size: 24px;
+      line-height: 100%;
+      color: #1e2d3b;
+      font-style: normal;
+      font-weight: 600;
     }
 
   }

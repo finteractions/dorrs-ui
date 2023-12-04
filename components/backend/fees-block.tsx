@@ -208,8 +208,9 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         const body = {
-            price: values.price === '' ? '0' : values.price
-        }
+            price: values.price === '' ? '0' : values.price.replace(/,/g, '')
+        };
+
         const id = values.id;
 
         adminService.setFees(id, body)

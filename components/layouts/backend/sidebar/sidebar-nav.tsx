@@ -7,12 +7,11 @@ import {
     faUserTie,
     faGauge,
     faWallet,
-    faUser,
     faDollarSign,
     faBuilding,
     faBook,
     faFileArchive,
-    faHandHoldingUsd
+    faHandHoldingUsd, faMoneyBillWave
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -160,6 +159,12 @@ const MENU_LIST: MenuItem[] = [
         text: 'Fees',
         href: "/backend/fees",
         icon: faHandHoldingUsd,
+        submenus: []
+    },
+    {
+        text: 'Invoices',
+        href: "/backend/invoices",
+        icon: faMoneyBillWave,
         submenus: []
     },
     {

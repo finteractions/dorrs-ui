@@ -13,6 +13,7 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import {IDoc} from "@/interfaces/i-doc";
 import {IBBO} from "@/interfaces/i-bbo";
 import {IFees} from "@/interfaces/i-fees";
+import {IInvoice} from "@/interfaces/i-invoice";
 
 class AdminService extends BaseService {
 
@@ -302,6 +303,10 @@ class AdminService extends BaseService {
 
     public async setFees(id:number,data: any): Promise<IResponseApi> {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}fees/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async getInvoices(): Promise<IInvoice[]> {
+        return (await apiWebBackendService.get<IResponse<IInvoice[]>>(`${this.PATH}invoices/`, {}, this.getAdminToken())).data;
     }
 
 }

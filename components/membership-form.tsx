@@ -568,9 +568,9 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     disabled={isSubmitting || this.isShow()}
                                                 >
                                                     <option value="">Select a Country</option>
-                                                    {Object.keys(CustomerType).map((customer: string) => (
-                                                        <option key={customer} value={customer}>
-                                                            {customer}
+                                                    {Object.keys(countries).map((countryCode: string) => (
+                                                        <option key={countryCode} value={countryCode}>
+                                                            {countries[countryCode as keyof typeof countries]?.name}
                                                         </option>
                                                     ))}
                                                 </Field>
