@@ -314,7 +314,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
                                         <div className="input">
                                             <div
-                                                className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
                                                 <Field
                                                     type="checkbox"
                                                     name="is_finra"

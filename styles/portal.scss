@@ -836,7 +836,7 @@ body {
       cursor: pointer
     }
 
-    .b-checkbox input[type=checkbox] + label i {
+    .b-checkbox input[type=checkbox] + label i:not(.label-normal) {
       font-style: normal;
       cursor: pointer;
       margin-left: 8px;
@@ -3578,6 +3578,15 @@ body {
       color: #1e2d3b;
       font-style: normal;
       font-weight: 600;
+    }
+
+    .label-normal {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 26px;
+      color: #383442;
+      font-style: normal;
+      margin-left: 10px;
     }
 
   }

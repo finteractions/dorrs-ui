@@ -320,9 +320,9 @@
     width: 100%;
     height: 310px;
     background: #f8fbff;
-    border: 1px solid #c5cacf;
+    border: 1px solid #718494;
     border-radius: 4px;
-    padding: 12px 16px;
+    padding: 10px 10px;
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
@@ -4383,12 +4383,29 @@
     margin-right: 0;
   }
 
+  .my-0 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   .mb-24 {
     margin-bottom: 24px;
   }
 
   .mb-48 {
     margin-bottom: 48px;
+  }
+
+  .mt-24 {
+    margin-top: 24px;
+  }
+
+  .bg-white {
+    background-color: #FFFFFF;
+  }
+
+  .margin-unset {
+    margin: unset;
   }
 
 }

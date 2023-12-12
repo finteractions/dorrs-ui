@@ -162,8 +162,8 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
-        text: 'Invoices',
-        href: "/backend/invoices",
+        text: 'Banking',
+        href: "/backend/banking",
         icon: faMoneyBillWave,
         submenus: []
     },

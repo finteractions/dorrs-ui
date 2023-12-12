@@ -1,7 +1,7 @@
 import '@/styles/globals.scss'
 import '@/styles/font-face.scss'
 import '@/styles/fonts/fonts.css'
-// import '@/styles/style.scss'
+
 import '@/styles/icon.scss'
 import '@/styles/custom.scss'
 import "@/styles/home.scss"
@@ -55,6 +55,7 @@ async function loadZone(Component: NextPageWithLayout): Promise<void> {
             break;
         case "BackendLayout":
             await import((`@/styles/backend.scss`))
+            // await import((`bootstrap/dist/js/bootstrap.bundle.min.js`))
             break;
     }
 }

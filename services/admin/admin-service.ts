@@ -14,6 +14,7 @@ import {IDoc} from "@/interfaces/i-doc";
 import {IBBO} from "@/interfaces/i-bbo";
 import {IFees} from "@/interfaces/i-fees";
 import {IInvoice} from "@/interfaces/i-invoice";
+import {IBank} from "@/interfaces/i-bank";
 
 class AdminService extends BaseService {
 
@@ -305,10 +306,21 @@ class AdminService extends BaseService {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}fees/${id}/`, data, {}, this.getAdminToken());
     }
 
-    public async getInvoices(): Promise<IInvoice[]> {
-        return (await apiWebBackendService.get<IResponse<IInvoice[]>>(`${this.PATH}invoices/`, {}, this.getAdminToken())).data;
+    public async getInvoices(params?: {}): Promise<IInvoice[]> {
+        return (await apiWebBackendService.get<IResponse<IInvoice[]>>(`${this.PATH}invoices/`, params, this.getAdminToken())).data;
     }
 
+    public async getBank(): Promise<IBank[]> {
+        return (await apiWebBackendService.get<IResponse<IBank[]>>(`${this.PATH}banks/`, {}, this.getAdminToken())).data;
+    }
+
+    public async updateBank(data: any): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}banks/`, data, {}, this.getAdminToken());
+    }
+
+    public async createPayment(data: any): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}payments/`, data, {}, this.getAdminToken());
+    }
 }
 
 const adminService = new AdminService();

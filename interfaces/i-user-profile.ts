@@ -15,4 +15,5 @@ export interface IUserProfile {
     house_number: string;
     firm?: IFirm
     customer?: string;
+    reference_number?: string;
 }

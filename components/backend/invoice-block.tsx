@@ -54,6 +54,11 @@ class InvoiceBlock extends React.Component<{}> {
         }
 
         columns = [
+            columnHelper.accessor((row) => row.invoice_id, {
+                id: "invoice_id",
+                cell: (item) => item.getValue(),
+                header: () => <span>Invoice ID</span>,
+            }),
             columnHelper.accessor((row) => ({
                 name: row.user_name,
                 email: row.user_id
@@ -65,16 +70,17 @@ class InvoiceBlock extends React.Component<{}> {
                 </div>,
                 header: () => <span>Name <br/>Email</span>,
             }),
+            columnHelper.accessor((row) => row.reference_number, {
+                id: "reference_number",
+                cell: (item) => item.getValue(),
+                header: () => <span>Reference Number</span>,
+            }),
             columnHelper.accessor((row) => row.firm_name, {
                 id: "firm_name",
                 cell: (item) => item.getValue(),
                 header: () => <span>Firm</span>,
             }),
-            columnHelper.accessor((row) => row.customer_type, {
-                id: "customer_type",
-                cell: (item) => item.getValue(),
-                header: () => <span>Customer</span>,
-            }),
+
             columnHelper.accessor((row) => row.date, {
                 id: "date",
                 cell: (item) => item.getValue(),
@@ -85,8 +91,8 @@ class InvoiceBlock extends React.Component<{}> {
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Total Amount</span>,
             }),
-            columnHelper.accessor((row) => row.payment_date, {
-                id: "payment_date",
+            columnHelper.accessor((row) => row.approved_date_time, {
+                id: "approved_date_time",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Payment Date</span>,
             }),
@@ -128,6 +134,7 @@ class InvoiceBlock extends React.Component<{}> {
                 data.forEach(s => {
                     s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
                     s.customer_type = getCustomerTypeName(s.customer_type as CustomerType)
+                    s.invoice_id = s.invoice_id.toString()
                 });
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
@@ -202,10 +209,6 @@ class InvoiceBlock extends React.Component<{}> {
 
             <>
                 <div className="assets section page__section">
-                    <div className="content__top">
-                        <div className="content__title">Invoices</div>
-                    </div>
-
                     {this.state.loading ? (
                         <LoaderBlock/>
                     ) : (
@@ -215,6 +218,18 @@ class InvoiceBlock extends React.Component<{}> {
                             ) : (
                                 <>
                                     <div className="content__filter mb-3">
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('invoice_id', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('invoice_id', item)}
+                                                options={filterService.buildOptions('invoice_id', this.state.dataFull)}
+                                                placeholder="Invoice ID"
+                                            />
+                                        </div>
                                         <div className="input__wrap">
                                             <Select
                                                 className="select__react"
@@ -237,6 +252,18 @@ class InvoiceBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('user_id', item)}
                                                 options={filterService.buildOptions('user_id', this.state.dataFull)}
                                                 placeholder="Email"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('reference_number', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('reference_number', item)}
+                                                options={filterService.buildOptions('reference_number', this.state.dataFull)}
+                                                placeholder="Reference Number"
                                             />
                                         </div>
                                         <div className="input__wrap">

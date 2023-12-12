@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import BackendLayoutWrapper from "@/components/layouts/backend/backend-layout-wrapper";
 import authAdminGuard from "@/guards/auth-admin-guard";
 
@@ -7,13 +7,15 @@ type BackendDashboardLayoutProps = {
 }
 
 function BackendLayout({children}: BackendDashboardLayoutProps) {
+    useEffect(()=>{
+        import('bootstrap/dist/js/bootstrap.bundle.min.js');
+    },[])
 
     return (
         <>
             <BackendLayoutWrapper>
                 {children}
             </BackendLayoutWrapper>
-
         </>
     );
 }
