@@ -107,14 +107,28 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         this.formRef = React.createRef();
 
         columns = [
-            columnHelper.accessor((row) => row.name, {
+            columnHelper.accessor((row) => ({
+                name: row.name,
+                customer_type: row.customer_type,
+                customer_type_name: row.customer_type_name,
+            }),{
                 id: "name",
-                cell: (item) => item.getValue(),
-                header: () => <span>Service</span>,
+                cell: (item) => <>{item.getValue().name} | {item.getValue().customer_type_name}</>,
+                header: () => <span>Source</span>,
             }),
-            columnHelper.accessor((row) => row.count, {
-                id: "count",
-                cell: (item) => formatterService.numberFormat(item.getValue(), 0),
+            columnHelper.accessor((row) => row.date, {
+                id: "date",
+                cell: (item) => item.getValue(),
+                header: () => <span>Action Date</span>,
+            }),
+            columnHelper.accessor((row) => row.accrual_value, {
+                id: "accrual_value",
+                cell: (item) => formatterService.numberFormat(item.getValue(), 2),
+                header: () => <span>Accrual </span>,
+            }),
+            columnHelper.accessor((row) => row.number, {
+                id: "number",
+                cell: (item) => item.getValue(),
                 header: () => <span>Number</span>,
             }),
             columnHelper.accessor((row) => row.value, {

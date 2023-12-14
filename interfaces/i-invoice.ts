@@ -8,7 +8,7 @@ export interface IInvoice {
     user_name?: string
     firm_name?: string
     customer_type?: string
-    count?: number;
+    number?: string;
     invoice_id: string,
     reference_number: string,
     approved_by: string,
@@ -21,5 +21,9 @@ export interface IInvoiceService {
     key: string;
     name: string;
     value: number;
+    accrual_value: number;
     period_type: string;
+    customer_type: string;
+    customer_type_name: string;
+    date: string;
 }

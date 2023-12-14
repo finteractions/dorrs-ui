@@ -306,6 +306,10 @@ class AdminService extends BaseService {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}fees/${id}/`, data, {}, this.getAdminToken());
     }
 
+    public async setServiceDescription(id:number,data: any): Promise<IResponseApi> {
+        return apiWebBackendService.put<IResponseApi>(`${this.PATH}tariff/${id}/`, data, {}, this.getAdminToken());
+    }
+
     public async getInvoices(params?: {}): Promise<IInvoice[]> {
         return (await apiWebBackendService.get<IResponse<IInvoice[]>>(`${this.PATH}invoices/`, params, this.getAdminToken())).data;
     }

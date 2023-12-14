@@ -27,6 +27,7 @@ interface FeesBlockState extends IModalState {
     filterData: any;
     showSymbolForm: boolean;
     cellStates: Map<number, boolean>;
+    cellDescriptionStates: Map<number, boolean>;
     description: string;
 }
 
@@ -54,6 +55,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
             filterData: [],
             showSymbolForm: true,
             cellStates: new Map<number, boolean>,
+            cellDescriptionStates: new Map<number, boolean>,
             description: ''
         }
 
@@ -71,7 +73,45 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                             {item.getValue().service_name}
                         </span>)
                 },
-                header: () => <span>Service</span>,
+                header: () => <span>Source</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                description: row.service_description || '',
+                id: row.service_id
+            }), {
+                id: "description",
+                cell: (item) => {
+                    let edit = this.state.cellDescriptionStates.get(item.getValue().id) || false;
+                    let initialValues: any = {
+                        id: item.getValue().id,
+                        description: item.getValue().description
+                    }
+
+                    return (
+                        <>
+                            {!edit ? (
+                                <div className={`align-items-center d-flex`}>
+                                    <div>{item.getValue().description}</div>
+                                    {isAdmin && (
+                                        <button
+                                            type="button"
+                                            className='mx-2'
+                                            onClick={() => {
+                                                this.updateCellDescriptionState(item.getValue().id)
+                                            }}>
+                                            <FontAwesomeIcon
+                                                className="nav-icon"
+                                                icon={faEdit}/>
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                this.editableDescriptionCell(initialValues, item.getValue())
+                            )}
+                        </>
+                    )
+                },
+                header: () => <span>Description</span>,
             }),
             columnHelper.accessor((row) => ({
                 id: row.nonprofessional_id,
@@ -153,6 +193,56 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         ];
     }
 
+    editableDescriptionCell(initialValues: any, cell: any) {
+        return (
+            <Formik
+                initialValues={initialValues}
+                onSubmit={this.handleDescriptionSubmit}
+            >
+                {({
+                      isSubmitting,
+                  }) => {
+                    return (
+                        <div style={{maxWidth: '100%'}}>
+                            <Form className={`align-items-center d-inline-flex w-100`}>
+                                <Field
+                                    name="description"
+                                    id="description"
+                                    as="textarea"
+                                    className="w-100"
+                                    placeholder="Description"
+                                    disabled={isSubmitting}
+                                />
+
+                                <div
+                                    className='admin-table-actions mx-2'>
+                                    <button
+                                        type="submit"
+                                        className='mx-2'>
+                                        <FontAwesomeIcon
+                                            className="nav-icon"
+                                            icon={faCheck}/>
+                                    </button>
+                                    <button
+                                        type={"button"}
+                                        onClick={() => {
+                                            this.updateCellDescriptionState(cell.id)
+                                        }}
+                                        className='mx-2'>
+                                        <FontAwesomeIcon
+                                            className="nav-icon"
+                                            icon={faClose}/>
+                                    </button>
+                                </div>
+                            </Form>
+                        </div>
+
+                    );
+                }}
+            </Formik>
+        )
+    }
+
     editableCell(initialValues: any, cell: any) {
         return (
             <Formik
@@ -220,6 +310,22 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
             })
     }
 
+    handleDescriptionSubmit = async (values: any, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        const body = {
+            description: values.description
+        };
+
+        const id = values.id;
+
+        adminService.setServiceDescription(id, body)
+            .then(() => {
+                setSubmitting(false);
+                this.getFees()
+            })
+    }
+
     updateCellState(id: number) {
         this.setState((prevState) => {
             const updatedCellStates = new Map(prevState.cellStates);
@@ -228,12 +334,23 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         });
     }
 
+    updateCellDescriptionState(id: number) {
+        this.setState((prevState) => {
+            const updatedCellStates = new Map(prevState.cellDescriptionStates);
+            updatedCellStates.set(id, !updatedCellStates.get(id));
+            return {cellDescriptionStates: updatedCellStates};
+        });
+    }
+
     componentDidMount() {
         this.getFees();
     }
 
     getFees = () => {
-        this.setState({cellStates: new Map<number, boolean>})
+        this.setState({
+            cellStates: new Map<number, boolean>,
+            cellDescriptionStates: new Map<number, boolean>
+        })
 
         const request: Promise<Array<IFees>> = isAdmin ? adminService.getFees() : feesService.getFees();
 
@@ -241,14 +358,15 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
             const data = res || [];
             const tableData: Array<any> = [];
 
-            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}`)))
+            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.id}<|>${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}`)))
                 .map(key => {
-                    const [serviceKey, serviceName, description] = key.split('<|>');
-                    return {key: serviceKey, name: serviceName, description: description};
+                    const [id, serviceKey, serviceName, description] = key.split('<|>');
+                    return {id: id, key: serviceKey, name: serviceName, description: description};
                 });
 
             serviceNames.forEach(service => {
                 const serviceObject = {
+                    service_id: service.id,
                     service_name: service.name,
                     service_key: service.key,
                     service_description: service.description,

@@ -14,7 +14,6 @@ export interface IFeesPrice {
     name: string;
     key: string;
     description: string | null;
-    period_type: string;
     created_at: string;
     updated_at: string;
 }
@@ -24,6 +23,7 @@ export interface IFeesTariff {
     name: string;
     key: string;
     description: string | null;
+    period_type: string;
     created_at: string;
     updated_at: string;
 }
