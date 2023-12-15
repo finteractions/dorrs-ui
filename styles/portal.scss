@@ -3594,6 +3594,11 @@ body {
       background-color: #F6F9FC;
     }
 
+    table.professional thead tr th:nth-child(4),
+    table.professional tbody tr td:nth-child(4){
+      background-color: #F6F9FC;
+    }
+
   }
 }
 
