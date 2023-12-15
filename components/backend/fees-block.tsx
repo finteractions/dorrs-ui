@@ -366,10 +366,11 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         const request: Promise<Array<IFees>> = isAdmin ? adminService.getFees() : feesService.getFees();
 
         request.then((res: Array<IFees>) => {
+            console.log(res)
             const data = res || [];
             const tableData: Array<any> = [];
 
-            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.id}<|>${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}}`)))
+            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.id}<|>${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}`)))
                 .map(key => {
                     const [id, serviceKey, serviceName, description] = key.split('<|>');
                     return {
@@ -379,7 +380,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         description: description,
                     };
                 });
-
+            console.log(serviceNames)
             serviceNames.forEach(service => {
                 const serviceObject = {
                     service_id: service.id,
@@ -407,7 +408,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         }
                     }
                 });
-
+                console.log(serviceObject)
                 tableData.push(serviceObject);
             });
 
