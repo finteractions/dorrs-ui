@@ -366,7 +366,6 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         const request: Promise<Array<IFees>> = isAdmin ? adminService.getFees() : feesService.getFees();
 
         request.then((res: Array<IFees>) => {
-            console.log(res)
             const data = res || [];
             const tableData: Array<any> = [];
 
@@ -380,7 +379,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         description: description,
                     };
                 });
-            console.log(serviceNames)
+
             serviceNames.forEach(service => {
                 const serviceObject = {
                     service_id: service.id,
@@ -408,7 +407,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         }
                     }
                 });
-                console.log(serviceObject)
+
                 tableData.push(serviceObject);
             });
 
