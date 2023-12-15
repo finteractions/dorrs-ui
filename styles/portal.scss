@@ -3589,6 +3589,11 @@ body {
       margin-left: 10px;
     }
 
+    table.nonprofessional thead tr th:nth-child(3),
+    table.nonprofessional tbody tr td:nth-child(3){
+      background-color: #F6F9FC;
+    }
+
   }
 }
 

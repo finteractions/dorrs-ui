@@ -23,6 +23,7 @@ export interface IFeesTariff {
     name: string;
     key: string;
     description: string | null;
+    next_payment?: string | null;
     period_type: string;
     created_at: string;
     updated_at: string;

@@ -65,6 +65,7 @@ const Table = ({
                    customBtns,
                    filter,
                    access,
+                   className,
                }: {
     columns: any[];
     columns_for_search?: any[];
@@ -78,7 +79,8 @@ const Table = ({
     deleteBtn?: boolean,
     customBtns?: any,
     filter?: boolean
-    access?: any
+    access?: any,
+    className?: string
 }) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [searchValue, setSearchValue] = React.useState("");
@@ -215,7 +217,7 @@ const Table = ({
                         <div className="table">
 
                             <div className='overflow-x-auto'>
-                                <table>
+                                <table className={className}>
                                     <thead>
                                     <tr>
                                         {headers.map((header) => {

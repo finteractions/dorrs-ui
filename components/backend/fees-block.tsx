@@ -14,6 +14,8 @@ import {Field, Form, Formik} from "formik";
 import NumericInputField from "@/components/numeric-input-field";
 import Modal from "@/components/modal";
 import feesService from "@/services/fee/reports-service";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -40,8 +42,13 @@ let isAdmin = false;
 class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
     state: FeesBlockState;
 
-    constructor(props: FeesBlockProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    constructor(props: FeesBlockProps, context: IDataContext<null>) {
         super(props);
+
+        this.context = context;
 
         isAdmin = props.isAdmin ?? false;
 
@@ -62,7 +69,8 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
         columns = [
             columnHelper.accessor((row) => ({
                 service_name: row.service_name,
-                description: row.service_description || ''
+                description: row.service_description || '',
+                next_payment: row.next_payment,
             }), {
                 id: "service_name",
                 cell: (item) => {
@@ -115,7 +123,9 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
             }),
             columnHelper.accessor((row) => ({
                 id: row.nonprofessional_id,
+                service_key: row.service_key,
                 value: row.nonprofessional_value,
+                next_payment: row.nonprofessional_next_payment,
             }), {
                 id: "nonprofessional",
                 cell: (item) => {
@@ -129,7 +139,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         <>
                             {!edit ? (
                                 <div className={`align-items-center d-flex`}>
-                                    <div>{formatterService.numberFormat(item.getValue().value || 0)}</div>
+                                    <div>{item.getValue().next_payment || formatterService.numberFormat(item.getValue().value || 0)}</div>
                                     {isAdmin && (
                                         <button
                                             type="button"
@@ -155,6 +165,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                 id: row.professional_id,
                 service_key: row.service_key,
                 value: row.professional_value,
+                next_payment: row.professional_next_payment,
             }), {
                 id: "professional",
                 cell: (item) => {
@@ -168,7 +179,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         <>
                             {!edit ? (
                                 <div className={`align-items-center d-flex`}>
-                                    <div>{formatterService.numberFormat(item.getValue().value || 0)}</div>
+                                    <div>{item.getValue().next_payment || formatterService.numberFormat(item.getValue().value || 0)}</div>
                                     {isAdmin && (
                                         <button
                                             type="button"
@@ -358,10 +369,15 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
             const data = res || [];
             const tableData: Array<any> = [];
 
-            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.id}<|>${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}`)))
+            const serviceNames = Array.from(new Set(data.map(item => `${item.fee_tariff.id}<|>${item.fee_tariff.key}<|>${item.fee_tariff.name}<|>${item.fee_tariff.description}}`)))
                 .map(key => {
                     const [id, serviceKey, serviceName, description] = key.split('<|>');
-                    return {id: id, key: serviceKey, name: serviceName, description: description};
+                    return {
+                        id: id,
+                        key: serviceKey,
+                        name: serviceName,
+                        description: description,
+                    };
                 });
 
             serviceNames.forEach(service => {
@@ -370,6 +386,8 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                     service_name: service.name,
                     service_key: service.key,
                     service_description: service.description,
+                    nonprofessional_next_payment: '',
+                    professional_next_payment: '',
                     nonprofessional_value: '',
                     professional_value: '',
                     nonprofessional_id: 0,
@@ -381,9 +399,11 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         if (item.fee_price.key === 'nonprofessional') {
                             serviceObject.nonprofessional_value = item.value || '';
                             serviceObject.nonprofessional_id = item.id || 0;
+                            serviceObject.nonprofessional_next_payment = item.fee_tariff?.next_payment! || ''
                         } else if (item.fee_price.key === 'professional') {
                             serviceObject.professional_value = item.value || '';
                             serviceObject.professional_id = item.id || 0;
+                            serviceObject.professional_next_payment = item.fee_tariff?.next_payment! || ''
                         }
                     }
                 });
@@ -454,6 +474,7 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                                         <>
                                             {this.state.data.length ? (
                                                 <Table
+                                                    className={this.context?.userProfile?.customer_type}
                                                     columns={columns}
                                                     data={this.state.data}
                                                     searchPanel={false}
