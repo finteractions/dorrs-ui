@@ -1,16 +1,16 @@
 import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import adminService from "@/services/admin/admin-service";
-import {IInvoice} from "@/interfaces/i-invoice";
 import {IBank} from "@/interfaces/i-bank";
 import Modal from "@/components/modal";
 import BankForm from "@/components/backend/bank-form";
+import {IBankTemplate} from "@/interfaces/i-bank-template";
 
 
 interface BankBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: { columnDefinition: any, columnValues: any } | null;
+    formData: IBankTemplate | null;
     formAction: string;
     errors: string[];
     modalTitle: string;

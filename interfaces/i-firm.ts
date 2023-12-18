@@ -7,4 +7,7 @@ export interface IFirm {
     is_approved: boolean;
     approved_date_time: string;
     status: string;
+    is_member: boolean;
+    is_member_text?: string;
+    bank: Array<any>
 }

@@ -318,6 +318,10 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<IBank[]>>(`${this.PATH}banks/`, {}, this.getAdminToken())).data;
     }
 
+    public async getFirmBank(): Promise<IBank[]> {
+        return (await apiWebBackendService.get<IResponse<IBank[]>>(`${this.PATH}firm_banks/`, {}, this.getAdminToken())).data;
+    }
+
     public async updateBank(data: any): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}banks/`, data, {}, this.getAdminToken());
     }

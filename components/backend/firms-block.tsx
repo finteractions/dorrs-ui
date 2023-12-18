@@ -12,6 +12,9 @@ import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
 import FirmForm from "@/components/backend/firm-form";
+import {IBank} from "@/interfaces/i-bank";
+import {IBankTemplate} from "@/interfaces/i-bank-template";
+import adminIconService from "@/services/admin/admin-icon-service";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -19,7 +22,8 @@ let columns: any[] = [];
 interface FirmsBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: IFirm | null;
+    formFirmData: IFirm | null;
+    formBankData: IBankTemplate | null;
     formAction: string;
     data: IFirm[];
     errors: string[];
@@ -34,6 +38,8 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 class FirmsBlock extends React.Component<{}> {
     state: FirmsBlockState;
     getAssetsInterval!: NodeJS.Timer;
+    columnDefinition: any;
+    columnValues: any;
 
     constructor(props: {}) {
         super(props);
@@ -41,7 +47,8 @@ class FirmsBlock extends React.Component<{}> {
         this.state = {
             loading: true,
             isOpenModal: false,
-            formData: null,
+            formFirmData: null,
+            formBankData: null,
             formAction: 'add',
             data: [],
             errors: [],
@@ -56,6 +63,12 @@ class FirmsBlock extends React.Component<{}> {
                 id: "name",
                 cell: (item) => item.getValue(),
                 header: () => <span>Name</span>,
+            }),
+            columnHelper.accessor((row) => row.is_member, {
+                id: "is_member",
+                cell: (item) => <FontAwesomeIcon className="nav-icon"
+                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
+                header: () => <span>DORRS Member</span>,
             }),
             columnHelper.accessor((row) => row.status, {
                 id: "status",
@@ -77,6 +90,7 @@ class FirmsBlock extends React.Component<{}> {
     componentDidMount() {
         this.setState({loading: true});
         this.getFirms();
+        this.getBank();
         this.startAutoUpdate();
     }
 
@@ -88,12 +102,44 @@ class FirmsBlock extends React.Component<{}> {
         adminService.getFirms()
             .then((res: IFirm[]) => {
                 const data = res?.sort((a, b) => a.id - b.id) || [];
-                data.forEach(s => {
+                data.forEach((s, idx) => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    s.is_member_text = s.is_member? 'Yes' : 'No'
                 });
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
                 });
+            })
+            .catch((errors: IError) => {
+                this.setState({errors: errors.messages});
+            })
+            .finally(() => {
+                this.setState({loading: false})
+            });
+    }
+
+    getBank = () => {
+        adminService.getFirmBank()
+            .then((res: IBank[]) => {
+                const bank = res[0];
+
+                const columns = bank.columns;
+                let values = bank.values;
+
+                const columnsObject = JSON.parse(columns) as any
+                values = values.replace(/'/g, '"');
+                const valuesObject = JSON.parse(values)
+
+                this.columnDefinition = columnsObject;
+                this.columnValues = valuesObject;
+
+                this.setState({
+                    formBankData: new class implements IBankTemplate {
+                        columnDefinition = columnsObject;
+                        columnValues = valuesObject
+                    }
+                });
+
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -112,7 +158,13 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     openModal = (mode: string, data?: IFirm) => {
-        this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+
+        this.setState({
+            isOpenModal: true,
+            formAction: mode,
+            formFirmData: data || null,
+            modalTitle: this.modalTitle(mode)
+        })
     }
 
 
@@ -198,6 +250,18 @@ class FirmsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
+                                                value={filterService.setValue('is_member_text', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('is_member_text', item)}
+                                                options={filterService.buildOptions('is_member_text', this.state.dataFull)}
+                                                placeholder="DORRS Member"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
                                                 value={filterService.setValue('status', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('status', item)}
                                                 options={filterService.buildOptions('status', this.state.dataFull)}
@@ -244,7 +308,8 @@ class FirmsBlock extends React.Component<{}> {
 
                     <FirmForm
                         action={this.state.formAction}
-                        data={this.state.formData}
+                        firmData={this.state.formFirmData}
+                        bankData={this.state.formBankData}
                         onCallback={this.onCallback}
                     />
                 </Modal>

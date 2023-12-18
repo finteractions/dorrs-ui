@@ -2,11 +2,12 @@ import React from 'react';
 import NoDataBlock from "@/components/no-data-block";
 import {Field, Form, Formik} from "formik";
 import adminService from "@/services/admin/admin-service";
+import {IBankTemplate} from "@/interfaces/i-bank-template";
 
 
 interface BankFormProps extends ICallback {
     action: string;
-    data: { columnDefinition: any, columnValues: any } | null;
+    data: IBankTemplate | null;
     onCancel?: () => void;
 }
 
@@ -51,7 +52,7 @@ class BankForm extends React.Component<BankFormProps> {
                               setFieldValue,
                           }) => {
                             return (
-                                <Form className={`modal__content`} >
+                                <Form className={`modal__content`}>
                                     {Object.keys(this.columnDefinition).map((columnName) => (
                                         <div key={columnName}>
                                             {typeof this.columnValues[columnName] === "object" ? (
