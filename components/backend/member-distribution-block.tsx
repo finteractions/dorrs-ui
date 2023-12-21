@@ -71,8 +71,8 @@ class MemberDistributionBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Source</span>,
             }),
-            columnHelper.accessor((row) => row.date, {
-                id: "date",
+            columnHelper.accessor((row) => row.date_formatted, {
+                id: "date_formatted",
                 cell: (item) => item.getValue(),
                 header: () => <span>Date</span>,
             }),
@@ -312,7 +312,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                             <DoughnutChart
                                                 labels={Object.keys(this.state.memberDistributionUserStatisticsData)}
                                                 data={Object.values(this.state.memberDistributionUserStatisticsData)}
-                                                title="User"
+                                                title="Users"
                                                 backgroundColors={Object.keys(this.state.memberDistributionUserStatisticsData).map(item => this.getStatusColor(item))}
                                             />
                                         </div>
@@ -320,7 +320,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                             <DoughnutChart
                                                 labels={Object.keys(this.state.memberDistributionAmountStatisticsData)}
                                                 data={Object.values(this.state.memberDistributionAmountStatisticsData)}
-                                                title="Amount"
+                                                title="Amounts"
                                                 labelName="Sum $"
                                                 backgroundColors={Object.keys(this.state.memberDistributionAmountStatisticsData).map(item => this.getStatusColor(item))}
                                             />

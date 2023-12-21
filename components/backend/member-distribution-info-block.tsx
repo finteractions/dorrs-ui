@@ -115,7 +115,7 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
             <>
                 <div className="content__top">
                     <div
-                        className="content__title">Member Distribution: {this.state.memberDistribution?.date}
+                        className="content__title">Member Distribution: {this.state.memberDistribution?.date_formatted}
                     </div>
                 </div>
 

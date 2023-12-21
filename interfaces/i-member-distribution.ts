@@ -5,6 +5,7 @@ export interface IMemberDistribution {
     name: string;
     period_type: string;
     date: string;
+    date_formatted: string;
     forecast_amount: number,
     total_amount: number,
     approved_amount: number;
