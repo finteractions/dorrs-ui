@@ -11,7 +11,7 @@ import {
     faBuilding,
     faBook,
     faFileArchive,
-    faHandHoldingUsd, faMoneyBillWave
+    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -162,9 +162,15 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
-        text: 'Banking',
-        href: "/backend/banking",
+        text: 'Invoices',
+        href: "/backend/invoices",
         icon: faMoneyBillWave,
+        submenus: []
+    },
+    {
+        text: 'Member Distribution',
+        href: "/backend/member-distribution",
+        icon: faUsersRectangle,
         submenus: []
     },
     {

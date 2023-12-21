@@ -1,21 +1,22 @@
-import React, { useEffect, useRef } from "react";
-import { Chart } from 'chart.js/auto';
+import React, {useEffect, useRef} from "react";
+import {Chart} from 'chart.js/auto';
 
 type ChartProps = {
     labels: string[];
     data: number[];
     backgroundColors: string[];
     title: string;
+    labelName?: string;
 };
 
-const DoughnutChart: React.FC<ChartProps> = ({ labels, data, backgroundColors, title }) => {
+const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, title, labelName}) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         if (canvasRef.current) {
             const ctx = canvasRef.current.getContext('2d');
             if (ctx) {
-                canvasRef.current.width=320;
+                canvasRef.current.width = 320;
                 Chart.defaults.font.family = '"PT Serif", serif';
                 const chart = new Chart(ctx, {
                     type: 'doughnut',
@@ -23,7 +24,7 @@ const DoughnutChart: React.FC<ChartProps> = ({ labels, data, backgroundColors, t
                         labels: labels,
                         datasets: [
                             {
-                                label: ' Count',
+                                label: labelName || ' Count',
                                 data: data,
                                 backgroundColor: backgroundColors,
                             },
@@ -31,7 +32,7 @@ const DoughnutChart: React.FC<ChartProps> = ({ labels, data, backgroundColors, t
                     },
                     options: {
                         layout: {
-                            padding:0
+                            padding: 0
                         },
                         responsive: false,
                         plugins: {

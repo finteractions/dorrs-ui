@@ -114,8 +114,6 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                 initialValues.weekly_date = this.weeklyDates[0] || ''
                 initialValues.date = this.weeklyDates[0] || ''
                 initialValues.type = ReportPeriod.WEEKLY
-
-
             })
             .finally(() => {
                 this.setState({isLoading: false}, () => {

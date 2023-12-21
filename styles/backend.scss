@@ -4269,6 +4269,15 @@
 
     .view_block {
       flex: 0 0 50%;
+
+      &.flex-20 {
+        flex: 0 0 20%;
+      }
+
+      &.flex-25 {
+        flex: 0 0 25%;
+      }
+
       @media(max-width: 767px) {
         flex: 0 0 100%;
       }
@@ -4407,6 +4416,11 @@
   .margin-unset {
     margin: unset;
   }
+
+  .row-gap-25 {
+    row-gap: 25px;
+  }
+
 
 }
 

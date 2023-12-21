@@ -15,6 +15,8 @@ import {IBBO} from "@/interfaces/i-bbo";
 import {IFees} from "@/interfaces/i-fees";
 import {IInvoice} from "@/interfaces/i-invoice";
 import {IBank} from "@/interfaces/i-bank";
+import {IChartStatistics} from "@/interfaces/i-chart-statistics";
+import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 
 class AdminService extends BaseService {
 
@@ -302,11 +304,11 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<IFees[]>>(`${this.PATH}fees/`, {}, this.getAdminToken())).data;
     }
 
-    public async setFees(id:number,data: any): Promise<IResponseApi> {
+    public async setFees(id: number, data: any): Promise<IResponseApi> {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}fees/${id}/`, data, {}, this.getAdminToken());
     }
 
-    public async setServiceDescription(id:number,data: any): Promise<IResponseApi> {
+    public async setServiceDescription(id: number, data: any): Promise<IResponseApi> {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}tariff/${id}/`, data, {}, this.getAdminToken());
     }
 
@@ -329,6 +331,19 @@ class AdminService extends BaseService {
     public async createPayment(data: any): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}payments/`, data, {}, this.getAdminToken());
     }
+
+    public async getMemberDistribution(data: any): Promise<IMemberDistribution[]> {
+        return (await apiWebBackendService.post<IResponse<IMemberDistribution[]>>(`${this.PATH}member_distributions/`, data, {}, this.getAdminToken())).data;
+    }
+
+    public async getMemberDistributionDates(): Promise<IResponse<any>> {
+        return (await apiWebBackendService.get<IResponse<any>>(`${this.PATH}member_distributions/dates/`, {}, this.getAdminToken())).data;
+    }
+
+    public async getMemberDistributionStatistics(data: any): Promise<IChartStatistics[]> {
+        return (await apiWebBackendService.post<IResponse<IChartStatistics[]>>(`${this.PATH}member_distributions/statistics/`, data, {}, this.getAdminToken())).data;
+    }
+
 }
 
 const adminService = new AdminService();
