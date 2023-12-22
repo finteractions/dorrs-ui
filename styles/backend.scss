@@ -4421,6 +4421,37 @@
     row-gap: 25px;
   }
 
+  .bg-light-yellow {
+    background-color: #fff8ea;
+  }
+
+  .bg-light-red {
+    background-color: #ffe3e1;
+  }
+
+  .bg-light-green {
+    background-color: #e8fff0;
+  }
+
+  .bg-light-blue {
+    background-color: #e5f1ff;
+  }
+
+  .statistics__panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 25px;
+    column-gap: 25px;
+
+    .statistics {
+      flex: 1;
+      justify-content: center;
+      //box-shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+    }
+  }
 
 }
 

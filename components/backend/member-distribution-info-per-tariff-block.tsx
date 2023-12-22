@@ -4,29 +4,29 @@ import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import NoDataBlock from "@/components/no-data-block";
 import filterService from "@/services/filter/filter";
+import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
-import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 
 
-interface MemberDistributionInfoBlockState extends IState {
+interface MemberDistributionInfoPerTariffBlockState extends IState {
     errors: string[];
-    memberDistribution: IMemberDistribution | null;
+    memberDistribution: IMemberDistributionPerTariff | null;
     data: Array<any>;
     dataFull: Array<any>;
     filterData: any;
 }
 
 interface MemberDistributionInfoBlockProps extends ICallback {
-    data: IMemberDistribution | null;
+    data: IMemberDistributionPerTariff | null;
 }
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfoBlockProps, MemberDistributionInfoBlockState> {
+class MemberDistributionInfoPerTariffBlock extends React.Component<MemberDistributionInfoBlockProps, MemberDistributionInfoPerTariffBlockState> {
 
-    state: MemberDistributionInfoBlockState;
+    state: MemberDistributionInfoPerTariffBlockState;
     errors: Array<string> = new Array<string>();
 
     constructor(props: MemberDistributionInfoBlockProps) {
@@ -115,34 +115,46 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
             <>
                 <div className="content__top">
                     <div
-                        className="content__title">{this.state.memberDistribution?.firm_name}: {this.state.memberDistribution?.date_formatted}
+                        className="content__title">{this.state.memberDistribution?.name}: {this.state.memberDistribution?.date_formatted}
                     </div>
                 </div>
 
                 <div className={`content__bottom mb-24`}>
                     <div className={'view_panel flex-1 mx-0 row-gap-25'}>
-                        <div className={'view_block'}>
+                        <div className={'view_block flex-25'}>
+                            <div className={'view_block_title bold'}>Forecast Amount</div>
+                            <div>{formatterService.numberFormat(this.state.memberDistribution?.forecast_amount || 0, 2)}</div>
+                        </div>
+                        <div className={'view_block flex-25'}>
+                            <div className={'view_block_title bold'}>Total Amount</div>
+                            <div>{formatterService.numberFormat(this.state.memberDistribution?.total_amount || 0, 2)}</div>
+                        </div>
+                        <div className={'view_block flex-25'}>
+                            <div className={'view_block_title bold'}>Approved Amount</div>
+                            <div>{formatterService.numberFormat(this.state.memberDistribution?.approved_amount || 0, 2)}</div>
+                        </div>
+                        <div className={'view_block flex-25'}>
                             <div className={'view_block_title bold'}>Due Amount</div>
                             <div>{formatterService.numberFormat(this.state.memberDistribution?.due_amount || 0, 2)}</div>
                         </div>
-                        <div className={'view_block'}>
-                            <div className={'view_block_title bold'}>Status</div>
-                            <div
-                                className={`table__status table__status-${this.state.memberDistribution?.status}`}>
-                                {`${getInvoiceStatusNames(this.state.memberDistribution?.status as InvoiceStatus)}`}
-                            </div>
-                        </div>
+                        {/*<div className={'view_block flex-25'}>*/}
+                        {/*    <div className={'view_block_title bold'}>Status</div>*/}
+                        {/*    <div*/}
+                        {/*        className={`table__status table__status-${this.state.memberDistribution?.status}`}>*/}
+                        {/*        {`${getInvoiceStatusNames(this.state.memberDistribution?.status as InvoiceStatus)}`}*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
                     </div>
                 </div>
 
 
-                <div className={'content__top d-none'}>
+                <div className={'content__top'}>
                     <div className={'content__title'}>
-                        Payment Contents
+                        Payments
                     </div>
                 </div>
 
-                <div className="content__bottom d-none">
+                <div className="content__bottom">
                     <div className="input">
                         <div
                             className={`input__wrap`}>
@@ -166,4 +178,4 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
     }
 }
 
-export default MemberDistributionInfoBlock
+export default MemberDistributionInfoPerTariffBlock

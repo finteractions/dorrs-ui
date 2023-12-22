@@ -16,6 +16,7 @@ import {IFees} from "@/interfaces/i-fees";
 import {IInvoice} from "@/interfaces/i-invoice";
 import {IBank} from "@/interfaces/i-bank";
 import {IChartStatistics} from "@/interfaces/i-chart-statistics";
+import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 
 class AdminService extends BaseService {

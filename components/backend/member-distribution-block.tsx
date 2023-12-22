@@ -2,28 +2,28 @@ import React, {RefObject} from 'react';
 import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
-import DoughnutChart from "@/components/chart/doughnut-chart";
 import {IChartStatistics} from "@/interfaces/i-chart-statistics";
-import {IMemberDistribution} from "@/interfaces/i-member-distribution";
+import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
 import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import Modal from "@/components/modal";
-import MemberDistributionInfoBlock from "@/components/backend/member-distribution-info-block";
 import {getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Field, Form, Formik, FormikProps} from "formik";
 import * as Yup from "yup";
+import {IMemberDistribution} from "@/interfaces/i-member-distribution";
+import MemberDistributionInfoBlock from "@/components/backend/member-distribution-info-block";
 
 
-interface MemberDistributionBlockState extends IModalState {
+interface MemberDistributionBlockState {
+    isOpenModal: boolean;
     isLoading: boolean;
     isDataLoading: boolean;
-    memberDistributionAmountStatisticsData: any[];
-    memberDistributionUserStatisticsData: any[];
+    memberDistributionStatisticsData: any[];
     data: IMemberDistribution[];
     dataFull: IMemberDistribution[];
     filterData: any;
@@ -55,8 +55,7 @@ class MemberDistributionBlock extends React.Component<{}> {
             isOpenModal: false,
             isLoading: true,
             isDataLoading: false,
-            memberDistributionAmountStatisticsData: [],
-            memberDistributionUserStatisticsData: [],
+            memberDistributionStatisticsData: [],
             data: [],
             dataFull: [],
             filterData: [],
@@ -66,49 +65,29 @@ class MemberDistributionBlock extends React.Component<{}> {
         }
 
         columns = [
-            columnHelper.accessor((row) => row.name, {
-                id: "name",
+            columnHelper.accessor((row) => row.firm_name, {
+                id: "firm_name",
                 cell: (item) => item.getValue(),
-                header: () => <span>Source</span>,
-            }),
-            columnHelper.accessor((row) => row.date_formatted, {
-                id: "date_formatted",
-                cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
-            }),
-            columnHelper.accessor((row) => row.forecast_amount, {
-                id: "forecast_amount",
-                cell: (item) => formatterService.numberFormat(item.getValue(), 2),
-                header: () => <span>Forecast Amount</span>,
-            }),
-            columnHelper.accessor((row) => row.total_amount, {
-                id: "total_amount",
-                cell: (item) => formatterService.numberFormat(item.getValue(), 2),
-                header: () => <span>Total Amount</span>,
-            }),
-            columnHelper.accessor((row) => row.approved_amount, {
-                id: "approved_amount",
-                cell: (item) => formatterService.numberFormat(item.getValue(), 2),
-                header: () => <span>Approved Amount</span>,
+                header: () => <span>Firm</span>,
             }),
             columnHelper.accessor((row) => row.due_amount, {
                 id: "due_amount",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Due Amount</span>,
             }),
-            // columnHelper.accessor((row) => ({
-            //     status: row.status,
-            //     statusName: row.status_name
-            // }), {
-            //     id: "status",
-            //     cell: (item) =>
-            //         <div className='status-panel'>
-            //             <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
-            //                 {item.getValue().statusName}
-            //             </div>
-            //         </div>,
-            //     header: () => <span>Status</span>,
-            // }),
+            columnHelper.accessor((row) => ({
+                status: row.status,
+                statusName: row.status_name
+            }), {
+                id: "status",
+                cell: (item) =>
+                    <div className='status-panel'>
+                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                            {item.getValue().statusName}
+                        </div>
+                    </div>,
+                header: () => <span>Status</span>,
+            }),
             columnHelper.accessor((row) => row.updated_at, {
                 id: "updated_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
@@ -121,11 +100,10 @@ class MemberDistributionBlock extends React.Component<{}> {
     }
 
     componentDidMount() {
-        this.getReportDates()
-
+        this.getDates()
     }
 
-    getReportDates() {
+    getDates() {
         adminService.getMemberDistributionDates().then((res: any) => {
             this.dates = res;
         })
@@ -144,12 +122,8 @@ class MemberDistributionBlock extends React.Component<{}> {
         return new Promise<boolean>(resolve => {
             adminService.getMemberDistributionStatistics(values)
                 .then((res: Array<IChartStatistics>) => {
-                    const amountData = res[0];
-                    const userData = res[1];
-                    this.setState({
-                        memberDistributionAmountStatisticsData: amountData,
-                        memberDistributionUserStatisticsData: userData
-                    });
+                    this.setState({memberDistributionStatisticsData: res})
+
                 })
                 .finally(() => {
                     resolve(true)
@@ -203,23 +177,34 @@ class MemberDistributionBlock extends React.Component<{}> {
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formData: null});
+        this.setState({isOpenPerTariffModal: false, isOpenModal: false, formData: null});
     }
 
-    getStatusColor(name: string) {
+    getClassName(name: string) {
         const statuses: any = {
-            'open': '#3d7da2',
-            'forecast': '#3d7da2',
-            'approved': '#34cb68',
-            'due': '#FFA800',
-            'commission': '#cb3d34',
+            'total_forecast': 'bg-light-blue',
+            'total_approved': 'bg-light-green',
+            'total_payment_due': 'bg-light-yellow',
+            'total_commission': 'bg-light-red',
         }
 
         return statuses[name.toLowerCase()] || '#000'
     }
 
-    openModal = (mode: string, data?: IMemberDistribution) => {
-        this.setState({isOpenModal: true, formData: data || null, formAction: mode})
+    getStatisticsTitle(name: string) {
+        const titles: any = {
+            'total_forecast': 'Total Forecast',
+            'total_approved': 'Total Approved',
+            'total_payment_due': 'Total Payment Due',
+            'total_commission': 'DORRS Commission',
+
+        }
+
+        return titles[name.toLowerCase()] || ''
+    }
+
+    openModal = (mode: string, data?: IMemberDistributionPerTariff) => {
+        this.setState({formAction: mode, formData: data || null, isOpenModal: true})
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -307,30 +292,21 @@ class MemberDistributionBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="dashboard__chart__panel mb-3">
-                                        <div className="dashboard__chart">
-                                            <DoughnutChart
-                                                labels={Object.keys(this.state.memberDistributionUserStatisticsData)}
-                                                data={Object.values(this.state.memberDistributionUserStatisticsData)}
-                                                title="Users"
-                                                backgroundColors={Object.keys(this.state.memberDistributionUserStatisticsData).map(item => this.getStatusColor(item))}
-                                            />
-                                        </div>
-                                        <div className="dashboard__chart">
-                                            <DoughnutChart
-                                                labels={Object.keys(this.state.memberDistributionAmountStatisticsData)}
-                                                data={Object.values(this.state.memberDistributionAmountStatisticsData)}
-                                                title="Amounts"
-                                                labelName="Sum $"
-                                                backgroundColors={Object.keys(this.state.memberDistributionAmountStatisticsData).map(item => this.getStatusColor(item))}
-                                            />
-                                        </div>
+
+                                    <div className="view_panel statistics__panel flex-1 mx-0 mb-4">
+                                        {this.state.memberDistributionStatisticsData.map(item => {
+                                            return (
+                                                <div key={item.key}
+                                                     className={` statistics flex-25 dashboard__chart ${this.getClassName(item.key)}`}>
+                                                    <div className='bold'>{this.getStatisticsTitle(item.key)}</div>
+                                                    <div>${formatterService.numberFormat(item.value, 2)}</div>
+                                                </div>
+                                            )
+                                        })}
                                     </div>
 
                                     <div className="dashboard__transaction__panel">
-
                                         {this.state.data.length ? (
-
                                             <Table
                                                 columns={columns}
                                                 data={this.state.data}
@@ -355,6 +331,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                     )}
                 </div>
 
+
                 <Modal isOpen={this.state.isOpenModal}
                        onClose={() => this.closeModal()}
                        title={'View Member Distribution'}
@@ -363,6 +340,7 @@ class MemberDistributionBlock extends React.Component<{}> {
 
                     <MemberDistributionInfoBlock data={this.state.formData} onCallback={this.onCallback}/>
                 </Modal>
+
             </>
         )
     }
