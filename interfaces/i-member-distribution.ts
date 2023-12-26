@@ -1,6 +1,8 @@
 import {IPayment} from "@/interfaces/i-payment";
 
 export interface IMemberDistribution {
+    id: number,
+    invoice_id: string,
     firm_name: string;
     date: string;
     date_formatted: string;

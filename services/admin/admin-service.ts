@@ -333,8 +333,12 @@ class AdminService extends BaseService {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}payments/`, data, {}, this.getAdminToken());
     }
 
-    public async getMemberDistribution(data: any): Promise<IMemberDistribution[]> {
+    public async getMemberDistributions(data: any): Promise<IMemberDistribution[]> {
         return (await apiWebBackendService.post<IResponse<IMemberDistribution[]>>(`${this.PATH}member_distributions/`, data, {}, this.getAdminToken())).data;
+    }
+
+    public async getMemberDistribution(params?: {}): Promise<IInvoice[]> {
+        return (await apiWebBackendService.get<IResponse<IInvoice[]>>(`${this.PATH}member_distributions/`, params, this.getAdminToken())).data;
     }
 
     public async getMemberDistributionDates(): Promise<IResponse<any>> {

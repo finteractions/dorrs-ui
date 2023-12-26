@@ -1,4 +1,5 @@
 export interface IInvoice {
+    id:number;
     total_value: number;
     date: string;
     status: string;

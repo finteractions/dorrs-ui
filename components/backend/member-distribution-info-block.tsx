@@ -4,17 +4,34 @@ import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import NoDataBlock from "@/components/no-data-block";
 import filterService from "@/services/filter/filter";
-import {getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
+import {getInvoiceFormStatus, getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
+import * as Yup from "yup";
+import {ErrorMessage, Field, Form, Formik} from "formik";
+import NumericInputField from "@/components/numeric-input-field";
+import AlertBlock from "@/components/alert-block";
+import adminService from "@/services/admin/admin-service";
+import {IInvoice} from "@/interfaces/i-invoice";
 
+
+const formSchemaPayment = Yup.object().shape({
+    invoice_id: Yup.string(),
+    amount: Yup.string().required('Required').label('Amount'),
+    status: Yup.string().required('Required').label('Status'),
+    private_comment: Yup.string(),
+    public_comment: Yup.string()
+
+});
 
 interface MemberDistributionInfoBlockState extends IState {
     errors: string[];
+    errorMessages: string[];
     memberDistribution: IMemberDistribution | null;
     data: Array<any>;
     dataFull: Array<any>;
     filterData: any;
+    isPayment: boolean;
 }
 
 interface MemberDistributionInfoBlockProps extends ICallback {
@@ -28,6 +45,14 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
 
     state: MemberDistributionInfoBlockState;
     errors: Array<string> = new Array<string>();
+    formRef: RefObject<any>;
+    initialValues: {
+        invoice_id: string,
+        status: string,
+        amount: string,
+        private_comment: string,
+        public_comment: string
+    }
 
     constructor(props: MemberDistributionInfoBlockProps) {
         super(props);
@@ -35,11 +60,15 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
         this.state = {
             success: false,
             errors: [],
+            errorMessages: [],
             data: [],
             dataFull: [],
             filterData: [],
-            memberDistribution: this.props.data
+            memberDistribution: this.props.data,
+            isPayment: false,
         }
+
+        this.formRef = React.createRef();
 
         columns = [
             columnHelper.accessor((row) => ({
@@ -87,6 +116,14 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                 header: () => <span>Updated Date</span>,
             }),
         ];
+
+        this.initialValues = {
+            amount: '',
+            invoice_id: (this.state.memberDistribution?.invoice_id || '').toString(),
+            status: this.state.memberDistribution?.status || InvoiceStatus.PAYMENT_DUE,
+            private_comment: '',
+            public_comment: ''
+        }
     }
 
     onCallback = async (values: any) => {
@@ -108,6 +145,145 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
+    paymentForm = () => {
+        this.setState({isPayment: !this.state.isPayment});
+    }
+
+    handleSubmit = async (values: Record<string, string | number>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        setSubmitting(true);
+        const body = values
+
+        body.amount = body.amount.toString().replace(/,/g, '')
+
+        adminService.createPayment(body)
+            .then(() => {
+                adminService.getInvoices({invoice_id: this.state.memberDistribution?.invoice_id})
+                    .then((res: IInvoice[]) => {
+                        const data = res || [];
+                        data.forEach(s => {
+                            s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
+                            s.customer_type = getCustomerTypeName(s.customer_type as CustomerType)
+                        });
+                        const invoice = data[0];
+                        const memberDistribution = this.state?.memberDistribution;
+                        if (memberDistribution) memberDistribution.status = invoice.status
+                        if (typeof invoice !== "undefined" && memberDistribution) this.setState({memberDistribution: this.state?.memberDistribution})
+                        this.paymentForm();
+                    })
+                    .catch((errors: IError) => {
+                        this.setState({errorMessages: errors.messages});
+                    })
+                    .finally(() => {
+
+                    });
+            })
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            })
+            .finally(() => {
+                this.props.onCallback(null);
+            })
+    };
+
+    getPaymentForm() {
+        return (
+            <Formik
+                initialValues={this.initialValues}
+                validationSchema={formSchemaPayment}
+                innerRef={this.formRef}
+                onSubmit={this.handleSubmit}
+            >
+                {({isSubmitting, setFieldValue, isValid, dirty, values, errors, validateField}) => {
+                    return (
+                        <Form id="bank-form">
+                            <Field
+                                name="invoice_id"
+                                id="invoice_id"
+                                type="hidden"
+                                disabled={isSubmitting}
+                            />
+
+                            <div className="input">
+                                <div className="input__title">Amount <i>*</i></div>
+                                <div
+                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    <Field
+                                        component={NumericInputField}
+                                        decimalScale={2}
+                                        name="amount"
+                                        id="amount"
+                                        className="input__text"
+                                        placeholder="Type Amount"
+                                        type="text"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input">
+                                <div className="input__title">Private Comment</div>
+                                <div
+                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    <Field
+                                        as="textarea"
+                                        id="private_comment"
+                                        name="private_comment"
+                                        placeholder="Type Private Comment"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input">
+                                <div className="input__title">Public Comment</div>
+                                <div
+                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    <Field
+                                        as="textarea"
+                                        id="public_comment"
+                                        name="public_comment"
+                                        placeholder="Type Public Comment"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input">
+                                <div className="input__title">Status <i>*</i></div>
+                                <div
+                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    <Field
+                                        name="status"
+                                        id="status"
+                                        as="select"
+                                        className="b-select"
+                                        disabled={isSubmitting}
+                                    >
+                                        {getInvoiceFormStatus().map((item) => (
+                                            <option key={item} value={item}>
+                                                {getInvoiceStatusNames(item)}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                    <ErrorMessage name="status" component="div"
+                                                  className="error-message"/>
+                                </div>
+                            </div>
+
+                            <button
+                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                Save
+                            </button>
+
+                            {this.state.errorMessages && (
+                                <AlertBlock type={"error"} messages={this.state.errorMessages}/>
+                            )}
+                        </Form>)
+                }}
+            </Formik>
+        )
+    }
+
 
     render() {
         return (
@@ -116,6 +292,15 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                 <div className="content__top">
                     <div
                         className="content__title">{this.state.memberDistribution?.firm_name}: {this.state.memberDistribution?.date_formatted}
+                    </div>
+                    <div className="content__title_btns content__filter download-buttons justify-content-end">
+                        {(this.state.memberDistribution?.status === InvoiceStatus.PAYMENT_DUE) && (
+                            <button className="b-btn ripple"
+                                    onClick={this.paymentForm}
+                            >
+                                {this.state.isPayment ? 'Cancel Payment' : 'Add Payment'}
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -135,32 +320,41 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                     </div>
                 </div>
 
-
-                <div className={'content__top d-none'}>
-                    <div className={'content__title'}>
-                        Payment Contents
-                    </div>
-                </div>
-
-                <div className="content__bottom d-none">
-                    <div className="input">
-                        <div
-                            className={`input__wrap`}>
-                            {this.state.data.length ? (
-                                <Table columns={columns}
-                                       data={this.state.data}
-                                       searchPanel={false}
-                                       block={this}
-                                       editBtn={false}
-                                       viewBtn={false}
-                                       deleteBtn={false}
-                                />
-                            ) : (
-                                <NoDataBlock/>
-                            )}
+                {this.state.isPayment ? (
+                    <>
+                        {this.getPaymentForm()}
+                    </>
+                ) : (
+                    <>
+                        <div className={'content__top d-none'}>
+                            <div className={'content__title'}>
+                                Payment Contents
+                            </div>
                         </div>
-                    </div>
-                </div>
+
+                        <div className="content__bottom d-none">
+                            <div className="input">
+                                <div
+                                    className={`input__wrap`}>
+                                    {this.state.data.length ? (
+                                        <Table columns={columns}
+                                               data={this.state.data}
+                                               searchPanel={false}
+                                               block={this}
+                                               editBtn={false}
+                                               viewBtn={false}
+                                               deleteBtn={false}
+                                        />
+                                    ) : (
+                                        <NoDataBlock/>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+
             </>
         )
     }

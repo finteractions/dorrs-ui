@@ -38,6 +38,7 @@ const formSchemaConfirm = Yup.object().shape({
 
 interface InvoiceInfoBlockState extends IState {
     errors: string[];
+    errorMessages: string[];
     invoice: IInvoice | null;
     data: Array<IInvoiceService>;
     dataFull: Array<IInvoiceService>;
@@ -67,6 +68,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
 
     state: InvoiceInfoBlockState;
     errors: Array<string> = new Array<string>();
+    errorMessages: Array<string> = new Array<string>();
     formRef: RefObject<any>;
     initialValues: {
         invoice_id: string,
@@ -89,6 +91,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         this.state = {
             success: false,
             errors: [],
+            errorMessages: [],
             invoice: this.props.data,
             data: [],
             dataFull: [],
@@ -140,7 +143,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
 
         this.initialValues = {
             amount: '',
-            invoice_id: this.state.invoice?.invoice_id || '',
+            invoice_id: (this.state.invoice?.id || '').toString(),
             status: this.state.invoice?.status || InvoiceStatus.PAYMENT_DUE,
             private_comment: '',
             public_comment: ''
@@ -173,7 +176,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
 
         adminService.createPayment(body)
             .then(() => {
-                adminService.getInvoices({invoice_id: this.state.invoice?.invoice_id})
+                adminService.getInvoices({invoice_id: this.state.invoice?.id})
                     .then((res: IInvoice[]) => {
                         const data = res || [];
                         data.forEach(s => {
@@ -185,17 +188,17 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                         this.paymentForm();
                     })
                     .catch((errors: IError) => {
-                        this.setState({errors: errors.messages});
+                        this.setState({errorMessages: errors.messages});
                     })
                     .finally(() => {
 
                     });
             })
             .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
+                this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-
+                this.props.onCallback(null);
             })
     };
 

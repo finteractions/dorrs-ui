@@ -133,7 +133,7 @@ class MemberDistributionBlock extends React.Component<{}> {
 
     getMemberDistribution(values: any) {
         return new Promise<boolean>(resolve => {
-            adminService.getMemberDistribution(values)
+            adminService.getMemberDistributions(values)
                 .then((res: IMemberDistribution[]) => {
                     const data = res || [];
                     data.forEach(s => {
@@ -155,20 +155,30 @@ class MemberDistributionBlock extends React.Component<{}> {
     handleSubmit = async (values: any, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
+        setSubmitting(true);
         this.setState({
             isDataLoading: true
         });
 
-        this.getStatistics(values)
-            .then(() => this.getMemberDistribution(values))
-            .finally(() => {
-                this.setState({isLoading: false, isDataLoading: false})
-            })
+        await this.loadData(values)
+            .finally(() => setSubmitting(false));
     };
 
-    submitForm = () => {
+    loadData(values: any) {
+        return new Promise(resolve => {
+            this.getStatistics(values)
+                .then(() => this.getMemberDistribution(values))
+                .finally(() => {
+                    this.setState({isLoading: false, isDataLoading: false})
+                    resolve(true);
+                })
+        })
+
+    }
+
+    submitForm = async () => {
         if (this.formRef.current) {
-            this.formRef.current.submitForm();
+            await this.formRef.current.submitForm();
         }
     }
 
@@ -208,7 +218,10 @@ class MemberDistributionBlock extends React.Component<{}> {
     }
 
     onCallback = async (values: any, step: boolean) => {
-        this.closeModal();
+        if (this.formRef.current) {
+            const values = this.formRef.current.values;
+            await this.loadData(values);
+        }
     };
 
     render() {
