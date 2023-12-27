@@ -22,6 +22,7 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
+import {UserType} from "@/enums/user-type";
 
 const formFirmSchema = Yup.object().shape({
     firm_id: Yup.number().required('Required').label('Firm'),
@@ -30,6 +31,10 @@ const formFirmSchema = Yup.object().shape({
 
 const formAccountTypeSchema = Yup.object().shape({
     account_type: Yup.string().required('Required').label('Account Type'),
+});
+
+const formUserTypeSchema = Yup.object().shape({
+    user_type: Yup.string().required('Required').label('User Type'),
 });
 
 const formCustomerTypeSchema = Yup.object().shape({
@@ -48,11 +53,14 @@ interface UserBlockState extends IState {
     firms: Array<IFirm> | null
     isUserFirmEdit: boolean;
     isUserAccountTypeEdit: boolean;
+    isUserTypeEdit: boolean;
     isUserCustomerTypeEdit: boolean;
     formFirmInitialValues: { firm_id: number | null },
     formAccountTypeInitialValues: { account_type: string | null },
     formCustomerTypeInitialValues: { customer_type: string | null },
+    formUserTypeInitialValues: { user_type: string | null },
     selectedAccountType: string
+    selectedUserType: string
     selectedCustomerType: string
 }
 
@@ -81,10 +89,13 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             isUserFirmEdit: false,
             isUserAccountTypeEdit: false,
             isUserCustomerTypeEdit: false,
+            isUserTypeEdit: false,
             formFirmInitialValues: {firm_id: null},
             formAccountTypeInitialValues: {account_type: null},
+            formUserTypeInitialValues: {user_type: null},
             formCustomerTypeInitialValues: {customer_type: null},
             selectedAccountType: '',
+            selectedUserType: '',
             selectedCustomerType: ''
         };
     }
@@ -161,12 +172,14 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                 const firm_id = user.user_id?.firm?.id || null;
                 const account_type = user.user_id?.account_type || null;
                 const customer_type = user.user_id?.customer_type || null;
+                const user_type = user.user_id?.user_type || null;
 
                 this.setState({
                     data: user,
                     formFirmInitialValues: {firm_id: firm_id},
                     formAccountTypeInitialValues: {account_type: account_type},
-                    formCustomerTypeInitialValues: {customer_type: customer_type}
+                    formCustomerTypeInitialValues: {customer_type: customer_type},
+                    formUserTypeInitialValues: {user_type: user_type}
                 });
 
                 if (res[0].approved_by) {
@@ -201,6 +214,10 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         this.setState({isUserAccountTypeEdit: !this.state.isUserAccountTypeEdit})
     }
 
+    editUserType = () => {
+        this.setState({isUserTypeEdit: !this.state.isUserTypeEdit})
+    }
+
     editCustomerType = () => {
         this.setState({isUserCustomerTypeEdit: !this.state.isUserCustomerTypeEdit})
     }
@@ -233,6 +250,12 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         this.setState({selectedAccountType: selectedAccountType});
     };
 
+    handleUserTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        const selectedUserType = e.target.value;
+        setFieldValue("user_type", selectedUserType);
+        this.setState({selectedUserType: selectedUserType});
+    };
+
     handleCustomerTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         const selectedCustomerType = e.target.value;
         setFieldValue("customer_type", selectedCustomerType);
@@ -258,6 +281,28 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             }).finally(() => {
                 setSubmitting(false);
                 this.setState({isUserAccountTypeEdit: false})
+            });
+    };
+
+    handleUserTypeSubmit = async (values: Record<string, string | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.setState({errorMessages: null});
+
+        const data = {
+            user_id: this.state.data?.user_id.email,
+            user_type: values.user_type
+        }
+
+        await adminService.assignUserType(data)
+            .then(((res: any) => {
+                this.getUser(this.props.user_id);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+                this.setState({isUserTypeEdit: false})
             });
     };
 
@@ -571,7 +616,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                             </div>
                                                             {this.state.data.is_approved && (
                                                                 <div className='admin-table-actions ml-20px'>
-                                                                    {!this.state.isUserFirmEdit ? (
+                                                                    {!this.state.isUserFirmEdit && (
                                                                         <>
                                                                             <button
                                                                                 onClick={this.editFirm}
@@ -580,8 +625,6 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                     className="nav-icon" icon={faEdit}/>
                                                                             </button>
                                                                         </>
-                                                                    ) : (
-                                                                        <></>
                                                                     )}
                                                                 </div>
                                                             )}
@@ -642,7 +685,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                                     getAccountTypeDescription((this.state.selectedAccountType || this.state.formAccountTypeInitialValues.account_type) as AccountType)}
                                                                                                 </p>
                                                                                                 <ErrorMessage
-                                                                                                    name="firm_id"
+                                                                                                    name="account_type"
                                                                                                     component="div"
                                                                                                     className="error-message"/>
                                                                                             </div>
@@ -675,7 +718,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                             </div>
 
                                                             <div className='admin-table-actions ml-20px'>
-                                                                {!this.state.isUserAccountTypeEdit ? (
+                                                                {!this.state.isUserAccountTypeEdit && (
                                                                     <>
                                                                         <button
                                                                             onClick={this.editAccountType}
@@ -684,8 +727,101 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                                                 className="nav-icon" icon={faEdit}/>
                                                                         </button>
                                                                     </>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <div className="info-panel-section-title mb-2">
+                                                            <div className='info-panel-title-text'>User Type</div>
+                                                        </div>
+
+                                                        <div className={'d-flex align-items-center'}>
+                                                            <div>
+                                                                {!this.state.isUserTypeEdit ? (
+                                                                    <>
+                                                                        {this.state.data?.user_id?.user_type ? this.state.data?.user_id?.user_type : '-'}</>
                                                                 ) : (
-                                                                    <></>
+                                                                    <>
+                                                                        <Formik
+                                                                            initialValues={this.state.formUserTypeInitialValues}
+                                                                            validationSchema={formUserTypeSchema}
+                                                                            onSubmit={this.handleUserTypeSubmit}
+                                                                        >
+                                                                            {({
+                                                                                  isSubmitting, setFieldValue, errors
+                                                                              }) => {
+                                                                                return (
+                                                                                    <Form id={'firm-user'}
+                                                                                          className={'edit-form-small align-items-start'}>
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                                                                <Field
+                                                                                                    name="user_type"
+                                                                                                    id="user_type"
+                                                                                                    as="select"
+                                                                                                    className="b-select"
+                                                                                                    disabled={isSubmitting}
+                                                                                                    onChange={(e: any) => this.handleUserTypeChange(e, setFieldValue)}
+                                                                                                >
+                                                                                                    <option
+                                                                                                        value="">Select
+                                                                                                        a User Type
+                                                                                                    </option>
+                                                                                                    {Object.values(UserType).map((type) => (
+                                                                                                        <option
+                                                                                                            key={type}
+                                                                                                            value={type}>
+                                                                                                            {type}
+                                                                                                        </option>
+                                                                                                    ))}
+                                                                                                </Field>
+                                                                                                <ErrorMessage
+                                                                                                    name="user_type"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <>
+                                                                                            <div
+                                                                                                className='admin-table-actions ml-20px'>
+                                                                                                <button
+                                                                                                    type="submit"
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faCheck}/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={this.editUserType}
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faClose}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    </Form>
+                                                                                );
+                                                                            }}
+                                                                        </Formik>
+                                                                    </>
+                                                                )}
+                                                            </div>
+
+                                                            <div className='admin-table-actions ml-20px'>
+                                                                {!this.state.isUserTypeEdit && (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={this.editUserType}
+                                                                            className='admin-table-btn ripple'>
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon" icon={faEdit}/>
+                                                                        </button>
+                                                                    </>
                                                                 )}
                                                             </div>
 

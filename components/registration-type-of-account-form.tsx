@@ -16,7 +16,10 @@ let initialValues = {
     account_type: ""
 }
 
-class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (values: any) => void, initialValues?: any }> {
+class RegistrationTypeOfAccountForm extends React.Component<{
+    onCallback: (values: any) => void,
+    initialValues?: any
+}> {
 
 
     constructor(props: ICallback) {
@@ -26,7 +29,9 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
         }
     }
 
-    handleSubmit = async (values: Record<string, string>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleSubmit = async (values: Record<string, string>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
         setSubmitting(false);
         this.props.onCallback(values);
     };
@@ -51,7 +56,8 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                             <Form>
                                 <div className="sign-up__row">
                                     {Object.values(AccountType).map((type) => (
-                                        <>
+                                        <React.Fragment
+                                            key={type}>
                                             <Field
                                                 name="account_type"
                                                 id={`account_type_${type}`}
@@ -68,7 +74,7 @@ class RegistrationTypeOfAccountForm extends React.Component<{ onCallback: (value
                                                 </div>
                                                 <span>{type}</span>
                                             </label>
-                                        </>
+                                        </React.Fragment>
                                     ))}
                                 </div>
                                 <ErrorMessage name="account_type" component="div"

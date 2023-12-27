@@ -16,4 +16,6 @@ export interface IUserProfile {
     firm?: IFirm
     customer_type?: string;
     reference_number?: string;
+    account_type?: string;
+    user_type?: string;
 }

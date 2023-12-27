@@ -2051,6 +2051,41 @@ body {
       }
     }
 
+
+    .sign-up__title__small {
+      color: #1e2c3c;
+      font-weight: 600;
+
+      > i {
+        color: #dc3545;
+      }
+    }
+
+    .sign-up__row_small {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+
+      .sign-up__item__small {
+        margin: 0 !important;
+        width: unset;
+
+        > span {
+          font-weight: normal;
+        }
+
+        &::after {
+          right: 5px !important;
+          top: 5px !important;
+        }
+      }
+    }
+
+    .sign-up__item__small {
+      height: auto;
+    }
+
     .sign-up__item-img {
       //margin: 0 0 16px
 
@@ -2991,7 +3026,7 @@ body {
       }
     }
 
-    input .react-tel-input .flag-dropdown {
+    .react-tel-input .flag-dropdown {
       border: 1px solid #718494;
     }
 

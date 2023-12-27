@@ -8,8 +8,17 @@ import authService from "@/services/auth/auth-service";
 import AlertBlock from "@/components/alert-block";
 import downloadFile from "@/services/download-file/download-file";
 import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
+import {AccountType, getAccountTypeImage} from "@/enums/account-type";
+import {UserType} from "@/enums/user-type";
+import Image from "next/image";
 
 const formSchema = Yup.object().shape({
+    user_type: Yup.mixed<UserType>()
+        .oneOf(
+            Object.values(UserType),
+            'Invalid Type'
+        )
+        .required('Required'),
     first_name: FormValidator.firstNameField,
     last_name: FormValidator.lastNameField,
     email:
@@ -25,6 +34,7 @@ const formSchema = Yup.object().shape({
 });
 
 let initialValues = {
+    user_type: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -41,7 +51,10 @@ interface RegistrationPersonalInformationFormState extends IState {
 }
 
 
-class RegistrationPersonalInformationForm extends React.Component<{ onCallback: (values: any, nextStep: boolean) => void, initialValues?: any }, RegistrationPersonalInformationFormState> {
+class RegistrationPersonalInformationForm extends React.Component<{
+    onCallback: (values: any, nextStep: boolean) => void,
+    initialValues?: any
+}, RegistrationPersonalInformationFormState> {
 
     state: RegistrationPersonalInformationFormState;
     accountType = '';
@@ -66,7 +79,9 @@ class RegistrationPersonalInformationForm extends React.Component<{ onCallback: 
 
     }
 
-    handleSubmit = async (values: Record<string, string | boolean>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleSubmit = async (values: Record<string, string | boolean>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
         this.setState({errorMessages: null, email: String(values.email)})
 
         values = Object.assign(values, {account_type: this.accountType});
@@ -118,8 +133,31 @@ class RegistrationPersonalInformationForm extends React.Component<{ onCallback: 
                         <>
                             {!this.state.success && (
                                 <>
-                                    <div className="sign-up__title mb-48">Personal Information</div>
                                     <Form>
+                                        <div className="sign-up__title__small mb-24">Who Are You? <i>*</i></div>
+                                        <div className="form-wrap sign-up__row_small">
+
+                                            {Object.values(UserType).map((type) => (
+                                                <React.Fragment
+                                                    key={type}>
+                                                    <Field
+                                                        name="user_type"
+                                                        id={`user_type${type}`}
+                                                        type="radio"
+                                                        value={type}
+                                                        className="hidden"
+                                                        disabled={isSubmitting}
+                                                    />
+                                                    <label className="sign-up__item sign-up__item__small"
+                                                           htmlFor={`user_type${type}`}>
+                                                        <div className="sign-up__item-img sign-up__item-img__small">
+
+                                                        </div>
+                                                        <span>{type}</span>
+                                                    </label>
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
                                         <div className="form-wrap">
                                             <div className="input">
                                                 <div className="input__wrap">
@@ -300,6 +338,6 @@ class RegistrationPersonalInformationForm extends React.Component<{ onCallback: 
             </Formik>
         );
     }
-    }
+}
 
-    export default RegistrationPersonalInformationForm;
+export default RegistrationPersonalInformationForm;

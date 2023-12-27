@@ -59,28 +59,21 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
     const getUserProfile = async () => {
         setUserProfileLoading(true);
 
-        const PATH = `${getGlobalConfig().host}-wieRegistration`;
-        const localData = localStorage.getItem(PATH) || null
-        if (localData){
-            const data = JSON.parse(localData) || null;
-            if (data && Object.keys(data).filter(key => Object.keys(data[key]).length > 0).map(Number).length > 0) {
-                await router.push('/registration');
-            }
-        }
-
         userService.getUserProfile()
             .then((userProfile: IUserProfile) => {
-
-                if (!userProfile.is_enabled){
+                console.log(userProfile)
+                if (!userProfile.is_enabled) {
                     router.push('/registration')
+                } else {
+
                 }
                 setUserProfile(userProfile)
             })
             .catch((errMsg: Array<string>) => {
                 setErrors(new Map(errors.set('userProfile', errMsg)))
             }).finally(() => {
-                setUserProfileLoading(false);
-            })
+            setUserProfileLoading(false);
+        })
     }
 
     const getEmailStatus = async () => {

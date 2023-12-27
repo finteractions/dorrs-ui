@@ -288,6 +288,10 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_account_type/`, data, {}, this.getAdminToken()));
     }
 
+    public async assignUserType(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_user_type/`, data, {}, this.getAdminToken()));
+    }
+
     public async assignCustomerType(data: any): Promise<IResponseApi> {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_customer_type/`, data, {}, this.getAdminToken()));
     }

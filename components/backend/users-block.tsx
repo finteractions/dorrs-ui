@@ -97,6 +97,11 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Account Type</span>,
             }),
+            columnHelper.accessor((row) => row.user_id.user_type, {
+                id: "user_type",
+                cell: (item) => item.getValue(),
+                header: () => <span>User Type</span>,
+            }),
             columnHelper.accessor((row) => ({
                 comment_status: row.comment_status,
                 comment: row.comment,
@@ -270,6 +275,18 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                                         onChange={(item) => this.handleFilterChange('user_id.account_type', item)}
                                         options={filterService.buildOptions('user_id.account_type', this.state.dataFull)}
                                         placeholder="Account Type"
+                                    />
+                                </div>
+                                <div className="input__wrap">
+                                    <Select
+                                        className="select__react"
+                                        classNamePrefix="select__react"
+                                        isClearable={true}
+                                        isSearchable={true}
+                                        value={filterService.setValue('user_id.user_type', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('user_id.user_type', item)}
+                                        options={filterService.buildOptions('user_id.user_type', this.state.dataFull)}
+                                        placeholder="User Type"
                                     />
                                 </div>
                                 <div className="input__wrap">
