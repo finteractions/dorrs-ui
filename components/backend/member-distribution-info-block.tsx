@@ -118,9 +118,9 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
         ];
 
         this.initialValues = {
-            amount: '',
+            amount: (this.state.memberDistribution?.due_amount || '').toString(),
             invoice_id: (this.state.memberDistribution?.invoice_id || '').toString(),
-            status: this.state.memberDistribution?.status || InvoiceStatus.PAYMENT_DUE,
+            status: InvoiceStatus.PAYMENT_APPROVED,
             private_comment: '',
             public_comment: ''
         }
@@ -208,7 +208,7 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                             <div className="input">
                                 <div className="input__title">Amount <i>*</i></div>
                                 <div
-                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    className={`input__wrap disable`}>
                                     <Field
                                         component={NumericInputField}
                                         decimalScale={2}
@@ -217,7 +217,7 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                                         className="input__text"
                                         placeholder="Type Amount"
                                         type="text"
-                                        disabled={isSubmitting}
+                                        disabled={true}
                                     />
                                 </div>
                             </div>
@@ -250,13 +250,13 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                             <div className="input">
                                 <div className="input__title">Status <i>*</i></div>
                                 <div
-                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    className={`input__wrap disable`}>
                                     <Field
                                         name="status"
                                         id="status"
                                         as="select"
                                         className="b-select"
-                                        disabled={isSubmitting}
+                                        disabled={true}
                                     >
                                         {getInvoiceFormStatus().map((item) => (
                                             <option key={item} value={item}>
@@ -270,8 +270,8 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                             </div>
 
                             <button
-                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : ''}`}
+                                type="submit" disabled={isSubmitting || !isValid}>
                                 Save
                             </button>
 
