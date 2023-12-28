@@ -142,9 +142,9 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         ];
 
         this.initialValues = {
-            amount: '',
+            amount: (this.state.invoice?.total_value || '').toString(),
             invoice_id: (this.state.invoice?.id || '').toString(),
-            status: this.state.invoice?.status || InvoiceStatus.PAYMENT_DUE,
+            status: InvoiceStatus.PAYMENT_APPROVED,
             private_comment: '',
             public_comment: ''
         }
@@ -229,7 +229,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                             <div className="input">
                                 <div className="input__title">Amount <i>*</i></div>
                                 <div
-                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    className={`input__wrap disable`}>
                                     <Field
                                         component={NumericInputField}
                                         decimalScale={2}
@@ -238,7 +238,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                                         className="input__text"
                                         placeholder="Type Amount"
                                         type="text"
-                                        disabled={isSubmitting}
+                                        disabled={true}
                                     />
                                 </div>
                             </div>
@@ -271,13 +271,13 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                             <div className="input">
                                 <div className="input__title">Status <i>*</i></div>
                                 <div
-                                    className={`input__wrap ${(isSubmitting) ? 'disable' : ''}`}>
+                                    className={`input__wrap disable`}>
                                     <Field
                                         name="status"
                                         id="status"
                                         as="select"
                                         className="b-select"
-                                        disabled={isSubmitting}
+                                        disabled={true}
                                     >
                                         {getInvoiceFormStatus().map((item) => (
                                             <option key={item} value={item}>
@@ -291,8 +291,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                             </div>
 
                             <button
-                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : ''}`}
+                                type="submit" disabled={isSubmitting || !isValid}>
                                 Save
                             </button>
 

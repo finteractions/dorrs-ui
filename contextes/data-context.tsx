@@ -61,7 +61,7 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
 
         userService.getUserProfile()
             .then((userProfile: IUserProfile) => {
-                console.log(userProfile)
+
                 if (!userProfile.is_enabled) {
                     router.push('/registration')
                 } else {
