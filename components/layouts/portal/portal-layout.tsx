@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import PortalLayoutWrapper from "@/components/layouts/portal/portal-layout-wrapper";
 import authUserGuard from "@/guards/auth-user-guard";
 import {DataProvider} from "@/contextes/data-context";
@@ -8,6 +8,10 @@ type DashboardLayoutProps = {
 }
 
 function PortalLayout({children}: DashboardLayoutProps) {
+
+    useEffect(()=>{
+        import('bootstrap/dist/js/bootstrap.bundle.min.js');
+    },[])
 
     return (
         <>

@@ -9,7 +9,7 @@ const Invoices: NextPageWithLayout = () => {
 
     return (
         <>
-            <ul className="nav nav-tabs" id="myTabs">
+            <ul className="nav nav-tabs" id="tabs">
                 <li className="nav-item">
                     <a className="nav-link active" id="home-tab" data-bs-toggle="tab" href="#invoices">Invoices</a>
                 </li>

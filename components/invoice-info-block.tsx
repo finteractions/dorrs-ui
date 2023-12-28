@@ -114,7 +114,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                 name: row.name,
                 customer_type: row.customer_type,
                 customer_type_name: row.customer_type_name,
-            }),{
+            }), {
                 id: "name",
                 cell: (item) => <>{item.getValue().name} | {item.getValue().customer_type_name}</>,
                 header: () => <span>Source</span>,
@@ -350,7 +350,6 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         }, 0);
 
         return (
-
             <>
                 {isAdmin && (getApprovedInvoiceStatus().includes(this.state.invoice?.status.toLowerCase() as InvoiceStatus)) && (
                     <div className={'approve-form'}>
@@ -367,11 +366,17 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                     </div>
                     {!isAdmin && this.state.invoice?.status.toLowerCase() === InvoiceStatus.PAYMENT_DUE ? (
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            {!this.state.isBank && (
+                            {!this.state.isBank ? (
                                 <button className="b-btn ripple"
                                         onClick={this.paymentInfo}
                                 >
                                     Pay
+                                </button>
+                            ) : (
+                                <button className="b-btn ripple"
+                                        onClick={this.paymentInfo}
+                                >
+                                    Back
                                 </button>
                             )}
                         </div>
@@ -403,104 +408,144 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                             </div>
                         </div>
                     </div>
-                    {this.state.isBank && (
-                        <div className={'view_panel flex-1 mx-0'}>
-                            <div className={'w-100 my-0 '}>Make a wire to the next Bank Information</div>
-                            <>
 
-                                {count >= 3 ? (
-                                    <>
-                                        {Object.keys(this.state.bank.columnDefinition).map((columnName) => {
-                                            const values = this.state.bank.columnValues[columnName];
+                </div>
 
-                                            if (typeof values === "object") {
-                                                const nonEmptyValues = Object.values(values)
-                                                    .filter(value => value !== null && value !== undefined && value !== '');
+                {this.state.isBank && (
+                    <>
+                        <ul className="nav nav-tabs" id="tabs">
+                            <li className="nav-item">
+                                <a className="nav-link disabled" id="home-tab" data-bs-toggle="tab" href="#bank_account">Bank
+                                    Account (ACH)</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" id="profile-tab" data-bs-toggle="tab" href="#credit_debit_card">Credit
+                                    or Debit Card</a>
+                            </li>
+                            <li className="nav-item ">
+                                <a className="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#wire">Wire</a>
+                            </li>
+                        </ul>
 
-
-                                                return (
-                                                    <div className={'view_block'} key={columnName}>
-                                                        <div className={'view_block_title bold'}>
-                                                            {this.state.bank.columnDefinition[columnName].title}
-                                                        </div>
-                                                        <div className={''}>
-                                                            {nonEmptyValues.join(', ') || '-'}
-                                                        </div>
-                                                    </div>
-                                                );
-
-                                            } else if (values !== null && values !== undefined && values !== '') {
-                                                return (
-                                                    <div className={'view_block'} key={columnName}>
-                                                        <div className={'view_block_title bold'}>
-                                                            {this.state.bank.columnDefinition[columnName].title}
-                                                        </div>
-                                                        <div className={''}>
-                                                            {values || '-'}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-
-                                            return null;
-                                        })}</>
-                                ) : (
-                                    <NoDataBlock
-                                        primaryText={' '}
-                                        secondaryText={'The payment information is not available now. Please contact the administrator.'}
-                                    />
-                                )}
-                            </>
-                            <div className={'w-100 my-0 '}>Be sure you set
-                                “Description {this.context.userProfile.reference_number}. We will be
-                                able to figure out whose the payment if there is no the number”
+                        <div className="tab-content">
+                            <div className="tab-pane fade mt-24" id="bank_account">
+                                <NoDataBlock primaryText={'In Development'}/>
                             </div>
-                            <div className={'w-100 my-0 '}>
-                                <Formik
-                                    initialValues={this.state.formConfirmInitialValues}
-                                    validationSchema={formSchemaConfirm}
-                                    onSubmit={this.handleConfirm}
-                                >
-                                    {({
-                                          isSubmitting,
-                                          setFieldValue,
+                            <div className="tab-pane fade mt-24" id="credit_debit_card">
+                                <NoDataBlock primaryText={'In Development'}/>
+                            </div>
+                            <div className="tab-pane show active fade mt-24" id="wire">
+                                <div className={'view_panel flex-1 mx-0 mt-2'}>
+                                    <div className={'w-100 my-0 '}>Make a wire to the next Bank Information</div>
+                                    <>
 
-                                      }) => {
-                                        return (
-                                            <Form className={``}>
-                                                <div className="input">
-                                                    <div
-                                                        className={`b-checkbox${isSubmitting ? ' disable' : ''}`}>
-                                                        <Field
-                                                            type="checkbox"
-                                                            name="isConfirmed"
-                                                            id="isConfirmed"
-                                                            disabled={isSubmitting}
-                                                            onClick={(e: any) => {
-                                                                const confirm = e.target.value === 'false';
-                                                                setFieldValue("isConfirmed", confirm);
+                                        {count >= 3 ? (
+                                            <>
+                                                {Object.keys(this.state.bank.columnDefinition).map((columnName) => {
+                                                    const values = this.state.bank.columnValues[columnName];
 
-                                                                if (confirm) this.paymentInfo();
-                                                            }}
-                                                        />
-                                                        <label htmlFor="isConfirmed">
+                                                    if (typeof values === "object") {
+                                                        const nonEmptyValues = Object.values(values)
+                                                            .filter(value => value !== null && value !== undefined && value !== '');
+
+
+                                                        return (
+                                                            <div className={'view_block'} key={columnName}>
+                                                                <div className={'view_block_title bold'}>
+                                                                    {this.state.bank.columnDefinition[columnName].title}
+                                                                </div>
+                                                                <div className={''}>
+                                                                    {nonEmptyValues.join(', ') || '-'}
+                                                                </div>
+                                                            </div>
+                                                        );
+
+                                                    } else if (values !== null && values !== undefined && values !== '') {
+                                                        return (
+                                                            <div className={'view_block'} key={columnName}>
+                                                                <div className={'view_block_title bold'}>
+                                                                    {this.state.bank.columnDefinition[columnName].title}
+                                                                </div>
+                                                                <div className={''}>
+                                                                    {values || '-'}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return null;
+                                                })}</>
+                                        ) : (
+                                            <NoDataBlock
+                                                primaryText={' '}
+                                                secondaryText={'The payment information is not available now. Please contact the administrator.'}
+                                            />
+                                        )}
+                                        <div className={'view_block'}>
+                                            <div className={'view_block_title bold'}>
+                                                Decsription
+                                            </div>
+                                            <div className={''}>
+                                                Ref#: {this.context.userProfile.reference_number}
+                                            </div>
+                                        </div>
+                                    </>
+                                    <div className={'w-100 my-0 '}>Be sure you set
+                                        Your Ref# {`"${this.context.userProfile.reference_number}"`} to payment
+                                        description. We will be
+                                        able to figure out whose the payment if there is no the number
+                                    </div>
+                                    <div className={'w-100 my-0 '}>
+                                        <Formik
+                                            initialValues={this.state.formConfirmInitialValues}
+                                            validationSchema={formSchemaConfirm}
+                                            onSubmit={this.handleConfirm}
+                                        >
+                                            {({
+                                                  isSubmitting,
+                                                  setFieldValue,
+
+                                              }) => {
+                                                return (
+                                                    <Form className={``}>
+                                                        <div className="input">
+                                                            <div
+                                                                className={`b-checkbox${isSubmitting ? ' disable' : ''}`}>
+                                                                <Field
+                                                                    type="checkbox"
+                                                                    name="isConfirmed"
+                                                                    id="isConfirmed"
+                                                                    disabled={isSubmitting}
+                                                                    onClick={(e: any) => {
+                                                                        const confirm = e.target.value === 'false';
+                                                                        setFieldValue("isConfirmed", confirm);
+
+                                                                        if (confirm) this.paymentInfo();
+                                                                    }}
+                                                                />
+                                                                <label htmlFor="isConfirmed">
                                                             <span>
 
                                                             </span>
-                                                            <i className={'label-normal'}> Confirm </i>
-                                                        </label>
-                                                        <ErrorMessage name="isConfirmed" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-                                            </Form>
-                                        );
-                                    }}
-                                </Formik>
+                                                                    <i className={'label-normal'}> Confirm, you set Ref#
+                                                                        to the description </i>
+                                                                </label>
+                                                                <ErrorMessage name="isConfirmed" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+                                                    </Form>
+                                                );
+                                            }}
+                                        </Formik>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </>
+
+
+                )}
 
                 {this.state.isPayment ? (
                     <>
