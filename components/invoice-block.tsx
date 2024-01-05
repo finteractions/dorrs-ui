@@ -158,7 +158,7 @@ class InvoiceBlock extends React.Component<{}> {
 
     onCallback = async (values: any, step: boolean) => {
         this.getInvoices();
-        this.closeModal();
+        // this.closeModal();
     };
 
     render() {

@@ -16,6 +16,8 @@ import {Router} from 'next/router';
 import {config} from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import {AuthAdminProvider} from "@/contextes/auth-admin-context";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 config.autoAddCss = false
 
@@ -30,6 +32,7 @@ type AppPropsWithLayout<P = {}, IP = P> = AppProps<P> & {
 };
 
 const appHost = typeof window !== 'undefined' ? window.location.host.split(':')[0] : '';
+const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY || '');
 setGlobalConfig({host: appHost});
 
 function App({Component, pageProps}: AppPropsWithLayout) {
@@ -38,7 +41,9 @@ function App({Component, pageProps}: AppPropsWithLayout) {
     return (
         <AuthUserProvider>
             <AuthAdminProvider>
+                <Elements stripe={stripePromise}>
                 {getLayout(<Component {...pageProps} />)}
+                </Elements>
             </AuthAdminProvider>
         </AuthUserProvider>
     );

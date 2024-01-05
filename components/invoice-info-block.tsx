@@ -21,6 +21,13 @@ import bankService from "@/services/bank/bbo-service";
 import {IBank} from "@/interfaces/i-bank";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
+import StripeForm from "@/components/payment/stripe-form";
+import {IStripeCardInfo} from "@/interfaces/i-stripe-card-info";
+import stripeService from "@/services/stripe/stripe-service";
+import {CardElement} from "@stripe/react-stripe-js";
+import Image from "next/image";
+import {rejects} from "assert";
+import feesService from "@/services/fee/reports-service";
 
 
 const formSchemaPayment = Yup.object().shape({
@@ -40,6 +47,7 @@ interface InvoiceInfoBlockState extends IState {
     errors: string[];
     errorMessages: string[];
     invoice: IInvoice | null;
+    cardInfo: IStripeCardInfo | null;
     data: Array<IInvoiceService>;
     dataFull: Array<IInvoiceService>;
     filterData: any;
@@ -104,7 +112,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
             },
             formConfirmInitialValues: {
                 isConfirmed: false
-            }
+            },
+            cardInfo: null
         }
 
         this.formRef = React.createRef();
@@ -148,18 +157,94 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
             private_comment: '',
             public_comment: ''
         }
+
     }
 
-    onCallback = async (values: any) => {
+    onCallback = async (values: any, setFormSubmit: (value: boolean) => void) => {
+        this.setState({errorMessages: []})
+
+        const commonRequest = () => {
+            this.pay()
+                .then(() => this.getCard())
+                .then(() => this.getInvoice())
+                .catch((errors: IError) => {
+                    this.setState({errorMessages: errors.messages});
+                    setFormSubmit(false);
+                })
+                .finally(() => {
+                    setFormSubmit(false);
+                    this.paymentInfo();
+                    this.props.onCallback(null);
+                });
+        };
+
+        if (Object.keys(values).length === 0) {
+            commonRequest();
+        } else {
+            const body = {
+                token: values.id
+            }
+            this.addCard(body)
+                .then(commonRequest)
+                .catch((errors: IError) => {
+                    this.setState({errorMessages: errors.messages});
+                    setFormSubmit(false);
+                })
+
+        }
 
     };
+
+    getInvoice() {
+        return new Promise((resolve, reject) => {
+            feesService.getInvoices({invoice_id: this.state.invoice?.id})
+                .then((res: IInvoice[]) => {
+                    const data = res || [];
+                    data.forEach(s => {
+                        s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
+                        s.customer_type = getCustomerTypeName(s.customer_type as CustomerType)
+                    });
+                    const invoice = data[0];
+                    if (typeof invoice !== "undefined") this.setState({invoice: invoice})
+                    resolve(true);
+                })
+                .catch((errors: IError) => {
+                    reject(errors)
+                });
+        })
+    }
+
+    addCard(body: any) {
+        return new Promise(async (resolve, reject) => {
+            await stripeService.addCard(body)
+                .then(() => resolve(true))
+                .catch(((errors: IError) => reject(errors)))
+        })
+    }
+
+    pay() {
+        const body = {
+            amount: this.state.invoice?.total_value,
+            invoice_id: this.state.invoice?.id
+        }
+
+        return new Promise(async (resolve, reject) => {
+            await stripeService.pay(body)
+                .then(() => resolve(true))
+                .catch(((errors: IError) => reject(errors)))
+        })
+    }
+
 
     componentDidMount() {
         this.setState({dataFull: this.props.data?.services || [], data: this.props.data?.services || []}, () => {
             this.filterData();
         });
 
-        if (!isAdmin) this.getBank();
+        if (!isAdmin) {
+            this.getBank()
+                .then(this.getCard)
+        }
     }
 
     filterData = () => {
@@ -310,27 +395,43 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
     }
 
     paymentInfo = () => {
-        this.setState({isBank: !this.state.isBank});
+        this.setState({isBank: !this.state.isBank, errorMessages: []});
     }
 
     getBank = () => {
-        bankService.getBank()
-            .then((res: Array<IBank>) => {
-                const bank = res[0];
-                const columns = bank.columns;
-                let values = bank.values;
+        return new Promise(resolve => {
+            bankService.getBank()
+                .then((res: Array<IBank>) => {
+                    const bank = res[0];
+                    const columns = bank.columns;
+                    let values = bank.values;
 
-                const columnsObject = JSON.parse(columns)
-                values = values.replace(/'/g, '"');
-                const valuesObject = JSON.parse(values)
+                    const columnsObject = JSON.parse(columns)
+                    values = values.replace(/'/g, '"');
+                    const valuesObject = JSON.parse(values)
 
-                this.setState({
-                    bank: {
-                        columnDefinition: columnsObject,
-                        columnValues: valuesObject
-                    }
+                    this.setState({
+                        bank: {
+                            columnDefinition: columnsObject,
+                            columnValues: valuesObject
+                        }
+                    })
                 })
-            })
+                .finally(() => resolve(true));
+        })
+    }
+
+    getCard = () => {
+        return new Promise(resolve => {
+            stripeService.getCardInfo()
+                .then((res: Array<IStripeCardInfo>) => {
+                    const card = res[0] || null;
+                    this.setState({cardInfo: card}, () => {
+                        resolve(true);
+                    });
+                })
+        })
+
     }
 
 
@@ -415,7 +516,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                     <>
                         <ul className="nav nav-tabs" id="tabs">
                             <li className="nav-item">
-                                <a className="nav-link disabled" id="home-tab" data-bs-toggle="tab" href="#bank_account">Bank
+                                <a className="nav-link disabled" id="home-tab" data-bs-toggle="tab"
+                                   href="#bank_account">Bank
                                     Account (ACH)</a>
                             </li>
                             <li className="nav-item">
@@ -423,7 +525,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                                     or Debit Card</a>
                             </li>
                             <li className="nav-item ">
-                                <a className="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#wire">Wire</a>
+                                <a className="nav-link active" id="profile-tab" data-bs-toggle="tab"
+                                   href="#wire">Wire</a>
                             </li>
                         </ul>
 
@@ -432,7 +535,12 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                                 <NoDataBlock primaryText={'In Development'}/>
                             </div>
                             <div className="tab-pane fade mt-24" id="credit_debit_card">
-                                <NoDataBlock primaryText={'In Development'}/>
+                                <StripeForm
+                                    amount={this.state.invoice?.total_value}
+                                    card={this.state.cardInfo}
+                                    errorMessages={this.state.errorMessages}
+                                    onCallback={this.onCallback}
+                                />
                             </div>
                             <div className="tab-pane show active fade mt-24" id="wire">
                                 <div className={'view_panel flex-1 mx-0 mt-2'}>

@@ -20,8 +20,8 @@ class FeesService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}dates/`, {}, this.getUserAccessToken())).data;
     }
 
-    public async getInvoices(): Promise<Array<IInvoice>> {
-        return (await apiWebBackendService.get<IResponse<Array<IInvoice>>>(`${this.PATH}invoices/`, {}, this.getUserAccessToken())).data;
+    public async getInvoices(params?: {}): Promise<Array<IInvoice>> {
+        return (await apiWebBackendService.get<IResponse<Array<IInvoice>>>(`${this.PATH}invoices/`, params, this.getUserAccessToken())).data;
     }
 }
 

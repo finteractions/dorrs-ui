@@ -3590,13 +3590,30 @@ body {
     }
 
     table.nonprofessional thead tr th:nth-child(3),
-    table.nonprofessional tbody tr td:nth-child(3){
+    table.nonprofessional tbody tr td:nth-child(3) {
       background-color: #F6F9FC;
     }
 
     table.professional thead tr th:nth-child(4),
-    table.professional tbody tr td:nth-child(4){
+    table.professional tbody tr td:nth-child(4) {
       background-color: #F6F9FC;
+    }
+
+    .StripeElement {
+      display: flex;
+      align-items: center;
+
+      > div {
+        width: 100%;
+      }
+    }
+
+    .gap-20 {
+      gap: 20px;
+    }
+
+    .height-auto {
+      height: auto;
     }
 
   }
