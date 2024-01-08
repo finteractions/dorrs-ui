@@ -28,6 +28,13 @@ let MENU_LIST: Array<Menus> = [
         isAdmin: false
     },
     {
+        text: 'My Payment method',
+        href: "/payment-method",
+        icon: '/img/pd-ico.svg',
+        alt: 'Payment',
+        isAdmin: false
+    },
+    {
         text: 'Admin Zone',
         href: "/backend/dashboard",
         icon: '/img/pd-ico.svg',

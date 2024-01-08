@@ -24,9 +24,6 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import StripeForm from "@/components/payment/stripe-form";
 import {IStripeCardInfo} from "@/interfaces/i-stripe-card-info";
 import stripeService from "@/services/stripe/stripe-service";
-import {CardElement} from "@stripe/react-stripe-js";
-import Image from "next/image";
-import {rejects} from "assert";
 import feesService from "@/services/fee/reports-service";
 
 
@@ -167,32 +164,27 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
             this.pay()
                 .then(() => this.getCard())
                 .then(() => this.getInvoice())
+                .then(() => {
+                    setFormSubmit(false);
+                    this.paymentInfo();
+                    this.props.onCallback(null);
+                })
                 .catch((errors: IError) => {
                     this.setState({errorMessages: errors.messages});
                     setFormSubmit(false);
                 })
-                .finally(() => {
-                    setFormSubmit(false);
-                    this.paymentInfo();
-                    this.props.onCallback(null);
-                });
         };
 
         if (Object.keys(values).length === 0) {
-            commonRequest();
+            commonRequest()
         } else {
-            const body = {
-                token: values.id
-            }
-            this.addCard(body)
+            this.addCard(values)
                 .then(commonRequest)
                 .catch((errors: IError) => {
                     this.setState({errorMessages: errors.messages});
                     setFormSubmit(false);
                 })
-
         }
-
     };
 
     getInvoice() {
@@ -217,7 +209,9 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
     addCard(body: any) {
         return new Promise(async (resolve, reject) => {
             await stripeService.addCard(body)
-                .then(() => resolve(true))
+                .then((res: Array<IStripeCardInfo>) => {
+                    resolve(this.setCard(res))
+                })
                 .catch(((errors: IError) => reject(errors)))
         })
     }
@@ -225,7 +219,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
     pay() {
         const body = {
             amount: this.state.invoice?.total_value,
-            invoice_id: this.state.invoice?.id
+            invoice_id: this.state.invoice?.id,
+            card_id: this.state.cardInfo?.card_id
         }
 
         return new Promise(async (resolve, reject) => {
@@ -425,13 +420,19 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         return new Promise(resolve => {
             stripeService.getCardInfo()
                 .then((res: Array<IStripeCardInfo>) => {
-                    const card = res[0] || null;
-                    this.setState({cardInfo: card}, () => {
-                        resolve(true);
-                    });
+                    resolve(this.setCard(res))
                 })
         })
 
+    }
+
+    setCard(res: Array<IStripeCardInfo>) {
+        return new Promise(resolve => {
+            const card = res[0] || null;
+            this.setState({cardInfo: card}, () => {
+                resolve(true);
+            });
+        })
     }
 
 
