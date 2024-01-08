@@ -100,7 +100,7 @@ const StripeForm = (props: StripeFormProps) => {
             });
         }
 
-        setTimeout(() => formik.validateForm());
+        setTimeout(() => formik.validateForm(), 350);
         return () => {
             setErrorMessages([]);
         };
