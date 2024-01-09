@@ -3624,6 +3624,20 @@ body {
       flex: unset!important;
     }
 
+    .border {
+      border: 1px solid #718494;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .payment-form {
+      max-width: 400px;
+    }
+
+    .bg-transparent {
+      background-color: transparent;
+    }
+
   }
 }
 

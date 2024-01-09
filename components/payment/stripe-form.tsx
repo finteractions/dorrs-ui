@@ -8,6 +8,7 @@ import AlertBlock from "@/components/alert-block";
 import Image from "next/image";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose, faEdit} from "@fortawesome/free-solid-svg-icons";
+import {countries} from "countries-list";
 
 interface StripeFormProps extends ICallback {
     amount?: number;
@@ -28,11 +29,23 @@ const StripeForm = (props: StripeFormProps) => {
             cardNumber: '',
             cardExpiry: '',
             cardCvc: '',
+            cardholderName: '',
+            address1: '',
+            address2: '',
+            city: '',
+            zip_code: '',
+            country: ''
         },
         validationSchema: Yup.object({
             cardNumber: Yup.string().required(),
             cardExpiry: Yup.string().required(),
             cardCvc: Yup.string().required(),
+            cardholderName: Yup.string().required(),
+            address1: Yup.string().required(),
+            address2: Yup.string(),
+            city: Yup.string().required(),
+            zip_code: Yup.string().required(),
+            country: Yup.string().required()
         }),
         onSubmit: async (values) => {
             setErrorMessages([]);
@@ -124,7 +137,7 @@ const StripeForm = (props: StripeFormProps) => {
     }, [elements]);
 
     return (
-        <>
+        <div className={'payment-form'}>
             {props.title && (
                 <div className={'profile__right-title'}>{props.title}</div>
             )}
@@ -132,7 +145,7 @@ const StripeForm = (props: StripeFormProps) => {
                 <form className={'mt-2'} onSubmit={formik.handleSubmit}>
                     {props.card && (
                         <>
-                            <div className={'d-flex align-items-center gap-20'}>
+                            <div className={'d-flex align-items-center gap-20 border p-2'}>
                                 <div>
                                     <Image src={`/img/${props.card.brand.toLowerCase()}.svg`} width={55} height={39}
                                            alt={props.card.brand}/>
@@ -165,23 +178,23 @@ const StripeForm = (props: StripeFormProps) => {
                     )}
                     {isFormEdit && (
                         <>
-                            <div className="input__group mb-0 mt-4">
-                                <div className="input">
-                                    <div className="input__title">Card number <i>*</i></div>
-                                    <div className={` ${isFormSubmit ? 'disable' : ''}`}>
-                                        <CardNumberElement
-                                            className={'input__text'}
-                                            onChange={handleCardChange}
-                                            options={{
-                                                disabled: isFormSubmit,
-                                                showIcon: true,
-                                                iconStyle: 'default',
-                                            }}
-                                        />
-                                    </div>
+
+                            <div className="input mb-0 mt-4">
+                                <div className="input__title">Card Information</div>
+                                <div className={` ${isFormSubmit ? 'disable' : ''}`}>
+                                    <CardNumberElement
+                                        className={'input__text'}
+                                        onChange={handleCardChange}
+                                        options={{
+                                            disabled: isFormSubmit,
+                                            showIcon: true,
+                                            iconStyle: 'default',
+                                        }}
+                                    />
                                 </div>
+                            </div>
+                            <div className="input__group mb-0 mt-2">
                                 <div className="input">
-                                    <div className="input__title">Expiration <i>*</i></div>
                                     <div className={` ${isFormSubmit ? 'disable' : ''}`}>
                                         <CardExpiryElement
                                             className={'input__text'}
@@ -193,7 +206,6 @@ const StripeForm = (props: StripeFormProps) => {
                                     </div>
                                 </div>
                                 <div className="input">
-                                    <div className="input__title">CVC <i>*</i></div>
                                     <div className={` ${isFormSubmit ? 'disable' : ''}`}>
                                         <CardCvcElement
                                             className={'input__text'}
@@ -203,6 +215,89 @@ const StripeForm = (props: StripeFormProps) => {
                                             }}
                                         />
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="input mb-0 mt-4">
+                                <label className="input__title">Cardholder Name</label>
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <input
+                                        type="text"
+                                        className="input__text"
+                                        placeholder={'Full name on card'}
+                                        onChange={(e) => formik.setFieldValue('cardholderName', e.target.value)}
+                                        value={formik.values.cardholderName}
+                                        disabled={isFormSubmit}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="input mb-0 mt-4">
+                                <label className="input__title">Billing Address</label>
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <input
+                                        type="text"
+                                        className="input__text"
+                                        placeholder={'Address 1'}
+                                        onChange={(e) => formik.setFieldValue('address1', e.target.value)}
+                                        value={formik.values.address1}
+                                        disabled={isFormSubmit}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input mb-0 mt-2">
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <input
+                                        type="text"
+                                        className="input__text"
+                                        placeholder={'Address 2 (optional)'}
+                                        onChange={(e) => formik.setFieldValue('address2', e.target.value)}
+                                        value={formik.values.address2}
+                                        disabled={isFormSubmit}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input__group mb-0 mt-2">
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <input
+                                        type="text"
+                                        className="input__text"
+                                        placeholder={'City'}
+                                        onChange={(e) => formik.setFieldValue('city', e.target.value)}
+                                        value={formik.values.city}
+                                        disabled={isFormSubmit}
+                                    />
+                                </div>
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <input
+                                        type="text"
+                                        className="input__text"
+                                        placeholder={'ZIP Code'}
+                                        onChange={(e) => formik.setFieldValue('zip_code', e.target.value)}
+                                        value={formik.values.zip_code}
+                                        disabled={isFormSubmit}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input mb-0 mt-4">
+                                <label className="input__title">Country</label>
+                                <div className={`input ${isFormSubmit ? 'disable' : ''}`}>
+                                    <select
+                                        name="country"
+                                        className="b-select bg-transparent"
+                                        onChange={(e: any) => {
+                                            formik.setFieldValue('country', e.target.value)
+                                        }}
+                                        value={formik.values.country}
+                                        disabled={isFormSubmit}
+                                    >
+                                        <option value="">Select a Country</option>
+                                        {Object.keys(countries).map((countryCode: string) => (
+                                            <option key={countryCode} value={countryCode}>
+                                                {countries[countryCode as keyof typeof countries]?.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </>
@@ -255,7 +350,7 @@ const StripeForm = (props: StripeFormProps) => {
                     )}
                 </form>
             </div>
-        </>
+        </div>
     );
 };
 
