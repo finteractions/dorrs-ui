@@ -134,7 +134,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             isConfirmedApproving: false,
             availableCompanies: [],
             selectedCompany: null,
-            availableCompaniesLoading: false
+            availableCompaniesLoading: false,
         };
 
     }

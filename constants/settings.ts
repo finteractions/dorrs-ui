@@ -5,3 +5,4 @@ export const G_AUTH_ISSUER = (process.env.TOKEN_NAME || 'issuer').toUpperCase();
 export const AGREEMENT = 'Client-Agreement.pdf';
 export const TERMS_OF_SERVICE = 'Terms-of-Service.pdf';
 export const PRIVACY_POLICY = 'Privacy-Policy.pdf';
+export const SUBSCRIBER_AGREEMENT = 'Subscriber Agreement.pdf';

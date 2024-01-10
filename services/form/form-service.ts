@@ -21,6 +21,10 @@ class FormService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}membership/${id}/`, data, {}, this.getUserAccessToken());
     }
 
+    public createUserPortalForm(data: any): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}portal/`, data, {}, this.getUserAccessToken())
+    }
+
     public async searchCompany(company_name: string): Promise<Array<ICompanySearch>> {
         const params = {
             name: company_name
