@@ -12,7 +12,10 @@ import {FormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
-import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
+import {CustomerType, getCustomerTypeDescription, getCustomerTypeName} from "@/enums/customer-type";
+import Link from "next/link";
+import downloadFile from "@/services/download-file/download-file";
+import {PARTICIPANT_AGREEMENT, SUBSCRIBER_AGREEMENT} from "@/constants/settings";
 
 const selectedCountry = 'US';
 
@@ -139,7 +142,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
     }
 
-    handleSubmit = async (values: Record<string, string | boolean | null>, {setSubmitting}: {
+    handleSubmit = async (values: IMembership, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null});
@@ -236,8 +239,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                     <LoaderBlock/>
                 ) : (
                     <>
-                        <Formik
-                            initialValues={this.state.formInitialValues}
+                        <Formik<IMembership>
+                            initialValues={this.state.formInitialValues as IMembership}
                             validationSchema={formSchema}
                             onSubmit={this.handleSubmit}
                         >
@@ -626,6 +629,40 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 <ErrorMessage name="customer_type" component="div"
                                                               className="error-message"/>
                                             </div>
+                                            {values?.customer_type && (
+                                                <>
+                                                    <div className={'mt-2 text-justify'}>
+                                                        <span className={'list-head'}>
+                                                            {getCustomerTypeDescription(values.customer_type as CustomerType)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <span className={'list-head'}>Please complete this <Link
+                                                            className="link"
+                                                            href=""
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                downloadFile.PDF(PARTICIPANT_AGREEMENT)
+                                                            }}
+                                                            download
+                                                        >
+                                                            form
+                                                        </Link></span>
+                                                    </div>
+                                                    <div className={'mt-2'}>
+                                                        <span className={'list-head'}>Please note: The DORRS signature area
+                                                            should be
+                                                            left
+                                                            blank.</span>
+                                                    </div>
+                                                    <div className={'mt-2'}>
+                                                        <span className={'list-head'}>Return the electronic form by emailing it
+                                                            to <Link className={'link'}
+                                                                     href={'mailto:info@dorrs.io'}>info@dorrs.io</Link></span>
+                                                    </div>
+                                                </>
+
+                                            )}
                                         </div>
 
                                         {this.props.action !== 'view' && (

@@ -6,3 +6,4 @@ export const AGREEMENT = 'Client-Agreement.pdf';
 export const TERMS_OF_SERVICE = 'Terms-of-Service.pdf';
 export const PRIVACY_POLICY = 'Privacy-Policy.pdf';
 export const SUBSCRIBER_AGREEMENT = 'Subscriber Agreement.pdf';
+export const PARTICIPANT_AGREEMENT = 'Participant Agreement.pdf';
