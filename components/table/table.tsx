@@ -325,10 +325,10 @@ const Table = ({
                                                                         disabled={(row.original as {
                                                                             [key: string]: any
                                                                         })[value + 'BtnDisabled']}
-                                                                        onClick={() => block.customBtnAction(value, row.original)}
+                                                                        onClick={() => block.customBtnAction(key, row.original)}
                                                                         className={`custom-btn admin-table-btn ripple ${(row.original as {
                                                                             [key: string]: any
-                                                                        })[value + 'BtnDisabled'] ? 'disable' : ''}`}>{key}</button>
+                                                                        })[value + 'BtnDisabled'] ? 'disable' : ''}`}>{value as any}</button>
                                                                 </div>
                                                             ))
                                                         )}

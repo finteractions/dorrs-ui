@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
@@ -11,12 +11,12 @@ import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import Modal from "@/components/modal";
 import {getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
-import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Field, Form, Formik, FormikProps} from "formik";
-import * as Yup from "yup";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import MemberDistributionInfoBlock from "@/components/backend/member-distribution-info-block";
+import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
+import {faEye} from "@fortawesome/free-solid-svg-icons";
+import Select from "react-select";
 
 
 interface MemberDistributionBlockState {
@@ -24,29 +24,34 @@ interface MemberDistributionBlockState {
     isLoading: boolean;
     isDataLoading: boolean;
     memberDistributionStatisticsData: any[];
-    data: IMemberDistribution[];
-    dataFull: IMemberDistribution[];
-    filterData: any;
+    memberDistributionViewData: IMemberDistribution[];
+    memberDistributionViewDataFull: IMemberDistribution[];
+    memberDistributionViewDataFilter: any;
+    memberDistributionHistoryData: IMemberDistributionHistory[];
+    memberDistributionHistoryDataFull: IMemberDistributionHistory[];
+    memberDistributionHistoryDataFilter: any;
+    isMemberDistributionHistory: boolean;
     formData: IMemberDistribution | null;
     errors: string[];
     formAction: string;
+    defaultDate: string;
+    selectedDate: string;
 }
 
-const columnHelper = createColumnHelper<any>();
-let columns: any[] = [];
+const columnmemberDistributionViewDataHelper = createColumnHelper<any>();
+let memberDistributionsDataColumns: any[] = [];
 
-const formSchema = Yup.object().shape({
-    date: Yup.string(),
-})
+const columnmemberDistributionHistoryDataHelper = createColumnHelper<any>();
+let memberDistributionsHistoryColumns: any[] = [];
 
-const initialValues = {
-    date: '',
-}
 
 class MemberDistributionBlock extends React.Component<{}> {
     state: MemberDistributionBlockState;
-    formRef: RefObject<FormikProps<any>>;
     dates: Array<string>;
+
+    customBtns = {
+        'custom': <FontAwesomeIcon className="nav-icon" icon={faEye}/>,
+    }
 
     constructor(props: {}) {
         super(props);
@@ -54,28 +59,34 @@ class MemberDistributionBlock extends React.Component<{}> {
         this.state = {
             isOpenModal: false,
             isLoading: true,
-            isDataLoading: false,
+            isDataLoading: true,
             memberDistributionStatisticsData: [],
-            data: [],
-            dataFull: [],
-            filterData: [],
+            memberDistributionViewData: [],
+            memberDistributionViewDataFull: [],
+            memberDistributionViewDataFilter: [],
+            memberDistributionHistoryData: [],
+            memberDistributionHistoryDataFull: [],
+            memberDistributionHistoryDataFilter: [],
+            isMemberDistributionHistory: false,
             errors: [],
             formData: null,
-            formAction: 'view'
+            formAction: 'view',
+            defaultDate: '',
+            selectedDate: ''
         }
 
-        columns = [
-            columnHelper.accessor((row) => row.firm_name, {
+        memberDistributionsDataColumns = [
+            columnmemberDistributionViewDataHelper.accessor((row) => row.firm_name, {
                 id: "firm_name",
                 cell: (item) => item.getValue(),
                 header: () => <span>Firm</span>,
             }),
-            columnHelper.accessor((row) => row.due_amount, {
+            columnmemberDistributionViewDataHelper.accessor((row) => row.due_amount, {
                 id: "due_amount",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Due Amount</span>,
             }),
-            columnHelper.accessor((row) => ({
+            columnmemberDistributionViewDataHelper.accessor((row) => ({
                 status: row.status,
                 statusName: row.status_name
             }), {
@@ -88,14 +99,39 @@ class MemberDistributionBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.updated_at, {
+            columnmemberDistributionViewDataHelper.accessor((row) => row.updated_at, {
                 id: "updated_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Updated Date</span>,
             }),
         ];
 
-        this.formRef = React.createRef();
+        memberDistributionsHistoryColumns = [
+            columnmemberDistributionHistoryDataHelper.accessor((row) => row.date_formatted, {
+                id: "date_formatted",
+                cell: (item) => item.getValue(),
+                header: () => <span>Date</span>,
+            }),
+            columnmemberDistributionHistoryDataHelper.accessor((row) => ({
+                status: row.status,
+                statusName: row.status_name
+            }), {
+                id: "status",
+                cell: (item) =>
+                    <div className='status-panel'>
+                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                            {item.getValue().statusName}
+                        </div>
+                    </div>,
+                header: () => <span>Status</span>,
+            }),
+            columnmemberDistributionHistoryDataHelper.accessor((row) => row.updated_at, {
+                id: "updated_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Updated Date</span>,
+            }),
+        ];
+
         this.dates = [];
     }
 
@@ -108,11 +144,12 @@ class MemberDistributionBlock extends React.Component<{}> {
             this.dates = res;
         })
             .then(() => {
-                initialValues.date = this.dates[0] || ''
+                const date = this.dates[0] || '';
+                this.setState({defaultDate: date, selectedDate: date});
             })
             .finally(() => {
-                this.setState({isLoading: false}, () => {
-                    this.submitForm();
+                this.setState({isLoading: false}, async () => {
+                    await this.loadData()
                 });
             })
     }
@@ -131,7 +168,7 @@ class MemberDistributionBlock extends React.Component<{}> {
         })
     }
 
-    getMemberDistribution(values: any) {
+    getmemberDistributionViewData(values: any) {
         return new Promise<boolean>(resolve => {
             adminService.getMemberDistributions(values)
                 .then((res: IMemberDistribution[]) => {
@@ -139,8 +176,8 @@ class MemberDistributionBlock extends React.Component<{}> {
                     data.forEach(s => {
                         s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
                     });
-                    this.setState({dataFull: data, data: data}, () => {
-                        this.filterData();
+                    this.setState({memberDistributionViewDataFull: data, memberDistributionViewData: data}, () => {
+                        this.filterMemberDistributionViewData();
                     });
                 })
                 .catch((errors: IError) => {
@@ -152,38 +189,49 @@ class MemberDistributionBlock extends React.Component<{}> {
         })
     }
 
-    handleSubmit = async (values: any, {setSubmitting}: {
-        setSubmitting: (isSubmitting: boolean) => void
-    }) => {
-        setSubmitting(true);
-        this.setState({
-            isDataLoading: true
-        });
+    getmemberDistributionHistoryData() {
+        return new Promise<boolean>(resolve => {
+            adminService.getMemberDistributionHistory()
+                .then((res: IMemberDistributionHistory[]) => {
+                    const data = res || [];
+                    data.forEach(s => {
+                        s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
+                    });
+                    this.setState({memberDistributionHistoryDataFull: data, memberDistributionHistoryData: data}, () => {
+                        this.filterMemberDistributionHistoryData();
+                    });
+                })
+                .catch((errors: IError) => {
+                    this.setState({errors: errors.messages});
+                })
+                .finally(() => {
+                    resolve(true)
+                });
+        })
+    }
 
-        await this.loadData(values)
-            .finally(() => setSubmitting(false));
-    };
 
-    loadData(values: any) {
+    loadData() {
+        const body = {
+            date: this.state.selectedDate
+        }
         return new Promise(resolve => {
-            this.getStatistics(values)
-                .then(() => this.getMemberDistribution(values))
+            this.getStatistics(body)
+                .then(() => this.getmemberDistributionViewData(body))
+                .then(() => !this.state.isMemberDistributionHistory ? this.getmemberDistributionHistoryData() : null)
                 .finally(() => {
                     this.setState({isLoading: false, isDataLoading: false})
                     resolve(true);
                 })
         })
-
     }
 
-    submitForm = async () => {
-        if (this.formRef.current) {
-            await this.formRef.current.submitForm();
-        }
+    filterMemberDistributionViewData = () => {
+        this.setState({memberDistributionViewData: filterService.filterData(this.state.memberDistributionViewDataFilter, this.state.memberDistributionViewDataFull)});
     }
 
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+    filterMemberDistributionHistoryData = () => {
+        this.setState({memberDistributionHistoryData: filterService.filterData(this.state.memberDistributionHistoryDataFilter, this.state.memberDistributionHistoryDataFull)});
     }
 
     closeModal(): void {
@@ -217,12 +265,51 @@ class MemberDistributionBlock extends React.Component<{}> {
         this.setState({formAction: mode, formData: data || null, isOpenModal: true})
     }
 
-    onCallback = async (values: any, step: boolean) => {
-        if (this.formRef.current) {
-            const values = this.formRef.current.values;
-            await this.loadData(values);
-        }
+    onCallback = async (values: any) => {
+        await this.loadData();
     };
+
+    customBtnAction = (action: any, data: any) => {
+        this.changeView(data.date_formatted)
+    }
+
+    changeView = (date?: any) => {
+        this.setState({
+            isMemberDistributionHistory: !this.state.isMemberDistributionHistory,
+            selectedDate: date ?? this.state.defaultDate,
+            isDataLoading: true
+        }, async () => {
+            await this.loadData();
+        })
+    }
+
+    handleMemberDistributionViewDataFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            memberDistributionViewDataFilter: {...this.state.memberDistributionViewDataFilter, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterMemberDistributionViewData();
+        });
+    }
+
+    handleMemberDistributionViewDataResetButtonClick = () => {
+        this.setState({memberDistributionViewData: this.state.memberDistributionViewDataFull, memberDistributionViewDataFilter: []});
+    }
+
+    handleMemberDistributionHistoryDataFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            memberDistributionHistoryDataFilter: {
+                ...this.state.memberDistributionHistoryDataFilter,
+                [prop_name]: item?.value || ''
+            }
+        }), () => {
+            this.filterMemberDistributionHistoryData();
+        });
+    }
+
+    handleMemberDistributionHistoryDataResetButtonClick = () => {
+        this.setState({memberDistributionHistoryData: this.state.memberDistributionHistoryDataFull, memberDistributionHistoryDataFilter: []});
+    }
+
 
     render() {
         return (
@@ -233,73 +320,23 @@ class MemberDistributionBlock extends React.Component<{}> {
                         <div className="content__title">Member Distribution</div>
                     </div>
 
+
                     {this.state.isLoading ? (
                         <LoaderBlock/>
                     ) : (
                         <>
-                            <div className="content__filter mb-3">
-                                <Formik<any>
-                                    innerRef={this.formRef}
-                                    initialValues={initialValues}
-                                    validationSchema={formSchema}
-                                    onSubmit={this.handleSubmit}
-                                >
-                                    {({
-                                          isSubmitting,
-                                          isValid,
-                                          dirty,
-                                          setFieldValue,
-                                          setFieldTouched,
-                                          values,
-                                          errors
-                                      }) => {
-                                        return (
-                                            <>
-                                                <Form className={'content__filter mb-3'}>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.state.isDataLoading) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="weekly_date"
-                                                            id="weekly_date"
-                                                            as={Select}
-                                                            className="select__react"
-                                                            classNamePrefix="select__react"
-                                                            isClearable={false}
-                                                            isSearchable={true}
-                                                            placeholder="Date"
-                                                            isDisabled={isSubmitting || this.state.isDataLoading}
-
-                                                            options={this.dates.map((item) => ({
-                                                                value: item,
-                                                                label: item,
-                                                            }))}
-                                                            onChange={(selectedOption: any) => {
-                                                                setFieldValue('date', selectedOption.value);
-                                                                this.submitForm();
-                                                            }}
-                                                            value={
-                                                                this.dates.filter(i => i === values.date).map((item) => ({
-                                                                    value: item,
-                                                                    label: item,
-                                                                }))?.[0] || null
-                                                            }
-                                                        >
-                                                        </Field>
-                                                    </div>
-
-                                                    <button type="submit"
-                                                            className={`content__filter-clear ripple ${(isSubmitting || this.state.isDataLoading) ? 'disable' : ''}`}
-                                                            disabled={isSubmitting || this.state.isDataLoading || values.date === '' || values.report === ''}>
-                                                        <FontAwesomeIcon className="nav-icon"
-                                                                         icon={filterService.getFilterResetIcon()}/>
-                                                    </button>
-                                                </Form>
-                                            </>
-                                        );
-                                    }}
-                                </Formik>
+                            <div className={'approve-form mx-0'}>
+                                <div className={'approve-form-text'}>
+                                    Date: {this.state.selectedDate}
+                                </div>
+                                {this.state.isMemberDistributionHistory && (
+                                    <button
+                                        className={`border-btn ripple modal-link ${this.state.isDataLoading ? 'disable' : ''}`}
+                                        disabled={this.state.isDataLoading}
+                                        onClick={() => this.changeView()}>Back
+                                    </button>
+                                )}
                             </div>
-
 
                             {this.state.isDataLoading ? (
                                 <LoaderBlock/>
@@ -318,11 +355,47 @@ class MemberDistributionBlock extends React.Component<{}> {
                                         })}
                                     </div>
 
+
                                     <div className="dashboard__transaction__panel">
-                                        {this.state.data.length ? (
+                                        <div className="content__filter mb-3">
+                                            <div className="input__wrap">
+                                                <Select
+                                                    className="select__react"
+                                                    classNamePrefix="select__react"
+                                                    isClearable={true}
+                                                    isSearchable={true}
+                                                    value={filterService.setValue('firm_name', this.state.memberDistributionViewDataFilter)}
+                                                    onChange={(item) => this.handleMemberDistributionViewDataFilterChange('firm_name', item)}
+                                                    options={filterService.buildOptions('firm_name', this.state.memberDistributionViewDataFull)}
+                                                    placeholder="Firm"
+                                                />
+                                            </div>
+                                            <div className="input__wrap">
+                                                <Select
+                                                    className="select__react"
+                                                    classNamePrefix="select__react"
+                                                    isClearable={true}
+                                                    isSearchable={true}
+                                                    value={filterService.setValue('status_name', this.state.memberDistributionViewDataFilter)}
+                                                    onChange={(item) => this.handleMemberDistributionViewDataFilterChange('status_name', item)}
+                                                    options={filterService.buildOptions('status_name', this.state.memberDistributionViewDataFull)}
+                                                    placeholder="Status"
+                                                />
+                                            </div>
+
+
+                                            <button
+                                                className="content__filter-clear ripple"
+                                                onClick={this.handleMemberDistributionViewDataResetButtonClick}>
+                                                <FontAwesomeIcon className="nav-icon"
+                                                                 icon={filterService.getFilterResetIcon()}/>
+                                            </button>
+                                        </div>
+
+                                        {this.state.memberDistributionViewData.length ? (
                                             <Table
-                                                columns={columns}
-                                                data={this.state.data}
+                                                columns={memberDistributionsDataColumns}
+                                                data={this.state.memberDistributionViewData}
                                                 searchPanel={false}
                                                 block={this}
                                                 viewBtn={true}
@@ -334,6 +407,67 @@ class MemberDistributionBlock extends React.Component<{}> {
                                             </div>
                                         )}
                                     </div>
+
+                                    {!this.state.isMemberDistributionHistory && (
+                                        <>
+                                            <div className={'info-panel-title-text my-4 bold'}>
+                                                Invoices
+                                            </div>
+                                            <div className="dashboard__transaction__panel">
+                                                <div className="content__filter mb-3">
+                                                    <div className="input__wrap">
+                                                        <Select
+                                                            className="select__react"
+                                                            classNamePrefix="select__react"
+                                                            isClearable={true}
+                                                            isSearchable={true}
+                                                            value={filterService.setValue('date_formatted', this.state.memberDistributionHistoryDataFilter)}
+                                                            onChange={(item) => this.handleMemberDistributionHistoryDataFilterChange('date_formatted', item)}
+                                                            options={filterService.buildOptions('date_formatted', this.state.memberDistributionHistoryDataFull)}
+                                                            placeholder="Date"
+                                                        />
+                                                    </div>
+                                                    <div className="input__wrap">
+                                                        <Select
+                                                            className="select__react"
+                                                            classNamePrefix="select__react"
+                                                            isClearable={true}
+                                                            isSearchable={true}
+                                                            value={filterService.setValue('status_name', this.state.memberDistributionHistoryDataFilter)}
+                                                            onChange={(item) => this.handleMemberDistributionHistoryDataFilterChange('status_name', item)}
+                                                            options={filterService.buildOptions('status_name', this.state.memberDistributionHistoryDataFull)}
+                                                            placeholder="Status"
+                                                        />
+                                                    </div>
+
+
+                                                    <button
+                                                        className="content__filter-clear ripple"
+                                                        onClick={this.handleMemberDistributionHistoryDataResetButtonClick}>
+                                                        <FontAwesomeIcon className="nav-icon"
+                                                                         icon={filterService.getFilterResetIcon()}/>
+                                                    </button>
+                                                </div>
+
+                                                {this.state.memberDistributionHistoryData.length ? (
+                                                    <Table
+                                                        columns={memberDistributionsHistoryColumns}
+                                                        data={this.state.memberDistributionHistoryData}
+                                                        searchPanel={false}
+                                                        block={this}
+                                                        viewBtn={false}
+                                                        customBtns={this.customBtns}
+                                                        filter={false}
+                                                    />
+                                                ) : (
+                                                    <div className={'mt-24'}>
+                                                        <NoDataBlock primaryText="No invoices available yet"/>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+
                                 </>
                             )}
 

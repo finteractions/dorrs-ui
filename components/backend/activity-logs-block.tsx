@@ -116,7 +116,7 @@ class ActivityLogsBlock extends React.Component<{}> {
         // ];
 
         customBtns = {
-            'Block IP': 'blockIp',
+            'blockIp': 'Block IP',
         }
     }
 

@@ -18,6 +18,7 @@ import {IBank} from "@/interfaces/i-bank";
 import {IChartStatistics} from "@/interfaces/i-chart-statistics";
 import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
+import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
 
 class AdminService extends BaseService {
 
@@ -339,6 +340,10 @@ class AdminService extends BaseService {
 
     public async getMemberDistributions(data: any): Promise<IMemberDistribution[]> {
         return (await apiWebBackendService.post<IResponse<IMemberDistribution[]>>(`${this.PATH}member_distributions/`, data, {}, this.getAdminToken())).data;
+    }
+
+    public async getMemberDistributionHistory(): Promise<IMemberDistributionHistory[]> {
+        return (await apiWebBackendService.get<IResponse<IMemberDistributionHistory[]>>(`${this.PATH}member_distributions/history/`, {}, this.getAdminToken())).data;
     }
 
     public async getMemberDistribution(params?: {}): Promise<IInvoice[]> {
