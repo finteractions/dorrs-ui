@@ -7,30 +7,33 @@ import {createColumnHelper} from "@tanstack/react-table";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
-import lastSaleService from "@/services/last-sale/last-sale-service";
-import {ILastSale} from "@/interfaces/i-last-sale";
 import formatterService from "@/services/formatter/formatter-service";
-import LastSaleReportingForm from "@/components/last-sale-reporting-form";
-import {Condition} from "@/enums/condition";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
+import {QuoteCondition} from "@/enums/quote-condition";
+import DOBForm from "@/components/dob-form";
+import {IOrder} from "@/interfaces/i-order";
+import ordersService from "@/services/orders/orders-service";
+import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
+import {OrderSide} from "@/enums/order-side";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
 
 
-interface LastSaleReportingBlockState extends IState, IModalState {
+interface DOBBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
-    formData: ILastSale | null;
+    formData: IOrder | null;
     modalTitle: string;
     errors: string[];
-    data: ILastSale[];
-    dataFull: ILastSale[];
+    data: IOrder[];
+    dataFull: IOrder[];
     filterData: any;
 }
 
-interface LastSaleReportingBlockProps extends ICallback {
+interface DOBBlockProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -46,16 +49,20 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps, LastSaleReportingBlockState> {
+class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
 
-    state: LastSaleReportingBlockState;
+    state: DOBBlockState;
     errors: Array<string> = new Array<string>();
-    getLastSaleReportingInterval!: NodeJS.Timer;
+    getOrdersInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    constructor(props: LastSaleReportingBlockProps, context: IDataContext<null>) {
+    customBtns = {
+        'custom': <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
+    }
+
+    constructor(props: DOBBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -63,7 +70,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             success: false,
             isLoading: true,
             isOpenModal: false,
-            formAction: 'add',
+            formAction: 'new',
             modalTitle: '',
             errors: [],
             formData: null,
@@ -82,13 +89,12 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
-                symbol_suffix: row.symbol_suffix,
                 image: row.company_profile?.logo
             }), {
                 id: "symbol",
                 cell: (item) =>
                     <div onClick={() => {
-                        this.navigate(item.getValue().symbol, item.getValue().symbol_suffix)
+                        this.navigate(item.getValue().symbol)
                     }}
                          className={`table-image cursor-pointer link`}
                     >
@@ -101,56 +107,70 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                 ,
                 header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.symbol_suffix, {
-                id: "symbol_suffix",
+            columnHelper.accessor((row) => row.quote_condition, {
+                id: "quote_condition",
                 cell: (item) => item.getValue(),
-                header: () => <span>Symbol Suffix</span>,
+                header: () => <span>QC </span>,
             }),
-            columnHelper.accessor((row) => row.condition, {
-                id: "condition",
+            columnHelper.accessor((row) => row.side, {
+                id: "side",
+                cell: (item) => <span
+                    className={`${item.getValue().toString().toLowerCase()}-order-side`}>{item.getValue()}</span>,
+                header: () => <span>Side </span>,
+            }),
+            columnHelper.accessor((row) => row.mpid, {
+                id: "mpid",
                 cell: (item) => item.getValue(),
-                header: () => <span>Condition</span>,
+                header: () => <span>MPID </span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
                 id: "quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Quantity</span>,
+                header: () => <span>Size </span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Price</span>,
+                header: () => <span>Price </span>,
             }),
-            columnHelper.accessor((row) => row.date, {
-                id: "date",
-                cell: (item) => item.getValue(),
-                header: () => <span>Date</span>,
-            }),
-            columnHelper.accessor((row) => row.time, {
-                id: "time",
-                cell: (item) => item.getValue(),
-                header: () => <span>Time</span>,
-            }),
-            columnHelper.accessor((row) => row.tick_indication, {
-                id: "tick_indication",
-                cell: (item) => item.getValue(),
-                header: () => <span>Tick Indication</span>,
+            columnHelper.accessor((row) => row.ref_id, {
+                id: "ref_id",
+                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                header: () => <span>Reference Number ID (RefID)</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
+            columnHelper.accessor((row) => ({
+                status: row.status,
+                statusName: row.status_name
+            }), {
+                id: "status",
+                cell: (item) =>
+                    <div className='status-panel'>
+                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                            {item.getValue().statusName}
+                        </div>
+                    </div>,
+                header: () => <span>Status</span>,
+            }),
+            columnHelper.accessor((row) => row.updated_at, {
+                id: "updated_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Updated Date</span>,
+            }),
         ];
     }
 
-    navigate = (symbol: string, symbol_suffix: string) => {
-        this.props.onCallback(symbol, symbol_suffix);
+    navigate = (symbol: string) => {
+        this.props.onCallback(symbol);
     }
 
     componentDidMount() {
         this.setState({isLoading: true});
-        this.getLastSaleReporting();
+        this.getOrders();
         this.startAutoUpdate();
     }
 
@@ -159,22 +179,25 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     }
 
     startAutoUpdate = () => {
-        this.getLastSaleReportingInterval = setInterval(this.getLastSaleReporting, Number(fetchIntervalSec) * 1000);
+        this.getOrdersInterval = setInterval(this.getOrders, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate = () => {
-        if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval);
+        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval);
     }
 
-    getLastSaleReporting = () => {
-        lastSaleService.getLastSaleReporting()
-            .then((res: Array<ILastSale>) => {
+    getOrders = () => {
+        ordersService.getOrders()
+            .then((res: Array<IOrder>) => {
+
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
 
                 data.forEach(s => {
-                    s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                    s.side = OrderSide[s.side as keyof typeof OrderSide] || ''
+                    s.status_name = getOrderStatusNames(s.status as OrderStatus);
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -192,7 +215,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     filterData = () => {
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
-    openModal = (mode: string, data?: ILastSale) => {
+    openModal = (mode: string, data?: IOrder) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
 
@@ -203,22 +226,34 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
 
     modalTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Sale Report'
+            return 'View Order'
+        } else if (mode === 'new') {
+            return 'Add Order'
+        } else if (mode === 'add') {
+            return 'Edit Order'
+        } else if (mode === 'delete') {
+            return 'Do you want to cancel this Order?';
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Sale Report`;
+            return '';
         }
     }
 
     onCallback = async (values: any, open: boolean) => {
-        this.getLastSaleReporting();
+        this.getOrders();
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                this.openModal('edit', values as ILastSale);
+                this.openModal('view', values as IOrder);
             })
         } else {
             this.closeModal();
         }
+    };
+
+    onCancel = async () => {
+        this.getOrders();
+
+        this.closeModal();
     };
 
     handleFilterChange = (prop_name: string, item: any): void => {
@@ -233,15 +268,24 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
         this.setState({data: this.state.dataFull, filterData: []});
     }
 
-    downloadLastSaleReportingCSV = () => {
-        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.CSV('last_sale_reporting', res);
+    downloadBBOCSV = () => {
+        ordersService.downloadOrders(this.state.filterData).then((res) => {
+            downloadFile.CSV('orders', res);
         })
     }
 
-    downloadLastSaleReportingXLSX = () => {
-        lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
-            downloadFile.XLSX('last_sale_reporting', res);
+    downloadBBOXLSX = () => {
+        ordersService.downloadOrders(this.state.filterData).then((res) => {
+            downloadFile.XLSX('orders', res);
+        })
+    }
+
+    customBtnAction = (action: any, data: any) => {
+        this.setState({
+            isOpenModal: true,
+            formData: data || null,
+            formAction: 'add',
+            modalTitle: this.modalTitle('add')
         })
     }
 
@@ -251,22 +295,22 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             <>
                 <div className="panel">
                     <div className="content__top">
-                        <div className="content__title">Last Sale Reporting</div>
-                        <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingCSV}>
+                        <div className="content__title">Depth of Book</div>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
+                            <button className="border-grey-btn ripple d-flex d-none"
+                                    onClick={this.downloadBBOCSV}>
                                 <span className="file-item__download"></span>
                                 <span>CSV</span>
                             </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingXLSX}>
+                            <button className="border-grey-btn ripple d-flex d-none"
+                                    onClick={this.downloadBBOXLSX}>
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
                             </button>
                             {this.props.access.create && (
                                 <button className="b-btn ripple"
                                         disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('add')}>Add Sale Report
+                                        onClick={() => this.openModal('new')}>Add Order
                                 </button>
                             )}
                         </div>
@@ -311,10 +355,10 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('condition', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('condition', item)}
-                                            options={filterService.buildOptions('condition', this.state.dataFull)}
-                                            placeholder="Condition"
+                                            value={filterService.setValue('quote_condition', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('quote_condition', item)}
+                                            options={filterService.buildOptions('quote_condition', this.state.dataFull)}
+                                            placeholder="Quote Condition"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -323,10 +367,34 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('tick_indication', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('tick_indication', item)}
-                                            options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                            placeholder="Tick Indication"
+                                            value={filterService.setValue('side', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('side', item)}
+                                            options={filterService.buildOptions('side', this.state.dataFull)}
+                                            placeholder="Side"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('mpid', item)}
+                                            options={filterService.buildOptions('mpid', this.state.dataFull)}
+                                            placeholder="MPID"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('ref_id', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('ref_id', item)}
+                                            options={filterService.buildOptions('ref_id', this.state.dataFull)}
+                                            placeholder="RefID"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -347,10 +415,10 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('date', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('date', item)}
-                                            options={filterService.buildOptions('date', this.state.dataFull)}
-                                            placeholder="Date"
+                                            value={filterService.setValue('status_name', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('status_name', item)}
+                                            options={filterService.buildOptions('status_name', this.state.dataFull)}
+                                            placeholder="Status"
                                         />
                                     </div>
                                     <button
@@ -366,8 +434,10 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                            data={this.state.data}
                                            searchPanel={true}
                                            block={this}
-                                           editBtn={true}
+                                           editBtn={false}
                                            viewBtn={true}
+                                           deleteBtn={true}
+                                           customBtns={this.customBtns}
                                            access={this.props.access}
                                     />
                                 ) : (
@@ -378,12 +448,13 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`last-sale-reporting ${this.state.formAction}`}
+                                   className={`bbo ${this.state.formAction}`}
                             >
-                                <LastSaleReportingForm
+                                <DOBForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
+                                    onCancel={this.onCancel}
                                 />
                             </Modal>
 
@@ -397,4 +468,4 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     }
 }
 
-export default portalAccessWrapper(LastSaleReportingBlock, 'LastSaleReportingBlock');
+export default portalAccessWrapper(DOBBlock, 'DOBBlock');

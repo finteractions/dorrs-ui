@@ -91,8 +91,8 @@ const formSchema = Yup.object().shape({
 interface BBOState extends IState {
     formInitialValues: {};
     loading: boolean;
-    focusedInputBid: any;
-    focusedInputOffer: any;
+    focusedInputBidDate: any;
+    focusedInputOfferDate: any;
 }
 
 interface BBOProps extends ICallback {
@@ -152,8 +152,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
             success: false,
             formInitialValues: initialValues,
             loading: true,
-            focusedInputBid: null,
-            focusedInputOffer: null,
+            focusedInputBidDate: null,
+            focusedInputOfferDate: null,
         };
     }
 
@@ -399,8 +399,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                                         numberOfMonths={1}
                                                                         date={values.bid_date ? moment(values.bid_date) : null}
                                                                         onDateChange={date => setFieldValue('bid_date', date?.format('YYYY-MM-DD').toString())}
-                                                                        focused={this.state.focusedInputBid}
-                                                                        onFocusChange={({focused}) => this.setState({focusedInputBid: focused})}
+                                                                        focused={this.state.focusedInputBidDate}
+                                                                        onFocusChange={({focused}) => this.setState({focusedInputBidDate: focused})}
                                                                         id="bid_date"
                                                                         displayFormat="YYYY-MM-DD"
                                                                         isOutsideRange={() => false}
@@ -424,7 +424,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                                         className="input__text"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                     />
-                                                                    <ErrorMessage name="bid_date" component="div"
+                                                                    <ErrorMessage name="bid_time" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
@@ -498,8 +498,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                                                                         numberOfMonths={1}
                                                                         date={values.offer_date ? moment(values.offer_date) : null}
                                                                         onDateChange={date => setFieldValue('offer_date', date?.format('YYYY-MM-DD').toString())}
-                                                                        focused={this.state.focusedInputOffer}
-                                                                        onFocusChange={({focused}) => this.setState({focusedInputOffer: focused})}
+                                                                        focused={this.state.focusedInputOfferDate}
+                                                                        onFocusChange={({focused}) => this.setState({focusedInputOfferDate: focused})}
                                                                         id="offer_date"
                                                                         displayFormat="YYYY-MM-DD"
                                                                         isOutsideRange={() => false}

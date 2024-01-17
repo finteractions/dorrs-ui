@@ -181,15 +181,15 @@ class ExchangeForm extends React.Component<ExchangeFormProps, ExchangeFormState>
 
     getExchangePairs = (): void => {
         this.setState({isPairsLoading: true});
-        ordersService.getExchangePairs()
-            .then((res: IExchangePair[]) => {
-                this.exchangePairs = res || [];
-                this.buildExchangeAssets();
-            })
-            .catch((errors: IError) => {
-                this.errors = errors.messages;
-            })
-            .finally(() => this.setState({isPairsLoading: false}));
+        // ordersService.getExchangePairs()
+        //     .then((res: IExchangePair[]) => {
+        //         this.exchangePairs = res || [];
+        //         this.buildExchangeAssets();
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.errors = errors.messages;
+        //     })
+        //     .finally(() => this.setState({isPairsLoading: false}));
     }
 
     getExchangePrice = (security: string, currency: string): Promise<boolean> => {
@@ -199,14 +199,14 @@ class ExchangeForm extends React.Component<ExchangeFormProps, ExchangeFormState>
                 "quote_currency": currency,
                 "amount": 1
             }
-            ordersService.getExchangePrice(body)
-                .then((res: IExchangePrice) => {
-                    this.setState({errorMessages: null, exchangePrice: res});
-                })
-                .catch((errors: IError) => {
-                    this.setState({errorMessages: errors.messages, exchangePrice: null});
-                })
-                .finally(() => resolve(true));
+            // ordersService.getExchangePrice(body)
+            //     .then((res: IExchangePrice) => {
+            //         this.setState({errorMessages: null, exchangePrice: res});
+            //     })
+            //     .catch((errors: IError) => {
+            //         this.setState({errorMessages: errors.messages, exchangePrice: null});
+            //     })
+            //     .finally(() => resolve(true));
         })
 
     }
@@ -238,20 +238,20 @@ class ExchangeForm extends React.Component<ExchangeFormProps, ExchangeFormState>
     handleSubmit = async (values: Record<string, string>,
                           {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         values = formValidator.castFormValues(values, formSchema(this.state))
-        ordersService.createExchange(values)
-            .then((success: boolean) => {
-                this.setState({success: success});
-                this.context.getUserAssets();
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
-            })
-            .finally(() => {
-                setSubmitting(false);
-
-                if (this.props?.onSubmit) this.props.onSubmit?.();
-                this.setState({isFormSubmitted: !this.state.isFormSubmitted});
-            });
+        // ordersService.createExchange(values)
+        //     .then((success: boolean) => {
+        //         this.setState({success: success});
+        //         this.context.getUserAssets();
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages});
+        //     })
+        //     .finally(() => {
+        //         setSubmitting(false);
+        //
+        //         if (this.props?.onSubmit) this.props.onSubmit?.();
+        //         this.setState({isFormSubmitted: !this.state.isFormSubmitted});
+        //     });
     };
 
     handleModal() {

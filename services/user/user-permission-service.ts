@@ -3,7 +3,8 @@ const comparison_matrix: Record<string, string> = {
     'CompanyProfileBlock': 'company_profile',
     'LastSaleReportingBlock':'last_sale_reporting',
     'BBOBlock':'bbo',
-    'WeeklyAndMonthlyReportsBlock':'weekly_and_monthly_reports'
+    'WeeklyAndMonthlyReportsBlock':'weekly_and_monthly_reports',
+    'DOBBlock':'dob'
 }
 
 function getAccessRulesByComponent(component_name: string, access_matrix: any[]) {

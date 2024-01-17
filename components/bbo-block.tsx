@@ -170,7 +170,7 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
     componentDidMount() {
         this.setState({isLoading: true});
         this.getBBO();
-        // this.startAutoUpdate();
+        this.startAutoUpdate();
     }
 
     componentWillUnmount() {

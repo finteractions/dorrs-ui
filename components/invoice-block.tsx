@@ -2,7 +2,6 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import NoDataBlock from "@/components/no-data-block";
-import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

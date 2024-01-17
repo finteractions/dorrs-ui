@@ -138,13 +138,13 @@ class AssetWithdrawForm extends React.Component<AssetWithdrawFormProps, AssetWit
     getWithdrawAddress = () => {
         this.setState({errorMessages: null, successMessage: null, isLoadingWithdrawAddresses: true});
 
-        ordersService.getWithdrawAddresses()
-            .then((res: Array<IWithdrawAddress>) => {
-                this.withdrawAddresses = res.filter(s => s.asset === this.userAsset?.asset?.label);
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages})
-            }).finally(() => this.setState({isLoadingWithdrawAddresses: false}));
+        // ordersService.getWithdrawAddresses()
+        //     .then((res: Array<IWithdrawAddress>) => {
+        //         this.withdrawAddresses = res.filter(s => s.asset === this.userAsset?.asset?.label);
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages})
+        //     }).finally(() => this.setState({isLoadingWithdrawAddresses: false}));
     }
 
     handleSubmit = async (values: Record<string, string>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
@@ -206,19 +206,19 @@ class AssetWithdrawForm extends React.Component<AssetWithdrawFormProps, AssetWit
         const {withdraw_token} = values;
         const data = Object.assign(this.state.formValues, {withdraw_token: withdraw_token})
 
-        const request: Promise<any> = this.isFIAT ?
-            ordersService.createFiatWithdrawRequest(data) :
-            ordersService.createWithdrawRequest(data)
-
-        await request
-            .then(() => {
-                this.setState({step: this.state.step + 1})
-                this.context.getUserAssets();
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
-            })
-            .finally(() => this.setState({isProcessing: false}))
+        // const request: Promise<any> = this.isFIAT ?
+        //     ordersService.createFiatWithdrawRequest(data) :
+        //     ordersService.createWithdrawRequest(data)
+        //
+        // await request
+        //     .then(() => {
+        //         this.setState({step: this.state.step + 1})
+        //         this.context.getUserAssets();
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages});
+        //     })
+        //     .finally(() => this.setState({isProcessing: false}))
     }
 
     onLoading(isLoading: boolean) {

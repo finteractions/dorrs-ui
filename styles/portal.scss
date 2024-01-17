@@ -2497,6 +2497,10 @@ body {
       background: #cb3d34
     }
 
+    .table__status.table__status-closed:before {
+      background: #cb3d34
+    }
+
     .table__status.table__status-archived:before {
       background: #b8bec5
     }
@@ -3621,7 +3625,7 @@ body {
     }
 
     .flex-0 {
-      flex: unset!important;
+      flex: unset !important;
     }
 
     .border {
@@ -3640,6 +3644,14 @@ body {
 
     .text-justify {
       text-align: justify;
+    }
+
+    .b-order-side {
+      color: #34cb68;
+    }
+
+    .s-order-side {
+      color: #cb3d34;
     }
 
   }

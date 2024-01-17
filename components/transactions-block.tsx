@@ -140,25 +140,25 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
     }
 
     getTransactions = () => {
-        ordersService.getTransactions()
-            .then((res: ITransaction[]) => {
-                const dataFull = res?.sort((a, b) => b.id - a.id) || [];
-                const data = dataFull.slice(0, !isDashboard ? dataFull.length : MAX_ITEMS);
-                this.setState({dataFull: dataFull, data: data}, () => {
-                    // const {
-                    //     startDate,
-                    //     endDate
-                    // } = this.dateRangePickerRef?.current?.getSelectedDates() ?? {startDate: null, endDate: null};
-                    // this.onChange(startDate, endDate);
-                    this.filterData();
-                });
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+        // ordersService.getTransactions()
+        //     .then((res: ITransaction[]) => {
+        //         const dataFull = res?.sort((a, b) => b.id - a.id) || [];
+        //         const data = dataFull.slice(0, !isDashboard ? dataFull.length : MAX_ITEMS);
+        //         this.setState({dataFull: dataFull, data: data}, () => {
+        //             // const {
+        //             //     startDate,
+        //             //     endDate
+        //             // } = this.dateRangePickerRef?.current?.getSelectedDates() ?? {startDate: null, endDate: null};
+        //             // this.onChange(startDate, endDate);
+        //             this.filterData();
+        //         });
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errors: errors.messages});
+        //     })
+        //     .finally(() => {
+        //         this.setState({loading: false})
+        //     });
     }
 
     startAutoUpdate(): void {
@@ -214,9 +214,9 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
             to_date = moment().format("DD-MM-YYYY");
         }
 
-        ordersService.downloadTransactions({from_date: from_date, to_date: to_date}).then((res) => {
-            downloadFile.CSV('transactions', res);
-        })
+        // ordersService.downloadTransactions({from_date: from_date, to_date: to_date}).then((res) => {
+        //     downloadFile.CSV('transactions', res);
+        // })
     }
 
     downloadTransactionsXLSX = () => {
@@ -230,9 +230,9 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
             from_date = moment().subtract('years', 1).format("DD-MM-YYYY");
             to_date = moment().format("DD-MM-YYYY");
         }
-        ordersService.downloadTransactions({from_date: from_date, to_date: to_date}).then((res) => {
-            downloadFile.XLSX('transactions', res);
-        })
+        // ordersService.downloadTransactions({from_date: from_date, to_date: to_date}).then((res) => {
+        //     downloadFile.XLSX('transactions', res);
+        // })
     }
 
     render() {

@@ -12,6 +12,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit, faEye, faTrashCan, faClose} from "@fortawesome/free-solid-svg-icons";
 import {FormStatus} from "@/enums/form-status";
+import {OrderStatus} from "@/enums/order-status";
 
 const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
     searchValue = searchValue?.trim();
@@ -177,8 +178,8 @@ const Table = ({
         return !editable;
     };
 
-    const isDeleteButtonDisabled = (row: any) => {
-        return row && row['status']?.toLowerCase() === FormStatus.DELETED;
+    const isButtonDisabled = (row: any) => {
+        return row && [FormStatus.DELETED, OrderStatus.CLOSED].includes(row['status']?.toLowerCase());
     };
 
     const [currentPage, setCurrentPage] = React.useState(0);
@@ -304,35 +305,33 @@ const Table = ({
                                                         )}
                                                         {editBtn && (!access || access.edit) && (
                                                             <button
-                                                                disabled={isEditButtonDisabled(row.original)}
+                                                                disabled={isEditButtonDisabled(row.original) || isButtonDisabled(row.original)}
                                                                 onClick={() => block.openModal('edit', row.original)}
-                                                                className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) || isButtonDisabled(row.original) ? 'disable' : ''}`}>
                                                                 <FontAwesomeIcon
                                                                     className="nav-icon" icon={faEdit}/></button>
-                                                        )}
-                                                        {deleteBtn && (!access || access.delete) && (
-                                                            <button
-                                                                disabled={isDeleteButtonDisabled(row.original)}
-                                                                onClick={() => block.openModal('delete', row.original)}
-                                                                className={`admin-table-btn ripple ${isDeleteButtonDisabled(row.original) ? 'disable' : ''}`}>
-                                                                <FontAwesomeIcon
-                                                                    className="nav-icon" icon={faTrashCan}/></button>
                                                         )}
                                                         {customBtns && (
                                                             Object.entries(customBtns).map(([key, value]) => (
                                                                 <div key={key}>
                                                                     <button
-                                                                        disabled={(row.original as {
-                                                                            [key: string]: any
-                                                                        })[value + 'BtnDisabled']}
+                                                                        disabled={isButtonDisabled(row.original)}
                                                                         onClick={() => block.customBtnAction(key, row.original)}
-                                                                        className={`custom-btn admin-table-btn ripple ${(row.original as {
-                                                                            [key: string]: any
-                                                                        })[value + 'BtnDisabled'] ? 'disable' : ''}`}>{value as any}</button>
+                                                                        className={`custom-btn admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}
+                                                                    >
+                                                                        {value as any}
+                                                                    </button>
                                                                 </div>
                                                             ))
                                                         )}
-
+                                                        {deleteBtn && (!access || access.delete) && (
+                                                            <button
+                                                                disabled={isButtonDisabled(row.original)}
+                                                                onClick={() => block.openModal('delete', row.original)}
+                                                                className={`admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                <FontAwesomeIcon
+                                                                    className="nav-icon" icon={faTrashCan}/></button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             ) : ''}

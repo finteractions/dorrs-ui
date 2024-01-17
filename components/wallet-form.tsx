@@ -59,14 +59,14 @@ class WalletForm extends React.Component<WalletFormProps, WalletFormState> {
     handleSubmit = async (values: Record<string, string>, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null})
 
-        await ordersService.createWithdrawAddress(values)
-            .then((res: any) => {
-                this.onCallback(values);
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages})
-            })
-            .finally(() => setSubmitting(false))
+        // await ordersService.createWithdrawAddress(values)
+        //     .then((res: any) => {
+        //         this.onCallback(values);
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages})
+        //     })
+        //     .finally(() => setSubmitting(false))
     };
 
     onCallback(values: Record<string, string | boolean>) {

@@ -67,16 +67,16 @@ class WalletsBlock extends React.Component<{ userAsset?: IUserAsset | null, onLo
     getWithdrawAddress() {
         this.setState({isLoading: true});
         this.props.onLoading?.(true)
-        ordersService.getWithdrawAddresses()
-            .then((res: Array<IWithdrawAddress>) => {
-                this.withdrawAddresses = userAsset ? res.filter(s => s.asset === userAsset?.asset?.label).reverse() : res.reverse();
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages})
-            }).finally(() => {
-            this.setState({isLoading: false});
-            this.props.onLoading?.(false)
-        });
+        // ordersService.getWithdrawAddresses()
+        //     .then((res: Array<IWithdrawAddress>) => {
+        //         this.withdrawAddresses = userAsset ? res.filter(s => s.asset === userAsset?.asset?.label).reverse() : res.reverse();
+        //     })
+        //     .catch((errors: IError) => {
+        //         this.setState({errorMessages: errors.messages})
+        //     }).finally(() => {
+        //     this.setState({isLoading: false});
+        //     this.props.onLoading?.(false)
+        // });
     }
 
     onCallback(withdrawAddress: IWithdrawAddress) {
