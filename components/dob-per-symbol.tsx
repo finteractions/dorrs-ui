@@ -121,32 +121,32 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
         ];
 
         columnsByPrice = [
-            columnHelperByOrder.accessor((row) => row.bid_count, {
+            columnHelperByPrice.accessor((row) => row.bid_count, {
                 id: "bid_count",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 0),
                 header: () => <span>Bid Count </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.bid_quantity, {
+            columnHelperByPrice.accessor((row) => row.bid_quantity, {
                 id: "bid_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>Bid Size </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.bid_price, {
+            columnHelperByPrice.accessor((row) => row.bid_price, {
                 id: "bid_price",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>Bid Price </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.offer_price, {
+            columnHelperByPrice.accessor((row) => row.offer_price, {
                 id: "offer_price",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>Offer Price </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.offer_quantity, {
+            columnHelperByPrice.accessor((row) => row.offer_quantity, {
                 id: "offer_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
                 header: () => <span>Offer Size </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.offer_count, {
+            columnHelperByPrice.accessor((row) => row.offer_count, {
                 id: "offer_count",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 0),
                 header: () => <span>Offer Count </span>,
@@ -273,17 +273,6 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
         this.setState({dataDepthByPrice: this.state.dataDepthByPriceFull, filterDataDepthByPrice: []});
     }
 
-    downloadDepthCSV = () => {
-        bboService.downloadBBOBySymbol(this.props.symbol, this.state.filterDataDepthByOrder).then((res) => {
-            downloadFile.CSV('bbo', res);
-        })
-    }
-
-    downloadDepthXLSX = () => {
-        bboService.downloadBBOBySymbol(this.props.symbol, this.state.filterDataDepthByOrder).then((res) => {
-            downloadFile.XLSX('bbo', res);
-        })
-    }
 
     setType = (type: string) => {
         this.setState({isDataLoading: true, type: type}, async () => {
@@ -307,20 +296,6 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
             case 'by_order':
                 return (
                     <>
-                        <div
-                            className="content__title_btns content__filter download-buttons justify-content-end mb-24 d-none">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadDepthCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadDepthXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
-                        </div>
-
                         <div className="content__filter mb-3">
 
                             <div className="input__wrap">
@@ -388,27 +363,10 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                 )
             case 'by_price':
                 return (
-                    <>
-                        <div
-                            className="content__title_btns content__filter download-buttons justify-content-end mb-24 d-none">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadDepthCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadDepthXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
-                        </div>
-
-
-                        <Table columns={columnsByPrice}
-                               data={this.state.dataDepthByPrice}
-                               block={this}
-                        />
-                    </>
+                    <Table columns={columnsByPrice}
+                           data={this.state.dataDepthByPrice}
+                           block={this}
+                    />
                 )
             default:
                 return (

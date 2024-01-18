@@ -297,12 +297,12 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
                     <div className="content__top">
                         <div className="content__title">Depth of Book</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
-                            <button className="border-grey-btn ripple d-flex d-none"
+                            <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadBBOCSV}>
                                 <span className="file-item__download"></span>
                                 <span>CSV</span>
                             </button>
-                            <button className="border-grey-btn ripple d-flex d-none"
+                            <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadBBOXLSX}>
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
