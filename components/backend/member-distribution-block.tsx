@@ -15,8 +15,9 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import MemberDistributionInfoBlock from "@/components/backend/member-distribution-info-block";
 import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
-import {faEye} from "@fortawesome/free-solid-svg-icons";
+import {faEye, faStar} from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
+import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 
 interface MemberDistributionBlockState {
@@ -49,9 +50,12 @@ class MemberDistributionBlock extends React.Component<{}> {
     state: MemberDistributionBlockState;
     dates: Array<string>;
 
-    customBtns = {
-        'custom': <FontAwesomeIcon className="nav-icon" icon={faEye}/>,
-    }
+    customBtns: Array<ICustomButtonProps> = [
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faEye}/>,
+            onCallback: 'customBtnAction'
+        }
+    ]
 
     constructor(props: {}) {
         super(props);
@@ -456,7 +460,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                         searchPanel={false}
                                                         block={this}
                                                         viewBtn={false}
-                                                        customBtns={this.customBtns}
+                                                        customBtnProps={this.customBtns}
                                                         filter={false}
                                                     />
                                                 ) : (

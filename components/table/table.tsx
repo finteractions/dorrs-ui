@@ -13,6 +13,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit, faEye, faTrashCan, faClose} from "@fortawesome/free-solid-svg-icons";
 import {FormStatus} from "@/enums/form-status";
 import {OrderStatus} from "@/enums/order-status";
+import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
     searchValue = searchValue?.trim();
@@ -63,7 +64,7 @@ const Table = ({
                    editBtn,
                    viewBtn,
                    deleteBtn,
-                   customBtns,
+                   customBtnProps,
                    filter,
                    access,
                    className,
@@ -78,7 +79,7 @@ const Table = ({
     editBtn?: boolean
     viewBtn?: boolean
     deleteBtn?: boolean,
-    customBtns?: any,
+    customBtnProps?: Array<ICustomButtonProps>,
     filter?: boolean
     access?: any,
     className?: string
@@ -242,7 +243,7 @@ const Table = ({
                                                 </th>
                                             );
                                         })}
-                                        {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtns || filter ? (
+                                        {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps || filter ? (
                                             <th>
 
                                             </th>
@@ -286,7 +287,7 @@ const Table = ({
                                             }}
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => (
-                                                <td colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtns ? 2 : 1}
+                                                <td colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
                                                     key={cell.id}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
@@ -294,7 +295,7 @@ const Table = ({
                                                     )}
                                                 </td>
                                             ))}
-                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtns ? (
+                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps ? (
                                                 <td>
                                                     <div className='admin-table-actions'>
                                                         {viewBtn && (
@@ -311,15 +312,15 @@ const Table = ({
                                                                 <FontAwesomeIcon
                                                                     className="nav-icon" icon={faEdit}/></button>
                                                         )}
-                                                        {customBtns && (
-                                                            Object.entries(customBtns).map(([key, value]) => (
-                                                                <div key={key}>
+                                                        {customBtnProps && (
+                                                            customBtnProps.map((buttonProps, index) => (
+                                                                <div key={index}>
                                                                     <button
                                                                         disabled={isButtonDisabled(row.original)}
-                                                                        onClick={() => block.customBtnAction(key, row.original)}
+                                                                        onClick={() => block[buttonProps.onCallback](row.original)}
                                                                         className={`custom-btn admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}
                                                                     >
-                                                                        {value as any}
+                                                                        {buttonProps.icon as any}
                                                                     </button>
                                                                 </div>
                                                             ))

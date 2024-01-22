@@ -19,7 +19,8 @@ import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faEdit, faEye} from "@fortawesome/free-solid-svg-icons";
+import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 
 interface DOBBlockState extends IState, IModalState {
@@ -58,9 +59,12 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    customBtns = {
-        'custom': <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
-    }
+    customBtns: Array<ICustomButtonProps> = [
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
+            onCallback: 'customBtnAction'
+        }
+    ]
 
     constructor(props: DOBBlockProps, context: IDataContext<null>) {
         super(props);
@@ -437,7 +441,7 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
                                            editBtn={false}
                                            viewBtn={true}
                                            deleteBtn={true}
-                                           customBtns={this.customBtns}
+                                           customBtnProps={this.customBtns}
                                            access={this.props.access}
                                     />
                                 ) : (

@@ -1,0 +1,483 @@
+import React from 'react';
+import LoaderBlock from "@/components/loader-block";
+import NoDataBlock from "./no-data-block";
+import Table from "@/components/table/table";
+import {createColumnHelper} from "@tanstack/react-table";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
+import formatterService from "@/services/formatter/formatter-service";
+import filterService from "@/services/filter/filter";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import AssetImage from "@/components/asset-image";
+import {IMarketStatistics} from "@/interfaces/i-market-statistics";
+import statisticsService from "@/services/statistics/statistics-service";
+import {faPlus, faMinus, faTable, faThLarge} from "@fortawesome/free-solid-svg-icons";
+import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
+import {getGlobalConfig} from "@/utils/global-config";
+
+
+interface QuoteBoardBlockState extends IState {
+    isLoading: boolean;
+    errors: string[];
+    data: IMarketStatistics[];
+    dataList: IMarketStatistics[];
+    dataListFull: IMarketStatistics[];
+    filterDataList: any;
+    dataWatchList: IMarketStatistics[];
+    dataWatchListFull: IMarketStatistics[];
+    filterDataWatchList: any;
+    quoteModeView: string;
+    favouriteSymbolList: Array<string>;
+}
+
+interface QuoteBoardBlockProps extends ICallback {
+    // access: {
+    //     view: boolean
+    //     create: boolean
+    //     edit: boolean
+    //     delete: boolean
+    // }
+}
+
+
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+
+const columnHelper = createColumnHelper<any>();
+let columns: any[] = [];
+
+const PATH_FAVOURITE_LIST = `${getGlobalConfig().host}-favouriteSymbolList`;
+const PATH_MODE_VIEW = `${getGlobalConfig().host}-quoteView`;
+
+class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBlockState> {
+
+    host = `${window.location.protocol}//${window.location.host}`;
+
+    state: QuoteBoardBlockState;
+    errors: Array<string> = new Array<string>();
+    getBBOInterval!: NodeJS.Timer;
+
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    customBtns: Array<ICustomButtonProps> = [
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faPlus}/>,
+            onCallback: 'addToFavourites'
+        }
+    ]
+
+    customBtnsWatchList: Array<ICustomButtonProps> = [
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faMinus}/>,
+            onCallback: 'removeFromFavorites'
+        }
+    ]
+
+    constructor(props: QuoteBoardBlockProps, context: IDataContext<null>) {
+        super(props);
+        this.context = context;
+
+        const favouriteSymbolList = JSON.parse(localStorage.getItem(PATH_FAVOURITE_LIST) || '[]');
+        const quoteModeView = localStorage.getItem(PATH_MODE_VIEW) || 'table';
+
+        this.state = {
+            success: false,
+            isLoading: true,
+            errors: [],
+            data: [],
+            dataList: [],
+            dataListFull: [],
+            filterDataList: [],
+            dataWatchList: [],
+            dataWatchListFull: [],
+            filterDataWatchList: [],
+            favouriteSymbolList: favouriteSymbolList,
+            quoteModeView: quoteModeView
+        }
+
+
+        columns = [
+            columnHelper.accessor((row) => ({
+                symbol: row.symbol_name,
+                image: row.company_profile?.logo
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <div onClick={() => {
+                        this.navigate(item.getValue().symbol)
+                    }}
+                         className={`table-image cursor-pointer link`}
+                    >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
+                        {item.getValue().symbol}
+                    </div>
+                ,
+                header: () => <span>Symbol</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                company_name: row.company_profile.company_name,
+            }), {
+                id: "company_name",
+                cell: (item) => item.getValue().company_name,
+                header: () => <span>Company </span>,
+            }),
+            columnHelper.accessor((row) => row.last_price, {
+                id: "last_price",
+                cell: (item) => formatterService.numberFormat(item.getValue()),
+                header: () => <span>Last Price </span>,
+            }),
+            columnHelper.accessor((row) => row.price_changed, {
+                id: "price_changed",
+                cell: (item) => formatterService.formatAndColorNumberValueHTML(item.getValue()),
+                header: () => <span>Price Change</span>,
+            }),
+            columnHelper.accessor((row) => row.percentage_changed, {
+                id: "percentage_changed",
+                cell: (item) => formatterService.formatAndColorNumberBlockTML(item.getValue()),
+                header: () => <span>% Change</span>,
+            }),
+        ];
+    }
+
+    navigate = (symbol: string) => {
+        this.props.onCallback(symbol);
+    }
+
+    componentDidMount() {
+        this.setState({isLoading: true});
+        this.getMarketStatistics();
+        this.startAutoUpdate();
+    }
+
+    componentWillUnmount() {
+        this.stopAutoUpdate();
+    }
+
+    startAutoUpdate = () => {
+        this.getBBOInterval = setInterval(this.getMarketStatistics, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.getBBOInterval) clearInterval(this.getBBOInterval);
+    }
+
+    getMarketStatistics = () => {
+        statisticsService.getMarketData()
+            .then((res: Array<IMarketStatistics>) => {
+                const data = res || [];
+                this.setState({data: data}, () => {
+                    this.prepareData();
+                });
+
+            })
+            .catch((errors: IError) => {
+
+            })
+            .finally(() => {
+                this.setState({isLoading: false})
+            });
+    }
+
+    prepareData = () => {
+        const {data} = this.state;
+        const watchDataList = data.filter(item => {
+            return this.state.favouriteSymbolList.includes(item.symbol)
+        });
+
+        const dataList = data.filter(item => {
+            return !this.state.favouriteSymbolList.includes(item.symbol)
+        });
+
+        this.setState({dataWatchListFull: watchDataList, dataWatchList: watchDataList}, () => {
+            this.filterWatchData();
+        });
+
+        this.setState({dataListFull: dataList, dataList: dataList}, () => {
+            this.filterData();
+        });
+    }
+
+    filterData = () => {
+        this.setState({dataList: filterService.filterData(this.state.filterDataList, this.state.dataListFull)});
+    }
+
+    filterWatchData = () => {
+        this.setState({dataWatchList: filterService.filterData(this.state.filterDataWatchList, this.state.dataWatchListFull)});
+    }
+
+    handleFilterChange = (prop_name: string, item: any): void => {
+        this.setState(({
+            filterDataList: {...this.state.filterDataList, [prop_name]: item?.value || ''}
+        }), () => {
+            this.filterData();
+        });
+    }
+
+    handleResetButtonClick = () => {
+        this.setState({dataList: this.state.dataListFull, filterDataList: []});
+    }
+
+    addToFavourites = (data: any) => {
+        const {favouriteSymbolList} = this.state;
+
+        if (!favouriteSymbolList.includes(data.symbol)) {
+            const updatedFavouriteSymbolList = new Set([...favouriteSymbolList, data.symbol]);
+            const updatedFavouriteSymbolArray = Array.from(updatedFavouriteSymbolList);
+
+            this.setState({favouriteSymbolList: updatedFavouriteSymbolArray}, () => {
+                this.updateFavouriteSymbolList()
+                    .then(() => this.prepareData())
+            });
+        }
+    }
+
+    removeFromFavorites = (statistics: IMarketStatistics) => {
+        const {favouriteSymbolList} = this.state;
+        const updatedFavouriteSymbolList = favouriteSymbolList.filter(item => item !== statistics.symbol);
+
+        this.setState({favouriteSymbolList: updatedFavouriteSymbolList}, () => {
+            this.updateFavouriteSymbolList()
+                .then(() => this.prepareData())
+        });
+    }
+
+    updateFavouriteSymbolList = () => {
+        return new Promise(resolve => {
+            localStorage.setItem(PATH_FAVOURITE_LIST, JSON.stringify(this.state.favouriteSymbolList));
+            resolve(true);
+        })
+    }
+
+    setModeView = (mode: string) => {
+        this.setState({quoteModeView: mode}, async () => {
+            await this.updateModeView()
+        });
+    }
+
+    updateModeView = () => {
+        return new Promise(resolve => {
+            localStorage.setItem(PATH_MODE_VIEW, this.state.quoteModeView);
+            resolve(true);
+        })
+    }
+
+    getViewRender = () => {
+        switch (this.state.quoteModeView) {
+            case 'table':
+                return (
+                    <>
+
+                        {this.state.dataWatchList.length > 0 && (
+                            <div className={'panel'}>
+                                <div className="content__top">
+                                    <div className="content__title">Watch List</div>
+                                </div>
+
+                                <div className={'content__bottom'}>
+                                    <Table columns={columns}
+                                           data={this.state.dataWatchList}
+                                           customBtnProps={this.customBtnsWatchList}
+                                           block={this}
+                                        // access={this.props.access}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className={'panel'}>
+                            <div className="content__top">
+                                <div className="content__title">Market Overview</div>
+                            </div>
+                            {this.state.dataList.length ? (
+                                <>
+
+                                    <div className={'content__bottom'}><Table columns={columns}
+                                                                              data={this.state.dataList}
+                                                                              customBtnProps={this.customBtns}
+                                                                              block={this}
+                                        // access={this.props.access}
+                                    />
+
+                                    </div>
+                                </>
+                            ) : (
+                                <NoDataBlock/>
+                            )}
+
+                        </div>
+                    </>
+                )
+            case 'tile':
+                return (
+                    <>
+                        {this.state.dataWatchList.length > 0 && (
+                            <>
+                                <div className={'panel'}>
+                                    <div className="content__top">
+                                        <div className="content__title">Watch List</div>
+                                    </div>
+                                </div>
+                                <div className="indicators content__bottom">
+                                    {this.state.dataWatchList.map(item => (
+                                        <div key={item.symbol} className={'indicator__item'}>
+                                            <div className={''}>
+                                                <div className={'table-image cursor-pointer link image-28'}>
+                                                    <AssetImage alt=''
+                                                                src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                                                width={28} height={28}/>
+                                                </div>
+
+                                                <div>{item.company_profile?.company_name}</div>
+                                            </div>
+
+                                            <div>
+                                                <div>
+                                                    <div></div>
+                                                    <div
+                                                        className={'title'}>{item.symbol}</div>
+                                                </div>
+
+
+                                                <button
+                                                    type="button"
+                                                    className='b-btn ripple'
+                                                    onClick={() => this.removeFromFavorites(item)}
+                                                >
+                                                    <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+                                                </button>
+
+
+                                            </div>
+                                            <div className={'indicator__item__data'}>
+                                                <div>
+                                                    <div>Last Price:</div>
+                                                    <div><span className={'sign'}></span><span
+                                                        className={'stay'}>{formatterService.numberFormat(Number(item.last_price))}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div>Price Change:</div>
+                                                    <div>{formatterService.formatAndColorNumberValueHTML(item.price_changed)}</div>
+                                                </div>
+                                                <div>
+                                                    <div>% Change:</div>
+                                                    <div>{formatterService.formatAndColorNumberBlockTML(item.percentage_changed)}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+
+                        )}
+
+                        <div className={'panel'}>
+                            <div className="content__top">
+                                <div className="content__title">Market Overview</div>
+                            </div>
+                        </div>
+                        {this.state.dataList.length ? (
+                            <div className="tile indicators content__bottom">
+                                {this.state.dataList.map(item => (
+                                    <div key={item.symbol} className={'indicator__item'}>
+                                        <div className={''}>
+                                            <div className={'table-image cursor-pointer link image-28'}>
+                                                <AssetImage alt=''
+                                                            src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                                            width={28} height={28}/>
+                                            </div>
+
+                                            <div>{item.company_profile?.company_name}</div>
+                                        </div>
+
+                                        <div>
+                                            <div>
+                                                <div></div>
+                                                <div
+                                                    className={'title'}>{item.symbol}</div>
+                                            </div>
+
+
+                                            <button
+                                                type="button"
+                                                className='b-btn ripple'
+                                                onClick={() => this.addToFavourites(item)}
+                                            >
+                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                            </button>
+                                        </div>
+                                        <div className={'indicator__item__data'}>
+                                            <div>
+                                                <div>Last Price:</div>
+                                                <div><span className={'sign'}></span><span
+                                                    className={'stay'}>{formatterService.numberFormat(Number(item.last_price))}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div>Price Change:</div>
+                                                <div>{formatterService.formatAndColorNumberValueHTML(item.price_changed)}</div>
+                                            </div>
+                                            <div>
+                                                <div>% Change:</div>
+                                                <div>{formatterService.formatAndColorNumberBlockTML(item.percentage_changed)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={'panel'}>
+                                <NoDataBlock/>
+                            </div>
+                        )}
+                    </>
+
+                );
+            default:
+                return (
+                    <></>
+                )
+        }
+    }
+
+    render() {
+        return (
+
+            <>
+                <div className="panel">
+                    <div className="content__top">
+                        <div className="content__title">Quote Board</div>
+                        <div
+                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                            <button
+                                className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'table' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                disabled={this.state.isLoading}
+                                onClick={() => this.setModeView('table')}>
+                                <span><FontAwesomeIcon className="nav-icon" icon={faTable}/></span>
+                            </button>
+                            <button
+                                className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'tile' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                disabled={this.state.isLoading}
+                                onClick={() => this.setModeView('tile')}>
+                                <span><FontAwesomeIcon className="nav-icon" icon={faThLarge}/></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {this.state.isLoading ? (
+                    <LoaderBlock/>
+                ) : (
+                    <>{this.getViewRender()}</>
+                )}
+
+            </>
+
+        )
+    }
+}
+
+// export default portalAccessWrapper(QuoteBoardBlock, 'QuoteBoardBlock');
+export default QuoteBoardBlock;

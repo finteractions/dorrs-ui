@@ -3324,7 +3324,7 @@ body {
       display: flex;
       flex: 0 0 100%;
       flex-wrap: wrap;
-      justify-content: space-between;
+      //justify-content: space-between;
       gap: 20px;
 
       .content__title {
@@ -3359,6 +3359,52 @@ body {
             path {
               stroke: #718494;
               fill: #d4dadf;
+            }
+          }
+        }
+
+        .indicator__item__data {
+          flex: 0 0 100%;
+          padding-left: 30px;
+          padding-right: 30px;
+          padding-bottom: 20px;
+
+          > div {
+            display: flex;
+            flex: 1;
+
+            > div {
+              flex: 1;
+              margin: 8px;
+              font-size: 14px;
+              color: #7E8299;
+
+              > span.bg-stay {
+                > span.sign {
+                  //width: unset;
+                }
+              }
+            }
+
+            &:nth-child(1), &:nth-child(2) {
+              > div {
+                > span {
+                  padding-left: 16px;
+
+                  &.stay {
+                    padding-left: 10px;
+                  }
+                }
+              }
+            }
+            &:nth-child(2) {
+              > div {
+                > span {
+                  &.stay {
+                    padding-left: 17px;
+                  }
+                }
+              }
             }
           }
         }
@@ -3410,6 +3456,11 @@ body {
               &.down {
                 color: #F62423;
                 background: #FFF5F8;
+              }
+
+              &.title {
+                color: #1F8CEB;
+                background: #F6F9FC;
               }
             }
           }
@@ -3654,6 +3705,49 @@ body {
       color: #cb3d34;
     }
 
+    .image-28 {
+      min-width: 28px;
+    }
+
+    span.up {
+      color: #15B698;
+    }
+
+    span.sign {
+      display: inline-block;
+      width: 10px;
+    }
+
+    span.up, span.down, span.stay {
+      margin: 5px 5px;
+      border-radius: 6px;
+    }
+
+    span.bg-up, span.bg-down, span.bg-stay {
+      padding: 6px 11.5px;
+    }
+
+    span.bg-up {
+      background-color: #E8FFF3;
+    }
+
+    span.down {
+      color: #F62423;
+    }
+
+    span.bg-down {
+      background-color: #FFF5F8;
+    }
+
+    span.stay {
+      color: #8e949d;
+    }
+
+    span.bg-stay {
+      background-color: #ebeff5;
+    }
+
   }
 }
+
 

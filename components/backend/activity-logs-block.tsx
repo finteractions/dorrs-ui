@@ -19,7 +19,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-let customBtns: {};
 
 interface ActivityLogsBlockState {
     loading: boolean;
@@ -115,9 +114,6 @@ class ActivityLogsBlock extends React.Component<{}> {
         //     }),
         // ];
 
-        customBtns = {
-            'blockIp': 'Block IP',
-        }
     }
 
     componentDidMount() {
@@ -314,7 +310,6 @@ class ActivityLogsBlock extends React.Component<{}> {
                                     data={this.state.data}
                                     searchPanel={true}
                                     block={this}
-                                    customBtns={customBtns}
                                 />
                             ) : (
                                 <>
