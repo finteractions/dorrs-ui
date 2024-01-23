@@ -11,7 +11,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AssetImage from "@/components/asset-image";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
 import statisticsService from "@/services/statistics/statistics-service";
-import {faPlus, faMinus, faTable, faThLarge} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faMinus, faThLarge, faList, faEye} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {getGlobalConfig} from "@/utils/global-config";
 
@@ -118,7 +118,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                 header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => ({
-                company_name: row.company_profile.company_name,
+                company_name: row.company_profile?.company_name || '',
             }), {
                 id: "company_name",
                 cell: (item) => item.getValue().company_name,
@@ -184,11 +184,11 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     prepareData = () => {
         const {data} = this.state;
         const watchDataList = data.filter(item => {
-            return this.state.favouriteSymbolList.includes(item.symbol)
+            return this.state.favouriteSymbolList.includes(item.symbol_name)
         });
 
         const dataList = data.filter(item => {
-            return !this.state.favouriteSymbolList.includes(item.symbol)
+            return !this.state.favouriteSymbolList.includes(item.symbol_name)
         });
 
         this.setState({dataWatchListFull: watchDataList, dataWatchList: watchDataList}, () => {
@@ -223,8 +223,8 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     addToFavourites = (data: any) => {
         const {favouriteSymbolList} = this.state;
 
-        if (!favouriteSymbolList.includes(data.symbol)) {
-            const updatedFavouriteSymbolList = new Set([...favouriteSymbolList, data.symbol]);
+        if (!favouriteSymbolList.includes(data.symbol_name)) {
+            const updatedFavouriteSymbolList = new Set([...favouriteSymbolList, data.symbol_name]);
             const updatedFavouriteSymbolArray = Array.from(updatedFavouriteSymbolList);
 
             this.setState({favouriteSymbolList: updatedFavouriteSymbolArray}, () => {
@@ -236,7 +236,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
 
     removeFromFavorites = (statistics: IMarketStatistics) => {
         const {favouriteSymbolList} = this.state;
-        const updatedFavouriteSymbolList = favouriteSymbolList.filter(item => item !== statistics.symbol);
+        const updatedFavouriteSymbolList = favouriteSymbolList.filter(item => item !== statistics.symbol_name);
 
         this.setState({favouriteSymbolList: updatedFavouriteSymbolList}, () => {
             this.updateFavouriteSymbolList()
@@ -322,13 +322,15 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                 </div>
                                 <div className="indicators content__bottom">
                                     {this.state.dataWatchList.map(item => (
-                                        <div key={item.symbol} className={'indicator__item'}>
+                                        <div key={item.symbol_name} className={'indicator__item'}>
                                             <div className={''}>
-                                                <div className={'table-image cursor-pointer link image-28'}>
-                                                    <AssetImage alt=''
-                                                                src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
-                                                                width={28} height={28}/>
-                                                </div>
+                                                {item.company_profile?.logo && (
+                                                    <div className={'table-image cursor-pointer link image-28'}>
+                                                        <AssetImage alt=''
+                                                                    src={`${this.host}${item.company_profile?.logo}`}
+                                                                    width={28} height={28}/>
+                                                    </div>
+                                                )}
 
                                                 <div>{item.company_profile?.company_name}</div>
                                             </div>
@@ -336,18 +338,21 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             <div>
                                                 <div>
                                                     <div></div>
-                                                    <div
-                                                        className={'title'}>{item.symbol}</div>
+                                                    <div onClick={() => this.navigate(item.symbol_name)}
+                                                         className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
+                                                        className="nav-icon" icon={faEye}/>
+                                                    </div>
                                                 </div>
 
-
-                                                <button
-                                                    type="button"
-                                                    className='b-btn ripple'
-                                                    onClick={() => this.removeFromFavorites(item)}
-                                                >
-                                                    <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
-                                                </button>
+                                                <div className={'admin-table-actions'}>
+                                                    <button
+                                                        type="button"
+                                                        className='custom-btn admin-table-btn ripple '
+                                                        onClick={() => this.removeFromFavorites(item)}
+                                                    >
+                                                        <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+                                                    </button>
+                                                </div>
 
 
                                             </div>
@@ -382,32 +387,37 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                         {this.state.dataList.length ? (
                             <div className="tile indicators content__bottom">
                                 {this.state.dataList.map(item => (
-                                    <div key={item.symbol} className={'indicator__item'}>
+                                    <div key={item.symbol_name} className={'indicator__item'}>
                                         <div className={''}>
-                                            <div className={'table-image cursor-pointer link image-28'}>
-                                                <AssetImage alt=''
-                                                            src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
-                                                            width={28} height={28}/>
-                                            </div>
-
+                                            {item.company_profile?.logo && (
+                                                <div className={'table-image cursor-pointer link image-28'}>
+                                                    <AssetImage alt=''
+                                                                src={`${this.host}${item.company_profile?.logo}`}
+                                                                width={28} height={28}/>
+                                                </div>
+                                            )}
                                             <div>{item.company_profile?.company_name}</div>
                                         </div>
 
                                         <div>
                                             <div>
                                                 <div></div>
-                                                <div
-                                                    className={'title'}>{item.symbol}</div>
+                                                <div onClick={() => this.navigate(item.symbol_name)}
+                                                     className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
+                                                    className="nav-icon" icon={faEye}/>
+                                                </div>
                                             </div>
 
 
-                                            <button
-                                                type="button"
-                                                className='b-btn ripple'
-                                                onClick={() => this.addToFavourites(item)}
-                                            >
-                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                            </button>
+                                            <div className={'admin-table-actions'}>
+                                                <button
+                                                    type="button"
+                                                    className='custom-btn admin-table-btn ripple '
+                                                    onClick={() => this.addToFavourites(item)}
+                                                >
+                                                    <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className={'indicator__item__data'}>
                                             <div>
@@ -456,7 +466,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                 className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'table' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
                                 disabled={this.state.isLoading}
                                 onClick={() => this.setModeView('table')}>
-                                <span><FontAwesomeIcon className="nav-icon" icon={faTable}/></span>
+                                <span><FontAwesomeIcon className="nav-icon" icon={faList}/></span>
                             </button>
                             <button
                                 className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'tile' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}

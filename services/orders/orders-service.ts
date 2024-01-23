@@ -14,7 +14,7 @@ class OrdersService extends BaseService {
     }
 
     public async getOrders(): Promise<IOrder[]> {
-        return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}list/`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
     }
 
     public async downloadOrders(data: any): Promise<string> {

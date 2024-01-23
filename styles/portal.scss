@@ -3397,11 +3397,12 @@ body {
                 }
               }
             }
+
             &:nth-child(2) {
               > div {
                 > span {
                   &.stay {
-                    padding-left: 17px;
+                    padding-left: 16px;
                   }
                 }
               }
@@ -3747,6 +3748,9 @@ body {
       background-color: #ebeff5;
     }
 
+    .cursor-pointer {
+      cursor: pointer;
+    }
   }
 }
 

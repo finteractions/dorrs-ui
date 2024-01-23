@@ -1,6 +1,6 @@
 import {format} from 'date-fns';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUp, faArrowDown} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUp, faArrowDown, faArrowsV} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 function numberFormat(
@@ -103,7 +103,7 @@ function formatAndColorNumberBlockTML(input: string | number) {
         className = 'down bg-down';
     } else {
         formattedNumber = formatterService.numberFormat(numberValue);
-        icon = '';
+        icon = <FontAwesomeIcon className="nav-icon" icon={faArrowsV}/>
         className = 'stay bg-stay';
     }
 
