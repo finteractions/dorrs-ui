@@ -249,30 +249,6 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
         await this.getDepthByOrder();
     };
 
-    handleFilterChangeByOrder = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterDataDepthByOrder: {...this.state.filterDataDepthByOrder, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterDataDepthByOrder();
-        });
-    }
-
-    handleFilterChangeByPrice = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterDataDepthByPricer: {...this.state.filterDataDepthByPrice, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterDataDepthByPrice();
-        });
-    }
-
-    handleResetButtonClickByOrder = () => {
-        this.setState({dataDepthByOrder: this.state.dataDepthByOrderFull, filterDataDepthByOrder: []});
-    }
-
-    handleResetButtonClickByPrice = () => {
-        this.setState({dataDepthByPrice: this.state.dataDepthByPriceFull, filterDataDepthByPrice: []});
-    }
-
 
     setType = (type: string) => {
         this.setState({isDataLoading: true, type: type}, async () => {
@@ -295,71 +271,10 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
         switch (this.state.type) {
             case 'by_order':
                 return (
-                    <>
-                        <div className="content__filter mb-3">
-
-                            <div className="input__wrap">
-                                <Select
-                                    className="select__react"
-                                    classNamePrefix="select__react"
-                                    isClearable={true}
-                                    isSearchable={true}
-                                    value={filterService.setValue('bid_mpid', this.state.filterDataDepthByOrder)}
-                                    onChange={(item) => this.handleFilterChangeByOrder('bid_mpid', item)}
-                                    options={filterService.buildOptions('bid_mpid', this.state.dataDepthByOrderFull)}
-                                    placeholder="Bid MPID"
-                                />
-                            </div>
-                            <div className="input__wrap">
-                                <Select
-                                    className="select__react"
-                                    classNamePrefix="select__react"
-                                    isClearable={true}
-                                    isSearchable={true}
-                                    value={filterService.setValue('bid_quote_condition', this.state.filterDataDepthByOrder)}
-                                    onChange={(item) => this.handleFilterChangeByOrder('bid_quote_condition', item)}
-                                    options={filterService.buildOptions('bid_quote_condition', this.state.dataDepthByOrderFull)}
-                                    placeholder="Bid Quote Condition"
-                                />
-                            </div>
-                            <div className="input__wrap">
-                                <Select
-                                    className="select__react"
-                                    classNamePrefix="select__react"
-                                    isClearable={true}
-                                    isSearchable={true}
-                                    value={filterService.setValue('offer_mpid', this.state.filterDataDepthByOrder)}
-                                    onChange={(item) => this.handleFilterChangeByOrder('offer_mpid', item)}
-                                    options={filterService.buildOptions('offer_mpid', this.state.dataDepthByOrderFull)}
-                                    placeholder="Offer MPID"
-                                />
-                            </div>
-                            <div className="input__wrap">
-                                <Select
-                                    className="select__react"
-                                    classNamePrefix="select__react"
-                                    isClearable={true}
-                                    isSearchable={true}
-                                    value={filterService.setValue('offer_quote_condition', this.state.filterDataDepthByOrder)}
-                                    onChange={(item) => this.handleFilterChangeByOrder('offer_quote_condition', item)}
-                                    options={filterService.buildOptions('offer_quote_condition', this.state.dataDepthByOrderFull)}
-                                    placeholder="Offer Quote Condition"
-                                />
-                            </div>
-                            <button
-                                className="content__filter-clear ripple"
-                                onClick={this.handleResetButtonClickByOrder}>
-                                <FontAwesomeIcon className="nav-icon"
-                                                 icon={filterService.getFilterResetIcon()}/>
-                            </button>
-                        </div>
-
-                        <Table columns={columnsByOrder}
-                               data={this.state.dataDepthByOrder}
-                               searchPanel={true}
-                               block={this}
-                        />
-                    </>
+                    <Table columns={columnsByOrder}
+                           data={this.state.dataDepthByOrder}
+                           block={this}
+                    />
                 )
             case 'by_price':
                 return (
@@ -412,30 +327,38 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                                     </h2>
 
 
-                                    <div
-                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                        <button
-                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                            disabled={this.state.isLoading || this.state.isDataLoading}
-                                            onClick={() => this.setType('by_order')}>
-                                            <span>By Order</span>
-                                        </button>
-                                        <button
-                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                            disabled={this.state.isLoading || this.state.isDataLoading}
-                                            onClick={() => this.setType('by_price')}>
-                                            <span>By Price</span>
-                                        </button>
+                                    <div className={'content__top px-0 border-bottom-0'}>
+                                        <div className="">
+                                            Depth of Book Snapshot
+                                        </div>
+                                        <div
+                                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                            <button
+                                                className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                                disabled={this.state.isLoading || this.state.isDataLoading}
+                                                onClick={() => this.setType('by_order')}>
+                                                <span>By Order</span>
+                                            </button>
+                                            <button
+                                                className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                                disabled={this.state.isLoading || this.state.isDataLoading}
+                                                onClick={() => this.setType('by_price')}>
+                                                <span>By Price</span>
+                                            </button>
+                                        </div>
                                     </div>
 
 
-                                    {this.state.isDataLoading ? (
-                                        <LoaderBlock/>
-                                    ) : (
-                                        <>
-                                            {this.getTableRender()}
-                                        </>
-                                    )}
+                                    <div className={'content__bottom px-0'}>
+                                        {this.state.isDataLoading ? (
+                                            <LoaderBlock/>
+                                        ) : (
+                                            <>
+                                                {this.getTableRender()}
+                                            </>
+                                        )}
+                                    </div>
+
 
                                 </>
                             </div>

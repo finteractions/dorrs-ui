@@ -321,13 +321,15 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
 
                     </div>
 
+                    <div className={'content__top border-bottom-0'}>
+                        Latest dates order updates
+                    </div>
 
                     {this.state.isLoading ? (
                         <LoaderBlock/>
                     ) : (
                         <>
                             <div className="content__bottom">
-
                                 <div className="content__filter mb-3">
                                     <div className="input__wrap">
                                         <Select
