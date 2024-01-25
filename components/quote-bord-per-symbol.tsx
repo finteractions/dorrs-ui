@@ -304,7 +304,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     </div>
                                     <div>
                                         <div>Price:</div>
-                                        <div>{formatterService.formatAndColorNumberBlockTML(this.state.lastSale?.price_formatted || 0)}</div>
+                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.price_formatted || 0, false)}</div>
                                     </div>
                                     <div>
                                         <div>Total Volume on current date:</div>

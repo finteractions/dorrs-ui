@@ -117,7 +117,7 @@ function formatAndColorTickIndicationValueHTML(tickIndication: string) {
     );
 }
 
-function formatAndColorNumberBlockHTML(input: string | number) {
+function formatAndColorNumberBlockHTML(input: string | number, percentageSign = true) {
     let formattedNumber = '';
     let icon: any = '';
     let className = '';
@@ -142,7 +142,7 @@ function formatAndColorNumberBlockHTML(input: string | number) {
 
     return (
         <span className={className}>
-            <span className={'sign'}>{icon}</span> <span>{formattedNumber}%</span>
+            <span className={'sign'}>{icon}</span> <span>{formattedNumber}{percentageSign ? '%' : ''}</span>
         </span>
     );
 }
@@ -153,7 +153,7 @@ const formatterService = {
     numberDown,
     getDecimalPlaceholder,
     formatAndColorNumberValueHTML,
-    formatAndColorNumberBlockTML: formatAndColorNumberBlockHTML,
+    formatAndColorNumberBlockHTML,
     formatAndColorTickIndicationValueHTML
 }
 

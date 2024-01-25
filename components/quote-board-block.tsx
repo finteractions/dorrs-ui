@@ -137,7 +137,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
             }),
             columnHelper.accessor((row) => row.percentage_changed, {
                 id: "percentage_changed",
-                cell: (item) => formatterService.formatAndColorNumberBlockTML(item.getValue()),
+                cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
             }),
         ];
@@ -370,7 +370,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 </div>
                                                 <div>
                                                     <div>% Change:</div>
-                                                    <div>{formatterService.formatAndColorNumberBlockTML(item.percentage_changed)}</div>
+                                                    <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -433,7 +433,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             </div>
                                             <div>
                                                 <div>% Change:</div>
-                                                <div>{formatterService.formatAndColorNumberBlockTML(item.percentage_changed)}</div>
+                                                <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                             </div>
                                         </div>
                                     </div>
