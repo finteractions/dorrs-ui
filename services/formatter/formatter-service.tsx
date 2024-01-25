@@ -1,6 +1,13 @@
 import {format} from 'date-fns';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUp, faArrowDown, faArrowsV} from "@fortawesome/free-solid-svg-icons";
+import {
+    faArrowUp,
+    faArrowDown,
+    faArrowsV,
+    faLinesLeaning,
+    faLineChart,
+    faMinus
+} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 function numberFormat(
@@ -84,7 +91,33 @@ function formatAndColorNumberValueHTML(input: string | number) {
     return (<span className={className}><span className={'sign'}>{sign}</span>{formattedNumber}</span>);
 }
 
-function formatAndColorNumberBlockTML(input: string | number) {
+function formatAndColorTickIndicationValueHTML(tickIndication: string) {
+    let icon: any = '';
+    let className = '';
+
+    switch (tickIndication) {
+        case 'U':
+            icon = <FontAwesomeIcon className="nav-icon" icon={faArrowUp}/>
+            className = 'up';
+            break;
+        case 'D':
+            icon = <FontAwesomeIcon className="nav-icon" icon={faArrowDown}/>
+            className = 'down';
+            break;
+        case 'N':
+            icon = <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+            className = 'stay';
+            break;
+    }
+
+    return (
+        <span className={className}>
+            <span className={'sign'}>{icon}</span>
+        </span>
+    );
+}
+
+function formatAndColorNumberBlockHTML(input: string | number) {
     let formattedNumber = '';
     let icon: any = '';
     let className = '';
@@ -103,7 +136,7 @@ function formatAndColorNumberBlockTML(input: string | number) {
         className = 'down bg-down';
     } else {
         formattedNumber = formatterService.numberFormat(numberValue);
-        icon = <FontAwesomeIcon className="nav-icon" icon={faArrowsV}/>
+        icon = <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
         className = 'stay bg-stay';
     }
 
@@ -120,7 +153,8 @@ const formatterService = {
     numberDown,
     getDecimalPlaceholder,
     formatAndColorNumberValueHTML,
-    formatAndColorNumberBlockTML
+    formatAndColorNumberBlockTML: formatAndColorNumberBlockHTML,
+    formatAndColorTickIndicationValueHTML
 }
 
 export default formatterService;

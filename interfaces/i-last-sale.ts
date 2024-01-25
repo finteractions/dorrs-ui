@@ -18,5 +18,7 @@ export interface ILastSale {
     updated_at: string;
     user_name?: string;
     user_id?: string;
-    company_profile?: ICompanyProfile
+    company_profile?: ICompanyProfile;
+    price_formatted?: string;
+    total_volume?: string;
 }

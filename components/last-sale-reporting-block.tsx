@@ -133,7 +133,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             }),
             columnHelper.accessor((row) => row.tick_indication, {
                 id: "tick_indication",
-                cell: (item) => item.getValue(),
+                cell: (item) => formatterService.formatAndColorTickIndicationValueHTML(item.getValue()),
                 header: () => <span>Tick Indication</span>,
             }),
             columnHelper.accessor((row) => row.uti, {

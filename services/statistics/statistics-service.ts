@@ -2,6 +2,8 @@ import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {IIndicator} from "@/interfaces/i-indicator";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
+import {ILastSale} from "@/interfaces/i-last-sale";
+import {IBBO} from "@/interfaces/i-bbo";
 
 class StatisticsService extends BaseService {
 
@@ -17,6 +19,20 @@ class StatisticsService extends BaseService {
 
     public async getMarketData(): Promise<Array<IMarketStatistics>> {
         return (await apiWebBackendService.get<IResponse<Array<IMarketStatistics>>>(`${this.PATH}market/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async getLastSaleBySymbol(symbol: string): Promise<Array<ILastSale>> {
+        let queryString = `symbol=${symbol}`;
+
+        const url = `${this.PATH}last_sale/?${queryString}`;
+        return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(url, {}, this.getUserAccessToken())).data;
+    }
+
+    public async getBestBidAndBestOfferBySymbol(symbol: string): Promise<Array<IBBO>> {
+        let queryString = `symbol=${symbol}`;
+
+        const url = `${this.PATH}best_bid_and_best_offer/?${queryString}`;
+        return (await apiWebBackendService.get<IResponse<Array<IBBO>>>(url, {}, this.getUserAccessToken())).data;
     }
 
 }

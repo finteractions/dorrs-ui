@@ -22,7 +22,7 @@ class LastSaleService extends BaseService {
         return apiWebBackendService.put(`${this.PATH}reporting/${id}/`, data, {}, this.getUserAccessToken());
     }
 
-    public async getLastSaleReportingBySymbol(symbol: string, symbolSuffix: string): Promise<Array<ILastSale>> {
+    public async getLastSaleReportingBySymbol(symbol: string, symbolSuffix: string | undefined): Promise<Array<ILastSale>> {
         let queryString = `symbol=${symbol}`;
 
         if (symbolSuffix !== null && symbolSuffix !== undefined) {
@@ -33,10 +33,10 @@ class LastSaleService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(url, {}, this.getUserAccessToken())).data;
     }
 
-    public async getLastSaleReportingChartBySymbol(symbol: string, symbolSuffix: string): Promise<Array<ITradingView>> {
+    public async getLastSaleReportingChartBySymbol(symbol: string, symbolSuffix: string | undefined): Promise<Array<ITradingView>> {
         let queryString = `symbol=${symbol}`;
 
-        if (symbolSuffix !== null && symbolSuffix !== undefined) {
+        if (symbolSuffix !== null && symbolSuffix !== undefined && symbolSuffix !== '') {
             queryString += `&symbol_suffix=${symbolSuffix}`;
         }
 
@@ -49,7 +49,7 @@ class LastSaleService extends BaseService {
         return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/`, data, {}, this.getUserAccessToken()));
     }
 
-    public async downloadLastSalesBySymbol(symbol: string, data:any): Promise<string> {
+    public async downloadLastSalesBySymbol(symbol: string, data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_last_sales/?symbol=${symbol}`, data, {}, this.getUserAccessToken()));
     }

@@ -14,6 +14,7 @@ import statisticsService from "@/services/statistics/statistics-service";
 import {faPlus, faMinus, faThLarge, faList, faEye} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {getGlobalConfig} from "@/utils/global-config";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 
 
 interface QuoteBoardBlockState extends IState {
@@ -31,12 +32,12 @@ interface QuoteBoardBlockState extends IState {
 }
 
 interface QuoteBoardBlockProps extends ICallback {
-    // access: {
-    //     view: boolean
-    //     create: boolean
-    //     edit: boolean
-    //     delete: boolean
-    // }
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 
@@ -325,7 +326,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                         <div key={item.symbol_name} className={'indicator__item'}>
                                             <div className={''}>
                                                 {item.company_profile?.logo && (
-                                                    <div className={'table-image cursor-pointer link image-28'}>
+                                                    <div className={'table-image image-28'}>
                                                         <AssetImage alt=''
                                                                     src={`${this.host}${item.company_profile?.logo}`}
                                                                     width={28} height={28}/>
@@ -390,7 +391,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                     <div key={item.symbol_name} className={'indicator__item'}>
                                         <div className={''}>
                                             {item.company_profile?.logo && (
-                                                <div className={'table-image cursor-pointer link image-28'}>
+                                                <div className={'table-image image-28'}>
                                                     <AssetImage alt=''
                                                                 src={`${this.host}${item.company_profile?.logo}`}
                                                                 width={28} height={28}/>
@@ -489,5 +490,4 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     }
 }
 
-// export default portalAccessWrapper(QuoteBoardBlock, 'QuoteBoardBlock');
-export default QuoteBoardBlock;
+export default portalAccessWrapper(QuoteBoardBlock, 'QuoteBoardBlock');

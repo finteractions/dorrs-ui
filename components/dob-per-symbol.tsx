@@ -2,15 +2,11 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Link from "next/link";
 import {useRouter} from "next/router";
-import bboService from "@/services/bbo/bbo-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
 import filterService from "@/services/filter/filter";
-import Select from "react-select";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import symbolService from "@/services/symbol/symbol-service";
-import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {QuoteCondition} from "@/enums/quote-condition";
@@ -21,6 +17,7 @@ import {IDepthByPrice} from "@/interfaces/i-depth-by-price";
 
 interface DOBPerSymbolProps {
     symbol: string;
+    isDashboard?: boolean;
 }
 
 interface DOBPerSymbolState extends IState {
@@ -42,15 +39,18 @@ let columnsByOrder: any[] = [];
 const columnHelperByPrice = createColumnHelper<any>();
 let columnsByPrice: any[] = [];
 
+
 class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
 
     companyProfile: ICompanyProfile | null;
     state: DOBPerSymbolState;
+    isDashboard: boolean;
 
     constructor(props: DOBPerSymbolProps) {
         super(props);
 
         this.companyProfile = null;
+        this.isDashboard = this.props.isDashboard ?? false;
 
         this.state = {
             success: false,
@@ -297,22 +297,25 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        <div className="d-flex align-items-center justify-content-between flex-1">
-                            <div className="login__bottom">
-                                <p>
-                                    <i className="icon-chevron-left"/> <Link
-                                    className="login__link"
-                                    href="/depth-of-book"
+                        {!this.isDashboard && (
+                            <div className="d-flex align-items-center justify-content-between flex-1">
+                                <div className="login__bottom">
+                                    <p>
+                                        <i className="icon-chevron-left"/> <Link
+                                        className="login__link"
+                                        href="/depth-of-book"
 
-                                >Back
-                                </Link>
-                                </p>
+                                    >Back
+                                    </Link>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
                         <div className={'panel'}>
                             <div className={`content__bottom`}>
 
-                                <>
+                                {!this.isDashboard ? (
                                     <h2 className={'view_block_main_title'}>
                                         {this.companyProfile ? (
                                             <>
@@ -325,42 +328,48 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
-
-
-                                    <div className={'content__top px-0 border-bottom-0'}>
-                                        <div className="">
-                                            Depth of Book Snapshot
-                                        </div>
-                                        <div
-                                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                            <button
-                                                className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                                disabled={this.state.isLoading || this.state.isDataLoading}
-                                                onClick={() => this.setType('by_order')}>
-                                                <span>By Order</span>
-                                            </button>
-                                            <button
-                                                className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                                disabled={this.state.isLoading || this.state.isDataLoading}
-                                                onClick={() => this.setType('by_price')}>
-                                                <span>By Price</span>
-                                            </button>
+                                ) : (
+                                    <div className={'content__top  px-0 border-bottom-0'}>
+                                        <div className={'content__title'}>
+                                            Depth of Book
                                         </div>
                                     </div>
+                                )}
 
 
-                                    <div className={'content__bottom px-0'}>
-                                        {this.state.isDataLoading ? (
-                                            <LoaderBlock/>
-                                        ) : (
-                                            <>
-                                                {this.getTableRender()}
-                                            </>
-                                        )}
+                                <div className={'content__top px-0 border-bottom-0'}>
+                                    <div className="">
+                                        Depth of Book Snapshot
                                     </div>
+                                    <div
+                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                        <button
+                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                            disabled={this.state.isLoading || this.state.isDataLoading}
+                                            onClick={() => this.setType('by_order')}>
+                                            <span>By Order</span>
+                                        </button>
+                                        <button
+                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                            disabled={this.state.isLoading || this.state.isDataLoading}
+                                            onClick={() => this.setType('by_price')}>
+                                            <span>By Price</span>
+                                        </button>
+                                    </div>
+                                </div>
 
 
-                                </>
+                                <div className={'content__bottom px-0'}>
+                                    {this.state.isDataLoading ? (
+                                        <LoaderBlock/>
+                                    ) : (
+                                        <>
+                                            {this.getTableRender()}
+                                        </>
+                                    )}
+                                </div>
+
+
                             </div>
                         </div>
                     </>

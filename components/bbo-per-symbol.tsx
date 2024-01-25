@@ -21,6 +21,7 @@ import NoDataBlock from "@/components/no-data-block";
 
 interface BBOPerSymbolProps {
     symbol: string;
+    isDashboard?: boolean;
 }
 
 interface BBOPerSymbolState extends IState {
@@ -41,11 +42,13 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
     companyProfile: ICompanyProfile | null;
     charts: Array<ITradingView> = new Array<ITradingView>();
     state: BBOPerSymbolState;
+    isDashboard: boolean;
 
     constructor(props: BBOPerSymbolProps) {
         super(props);
 
         this.companyProfile = null;
+        this.isDashboard = this.props.isDashboard ?? false;
 
         this.state = {
             success: false,
@@ -249,22 +252,26 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        <div className="d-flex align-items-center justify-content-between flex-1">
-                            <div className="login__bottom">
-                                <p>
-                                    <i className="icon-chevron-left"/> <Link
-                                    className="login__link"
-                                    href="/best-bid-and-best-offer"
+                        {!this.isDashboard && (
+                            <div className="d-flex align-items-center justify-content-between flex-1">
+                                <div className="login__bottom">
+                                    <p>
+                                        <i className="icon-chevron-left"/> <Link
+                                        className="login__link"
+                                        href="/best-bid-and-best-offer"
 
-                                >Back
-                                </Link>
-                                </p>
+                                    >Back
+                                    </Link>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div className={'panel'}>
-                            <div className={`content__bottom ${this.state.data.length ? '' : 'd-none'}`}>
+                        )}
 
-                                <>
+
+                        <div className={'panel'}>
+                            <div className={`content__bottom`}>
+
+                                {!this.isDashboard ? (
                                     <h2 className={'view_block_main_title'}>
                                         {this.companyProfile ? (
                                             <>
@@ -277,40 +284,43 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
+                                ) : (
+                                    <div className={'content__top  px-0 border-bottom-0'}>
+                                        <div className={'content__title'}>
+                                            Best Bid and Best Offer
+                                        </div>
+                                    </div>
+                                )}
 
-                                    {this.state.isLoadingChart ? (
-                                        <LoaderBlock/>
-                                    ) : (
-                                        <>
-                                            <div
-                                                className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                                <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.chart === 'b' ? 'active' : ''}`}
-                                                    onClick={() => this.getChart('b')}>
-                                                    <span>Bid</span>
-                                                </button>
-                                                <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.chart === 'a' ? 'active' : ''}`}
-                                                    onClick={() => this.getChart('a')}>
-                                                    <span>Offer</span>
-                                                </button>
+                                {this.state.isLoadingChart ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    <>
+                                        <div
+                                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                            <button
+                                                className={`border-grey-btn ripple d-flex ${this.state.chart === 'b' ? 'active' : ''}`}
+                                                onClick={() => this.getChart('b')}>
+                                                <span>Bid</span>
+                                            </button>
+                                            <button
+                                                className={`border-grey-btn ripple d-flex ${this.state.chart === 'a' ? 'active' : ''}`}
+                                                onClick={() => this.getChart('a')}>
+                                                <span>Offer</span>
+                                            </button>
+                                        </div>
+                                        {this.charts.length ? (
+                                            <TradingViewWidget data={this.charts}/>
+                                        ) : (
+                                            <div className="no-chart mb-24">
+                                                <NoDataBlock primaryText="No Chart available yet"/>
                                             </div>
-                                            {this.charts.length ? (
-                                                <TradingViewWidget data={this.charts}/>
-                                            ) : (
-                                                <>
-                                                    <div className="no-chart">
-                                                        <NoDataBlock primaryText="No Chart available yet"/>
-                                                    </div>
+                                        )}
 
-                                                </>
+                                    </>
+                                )}
 
-                                            )}
-
-                                        </>
-                                    )}
-
-
+                                {!this.isDashboard && (
                                     <div
                                         className="content__title_btns content__filter download-buttons justify-content-end mb-24">
                                         <button className="border-grey-btn ripple d-flex"
@@ -324,86 +334,85 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
                                             <span>XLSX</span>
                                         </button>
                                     </div>
+                                )}
 
-
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('origin', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('origin', item)}
-                                                options={filterService.buildOptions('origin', this.state.dataFull)}
-                                                placeholder="Origin"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('quote_condition', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('quote_condition', item)}
-                                                options={filterService.buildOptions('quote_condition', this.state.dataFull)}
-                                                placeholder="Quote Condition"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('bid_mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('bid_mpid', item)}
-                                                options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
-                                                placeholder="Bid MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('offer_mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('offer_mpid', item)}
-                                                options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
-                                                placeholder="Offer MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('uti', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('uti', item)}
-                                                options={filterService.buildOptions('uti', this.state.dataFull)}
-                                                placeholder="UTI"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
+                                <div className="content__filter mb-3">
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('origin', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('origin', item)}
+                                            options={filterService.buildOptions('origin', this.state.dataFull)}
+                                            placeholder="Origin"
+                                        />
                                     </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('quote_condition', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('quote_condition', item)}
+                                            options={filterService.buildOptions('quote_condition', this.state.dataFull)}
+                                            placeholder="Quote Condition"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('bid_mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('bid_mpid', item)}
+                                            options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
+                                            placeholder="Bid MPID"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('offer_mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('offer_mpid', item)}
+                                            options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
+                                            placeholder="Offer MPID"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('uti', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('uti', item)}
+                                            options={filterService.buildOptions('uti', this.state.dataFull)}
+                                            placeholder="UTI"
+                                        />
+                                    </div>
+                                    <button
+                                        className="content__filter-clear ripple"
+                                        onClick={this.handleResetButtonClick}>
+                                        <FontAwesomeIcon className="nav-icon"
+                                                         icon={filterService.getFilterResetIcon()}/>
+                                    </button>
+                                </div>
 
-                                    <Table columns={columns}
-                                           data={this.state.data}
-                                           searchPanel={true}
-                                           block={this}
-                                           editBtn={false}
-                                           viewBtn={false}
-                                    />
+                                <Table columns={columns}
+                                       data={this.state.data}
+                                       searchPanel={true}
+                                       block={this}
+                                       editBtn={false}
+                                       viewBtn={false}
+                                />
 
-                                </>
                             </div>
                         </div>
                     </>

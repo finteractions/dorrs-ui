@@ -3333,7 +3333,7 @@ body {
       }
 
       > div {
-        flex: 0 0 calc(25% - 20px);
+        //  flex: 0 0 calc(25% - 20px);
         background: #fff;
         box-shadow: 0 2px 45px rgba(110, 115, 157, 0.12);
         border-radius: 12px;
@@ -3342,10 +3342,16 @@ body {
 
       .indicator__item {
         display: flex;
+        flex-grow: 1;
         flex-wrap: wrap;
         justify-content: space-between;
         overflow: hidden;
-        max-width: calc(25% - 20px);
+        max-width: calc(25% - 15px);
+
+        &.statistics {
+          flex: 1;
+          max-width: unset;
+        }
 
         .indicator__item__graph {
           display: flex;
@@ -3368,6 +3374,7 @@ body {
           padding-left: 30px;
           padding-right: 30px;
           padding-bottom: 20px;
+          height: calc(100% - 70px);
 
           > div {
             display: flex;
@@ -3381,7 +3388,6 @@ body {
 
               > span.bg-stay {
                 > span.sign {
-                  //width: unset;
                 }
               }
             }
@@ -3407,6 +3413,10 @@ body {
                 }
               }
             }
+          }
+
+          .padding-left-60 {
+            padding-left: 60px;;
           }
         }
 
@@ -3477,6 +3487,10 @@ body {
       @media (max-width: 767px) {
         .indicator__item {
           max-width: 100%;
+
+          &.statistics {
+            min-width: calc(100% - 15px);
+          }
         }
         > div {
           flex: unset;
@@ -3485,8 +3499,25 @@ body {
 
       @media (min-width: 768px) and (max-width: 1368px) {
         .indicator__item {
-          max-width: calc(50% - 20px);
+          min-width: calc(50% - 15px);
+
+          &.statistics {
+            //min-width: calc(100% - 20px);
+          }
         }
+
+        > div {
+          flex: unset;
+        }
+      }
+
+      @media (max-width: 1368px) {
+        .indicator__item {
+          &.statistics {
+            min-width: calc(100% - 20px);
+          }
+        }
+
         > div {
           flex: unset;
         }
