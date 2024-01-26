@@ -3,6 +3,7 @@ import BaseService from "@/services/base/base-service";
 import {IOrder} from "@/interfaces/i-order";
 import {IDepthByOrder} from "@/interfaces/i-depth-by-order";
 import {IDepthByPrice} from "@/interfaces/i-depth-by-price";
+import {IDepthOrder} from "@/interfaces/i-depth-order";
 
 
 class OrdersService extends BaseService {
@@ -13,8 +14,13 @@ class OrdersService extends BaseService {
         super();
     }
 
-    public async getOrders(): Promise<IOrder[]> {
-        return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
+    public async getOrders(): Promise<IDepthOrder[]> {
+        return (await apiWebBackendService.get<IResponse<IDepthOrder[]>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async getOrderHistory(symbol?: string): Promise<IOrder[]> {
+        const queryString = symbol ? `?symbol=${symbol}` : ``
+        return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}history/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 
     public async downloadOrders(data: any): Promise<string> {

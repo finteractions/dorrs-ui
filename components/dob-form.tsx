@@ -44,6 +44,7 @@ interface DOBProps extends ICallback {
     action: string;
     data: IOrder | null;
     onCancel: () => void;
+    symbol?: string;
 }
 
 class DOBForm extends React.Component<DOBProps, DOBState> {
@@ -73,7 +74,7 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
         } = {
             action: (getOrderActionByName(this.props?.action) || OrderAction.n).toLowerCase(),
             origin: initialData?.origin || '',
-            symbol: initialData?.symbol_name || '',
+            symbol: initialData?.symbol_name || this.props.symbol || '',
             quote_condition: (initialData?.quote_condition || QuoteCondition.c).toLowerCase(),
             mpid: initialData?.mpid || '',
             side: (initialData?.side || OrderSide.b).toLowerCase(),
@@ -140,6 +141,10 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
 
     isAddOrder(): boolean {
         return getOrderActionByName(this.props.action) === OrderAction.a;
+    }
+
+    isSymbol(): boolean {
+        return !!this.props?.symbol
     }
 
     componentDidMount() {
@@ -212,7 +217,7 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
                                                 <div className="input">
                                                     <div className="input__title">Symbol <i>*</i></div>
                                                     <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.isAddOrder()) ? 'disable' : ''}`}>
+                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.isAddOrder()) || this.isSymbol() ? 'disable' : ''}`}>
                                                         <Field
                                                             name="symbol_tmp"
                                                             id="symbol_tmp"
@@ -220,7 +225,7 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
                                                             className="b-select-search"
                                                             placeholder="Select Symbol"
                                                             classNamePrefix="select__react"
-                                                            isDisabled={isSubmitting || this.isShow() || this.isAddOrder()}
+                                                            isDisabled={isSubmitting || this.isShow() || this.isAddOrder() || this.isSymbol()}
                                                             options={Object.values(this.symbols).map((item) => ({
                                                                 value: item.symbol,
                                                                 label: `${item.company_profile?.company_name || ''} ${item.symbol}`,

@@ -21,7 +21,7 @@ import AssetImage from "@/components/asset-image";
 import {faEye, faMinus} from "@fortawesome/free-solid-svg-icons";
 import statisticsService from "@/services/statistics/statistics-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
-import DOBPerSymbolBlock from "@/components/dob-per-symbol";
+import DepthOfBookPerSymbolBlock from "@/components/dob-per-symbol";
 import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-per-symbol";
 import BBOPerSymbolBlock from "@/components/bbo-per-symbol";
 
@@ -331,7 +331,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                         </div>
 
 
-                        <DOBPerSymbolBlock
+                        <DepthOfBookPerSymbolBlock
                             symbol={this.props.symbol}
                             isDashboard={true}
                         />

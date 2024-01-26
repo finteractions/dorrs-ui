@@ -12,18 +12,17 @@ import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
-import AssetImage from "@/components/asset-image";
 import {QuoteCondition} from "@/enums/quote-condition";
 import DOBForm from "@/components/dob-form";
 import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
-import {faEdit, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 
-interface DOBBlockState extends IState, IModalState {
+interface DepthOfBookHistoryBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
     formData: IOrder | null;
@@ -34,7 +33,8 @@ interface DOBBlockState extends IState, IModalState {
     filterData: any;
 }
 
-interface DOBBlockProps extends ICallback {
+interface DepthOfBookHistoryBlockProps extends ICallback {
+    symbol?: string;
     access: {
         view: boolean
         create: boolean
@@ -50,23 +50,23 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
+class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockProps, DepthOfBookHistoryBlockState> {
 
-    state: DOBBlockState;
+    state: DepthOfBookHistoryBlockState;
     errors: Array<string> = new Array<string>();
     getOrdersInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    customBtns: Array<ICustomButtonProps> = [
+    customBtns: Array<ICustomButtonProps> = this.props.access.edit ? [
         {
             icon: <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
             onCallback: 'customBtnAction'
         }
-    ]
+    ] : [];
 
-    constructor(props: DOBBlockProps, context: IDataContext<null>) {
+    constructor(props: DepthOfBookHistoryBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -83,33 +83,11 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
             filterData: [],
         }
 
-        const host = `${window.location.protocol}//${window.location.host}`;
-
         columns = [
             columnHelper.accessor((row) => row.origin, {
                 id: "origin",
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Origin</span>,
-            }),
-            columnHelper.accessor((row) => ({
-                symbol: row.symbol_name,
-                image: row.company_profile?.logo
-            }), {
-                id: "symbol",
-                cell: (item) =>
-                    <div onClick={() => {
-                        this.navigate(item.getValue().symbol)
-                    }}
-                         className={`table-image cursor-pointer link`}
-                    >
-                        <div className="table-image-container">
-                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                        width={28} height={28}/>
-                        </div>
-                        {item.getValue().symbol}
-                    </div>
-                ,
-                header: () => <span>Symbol</span>,
             }),
             columnHelper.accessor((row) => row.quote_condition, {
                 id: "quote_condition",
@@ -168,10 +146,6 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
         ];
     }
 
-    navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
-    }
-
     componentDidMount() {
         this.setState({isLoading: true});
         this.getOrders();
@@ -191,7 +165,8 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
     }
 
     getOrders = () => {
-        ordersService.getOrders()
+
+        ordersService.getOrderHistory(this.props.symbol)
             .then((res: Array<IOrder>) => {
 
                 const data = res?.sort((a, b) => {
@@ -244,6 +219,7 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
 
     onCallback = async (values: any, open: boolean) => {
         this.getOrders();
+        this.props.onCallback(null);
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
@@ -273,21 +249,40 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
     }
 
     downloadBBOCSV = () => {
-        ordersService.downloadOrders(this.state.filterData).then((res) => {
-            downloadFile.CSV('orders', res);
-        })
+        this.setSymbol()
+            .then(() => {
+                ordersService.downloadOrders(this.state.filterData).then((res) => {
+                    downloadFile.CSV('orders', res);
+                })
+            })
     }
 
     downloadBBOXLSX = () => {
-        ordersService.downloadOrders(this.state.filterData).then((res) => {
-            downloadFile.XLSX('orders', res);
+        this.setSymbol()
+            .then(() => {
+                ordersService.downloadOrders(this.state.filterData).then((res) => {
+                    downloadFile.XLSX('orders', res);
+                })
+            })
+
+    }
+
+    setSymbol = () => {
+        return new Promise(resolve => {
+            if (this.props.symbol) {
+                this.setState(({
+                    filterData: {...this.state.filterData, 'symbol_name': this.props.symbol}
+                }), () => resolve(true));
+            } else {
+                resolve(true)
+            }
         })
     }
 
-    customBtnAction = (action: any, data: any) => {
+    customBtnAction = (data: any) => {
         this.setState({
             isOpenModal: true,
-            formData: data || null,
+            formData: data,
             formAction: 'add',
             modalTitle: this.modalTitle('add')
         })
@@ -299,7 +294,7 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
             <>
                 <div className="panel">
                     <div className="content__top">
-                        <div className="content__title">Depth of Book</div>
+                        <div className="content__title">History by order additing</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
                             <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadBBOCSV}>
@@ -321,28 +316,12 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
 
                     </div>
 
-                    <div className={'content__top border-bottom-0'}>
-                        Latest dates order updates
-                    </div>
-
                     {this.state.isLoading ? (
                         <LoaderBlock/>
                     ) : (
                         <>
                             <div className="content__bottom">
                                 <div className="content__filter mb-3">
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('symbol_name', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('symbol_name', item)}
-                                            options={filterService.buildOptions('symbol_name', this.state.dataFull)}
-                                            placeholder="Symbol"
-                                        />
-                                    </div>
                                     <div className="input__wrap">
                                         <Select
                                             className="select__react"
@@ -457,6 +436,7 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
                                    className={`bbo ${this.state.formAction}`}
                             >
                                 <DOBForm
+                                    symbol={this.props.symbol}
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
@@ -474,4 +454,4 @@ class DOBBlock extends React.Component<DOBBlockProps, DOBBlockState> {
     }
 }
 
-export default portalAccessWrapper(DOBBlock, 'DOBBlock');
+export default portalAccessWrapper(DepthOfBookHistoryBlock, 'DepthOfBookBlock');

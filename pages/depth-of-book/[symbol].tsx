@@ -2,7 +2,7 @@ import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "../_app";
 import PortalLayout from "../../components/layouts/portal/portal-layout";
 import {useRouter} from "next/router";
-import DOBPerSymbolBlock from "@/components/dob-per-symbol";
+import DepthOfBookPerSymbolBlock from "@/components/dob-per-symbol";
 
 
 const Symbol: NextPageWithLayout = () => {
@@ -11,7 +11,7 @@ const Symbol: NextPageWithLayout = () => {
 
     return (
         <div className="flex-panel-box">
-            <DOBPerSymbolBlock
+            <DepthOfBookPerSymbolBlock
                 symbol={symbol}
             />
         </div>

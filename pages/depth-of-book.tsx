@@ -2,7 +2,8 @@ import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
 import {useRouter} from "next/router";
-import DOBBlock from "@/components/dob-block";
+import DepthOfBookBlock from "@/components/depth-of-book-block";
+
 
 
 const DepthOfBook: NextPageWithLayout = () => {
@@ -16,7 +17,7 @@ const DepthOfBook: NextPageWithLayout = () => {
     return (
         <>
             <div className={'flex-panel-box'}>
-                <DOBBlock onCallback={onCallback}/>
+                <DepthOfBookBlock onCallback={onCallback}/>
             </div>
         </>
     )

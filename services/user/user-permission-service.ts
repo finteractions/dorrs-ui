@@ -4,7 +4,7 @@ const comparison_matrix: Record<string, string> = {
     'LastSaleReportingBlock':'last_sale_reporting',
     'BBOBlock':'bbo',
     'WeeklyAndMonthlyReportsBlock':'weekly_and_monthly_reports',
-    'DOBBlock':'dob',
+    'DepthOfBookBlock':'dob',
     'QuoteBoardBlock':'quote_board'
 }
 

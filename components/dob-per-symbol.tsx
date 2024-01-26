@@ -13,14 +13,15 @@ import {QuoteCondition} from "@/enums/quote-condition";
 import ordersService from "@/services/orders/orders-service";
 import {IDepthByOrder} from "@/interfaces/i-depth-by-order";
 import {IDepthByPrice} from "@/interfaces/i-depth-by-price";
+import DepthOfBookHistoryBlock from "@/components/depth-of-book-history-block";
 
 
-interface DOBPerSymbolProps {
+interface DepthOfBookPerSymbolProps {
     symbol: string;
     isDashboard?: boolean;
 }
 
-interface DOBPerSymbolState extends IState {
+interface DepthOfBookPerSymbolState extends IState {
     isLoading: boolean;
     isDataLoading: boolean;
     errors: string[];
@@ -40,13 +41,13 @@ const columnHelperByPrice = createColumnHelper<any>();
 let columnsByPrice: any[] = [];
 
 
-class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
+class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProps> {
 
     companyProfile: ICompanyProfile | null;
-    state: DOBPerSymbolState;
+    state: DepthOfBookPerSymbolState;
     isDashboard: boolean;
 
-    constructor(props: DOBPerSymbolProps) {
+    constructor(props: DepthOfBookPerSymbolProps) {
         super(props);
 
         this.companyProfile = null;
@@ -312,10 +313,10 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                             </div>
                         )}
 
-                        <div className={'panel'}>
-                            <div className={`content__bottom`}>
 
-                                {!this.isDashboard ? (
+                        {!this.isDashboard && (
+                            <div className={'panel'}>
+                                <div className={`content__bottom`}>
                                     <h2 className={'view_block_main_title'}>
                                         {this.companyProfile ? (
                                             <>
@@ -328,56 +329,56 @@ class DOBPerSymbolBlock extends React.Component<DOBPerSymbolProps> {
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
-                                ) : (
-                                    <div className={'content__top  px-0 border-bottom-0'}>
-                                        <div className={'content__title'}>
-                                            Depth of Book
-                                        </div>
-                                    </div>
-                                )}
-
-
-                                <div className={'content__top px-0 border-bottom-0'}>
-                                    <div className="">
-                                        Depth of Book Snapshot
-                                    </div>
-                                    <div
-                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                        <button
-                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                            disabled={this.state.isLoading || this.state.isDataLoading}
-                                            onClick={() => this.setType('by_order')}>
-                                            <span>By Order</span>
-                                        </button>
-                                        <button
-                                            className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                            disabled={this.state.isLoading || this.state.isDataLoading}
-                                            onClick={() => this.setType('by_price')}>
-                                            <span>By Price</span>
-                                        </button>
-                                    </div>
                                 </div>
-
-
-                                <div className={'content__bottom px-0'}>
-                                    {this.state.isDataLoading ? (
-                                        <LoaderBlock/>
-                                    ) : (
-                                        <>
-                                            {this.getTableRender()}
-                                        </>
-                                    )}
-                                </div>
-
-
                             </div>
+                        )}
+
+
+                        <div className={'panel'}>
+
+                            <div className="content__top">
+                                <div className="content__title">Depth of Book Snapshot</div>
+                                <div
+                                    className="content__title_btns content__filter download-buttons justify-content-end mb-24">
+                                    <button
+                                        className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                        disabled={this.state.isLoading || this.state.isDataLoading}
+                                        onClick={() => this.setType('by_order')}>
+                                        <span>By Order</span>
+                                    </button>
+                                    <button
+                                        className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                        disabled={this.state.isLoading || this.state.isDataLoading}
+                                        onClick={() => this.setType('by_price')}>
+                                        <span>By Price</span>
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div className={'content__bottom'}>
+                                {this.state.isDataLoading ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    <>
+                                        {this.getTableRender()}
+                                    </>
+                                )}
+                            </div>
+
                         </div>
+
+                        {!this.isDashboard && (
+                            <DepthOfBookHistoryBlock symbol={this.props.symbol} onCallback={this.onCallback}/>
+                        )}
                     </>
                 )}
+
+
             </>
         );
     }
 
 }
 
-export default DOBPerSymbolBlock;
+export default DepthOfBookPerSymbolBlock

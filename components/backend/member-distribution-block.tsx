@@ -273,7 +273,7 @@ class MemberDistributionBlock extends React.Component<{}> {
         await this.loadData();
     };
 
-    customBtnAction = (action: any, data: any) => {
+    customBtnAction = (data: any) => {
         this.changeView(data.date_formatted)
     }
 
