@@ -3,16 +3,17 @@ import {ErrorMessage, Field} from "formik";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
-class PhoneInputField extends React.Component<{ field: any, form: any, disabled: boolean }> {
+class PhoneInputField extends React.Component<{ field: any, form: any, disabled: boolean, height?:number }> {
 
 
     render() {
         const field = this.props.field;
         const disabled = this.props.disabled || false;
+        const height = this.props.height || 35;
 
         const customStyles = {
             width: '100%',
-            height: '40px',
+            height: `${height}px`,
             borderRadius:'6px',
             border: '1px solid #718494',
             boxSizing: 'border-box',

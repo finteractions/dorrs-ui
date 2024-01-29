@@ -321,7 +321,7 @@
     height: 310px;
     background: #f8fbff;
     border: 1px solid #718494;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 10px 10px;
     font-weight: 400;
     font-size: 14px;
@@ -453,7 +453,7 @@
   .input__file {
     width: 100%;
     height: 35px;;
-    border: 1px solid #c5cacf;
+    border: 1px solid #718494;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     font-family: "Work Sans", sans-serif;
@@ -462,7 +462,7 @@
     line-height: 16px;
     color: #1e2c3c;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   .input__text.input-phone {

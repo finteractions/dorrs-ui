@@ -208,6 +208,7 @@ class RegistrationPersonalInformationForm extends React.Component<{
                                                         name="mobile_number"
                                                         id="mobile_number"
                                                         component={PhoneInputField}
+                                                        height={40}
                                                         country="us"
                                                     />
                                                 </div>

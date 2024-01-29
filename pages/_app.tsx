@@ -51,18 +51,23 @@ function App({Component, pageProps}: AppPropsWithLayout) {
 
 async function loadZone(Component: NextPageWithLayout): Promise<void> {
 
+    const styleImports: Promise<void>[] = [];
+
     switch (Component?.layoutName) {
         case "HomeLayout":
-            await import(("@/styles/home.scss"))
+            styleImports.push(import(("@/styles/home.scss")));
             break;
         case "PortalLayout":
-            await import(("@/styles/portal.scss"))
+            styleImports.push(import(("@/styles/portal.scss")));
+            styleImports.push(import(("@/styles/form.scss")));
             break;
         case "BackendLayout":
-            await import((`@/styles/backend.scss`))
-            // await import((`bootstrap/dist/js/bootstrap.bundle.min.js`))
+            styleImports.push(import(("@/styles/backend.scss")));
+            styleImports.push(import(("@/styles/form.scss")));
             break;
     }
+
+    await Promise.all(styleImports);
 }
 
 function Application({Component, pageProps, router}: AppPropsWithLayout) {

@@ -1,0 +1,41 @@
+body {
+  .portal, .backend {
+    .SingleDatePicker .SingleDatePickerInput .DateInput.DateInput__disabled,
+    .b-select-search .select__react__control.select__react__control--is-disabled,
+    .react-tel-input input:disabled + .flag-dropdown,
+    .SingleDatePickerInput__disabled,
+    input.DateInput_input:disabled,
+    select.b-select:disabled,
+    input.input__text:disabled {
+      border: none !important;
+      background: #FFF !important;
+      color: #1E2D3B !important;
+      cursor: default;
+      opacity: 1 !important;
+    }
+
+    .input__wrap.disable {
+      cursor: default;
+      opacity: 1;
+      color: #1E2D3B;
+    }
+
+    .b-checkbox.disable {
+      opacity: 1;
+      cursor: default;
+    }
+
+    .b-checkbox input[type=checkbox]:disabled {
+      + label span {
+        cursor: default;
+      }
+
+      + label i:not(.label-normal) {
+        color: #75808a;
+        cursor: default;
+      }
+    }
+
+  }
+}
+
