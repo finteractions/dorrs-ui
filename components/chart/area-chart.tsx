@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {Chart} from 'chart.js/auto';
+import NoDataBlock from "@/components/no-data-block";
 
 type ChartProps = {
     labels: string[];
@@ -16,7 +17,7 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
         const resizeHandler = () =>
             setTimeout(() => {
                 chart()
-            },350)
+            }, 350)
         const chart = () => {
             if (canvasRef.current) {
                 const ctx = canvasRef.current.getContext('2d');
@@ -27,6 +28,8 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
                         chartRef.current.destroy();
                     }
 
+                    labels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+                    data = data.length === 1 ? [data[0], data[0]] : data;
                     const maxDataValue = Math.max(...data);
 
                     chartRef.current = new Chart(ctx, {
@@ -99,7 +102,18 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
 
     }, []);
 
-    return <canvas ref={canvasRef}></canvas>;
+    return (
+        <>
+            <canvas className={data.length > 0 ? '' : 'd-none'} ref={canvasRef}></canvas>
+            {data.length === 0 && (
+                <div className="no-chart mb-48">
+                    <NoDataBlock primaryText={' '} secondaryText="No Chart available yet"/>
+                </div>
+            )}
+        </>
+
+
+    );
 };
 
 export default AreaChart;
