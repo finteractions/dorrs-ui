@@ -1036,6 +1036,10 @@ body {
       font-size: 24px
     }
 
+    .modal-overlay.default-modal .modal__content {
+      max-width: 718px !important;
+    }
+
     .modal__content {
       width: 100%;
       max-width: 718px;
@@ -3719,7 +3723,7 @@ body {
     }
 
     .payment-form {
-      max-width: 400px;
+      max-width: 395px;
     }
 
     .bg-transparent {
@@ -3751,12 +3755,12 @@ body {
       width: 10px;
     }
 
-    span.up, span.down, span.stay {
+    span.up, span.down, span.stay, span.default {
       margin: 5px 5px;
       border-radius: 6px;
     }
 
-    span.bg-up, span.bg-down, span.bg-stay {
+    span.bg-up, span.bg-down, span.bg-stay, span.bg-default {
       padding: 6px 11.5px;
     }
 
@@ -3772,6 +3776,14 @@ body {
       background-color: #FFF5F8;
     }
 
+    span.default {
+      color: #FFFFFF;
+    }
+
+    span.bg-default {
+      background-color: #1f8ceb;
+    }
+
     span.stay {
       color: #8e949d;
     }
@@ -3782,6 +3794,41 @@ body {
 
     .cursor-pointer {
       cursor: pointer;
+    }
+
+    .width-unset {
+      width: unset !important;
+    }
+
+    .card-block {
+      .loader-block {
+        margin: 0;
+      }
+
+      &.default {
+        border: 1px solid #1f8ceb !important;
+      }
+
+      > div {
+        align-self: flex-start;
+
+        &:nth-of-type(2) {
+          width: 100%;
+        }
+
+        > div {
+          justify-content: space-between;
+
+          &:nth-of-type(2) {
+            height: 40px;
+          }
+
+        }
+      }
+    }
+
+    .row-gap-0 {
+      row-gap: 0;
     }
   }
 }

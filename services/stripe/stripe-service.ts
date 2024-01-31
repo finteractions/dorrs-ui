@@ -18,6 +18,14 @@ class StripeService extends BaseService {
         return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}stripe/card/`, data, {}, this.getUserAccessToken())).data;
     }
 
+    public async deleteCard(card_id: string): Promise<any> {
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}stripe/card/${card_id}/`, {}, {}, this.getUserAccessToken())).data;
+    }
+
+    public async defaultCard(card_id: string): Promise<any> {
+        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}stripe/card/${card_id}/`, {}, {}, this.getUserAccessToken())).data;
+    }
+
     public async pay(data: any): Promise<any> {
         return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}stripe/pay/`, data, {}, this.getUserAccessToken())).data;
     }

@@ -1,13 +1,15 @@
-import React, { ReactElement} from "react"
-import type { NextPageWithLayout} from "./_app";
+import React, {ReactElement} from "react"
+import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
 import ProfileContainer from "../components/profile-container";
 import PaymentMethodBlock from "@/components/payment-method-block";
 
 const PaymentMethod: NextPageWithLayout = () => {
+    const onCallback = (): void => {
+    }
 
     return (
-       <PaymentMethodBlock />
+        <PaymentMethodBlock onCallback={onCallback}/>
     )
 }
 

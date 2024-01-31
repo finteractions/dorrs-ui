@@ -6,7 +6,8 @@ body {
     .SingleDatePickerInput__disabled,
     input.DateInput_input:disabled,
     select.b-select:disabled,
-    input.input__text:disabled {
+    input.input__text:disabled,
+    .disable .StripeElement {
       border: none !important;
       background: #FFF !important;
       color: #1E2D3B !important;
@@ -14,7 +15,7 @@ body {
       opacity: 1 !important;
     }
 
-    .input__wrap.disable {
+    .input__wrap.disable, .input.disable {
       cursor: default;
       opacity: 1;
       color: #1E2D3B;

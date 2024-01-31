@@ -6,15 +6,12 @@ import * as Yup from 'yup';
 import {IStripeCardInfo} from "@/interfaces/i-stripe-card-info";
 import AlertBlock from "@/components/alert-block";
 import Image from "next/image";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose, faEdit} from "@fortawesome/free-solid-svg-icons";
 import {countries} from "countries-list";
 
 interface StripeFormProps extends ICallback {
     amount?: number;
     card?: IStripeCardInfo | null;
     errorMessages?: Array<string> | null;
-    title?: string
 }
 
 const StripeForm = (props: StripeFormProps) => {
@@ -22,6 +19,7 @@ const StripeForm = (props: StripeFormProps) => {
     const elements = useElements();
     const [isFormSubmit, setFormSubmit] = useState(false);
     const [isFormEdit, setFormEdit] = useState(false);
+    const [isCardShow, setCardShow] = useState(false);
     const [errorMessages, setErrorMessages] = useState(Array<string> || null);
 
     const formik = useFormik({
@@ -84,9 +82,14 @@ const StripeForm = (props: StripeFormProps) => {
                     setFormSubmit(false);
                 }
             } else {
+                callbackObj.amount = props.amount
+                callbackObj.card_id = props.card?.card_id
+                callbackObj.payment = true;
+
                 setFormSubmit(true);
                 props.onCallback(callbackObj, setFormSubmit);
             }
+
         },
     });
 
@@ -95,12 +98,26 @@ const StripeForm = (props: StripeFormProps) => {
     };
 
     const cardChange = () => {
-        setFormEdit(!isFormEdit);
+        props.onCallback(null);
     };
 
     useEffect(() => {
-        setFormEdit(!props?.card);
-    }, [props.card]);
+        if (props.amount) {
+            if (props.card) {
+                setFormEdit(false);
+                setCardShow(true)
+            } else {
+                setFormEdit(true);
+                // setCardShow(true)
+            }
+
+        } else {
+            setCardShow(true)
+            setFormEdit(true)
+        }
+
+    }, [props.amount, props.card]);
+
 
     useEffect(() => {
         if (isFormEdit) {
@@ -138,12 +155,9 @@ const StripeForm = (props: StripeFormProps) => {
 
     return (
         <div className={'payment-form'}>
-            {props.title && (
-                <div className={'profile__right-title'}>{props.title}</div>
-            )}
             <div className={'profile__right-wrap-full'}>
                 <form className={'mt-2'} onSubmit={formik.handleSubmit}>
-                    {props.card && (
+                    {isCardShow && props.card && (
                         <>
                             <div className={'d-flex align-items-center gap-20 border p-2'}>
                                 <div>
@@ -155,19 +169,6 @@ const StripeForm = (props: StripeFormProps) => {
                                         className={`input__title bold d-flex align-items-center ${isFormSubmit ? 'disable' : ''}`}>
                                         <span>{props.card.brand.toUpperCase()} *{props.card.last4}</span>
                                         <span>
-                                        {!isFormEdit && (
-                                            <button
-                                                type="button"
-                                                className='height-auto admin-table-btn ripple'
-                                                onClick={cardChange}
-                                                disabled={isFormSubmit}
-                                            >
-                                                <FontAwesomeIcon
-                                                    className={`nav-icon ${isFormEdit ? 'cancel-action' : ''}`}
-                                                    icon={isFormEdit ? faClose : faEdit}/>
-                                            </button>
-                                        )}
-
                                     </span>
                                     </div>
                                     <div
@@ -176,6 +177,7 @@ const StripeForm = (props: StripeFormProps) => {
                             </div>
                         </>
                     )}
+
                     {isFormEdit && (
                         <>
 
@@ -186,7 +188,7 @@ const StripeForm = (props: StripeFormProps) => {
                                         className={'input__text'}
                                         onChange={handleCardChange}
                                         options={{
-                                            disabled: isFormSubmit,
+                                            // disabled: isFormSubmit,
                                             showIcon: true,
                                             iconStyle: 'default',
                                         }}
@@ -200,7 +202,7 @@ const StripeForm = (props: StripeFormProps) => {
                                             className={'input__text'}
                                             onChange={handleCardChange}
                                             options={{
-                                                disabled: isFormSubmit,
+                                                // disabled: isFormSubmit,
                                             }}
                                         />
                                     </div>
@@ -211,7 +213,7 @@ const StripeForm = (props: StripeFormProps) => {
                                             className={'input__text'}
                                             onChange={handleCardChange}
                                             options={{
-                                                disabled: isFormSubmit,
+                                                // disabled: isFormSubmit,
                                             }}
                                         />
                                     </div>
@@ -306,7 +308,7 @@ const StripeForm = (props: StripeFormProps) => {
                     <div className={'profile__panel'}>
                         <div className={'profile__info__panel'}>
                             <div className={'input__box buttons'}>
-                                {props.amount ? (
+                                {!isFormEdit ? (
                                     <button
                                         className={`mt-4 b-btn ripple  ${!formik.isValid || isFormSubmit ? 'disable' : ''}`}
                                         type="submit"
@@ -317,19 +319,17 @@ const StripeForm = (props: StripeFormProps) => {
                                 ) : (
 
                                     <>
-                                        {isFormEdit && (
-                                            <button
-                                                className={`mt-4 b-btn ripple ${!formik.isValid || isFormSubmit ? 'disable' : ''}`}
-                                                type="submit"
-                                                disabled={!formik.isValid || isFormSubmit}
-                                            >
-                                                Save
-                                            </button>
-                                        )}
+                                        <button
+                                            className={`mt-4 b-btn ripple ${!formik.isValid || isFormSubmit ? 'disable' : ''}`}
+                                            type="submit"
+                                            disabled={!formik.isValid || isFormSubmit}
+                                        >
+                                            Save
+                                        </button>
                                     </>
                                 )}
 
-                                {isFormEdit && props.card && (
+                                {isFormEdit && (
                                     <button
                                         className={`mt-4 b-btn-border ripple ${isFormSubmit ? 'disable' : ''}`}
                                         type="button"
