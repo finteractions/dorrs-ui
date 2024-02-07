@@ -810,7 +810,7 @@ body {
       display: none
     }
 
-    .b-checkbox input[type=checkbox] + label {
+    .b-checkbox input[type=checkbox] + label, .b-radio input[type=redio] + label {
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -889,8 +889,8 @@ body {
       -webkit-box-align: center;
       -ms-flex-align: center;
       align-items: center;
-      width: 22px;
-      height: 22px;
+      width: 16px;
+      height: 16px;
       -ms-flex-negative: 0;
       flex-shrink: 0;
       border: 1px solid #a6a8c4;
@@ -910,7 +910,7 @@ body {
       -webkit-transform: translate(-50%, -50%);
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
-      background: #f67e53;
+      background: #1f8ceb;
       border-radius: 100%;
       width: 10px;
       height: 10px;
@@ -931,7 +931,7 @@ body {
     }
 
     .b-radio input[type=radio]:checked + label span {
-      border-color: #f67e53
+      border-color: #1f8ceb
     }
 
     .b-radio input[type=radio]:checked + label span:before {
@@ -939,14 +939,14 @@ body {
       visibility: visible
     }
 
-    .b-radio:hover input[type=radio] + label span {
-      border-color: #f67e53
-    }
-
-    .b-radio:hover input[type=radio] + label span:before {
-      visibility: visible;
-      opacity: .5
-    }
+    //.b-radio:hover input[type=radio] + label span {
+    //  border-color: #1f8ceb
+    //}
+    //
+    //.b-radio:hover input[type=radio] + label span:before {
+    //  visibility: visible;
+    //  opacity: .5
+    //}
 
     .fancybox-enabled {
       padding: 0 17px 0 0;
@@ -3082,6 +3082,7 @@ body {
       color: #1F8CEB;
       background: #F6F9FC;
       border-radius: 6px;
+      cursor: pointer;
 
       &.custom-btn {
         width: initial !important;
@@ -3723,7 +3724,7 @@ body {
     }
 
     .payment-form {
-      max-width: 395px;
+      max-width: 390px;
     }
 
     .bg-transparent {
@@ -3829,6 +3830,14 @@ body {
 
     .row-gap-0 {
       row-gap: 0;
+    }
+
+    .payment-method-form {
+      display: flex;
+
+      > div {
+        flex: 1
+      }
     }
   }
 }

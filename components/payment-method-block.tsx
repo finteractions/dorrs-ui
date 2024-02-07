@@ -1,26 +1,42 @@
 import React from 'react';
-
-import StripeForm from "@/components/payment/stripe-form";
-import {IStripeCardInfo} from "@/interfaces/i-stripe-card-info";
-import stripeService from "@/services/stripe/stripe-service";
+import PaymentMethodStripeCreditDebitCardBlock from "@/components/payment-method-stripe-credit-debit-card-block";
+import PaymentMethodStripeACHBlock from "@/components/payment-method-stripe-ach-block";
 import LoaderBlock from "@/components/loader-block";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit, faTrash} from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
-import Modal from "@/components/modal";
-import AlertBlock from "@/components/alert-block";
 import NoDataBlock from "@/components/no-data-block";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
+import {ErrorMessage, Field, Form, Formik} from "formik";
+import bankService from "@/services/bank/bbo-service";
+import {IBank} from "@/interfaces/i-bank";
+import * as Yup from "yup";
 
-interface PaymentMethodBlockState extends IState, IModalState {
-    isLoading: boolean;
-    errors: string[];
-    errorMessages: string[];
-    cards: Array<IStripeCardInfo> | [];
-    cardInfo: IStripeCardInfo | null;
+interface PaymentMethodBlockState extends IState {
     isForm: boolean;
-    isDeleting: boolean;
-    isSetDefault: boolean;
+    isCreditDebitCardForm: boolean;
+    isACHForm: boolean;
+    isProcessing: boolean;
+    activeForm: string;
+
+    isDashboard: boolean;
+    amountStored: number | undefined;
+    amount: number | undefined;
+    isLoading: boolean;
+    reInit: boolean;
+
+    errorMessages: string[];
+    formsLoadedCount: number;
+    bank: {
+        columnDefinition: any,
+        columnValues: any
+    },
+    formConfirmInitialValues: {
+        isConfirmed: boolean
+    },
 }
+
+const formSchemaConfirm = Yup.object().shape({
+    isConfirmed: Yup.boolean().label('Confirm'),
+});
 
 interface PaymentMethodBlockProps extends ICallback {
     isDashboard?: boolean;
@@ -31,313 +47,426 @@ interface PaymentMethodBlockProps extends ICallback {
 class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, PaymentMethodBlockState> {
 
     state: PaymentMethodBlockState;
-    errors: Array<string> = new Array<string>();
-    isDashboard: boolean;
-    amount: number | undefined;
+    creditDebitCardBlockRef: React.RefObject<PaymentMethodStripeCreditDebitCardBlock> = React.createRef();
+    achBlockRef: React.RefObject<PaymentMethodStripeACHBlock> = React.createRef();
 
-    constructor(props: PaymentMethodBlockProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    constructor(props: PaymentMethodBlockProps, context: IDataContext<null>) {
         super(props);
 
-
-        this.isDashboard = this.props.isDashboard ?? false;
-        this.amount = this.props.amount;
-
+        this.context = context;
 
         this.state = {
-            isLoading: true,
-            success: false,
-            errors: [],
-            errorMessages: [],
-            cards: [],
-            cardInfo: null,
+            isDashboard: this.props?.isDashboard ?? false,
+            amountStored: this.props?.amount,
+            amount: this.props?.amount,
             isForm: false,
-            isOpenModal: false,
-            isDeleting: false,
-            isSetDefault: false
+            isCreditDebitCardForm: false,
+            isACHForm: false,
+            errorMessages: [],
+            success: false,
+            isProcessing: false,
+            activeForm: 'wire',
+            isLoading: this.props?.isDashboard ?? false,
+            reInit: false,
+            formsLoadedCount: 0,
+            bank: {
+                columnDefinition: {},
+                columnValues: {}
+            },
+            formConfirmInitialValues: {
+                isConfirmed: false
+            },
         }
     }
 
     onCallback = async (values: any, setFormSubmit: (value: boolean) => void) => {
-        this.amount = this.props.amount;
 
-        this.setState({errorMessages: []})
-        if (values !== null) {
-            if (values?.payment) {
-                this.props.onCallback(values, setFormSubmit);
-            } else {
-                this.setState({errorMessages: []})
-                this.addCard(values)
-                    .then(() => {
-                        setFormSubmit(false);
-                    })
-                    .catch((errors: IError) => {
-                        this.setState({errorMessages: errors.messages});
-                        setFormSubmit(false);
-                    })
+        if (values === null) {
+            this.closeForm()
+        } else {
+
+            if (values?.processing === true || values?.processing === false) {
+                this.setState({isProcessing: values?.processing}, () => {
+                    if (values?.processing === false) this.processing();
+                })
             }
 
-        } else {
-            this.setState({isForm: !this.state.isForm, cardInfo: null})
+
+            if (values?.type === 'card') {
+                this.setState({isForm: false, isCreditDebitCardForm: true})
+            }
+
+            if (values?.type === 'us_bank_account') {
+                this.setState({isForm: false, isACHForm: true})
+            }
+
+
+            if (values?.payment) {
+                this.setState({isProcessing: true}, () => {
+                    this.props.onCallback(values, setFormSubmit)
+                })
+            }
+
+            if (values?.defaultType) {
+                this.setState({activeForm: values.defaultType, isLoading: false})
+            } else {
+                this.setState({formsLoadedCount: this.state.formsLoadedCount + 1}, () => {
+                    if (this.state.formsLoadedCount >= 2) this.setState({isLoading: false})
+                })
+            }
+
         }
-    };
-
-    addCard(body: any) {
-        return new Promise(async (resolve, reject) => {
-            await stripeService.addCard(body)
-                .then((res: Array<IStripeCardInfo>) => {
-
-                    this.setState({isForm: !this.state.isForm});
-                    resolve(this.setCard(res))
-                })
-                .catch(((errors: IError) => reject(errors)))
-        })
     }
 
-    async deleteCard() {
-        this.setState({isDeleting: true, errorMessages: []})
+    processing = () => {
+        const cardPromise = this.creditDebitCardBlockRef.current?.getCard();
+        const achPromise = this.achBlockRef.current?.getACH();
 
-        await stripeService.deleteCard(this.state.cardInfo?.card_id || '')
-            .then(async (res: Array<IStripeCardInfo>) => {
-                await this.setCard(res)
-            })
-            .catch(((errors: IError) => {
-                this.setState({errorMessages: errors.messages, isDeleting: false});
-            }))
-    }
 
-    async setDefaultCard(card: IStripeCardInfo) {
-        card.isLoading = true;
-        this.setState({isSetDefault: true, errorMessages: []})
-
-        await stripeService.defaultCard(this.state.cardInfo?.card_id || '')
-            .then(async (res: Array<IStripeCardInfo>) => {
-                await this.setCard(res)
-            })
-            .catch(((errors: IError) => {
-                this.setState({errorMessages: errors.messages, isDeleting: false});
-            }))
-            .finally(() => {
-                card.isLoading = false;
-            })
-    }
-
-    getCard = () => {
-        return new Promise(resolve => {
-            stripeService.getCardInfo()
-                .then((res: Array<IStripeCardInfo>) => {
-                    resolve(this.setCard(res))
+        this.setState({isProcessing: false}, async () => {
+            await Promise.all([cardPromise, achPromise])
+                .finally(() => {
+                    this.setState({isProcessing: false, reInit: false})
                 })
         })
     }
 
-
-    setCard(res: Array<IStripeCardInfo>) {
-        return new Promise(resolve => {
-            const cards = res || null;
-            const defaultCard = res.find((s: IStripeCardInfo) => s.is_default)
-            this.setState({cards: cards}, () => {
-                this.setState({
-                    isLoading: false,
-                    isDeleting: false,
-                    isSetDefault: false,
-                    isOpenModal: false
-                }, () => {
-                    if (this.isDashboard && defaultCard) {
-                        this.setState({isForm: true, cardInfo: defaultCard})
-                    }
-                    this.props.onCallback(null)
-                });
-                resolve(true);
-            });
+    openForm = () => {
+        this.setState({
+            isForm: true,
+            activeForm: 'us_bank_account',
+            isCreditDebitCardForm: false,
+            isACHForm: false,
+            amount: undefined
         })
+    }
+
+    closeForm = () => {
+        this.setState({
+            isForm: false,
+            isCreditDebitCardForm: false,
+            isACHForm: false,
+            activeForm: 'wire',
+            amount: this.state.amountStored,
+            reInit: this.state.isDashboard,
+        }, () => {
+            if (this.state.isDashboard) {
+                this.setState({isLoading: true}, () => {
+                    this.processing();
+                })
+            }
+        })
+    }
+
+    setActiveForm = (form: string) => {
+        this.setState({activeForm: form})
     }
 
     async componentDidMount() {
-        this.setState({isLoading: true});
-        await this.getCard()
+
+        if (this.state.isDashboard) {
+            await this.getBank()
+        }
     }
 
-    cardChange = (card: IStripeCardInfo | null) => {
-        this.setState({isForm: !this.state.isForm, cardInfo: card})
-        this.amount = undefined;
-    };
+    componentDidUpdate(prevProps: PaymentMethodBlockProps) {
+        if (this.props?.errorMessages !== prevProps?.errorMessages) {
+            this.setState({errorMessages: this.props?.errorMessages ?? []}, () => {
+                this.setState({isProcessing: !(this.state.errorMessages.length > 0)})
+            })
+        }
 
-    cardDelete = (card: IStripeCardInfo | null) => {
-        this.setState({isOpenModal: true, cardInfo: card})
-    };
+    }
 
-    cardDefault = (card: IStripeCardInfo) => {
-        this.setState({cardInfo: card}, async () => {
-            await this.setDefaultCard(card);
+    getBank = () => {
+        return new Promise(resolve => {
+            bankService.getBank()
+                .then((res: Array<IBank>) => {
+                    const bank = res[0];
+                    const columns = bank.columns;
+                    let values = bank.values;
+
+                    const columnsObject = JSON.parse(columns)
+                    values = values.replace(/'/g, '"');
+                    const valuesObject = JSON.parse(values)
+
+                    this.setState({
+                        bank: {
+                            columnDefinition: columnsObject,
+                            columnValues: valuesObject
+                        }
+                    })
+                })
+                .finally(() => resolve(true));
         })
-    };
-
-    back = () => {
-        this.setState({isForm: !this.state.isForm})
     }
 
-    closeModal = () => {
-        this.setState({isOpenModal: false, cardInfo: null, errorMessages: []})
+    handleConfirm = async (values: Record<string, boolean>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.props.onCallback(null)
     }
 
+    paymentInfo = () => {
+        this.props.onCallback(null)
+    }
 
     render() {
+
+        const count = Object.keys(this.state.bank.columnDefinition).reduce((count, columnName) => {
+            const values = this.state.bank.columnValues[columnName];
+            if (typeof values === "object") {
+                const nonEmptyValues = Object.values(values)
+                    .filter(value => value !== null && value !== undefined && value !== '');
+                return count + (nonEmptyValues.length);
+            } else if (values !== null && values !== undefined && values !== '') {
+                return count + 1;
+            }
+
+            return count;
+        }, 0);
+
+        const shouldRenderCreditDebitCardBlock = this.state.isACHForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'card'].includes(this.state.activeForm);
+        const shouldRenderACHBlock = this.state.isCreditDebitCardForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'us_bank_account'].includes(this.state.activeForm);
+
         return (
             <>
+                {this.state.isLoading && (
+                    <LoaderBlock/>
+                )}
 
-                {/*{!this.amount && (*/}
-                <div
-                    className={`profile__right-title justify-content-between align-items-center d-flex ${!this.state.isForm || (!this.amount || !this.isDashboard) ? 'mt-3' : ''}`}>
-                    {!this.isDashboard && (
-                        <div>My Payment method</div>
-                    )}
+                {!this.state.reInit && (
+                    <div className={this.state.isLoading ? 'd-none' : ''}>
+                        <div
+                            className={`profile__right-title justify-content-between align-items-center d-flex ${this.state.isDashboard ? 'mb-2' : ''}`}>
 
-                    <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <div>{!this.state.isDashboard ? 'My ' : ''}Payment method</div>
 
-                        {!this.state.isForm ? (
-                            <button className="b-btn ripple width-unset"
-                                    onClick={() => this.cardChange(null)}
-                            >
-                                Add
-                            </button>
-                        ) : (
-                            <>
+                            <div
+                                className={`content__title_btns content__filter download-buttons justify-content-end`}>
 
-                                {(!this.amount || !this.isDashboard) && (
-                                    <button className="b-btn ripple width-unset"
-                                            onClick={() => this.back()}
+                                {this.state.isForm || this.state.isCreditDebitCardForm || this.state.isACHForm ? (
+                                    <button
+                                        className={`b-btn ripple width-unset ${this.state.isProcessing ? 'disable' : ''}`}
+                                        onClick={this.closeForm}
+                                        disabled={this.state.isProcessing}
                                     >
                                         Back
                                     </button>
+                                ) : (
+
+                                    <button
+                                        className={`b-btn ripple width-unset ${this.state.isProcessing ? 'disable' : ''}`}
+                                        onClick={this.openForm}
+                                        disabled={this.state.isProcessing}
+                                    >
+                                        Add
+                                    </button>
                                 )}
-                            </>
-
-                        )}
-                    </div>
-                </div>
-                {/*)}*/}
-
-                {this.state.isLoading ? (
-                    <LoaderBlock/>
-                ) : (
-                    <>
-
-                        {!this.state.isForm ? (
-                            <>
-                                <div
-                                    className={`${this.state.cards.length > 0 ? 'tile indicators' : ''} content__bottom mb-3`}>
-
-                                    {this.state.cards.length > 0 ? (
-                                        <>
-                                            {this.state.cards.map((card: IStripeCardInfo) => (
-                                                <div key={card.card_id}
-                                                     className={`d-flex align-items-center gap-20 border p-3 payment-form card-block w-100 ${card.is_default ? 'default' : ''}`}>
-                                                    {card.isLoading ? (
-                                                        <LoaderBlock width={68} height={68}/>
-                                                    ) : (
-                                                        <>
-                                                            <div>
-                                                                <Image src={`/img/${card.brand.toLowerCase()}.svg`}
-                                                                       width={55}
-                                                                       height={39}
-                                                                       alt={card.brand}/>
-                                                            </div>
-                                                            <div>
-                                                                <div
-                                                                    className={`input__title bold d-flex align-items-center`}>
-                                                                    <div>{card.brand.toUpperCase()} *{card.last4}</div>
-                                                                    <div>
-                                                                        <div className={'d-flex'}>
-                                                                            <button
-                                                                                type="button"
-                                                                                className='height-auto admin-table-btn ripple'
-                                                                                onClick={() => this.cardChange(card)}
-                                                                                disabled={this.state.isDeleting || this.state.isSetDefault}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className={`nav-icon `}
-                                                                                    icon={faEdit}/>
-                                                                            </button>
-                                                                            <button
-                                                                                type="button"
-                                                                                className='height-auto admin-table-btn ripple'
-                                                                                onClick={() => this.cardDelete(card)}
-                                                                                disabled={this.state.isDeleting || this.state.isSetDefault}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className={`nav-icon `}
-                                                                                    icon={faTrash}/>
-                                                                            </button>
-                                                                            <input type={'radio'}
-                                                                                   className={'height-auto admin-table-btn ripple'}
-                                                                                   checked={card.is_default}
-                                                                                   onChange={() => this.cardDefault(card)}
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div
-                                                                    className={'input__title d-flex align-items-center'}>
-                                                                    <span>Expires: {card.exp_month}/{card.exp_year}</span>
-                                                                    {card.is_default && (
-                                                                        <span
-                                                                            className={'default bg-default'}>Default</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </>
-                                    ) : (
-                                        <NoDataBlock primaryText={'No cards available yet'}/>
-                                    )}
-
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <StripeForm
-                                    card={this.state.cardInfo}
-                                    amount={this.amount}
-                                    errorMessages={this.state.errorMessages}
-                                    onCallback={this.onCallback}
-                                />
-                            </>
-                        )}
-                        <Modal isOpen={this.state.isOpenModal}
-                               onClose={() => this.closeModal()}
-                               title={'Do you want to delete this card?'}
-                               className={'default-modal'}
-                        >
-                            <div className={'profile__right-wrap-full'}>
-                                <div className={'profile__panel row-gap-0'}>
-                                    <div className={'profile__info__panel'}>
-                                        <div className={'input__box buttons'}>
-                                            <button
-                                                className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
-                                                type="button"
-                                                disabled={this.state.isDeleting}
-                                                onClick={() => this.deleteCard()}>Submit
-                                            </button>
-                                            <button
-                                                className={`border-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
-                                                type="button"
-                                                disabled={this.state.isDeleting}
-                                                onClick={() => this.closeModal()}>Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {this.state.errorMessages.length > 0 && (
-                                        <AlertBlock type={"error"} messages={this.state.errorMessages}/>
-                                    )}
-                                </div>
                             </div>
-                        </Modal>
+                        </div>
 
-                    </>
+                        <div className={''}>
+                            <ul className={`nav nav-tabs ${this.state.isForm || this.state.amount ? '' : 'd-none'}`}
+                                id="tabs">
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeForm === 'us_bank_account' ? 'active' : ''}`}
+                                       id="home-tab"
+                                       data-bs-toggle="tab"
+                                       href="#form"
+                                       onClick={() => this.setActiveForm('us_bank_account')}
+                                    >
+                                        Bank Account (ACH)
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeForm === 'card' ? 'active' : ''}`}
+                                       id="profile-tab"
+                                       data-bs-toggle="tab"
+                                       href="#form"
+                                       onClick={() => this.setActiveForm('card')}>
+                                        Credit or Debit Card
+                                    </a>
+                                </li>
+
+                                {this.state.isDashboard && (
+                                    <li className="nav-item">
+                                        <a className={`nav-link ${this.state.activeForm === 'wire' ? 'active' : ''}`}
+                                           id="home-tab"
+                                           data-bs-toggle="tab"
+                                           href="#form"
+                                           onClick={() => this.setActiveForm('wire')}
+                                        >
+                                            WIRE
+                                        </a>
+                                    </li>
+                                )}
+
+                            </ul>
+
+                            <div className="tab-content">
+                                <div
+                                    className={`tab-pane show fade mt-24 active`}
+                                    id="form">
+                                    <div
+                                        className={this.state.isForm || this.state.amount ? 'payment-method-form' : ''}>
+                                        <div
+                                            className={shouldRenderCreditDebitCardBlock ? 'd-none' : ''}>
+                                            <PaymentMethodStripeCreditDebitCardBlock
+                                                ref={this.creditDebitCardBlockRef}
+                                                onCallback={this.onCallback}
+                                                isForm={this.state.isForm || this.state.isCreditDebitCardForm}
+                                                isProcessing={this.state.isProcessing}
+                                                isDashboard={this.state.isDashboard}
+                                                amount={this.state.amount}
+                                                errorMessages={this.state.errorMessages}
+                                            />
+
+                                        </div>
+
+                                        <div
+                                            className={shouldRenderACHBlock ? 'd-none' : ''}>
+                                            <PaymentMethodStripeACHBlock
+                                                ref={this.achBlockRef}
+                                                onCallback={this.onCallback}
+                                                isForm={this.state.isForm || this.state.isACHForm}
+                                                isProcessing={this.state.isProcessing}
+                                                isDashboard={this.state.isDashboard}
+                                                amount={this.state.amount}
+                                                errorMessages={this.state.errorMessages}
+                                            />
+                                        </div>
+
+
+                                        {this.state.isDashboard && this.state.activeForm === 'wire' && (
+                                            <div
+                                                className={this.state.activeForm === 'wire' ? '' : 'd-none'}>
+                                                <div className={'view_panel flex-1 mx-0 mt-2'}>
+                                                    <>
+
+                                                        {count >= 3 ? (
+                                                            <>
+                                                                {Object.keys(this.state.bank.columnDefinition).map((columnName) => {
+                                                                    const values = this.state.bank.columnValues[columnName];
+
+                                                                    if (typeof values === "object") {
+                                                                        const nonEmptyValues = Object.values(values)
+                                                                            .filter(value => value !== null && value !== undefined && value !== '');
+
+
+                                                                        return (
+                                                                            <div className={'view_block'}
+                                                                                 key={columnName}>
+                                                                                <div
+                                                                                    className={'view_block_title bold'}>
+                                                                                    {this.state.bank.columnDefinition[columnName].title}
+                                                                                </div>
+                                                                                <div className={''}>
+                                                                                    {nonEmptyValues.join(', ') || '-'}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+
+                                                                    } else if (values !== null && values !== undefined && values !== '') {
+                                                                        return (
+                                                                            <div className={'view_block'}
+                                                                                 key={columnName}>
+                                                                                <div
+                                                                                    className={'view_block_title bold'}>
+                                                                                    {this.state.bank.columnDefinition[columnName].title}
+                                                                                </div>
+                                                                                <div className={''}>
+                                                                                    {values || '-'}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    }
+
+                                                                    return null;
+                                                                })}</>
+                                                        ) : (
+                                                            <NoDataBlock
+                                                                primaryText={' '}
+                                                                secondaryText={'The payment information is not available now. Please contact the administrator.'}
+                                                            />
+                                                        )}
+                                                        <div className={'view_block'}>
+                                                            <div className={'view_block_title bold'}>
+                                                                Decsription
+                                                            </div>
+                                                            <div className={''}>
+                                                                Ref#: {this.context.userProfile.reference_number}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                    <div className={'w-100 my-0 '}>Be sure you set
+                                                        Your Ref# {`"${this.context.userProfile.reference_number}"`} to
+                                                        payment
+                                                        description. We will be
+                                                        able to figure out whose the payment if there is no the number
+                                                    </div>
+                                                    <div className={'w-100 my-0 '}>
+                                                        <Formik
+                                                            initialValues={this.state.formConfirmInitialValues}
+                                                            validationSchema={formSchemaConfirm}
+                                                            onSubmit={this.handleConfirm}
+                                                        >
+                                                            {({
+                                                                  isSubmitting,
+                                                                  setFieldValue,
+
+                                                              }) => {
+                                                                return (
+                                                                    <Form className={``}>
+                                                                        <div className="input">
+                                                                            <div
+                                                                                className={`b-checkbox${isSubmitting ? ' disable' : ''}`}>
+                                                                                <Field
+                                                                                    type="checkbox"
+                                                                                    name="isConfirmed"
+                                                                                    id="isConfirmed"
+                                                                                    disabled={isSubmitting}
+                                                                                    onClick={(e: any) => {
+                                                                                        const confirm = e.target.value === 'false';
+                                                                                        setFieldValue("isConfirmed", confirm);
+
+                                                                                        if (confirm) this.paymentInfo();
+                                                                                    }}
+                                                                                />
+                                                                                <label htmlFor="isConfirmed">
+                                                            <span>
+
+                                                            </span>
+                                                                                    <i className={'label-normal'}> Confirm,
+                                                                                        you
+                                                                                        set Ref#
+                                                                                        to the description </i>
+                                                                                </label>
+                                                                                <ErrorMessage name="isConfirmed"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </Form>
+                                                                );
+                                                            }}
+                                                        </Formik>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 )}
+
 
             </>
 

@@ -1,9 +1,8 @@
-export interface IStripeCardInfo {
-    card_id: string;
+import {IStripePaymentMethodInfo} from "@/interfaces/i-stripe-payment-method-info";
+
+export interface IStripeCardInfo extends IStripePaymentMethodInfo{
     brand: string;
-    last4: string;
     exp_month: number;
     exp_year: number;
-    is_default: boolean;
     isLoading?: boolean;
 }
