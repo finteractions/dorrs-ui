@@ -12,6 +12,7 @@ import * as Yup from "yup";
 
 interface PaymentMethodBlockState extends IState {
     isForm: boolean;
+    isEdit: boolean;
     isCreditDebitCardForm: boolean;
     isACHForm: boolean;
     isProcessing: boolean;
@@ -63,6 +64,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
             amountStored: this.props?.amount,
             amount: this.props?.amount,
             isForm: false,
+            isEdit: false,
             isCreditDebitCardForm: false,
             isACHForm: false,
             errorMessages: [],
@@ -93,7 +95,6 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                     if (values?.processing === false) this.processing();
                 })
             }
-
 
             if (values?.type === 'card') {
                 this.setState({isForm: false, isCreditDebitCardForm: true})
@@ -137,6 +138,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     openForm = () => {
         this.setState({
             isForm: true,
+            isEdit: true,
             activeForm: 'us_bank_account',
             isCreditDebitCardForm: false,
             isACHForm: false,
@@ -147,6 +149,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     closeForm = () => {
         this.setState({
             isForm: false,
+            isEdit: false,
             isCreditDebitCardForm: false,
             isACHForm: false,
             activeForm: 'wire',
@@ -292,7 +295,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                     </a>
                                 </li>
 
-                                {this.state.isDashboard && (
+                                {this.state.isDashboard && !this.state.isEdit && (
                                     <li className="nav-item">
                                         <a className={`nav-link ${this.state.activeForm === 'wire' ? 'active' : ''}`}
                                            id="home-tab"
@@ -319,6 +322,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                                 ref={this.creditDebitCardBlockRef}
                                                 onCallback={this.onCallback}
                                                 isForm={this.state.isForm || this.state.isCreditDebitCardForm}
+                                                isEdit={this.state.isEdit}
                                                 isProcessing={this.state.isProcessing}
                                                 isDashboard={this.state.isDashboard}
                                                 amount={this.state.amount}
@@ -333,6 +337,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                                 ref={this.achBlockRef}
                                                 onCallback={this.onCallback}
                                                 isForm={this.state.isForm || this.state.isACHForm}
+                                                isEdit={this.state.isEdit}
                                                 isProcessing={this.state.isProcessing}
                                                 isDashboard={this.state.isDashboard}
                                                 amount={this.state.amount}
@@ -341,7 +346,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                         </div>
 
 
-                                        {this.state.isDashboard && this.state.activeForm === 'wire' && (
+                                        {this.state.isDashboard && this.state.activeForm === 'wire' && !this.state.isEdit && (
                                             <div
                                                 className={this.state.activeForm === 'wire' ? '' : 'd-none'}>
                                                 <div className={'view_panel flex-1 mx-0 mt-2'}>

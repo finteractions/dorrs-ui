@@ -19,6 +19,7 @@ interface PaymentMethodStripeCreditDebitCardBlockState extends IState, IModalSta
     cardInfo: IStripeCardInfo | null;
     cardInfoStored: IStripeCardInfo | null;
     isForm: boolean;
+    isEdit: boolean;
     isDeleting: boolean;
     isProcessing: boolean;
 }
@@ -26,6 +27,7 @@ interface PaymentMethodStripeCreditDebitCardBlockState extends IState, IModalSta
 interface PaymentMethodStripeCreditDebitCardBlockProps extends ICallback {
     isDashboard?: boolean;
     isForm?: boolean;
+    isEdit?: boolean;
     amount?: number;
     isProcessing: boolean;
     errorMessages?: Array<string> | null;
@@ -53,6 +55,7 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
             cardInfoStored: null,
             cardInfo: null,
             isForm: false,
+            isEdit: false,
             isOpenModal: false,
             isDeleting: false,
             isProcessing: false
@@ -112,8 +115,8 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
                 this.setState({errorMessages: errors.messages});
             }))
             .finally(() => {
-                this.setState({isDeleting: false, cardInfo: null}, () => {
-                    this.props.onCallback({})
+                this.setState({isDeleting: false}, () => {
+                    // this.props.onCallback(null)
                 });
             })
     }
@@ -212,6 +215,12 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
         if (this.props?.errorMessages !== prevProps?.errorMessages) {
             this.setState({errorMessages: this.props?.errorMessages ?? []})
         }
+
+        if (prevProps?.isEdit !== this.props?.isEdit) {
+            this.setState({isEdit: this.props?.isEdit ?? false}, () => {
+                this.setState({cardInfo: this.props?.isEdit === true ? null : this.state.cardInfoStored})
+            })
+        }
     }
 
     cardChange = (card: IStripeCardInfo | null) => {
@@ -262,84 +271,84 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
                                     </div>
                                 )}
                                 {this.state.cards.length > 0 ? (
-                                   <>
-                                       <div
-                                           className={`${this.state.cards.length > 0 ? 'tile indicators' : ''} content__bottom mt-3 mb-4`}>
-                                           <>
-                                               {this.state.cards.map((card: IStripeCardInfo) => (
-                                                   <div key={card.pm_id}
-                                                        className={`d-flex align-items-center gap-20 border p-3 payment-form card-block w-100 ${card.is_default ? 'default' : ''}`}>
-                                                       {(card.isLoading) && this.props ? (
-                                                           <LoaderBlock width={68} height={68}/>
-                                                       ) : (
-                                                           <>
-                                                               <div>
-                                                                   <Image src={`/img/${card.brand.toLowerCase()}.svg`}
-                                                                          width={55}
-                                                                          height={39}
-                                                                          alt={card.brand}/>
-                                                               </div>
-                                                               <div>
-                                                                   <div
-                                                                       className={`input__title bold d-flex align-items-center`}>
-                                                                       <div>{card.brand.toUpperCase()} *{card.last4}</div>
-                                                                       <div>
-                                                                           <div className={'d-flex'}>
-                                                                               <button
-                                                                                   type="button"
-                                                                                   className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                   onClick={() => this.cardChange(card)}
-                                                                                   disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                               >
-                                                                                   <FontAwesomeIcon
-                                                                                       className={`nav-icon `}
-                                                                                       icon={faEdit}/>
-                                                                               </button>
-                                                                               <button
-                                                                                   type="button"
-                                                                                   className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                   onClick={() => this.cardDelete(card)}
-                                                                                   disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                               >
-                                                                                   <FontAwesomeIcon
-                                                                                       className={`nav-icon `}
-                                                                                       icon={faTrash}/>
-                                                                               </button>
-                                                                               <input type={'radio'}
-                                                                                      className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                      checked={card.is_default}
-                                                                                      disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                                      onChange={() => this.cardDefault(card)}
-                                                                               />
-                                                                           </div>
-                                                                       </div>
-                                                                   </div>
-                                                                   <div
-                                                                       className={'input__title d-flex align-items-center'}>
-                                                                       <span>Expires: {card.exp_month}/{card.exp_year}</span>
-                                                                       {card.is_default && (
-                                                                           <span
-                                                                               className={'default bg-default'}>Default</span>
-                                                                       )}
-                                                                   </div>
-                                                               </div>
-                                                           </>
-                                                       )}
-                                                   </div>
-                                               ))}
-                                           </>
-                                       </div>
+                                    <>
+                                        <div
+                                            className={`${this.state.cards.length > 0 ? 'tile indicators' : ''} content__bottom mt-3 mb-4`}>
+                                            <>
+                                                {this.state.cards.map((card: IStripeCardInfo) => (
+                                                    <div key={card.pm_id}
+                                                         className={`d-flex align-items-center gap-20 border p-3 payment-form card-block w-100 ${card.is_default ? 'default' : ''}`}>
+                                                        {(card.isLoading) && this.props ? (
+                                                            <LoaderBlock width={68} height={68}/>
+                                                        ) : (
+                                                            <>
+                                                                <div>
+                                                                    <Image src={`/img/${card.brand.toLowerCase()}.svg`}
+                                                                           width={55}
+                                                                           height={39}
+                                                                           alt={card.brand}/>
+                                                                </div>
+                                                                <div>
+                                                                    <div
+                                                                        className={`input__title bold d-flex align-items-center`}>
+                                                                        <div>{card.brand.toUpperCase()} *{card.last4}</div>
+                                                                        <div>
+                                                                            <div className={'d-flex'}>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                    onClick={() => this.cardChange(card)}
+                                                                                    disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className={`nav-icon `}
+                                                                                        icon={faEdit}/>
+                                                                                </button>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                    onClick={() => this.cardDelete(card)}
+                                                                                    disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className={`nav-icon `}
+                                                                                        icon={faTrash}/>
+                                                                                </button>
+                                                                                <input type={'radio'}
+                                                                                       className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                       checked={card.is_default}
+                                                                                       disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                       onChange={() => this.cardDefault(card)}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div
+                                                                        className={'input__title d-flex align-items-center'}>
+                                                                        <span>Expires: {card.exp_month}/{card.exp_year}</span>
+                                                                        {card.is_default && (
+                                                                            <span
+                                                                                className={'default bg-default'}>Default</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </>
+                                        </div>
 
-                                       {(this.state.cardInfoStored && this.isDashboard) && (
-                                           <button
-                                               className={`b-btn-border ripple`}
-                                               onClick={this.cancel}
-                                           >
-                                               Cancel
-                                           </button>
-                                       )}
+                                        {(this.state.cardInfoStored && this.isDashboard) && (
+                                            <button
+                                                className={`b-btn-border ripple`}
+                                                onClick={this.cancel}
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
 
-                                   </>
+                                    </>
                                 ) : (
                                     <>
                                         <NoDataBlock primaryText={'No Credit/Debit Cards available yet'}/>

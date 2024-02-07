@@ -19,6 +19,7 @@ interface PaymentMethodStripeACHBlockState extends IState, IModalState {
     cardInfoStored: IStripeACHInfo | null;
     cardInfo: IStripeACHInfo | null;
     isForm: boolean;
+    isEdit: boolean;
     isDeleting: boolean;
     isProcessing: boolean;
 }
@@ -26,6 +27,7 @@ interface PaymentMethodStripeACHBlockState extends IState, IModalState {
 interface PaymentMethodStripeACHBlockProps extends ICallback {
     isDashboard?: boolean;
     isForm?: boolean;
+    isEdit: boolean;
     amount?: number;
     isProcessing: boolean;
     errorMessages?: Array<string> | null;
@@ -53,6 +55,7 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
             cardInfoStored: null,
             cardInfo: null,
             isForm: false,
+            isEdit: false,
             isOpenModal: false,
             isDeleting: false,
             isProcessing: false
@@ -111,8 +114,8 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
                 this.setState({errorMessages: errors.messages});
             }))
             .finally(() => {
-                this.setState({isDeleting: false, cardInfo: null}, () => {
-                    this.props.onCallback({})
+                this.setState({isDeleting: false}, () => {
+                    // this.props.onCallback(null)
                 });
             })
     }
@@ -211,7 +214,11 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
             this.setState({errorMessages: this.props?.errorMessages ?? []})
         }
 
-
+        if (prevProps?.isEdit !== this.props?.isEdit) {
+            this.setState({isEdit: this.props?.isEdit ?? false}, () => {
+                this.setState({cardInfo: this.props?.isEdit === true ? null : this.state.cardInfoStored})
+            })
+        }
     }
 
     ACHChange = (card: IStripeACHInfo | null) => {
