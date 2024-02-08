@@ -369,22 +369,29 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                     <div
                         className="content__title">Invoice: {this.state.invoice?.date}
                     </div>
-                    {!isAdmin && this.state.invoice?.status.toLowerCase() === InvoiceStatus.PAYMENT_DUE ? (
-                        <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            {!this.state.isBank ? (
-                                <button className="b-btn ripple"
-                                        onClick={this.paymentInfo}
-                                >
-                                    Pay
-                                </button>
-                            ) : (
-                                <button className="b-btn ripple"
-                                        onClick={this.paymentInfo}
-                                >
-                                    Back
-                                </button>
+                 
+                    {!isAdmin ? (
+                        <>
+                            {this.state.invoice?.status.toLowerCase() === InvoiceStatus.PAYMENT_DUE && (
+                                <div
+                                    className="content__title_btns content__filter download-buttons justify-content-end">
+                                    {!this.state.isBank ? (
+                                        <button className="b-btn ripple"
+                                                onClick={this.paymentInfo}
+                                        >
+                                            Pay
+                                        </button>
+                                    ) : (
+                                        <button className="b-btn ripple"
+                                                onClick={this.paymentInfo}
+                                        >
+                                            Back
+                                        </button>
+                                    )}
+                                </div>
                             )}
-                        </div>
+
+                        </>
                     ) : (
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
                             {[InvoiceStatus.PAYMENT_DUE, InvoiceStatus.PENDING].includes(this.state.invoice?.status as InvoiceStatus) && (
