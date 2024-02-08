@@ -15,7 +15,6 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import Select from "react-select";
 import AreaChart from "@/components/chart/area-chart";
 import BBOForm from "@/components/bbo-form";
-import UserPermissionService from "@/services/user/user-permission-service";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
@@ -34,7 +33,6 @@ interface IndicatorBlockState extends IState {
     isOpenModal: boolean;
     formAction: string;
     formType: string;
-    formTitle: string;
     symbol: ISymbol | null;
     isOverrideComponent: boolean;
     statistics: Map<string, IIndicatorBlock>;
@@ -71,7 +69,6 @@ class IndicatorBlock extends React.Component {
             isOpenModal: false,
             formAction: 'add',
             formType: '',
-            formTitle: '',
             symbol: null,
             isOverrideComponent: true,
             statistics: new Map<string, IIndicatorBlock>()
@@ -166,12 +163,11 @@ class IndicatorBlock extends React.Component {
     }
 
     openModal = (form: string, name: string) => {
-        const title = name.endsWith('s') ? name.slice(0, -1) : name
-        this.setState({isOpenModal: true, formType: form, formTitle: `Add ${title}`});
+        this.setState({isOpenModal: true, formType: form});
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formType: '', symbol: null, formTitle: '', isOverrideComponent: true});
+        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true});
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -288,6 +284,33 @@ class IndicatorBlock extends React.Component {
         }
     }
 
+    modalTitle = () => {
+        const add = 'Add';
+        switch (this.state.formType) {
+            case 'security':
+                return `${add} Symbol`;
+            case 'company_profile':
+                return `${add} Company Profile`;
+            case 'last_sale_reporting':
+                return `${add} Last Sale`;
+            case 'bbo':
+                return `${add} BBO`;
+            case 'dob':
+                return `${add} Order`;
+            default:
+                return '';
+        }
+    }
+
+    blockTitle = (key: string, name: string) => {
+        switch (key) {
+            case 'last_sale_reporting':
+                return `Last Sale`;
+            default:
+                return name;
+        }
+    }
+
 
     render() {
         return (
@@ -303,20 +326,20 @@ class IndicatorBlock extends React.Component {
                                     <div className={''}>
                                         <div
                                             dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="part-blue-bolder" d="M22 12C22 17.5 17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2C17.5 2 22 6.5 22 12ZM14.5 4.5C10.4 4.5 7 7.9 7 12C7 16.1 10.4 19.5 14.5 19.5C18.6 19.5 22 16.1 22 12C22 7.9 18.6 4.5 14.5 4.5Z" fill="#718494"/><path opacity="0.3" d="M22 12C22 16.1 18.6 19.5 14.5 19.5C10.4 19.5 7 16.1 7 12C7 7.9 10.4 4.5 14.5 4.5C18.6 4.5 22 7.9 22 12ZM12 7C9.2 7 7 9.2 7 12C7 14.8 9.2 17 12 17C14.8 17 17 14.8 17 12C17 9.2 14.8 7 12 7Z" fill="#718494"/></svg>'}}/>
-                                        <div>{value.name}</div>
+                                        <div>{this.blockTitle(key, value?.name)}</div>
                                     </div>
                                     <div>
                                         <div>
-                                            <div>{value.total || '-'}</div>
+                                            <div>{value?.total || '-'}</div>
                                             <div
                                                 className={value?.new ? this.getIndicatorType(value?.new) : ''}>{value?.new}</div>
                                         </div>
 
-                                        {value.access && (
+                                        {value?.access && (
                                             <button
                                                 type="button"
                                                 className='b-btn ripple'
-                                                onClick={() => this.openModal(key, value.name)}
+                                                onClick={() => this.openModal(key, value?.name)}
                                             >
                                                 <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
                                             </button>
@@ -326,8 +349,8 @@ class IndicatorBlock extends React.Component {
                                     <div className={'indicator__item__graph'}>
                                         <AreaChart
                                             key={value.new}
-                                            labels={Object.values(value.points.map(s => s.time) || [])}
-                                            data={Object.values(value.points.map(s => s.volume) || [])}
+                                            labels={Object.values(value?.points.map(s => s.time) || [])}
+                                            data={Object.values(value?.points.map(s => s.volume) || [])}
                                             title={''}/>
                                     </div>
                                 </div>
@@ -337,7 +360,7 @@ class IndicatorBlock extends React.Component {
 
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
-                               title={this.state.formTitle}
+                               title={this.modalTitle()}
                         >
                             {this.renderFormBasedOnType(this.state.formType)}
                         </Modal>
