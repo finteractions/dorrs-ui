@@ -11,7 +11,7 @@ import NumericInputField from "@/components/numeric-input-field";
 import Select from "react-select";
 import {getQuoteConditionDescriptions, QuoteCondition} from "@/enums/quote-condition";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
-import {getOrderActionByName, getOrderActionDescriptions, OrderAction} from "@/enums/order-action";
+import {getOrderActionByName, OrderAction} from "@/enums/order-action";
 import {IOrder} from "@/interfaces/i-order";
 import {getOrderSideDescriptions, OrderSide} from "@/enums/order-side";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
@@ -43,7 +43,7 @@ interface DOBState extends IState {
 interface DOBProps extends ICallback {
     action: string;
     data: IOrder | null;
-    onCancel: () => void;
+    onCancel?: () => void;
     symbol?: string;
 }
 
@@ -152,7 +152,7 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
     }
 
     cancel = () => {
-        this.props.onCancel();
+        this.props.onCancel && this.props.onCancel();
     }
 
 

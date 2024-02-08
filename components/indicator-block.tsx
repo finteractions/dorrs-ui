@@ -1,7 +1,7 @@
 import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import statisticsService from "@/services/statistics/statistics-service";
-import {IIndicator} from "@/interfaces/i-indicator";
+import {IIndicator, IIndicatorBlock} from "@/interfaces/i-indicator";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import CompanyProfile from "@/components/company-profile-form";
@@ -19,6 +19,8 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
+import DOBForm from "@/components/dob-form";
+import userPermissionService from "@/services/user/user-permission-service";
 
 
 const formSchema = Yup.object().shape({
@@ -32,7 +34,10 @@ interface IndicatorBlockState extends IState {
     isOpenModal: boolean;
     formAction: string;
     formType: string;
+    formTitle: string;
     symbol: ISymbol | null;
+    isOverrideComponent: boolean;
+    statistics: Map<string, IIndicatorBlock>;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -48,16 +53,12 @@ class IndicatorBlock extends React.Component {
 
     getStatisticsInterval!: NodeJS.Timer;
 
-    statisticsSymbol: IIndicator | null;
-    statisticsCompanyProfile: IIndicator | null;
-    statisticsLastSale: IIndicator | null;
-    statisticsBBO: IIndicator | null;
-
     access = {
         symbols: false,
         companyProfile: false,
         lastSale: false,
         bestBidAndBestOffer: false,
+        depthOfBook: false,
     }
 
     constructor(props: {}, context: IDataContext<null>) {
@@ -70,39 +71,10 @@ class IndicatorBlock extends React.Component {
             isOpenModal: false,
             formAction: 'add',
             formType: '',
+            formTitle: '',
             symbol: null,
-        }
-
-        this.statisticsSymbol = null;
-        this.statisticsCompanyProfile = null;
-        this.statisticsLastSale = null;
-        this.statisticsBBO = null;
-
-        const symbolsAccess = UserPermissionService.getAccessRulesByComponent(
-            'SymbolBlock',
-            this.context.userProfile.access
-        );
-
-        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
-            'CompanyProfileBlock',
-            this.context.userProfile.access
-        );
-
-        const lastSaleReportingAccess = UserPermissionService.getAccessRulesByComponent(
-            'LastSaleReportingBlock',
-            this.context.userProfile.access
-        );
-
-        const bestBidAndBestOfferAccess = UserPermissionService.getAccessRulesByComponent(
-            'BBOBlock',
-            this.context.userProfile.access
-        );
-
-        this.access = {
-            symbols: symbolsAccess.create,
-            companyProfile: companyProfileAccess.create,
-            lastSale: lastSaleReportingAccess.create,
-            bestBidAndBestOffer: bestBidAndBestOfferAccess.create
+            isOverrideComponent: true,
+            statistics: new Map<string, IIndicatorBlock>()
         }
 
     }
@@ -132,10 +104,7 @@ class IndicatorBlock extends React.Component {
     getStatistics = () => {
         statisticsService.getIndicators()
             .then((res: Array<IIndicator>) => {
-                this.statisticsSymbol = res.find(s => s.type === 'symbol') || null;
-                this.statisticsCompanyProfile = res.find(s => s.type === 'company_profile') || null;
-                this.statisticsLastSale = res.find(s => s.type === 'last_sale') || null;
-                this.statisticsBBO = res.find(s => s.type === 'bbo') || null;
+                this.prepareStatistics(res)
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -143,6 +112,28 @@ class IndicatorBlock extends React.Component {
             .finally(() => {
                 this.setState({isLoading: false})
             });
+    }
+
+    prepareStatistics = (data: Array<IIndicator>) => {
+        data.forEach(s => {
+            const access = userPermissionService.getAccessRulesByKey(
+                s.type,
+                this.context.userProfile.access
+            )
+            const item: IIndicatorBlock = {
+                ...s,
+                name: access.name,
+                access: access.values.create
+            }
+
+            const statistics = this.state.statistics
+            statistics.set(s.type, item)
+
+            this.setState({
+                statistics: statistics
+            })
+
+        })
     }
 
     getSymbols = () => {
@@ -174,28 +165,13 @@ class IndicatorBlock extends React.Component {
         }
     }
 
-    openModal = (form: string) => {
-        this.setState({isOpenModal: true, formType: form});
+    openModal = (form: string, name: string) => {
+        const title = name.endsWith('s') ? name.slice(0, -1) : name
+        this.setState({isOpenModal: true, formType: form, formTitle: `Add ${title}`});
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formType: '', symbol: null});
-    }
-
-    modalTitle = (form: string) => {
-        const add = 'Add';
-        switch (form) {
-            case 'symbol':
-                return `${add} Symbol`;
-            case 'company_profile':
-                return `${add} Company Profile`;
-            case 'last_sale':
-                return `${add} Last Sale`;
-            case 'bbo':
-                return `${add} BBO`;
-            case 'symbol_list':
-                return `Select Symbol`;
-        }
+        this.setState({isOpenModal: false, formType: '', symbol: null, formTitle: '', isOverrideComponent: true});
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -208,12 +184,12 @@ class IndicatorBlock extends React.Component {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         const symbol = this.symbols.find(s => s.symbol === values.symbol);
-        this.setState({isOpenModal: true, formType: 'company_profile', symbol: symbol});
+        this.setState({isOpenModal: true, symbol: symbol, isOverrideComponent: false});
     };
 
     renderFormBasedOnType(formType: string) {
         switch (formType) {
-            case 'symbol':
+            case 'security':
                 return (
                     <SymbolForm
                         isAdmin={false}
@@ -224,15 +200,66 @@ class IndicatorBlock extends React.Component {
                 );
             case 'company_profile':
                 return (
-                    <CompanyProfile
-                        action={this.state.formAction}
-                        data={null}
-                        symbolData={this.state.symbol}
-                        onCallback={this.onCallback}
-                        isAdmin={false}
-                    />
+                    this.state.isOverrideComponent ? (
+                        <Formik<ISymbol>
+                            initialValues={initialValues}
+                            validationSchema={formSchema}
+                            onSubmit={this.handleSubmit}
+                        >
+                            {({
+                                  isSubmitting,
+                                  setFieldValue,
+                                  isValid,
+                                  dirty,
+                                  errors
+                              }) => {
+                                return (
+                                    <Form>
+                                        <div className="input">
+                                            <div className="input__title">Symbol <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="symbol_tmp"
+                                                    id="symbol_tmp"
+                                                    as={Select}
+                                                    className="b-select-search"
+                                                    placeholder="Select Symbol"
+                                                    classNamePrefix="select__react"
+                                                    isDisabled={isSubmitting}
+                                                    options={Object.values(this.symbols).map((item) => ({
+                                                        value: item,
+                                                        label: item.symbol,
+                                                    }))}
+                                                    onChange={(selectedOption: any) => {
+                                                        setFieldValue('symbol', selectedOption.value.symbol);
+                                                    }}
+                                                />
+                                                <Field type="hidden" name="symbol" id="symbol"/>
+                                                <ErrorMessage name="symbol" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+                                        <button
+                                            className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                            type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                            Next
+                                        </button>
+                                    </Form>
+                                );
+                            }}
+                        </Formik>
+                    ) : (
+                        <CompanyProfile
+                            action={this.state.formAction}
+                            data={null}
+                            symbolData={this.state.symbol}
+                            onCallback={this.onCallback}
+                            isAdmin={false}
+                        />
+                    )
                 );
-            case 'last_sale':
+            case 'last_sale_reporting':
                 return (
                     <LastSaleReportingForm
                         action={this.state.formAction}
@@ -248,56 +275,13 @@ class IndicatorBlock extends React.Component {
                         onCallback={this.onCallback}
                     />
                 );
-            case 'symbol_list':
+            case 'dob':
                 return (
-                    <Formik<ISymbol>
-                        initialValues={initialValues}
-                        validationSchema={formSchema}
-                        onSubmit={this.handleSubmit}
-                    >
-                        {({
-                              isSubmitting,
-                              setFieldValue,
-                              isValid,
-                              dirty,
-                              errors
-                          }) => {
-                            return (
-                                <Form>
-                                    <div className="input">
-                                        <div className="input__title">Symbol <i>*</i></div>
-                                        <div
-                                            className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
-                                            <Field
-                                                name="symbol_tmp"
-                                                id="symbol_tmp"
-                                                as={Select}
-                                                className="b-select-search"
-                                                placeholder="Select Symbol"
-                                                classNamePrefix="select__react"
-                                                isDisabled={isSubmitting}
-                                                options={Object.values(this.symbols).map((item) => ({
-                                                    value: item,
-                                                    label: item.symbol,
-                                                }))}
-                                                onChange={(selectedOption: any) => {
-                                                    setFieldValue('symbol', selectedOption.value.symbol);
-                                                }}
-                                            />
-                                            <Field type="hidden" name="symbol" id="symbol"/>
-                                            <ErrorMessage name="symbol" component="div"
-                                                          className="error-message"/>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                        Next
-                                    </button>
-                                </Form>
-                            );
-                        }}
-                    </Formik>
+                    <DOBForm
+                        action={'new'}
+                        data={null}
+                        onCallback={this.onCallback}
+                    />
                 );
             default:
                 return null;
@@ -313,138 +297,49 @@ class IndicatorBlock extends React.Component {
                 ) : (
                     <>
                         <div className="indicators content__bottom">
+                            {Array.from(this.state.statistics).map(([key, value]) => (
 
-                            <div className={'indicator__item'}>
-                                <div className={''}>
-                                    <div
-                                        dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="part-blue-bolder" d="M22 12C22 17.5 17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2C17.5 2 22 6.5 22 12ZM14.5 4.5C10.4 4.5 7 7.9 7 12C7 16.1 10.4 19.5 14.5 19.5C18.6 19.5 22 16.1 22 12C22 7.9 18.6 4.5 14.5 4.5Z" fill="#718494"/><path opacity="0.3" d="M22 12C22 16.1 18.6 19.5 14.5 19.5C10.4 19.5 7 16.1 7 12C7 7.9 10.4 4.5 14.5 4.5C18.6 4.5 22 7.9 22 12ZM12 7C9.2 7 7 9.2 7 12C7 14.8 9.2 17 12 17C14.8 17 17 14.8 17 12C17 9.2 14.8 7 12 7Z" fill="#718494"/></svg>'}}/>
-                                    <div>Symbols</div>
-                                </div>
-                                <div>
-                                    <div>
-                                        <div>{this.statisticsSymbol?.total || '-'}</div>
+                                <div key={key} className={'indicator__item'}>
+                                    <div className={''}>
                                         <div
-                                            className={this.statisticsSymbol?.new ? this.getIndicatorType(this.statisticsSymbol.new) : ''}>{this.statisticsSymbol?.new}</div>
+                                            dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="part-blue-bolder" d="M22 12C22 17.5 17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2C17.5 2 22 6.5 22 12ZM14.5 4.5C10.4 4.5 7 7.9 7 12C7 16.1 10.4 19.5 14.5 19.5C18.6 19.5 22 16.1 22 12C22 7.9 18.6 4.5 14.5 4.5Z" fill="#718494"/><path opacity="0.3" d="M22 12C22 16.1 18.6 19.5 14.5 19.5C10.4 19.5 7 16.1 7 12C7 7.9 10.4 4.5 14.5 4.5C18.6 4.5 22 7.9 22 12ZM12 7C9.2 7 7 9.2 7 12C7 14.8 9.2 17 12 17C14.8 17 17 14.8 17 12C17 9.2 14.8 7 12 7Z" fill="#718494"/></svg>'}}/>
+                                        <div>{value.name}</div>
                                     </div>
+                                    <div>
+                                        <div>
+                                            <div>{value.total || '-'}</div>
+                                            <div
+                                                className={value?.new ? this.getIndicatorType(value?.new) : ''}>{value?.new}</div>
+                                        </div>
 
-                                    {this.access.symbols && (
-                                        <button
-                                            type="button"
-                                            className='b-btn ripple'
-                                            onClick={() => this.openModal('symbol')}
-                                        >
-                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                        </button>
-                                    )}
+                                        {value.access && (
+                                            <button
+                                                type="button"
+                                                className='b-btn ripple'
+                                                onClick={() => this.openModal(key, value.name)}
+                                            >
+                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                            </button>
+                                        )}
 
-                                </div>
-                                <div className={'indicator__item__graph'}>
-                                    <AreaChart
-                                        key={this.statisticsSymbol?.new}
-                                        labels={Object.values(this.statisticsSymbol?.points.map(s => s.time) || [])}
-                                        data={Object.values(this.statisticsSymbol?.points.map(s => s.volume) || [])}
-                                        title={''}/>
-                                </div>
-                            </div>
-                            <div className={'indicator__item'}>
-                                <div className={''}>
-                                    <div
-                                        dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="part-blue-bolder" d="M22 12C22 17.5 17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2C17.5 2 22 6.5 22 12ZM14.5 4.5C10.4 4.5 7 7.9 7 12C7 16.1 10.4 19.5 14.5 19.5C18.6 19.5 22 16.1 22 12C22 7.9 18.6 4.5 14.5 4.5Z" fill="#718494"/><path opacity="0.3" d="M22 12C22 16.1 18.6 19.5 14.5 19.5C10.4 19.5 7 16.1 7 12C7 7.9 10.4 4.5 14.5 4.5C18.6 4.5 22 7.9 22 12ZM12 7C9.2 7 7 9.2 7 12C7 14.8 9.2 17 12 17C14.8 17 17 14.8 17 12C17 9.2 14.8 7 12 7Z" fill="#718494"/></svg>'}}/>
-                                    <div>Company Profile</div>
-                                </div>
-                                <div>
-                                    <div>
-                                        <div>{this.statisticsCompanyProfile?.total || '-'}</div>
-                                        <div
-                                            className={this.statisticsCompanyProfile?.new ? this.getIndicatorType(this.statisticsCompanyProfile.new) : ''}>{this.statisticsCompanyProfile?.new}</div>
                                     </div>
-                                    {this.access.companyProfile && (
-                                        <button
-                                            type="button"
-                                            className='b-btn ripple'
-                                            onClick={() => this.openModal('symbol_list')}
-                                        >
-                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                        </button>
-                                    )}
-                                </div>
-                                <div className={'indicator__item__graph'}>
-                                    <AreaChart
-                                        key={this.statisticsCompanyProfile?.new}
-                                        labels={Object.values(this.statisticsCompanyProfile?.points.map(s => s.time) || [])}
-                                        data={Object.values(this.statisticsCompanyProfile?.points.map(s => s.volume) || [])}
-                                        title={''}/>
-                                </div>
-                            </div>
-                            <div className={'indicator__item'}>
-                                <div className={''}>
-                                    <div
-                                        dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>'}}/>
-                                    <div>Last Sale</div>
-                                </div>
-                                <div>
-                                    <div>
-                                        <div>{this.statisticsLastSale?.total || '-'}</div>
-                                        <div
-                                            className={this.statisticsLastSale?.new ? this.getIndicatorType(this.statisticsLastSale.new) : ''}>{this.statisticsLastSale?.new}</div>
+                                    <div className={'indicator__item__graph'}>
+                                        <AreaChart
+                                            key={value.new}
+                                            labels={Object.values(value.points.map(s => s.time) || [])}
+                                            data={Object.values(value.points.map(s => s.volume) || [])}
+                                            title={''}/>
                                     </div>
-                                    {this.access.lastSale && (
-                                        <button
-                                            type="button"
-                                            className='b-btn ripple'
-                                            onClick={() => this.openModal('last_sale')}
-                                        >
-                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                        </button>
-                                    )}
                                 </div>
-                                <div className={'indicator__item__graph'}>
-                                    <AreaChart
-                                        key={this.statisticsLastSale?.new}
-                                        labels={Object.values(this.statisticsLastSale?.points.map(s => s.time) || [])}
-                                        data={Object.values(this.statisticsLastSale?.points.map(s => s.volume) || [])}
-                                        title={''}/>
-                                </div>
-                            </div>
-                            <div className={'indicator__item'}>
-                                <div className={''}>
-                                    <div
-                                        dangerouslySetInnerHTML={{__html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>'}}/>
-                                    <div>Best Bid and Best Offer</div>
-                                </div>
-                                <div>
-                                    <div>
-                                        <div>{this.statisticsBBO?.total || '-'}</div>
-                                        <div
-                                            className={this.statisticsBBO?.new ? this.getIndicatorType(this.statisticsBBO.new) : ''}>{this.statisticsBBO?.new}</div>
-                                    </div>
-                                    {this.access.bestBidAndBestOffer && (
-                                        <button
-                                            type="button"
-                                            className='b-btn ripple'
-                                            onClick={() => this.openModal('bbo')}
-                                        >
-                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                        </button>
-                                    )}
-                                </div>
-                                <div className={'indicator__item__graph'}>
-                                    <AreaChart
-                                        key={this.statisticsBBO?.new}
-                                        labels={Object.values(this.statisticsBBO?.points.map(s => s.time) || [])}
-                                        data={Object.values(this.statisticsBBO?.points.map(s => s.volume) || [])}
-                                        title={''}/>
-                                </div>
-                            </div>
+
+                            ))}
                         </div>
 
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
-                               title={this.modalTitle(this.state.formType)}
+                               title={this.state.formTitle}
                         >
-
                             {this.renderFormBasedOnType(this.state.formType)}
-
                         </Modal>
                     </>
                 )}

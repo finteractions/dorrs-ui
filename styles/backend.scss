@@ -3781,9 +3781,17 @@
       width: initial !important;
       padding: 0 5px;
     }
+
+    &.disable {
+      cursor: not-allowed;
+    }
+
+    :disabled {
+      cursor: not-allowed;
+    }
   }
 
-  .admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover {
+  .admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover:not(:disabled) {
     background: #1c4a7e;
     color: #fff
   }

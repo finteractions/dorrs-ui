@@ -9,3 +9,8 @@ export interface IIndicatorPoint {
     time: string;
     volume: number;
 }
+
+export interface IIndicatorBlock extends IIndicator {
+    name: string;
+    access: boolean
+}
