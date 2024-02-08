@@ -116,7 +116,6 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
             }))
             .finally(() => {
                 this.setState({isDeleting: false}, () => {
-                    // this.props.onCallback(null)
                 });
             })
     }

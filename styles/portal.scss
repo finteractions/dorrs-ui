@@ -1015,7 +1015,17 @@ body {
       z-index: -1;
       -webkit-transition: .3s;
       -o-transition: .3s;
-      transition: .3s
+      transition: .3s;
+
+      @media(max-width: 767px) {
+        padding: 0;
+
+        > .modal__content {
+          border-radius: 0;
+          padding: 20px;
+          max-width: 100%;
+        }
+      }
     }
 
     .modal-overlay.active {
@@ -3125,6 +3135,11 @@ body {
       align-items: center;
       column-gap: 10px;
       margin-bottom: 32px;
+
+      @media(max-width: 767px) {
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
     }
 
     .modal__navigate__title {
@@ -3552,6 +3567,15 @@ body {
     .px-20 {
       padding-left: 20px;
       padding-right: 20px;
+    }
+
+    .p-20 {
+      padding: 20px;
+    }
+
+    .my-0 {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
     }
 
     .bold {

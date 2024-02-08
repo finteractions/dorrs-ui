@@ -146,17 +146,24 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
         if (values === null) {
             this.setState({isBank: !this.state.isBank, errorMessages: []});
         } else {
-            this.pay(values)
-                .then(() => this.getInvoice())
-                .then(() => {
-                    setFormSubmit(false);
-                    this.paymentInfo();
-                    this.props.onCallback(null);
-                })
-                .catch((errors: IError) => {
-                    this.setState({errorMessages: errors.messages});
-                    setFormSubmit(false);
-                })
+            if (values?.payment) {
+                this.pay(values)
+                    .then(() => this.getInvoice())
+                    .then(() => {
+                        setFormSubmit(false);
+                        this.paymentInfo();
+                        this.props.onCallback(null);
+                    })
+                    .catch((errors: IError) => {
+                        this.setState({errorMessages: errors.messages});
+                        setFormSubmit(false);
+                    })
+            }
+
+            if (values?.back) {
+                this.paymentInfo();
+            }
+
         }
     };
 
@@ -380,7 +387,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                         </div>
                     ) : (
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            {(this.state.invoice?.status === InvoiceStatus.PAYMENT_DUE) && (
+                            {[InvoiceStatus.PAYMENT_DUE, InvoiceStatus.PENDING].includes(this.state.invoice?.status as InvoiceStatus) && (
                                 <button className="b-btn ripple"
                                         onClick={this.paymentForm}
                                 >

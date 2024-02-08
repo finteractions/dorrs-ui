@@ -2,13 +2,8 @@ import React from 'react';
 import PaymentMethodStripeCreditDebitCardBlock from "@/components/payment-method-stripe-credit-debit-card-block";
 import PaymentMethodStripeACHBlock from "@/components/payment-method-stripe-ach-block";
 import LoaderBlock from "@/components/loader-block";
-import NoDataBlock from "@/components/no-data-block";
-import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
-import {ErrorMessage, Field, Form, Formik} from "formik";
-import bankService from "@/services/bank/bbo-service";
-import {IBank} from "@/interfaces/i-bank";
-import * as Yup from "yup";
+import PaymentMethodWireBlock from "@/components/payment-method-wire-block";
 
 interface PaymentMethodBlockState extends IState {
     isForm: boolean;
@@ -26,18 +21,7 @@ interface PaymentMethodBlockState extends IState {
 
     errorMessages: string[];
     formsLoadedCount: number;
-    bank: {
-        columnDefinition: any,
-        columnValues: any
-    },
-    formConfirmInitialValues: {
-        isConfirmed: boolean
-    },
 }
-
-const formSchemaConfirm = Yup.object().shape({
-    isConfirmed: Yup.boolean().label('Confirm'),
-});
 
 interface PaymentMethodBlockProps extends ICallback {
     isDashboard?: boolean;
@@ -50,9 +34,6 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     state: PaymentMethodBlockState;
     creditDebitCardBlockRef: React.RefObject<PaymentMethodStripeCreditDebitCardBlock> = React.createRef();
     achBlockRef: React.RefObject<PaymentMethodStripeACHBlock> = React.createRef();
-
-    static contextType = DataContext;
-    declare context: React.ContextType<typeof DataContext>;
 
     constructor(props: PaymentMethodBlockProps, context: IDataContext<null>) {
         super(props);
@@ -74,13 +55,6 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
             isLoading: this.props?.isDashboard ?? false,
             reInit: false,
             formsLoadedCount: 0,
-            bank: {
-                columnDefinition: {},
-                columnValues: {}
-            },
-            formConfirmInitialValues: {
-                isConfirmed: false
-            },
         }
     }
 
@@ -117,6 +91,10 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                 this.setState({formsLoadedCount: this.state.formsLoadedCount + 1}, () => {
                     if (this.state.formsLoadedCount >= 2) this.setState({isLoading: false})
                 })
+            }
+
+            if (values?.back) {
+                this.props.onCallback(values)
             }
 
         }
@@ -165,14 +143,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     }
 
     setActiveForm = (form: string) => {
-        this.setState({activeForm: form})
-    }
-
-    async componentDidMount() {
-
-        if (this.state.isDashboard) {
-            await this.getBank()
-        }
+        this.setState({activeForm: form, errorMessages:[]})
     }
 
     componentDidUpdate(prevProps: PaymentMethodBlockProps) {
@@ -181,57 +152,9 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                 this.setState({isProcessing: !(this.state.errorMessages.length > 0)})
             })
         }
-
-    }
-
-    getBank = () => {
-        return new Promise(resolve => {
-            bankService.getBank()
-                .then((res: Array<IBank>) => {
-                    const bank = res[0];
-                    const columns = bank.columns;
-                    let values = bank.values;
-
-                    const columnsObject = JSON.parse(columns)
-                    values = values.replace(/'/g, '"');
-                    const valuesObject = JSON.parse(values)
-
-                    this.setState({
-                        bank: {
-                            columnDefinition: columnsObject,
-                            columnValues: valuesObject
-                        }
-                    })
-                })
-                .finally(() => resolve(true));
-        })
-    }
-
-    handleConfirm = async (values: Record<string, boolean>, {setSubmitting}: {
-        setSubmitting: (isSubmitting: boolean) => void
-    }) => {
-        this.props.onCallback(null)
-    }
-
-    paymentInfo = () => {
-        this.props.onCallback(null)
     }
 
     render() {
-
-        const count = Object.keys(this.state.bank.columnDefinition).reduce((count, columnName) => {
-            const values = this.state.bank.columnValues[columnName];
-            if (typeof values === "object") {
-                const nonEmptyValues = Object.values(values)
-                    .filter(value => value !== null && value !== undefined && value !== '');
-                return count + (nonEmptyValues.length);
-            } else if (values !== null && values !== undefined && values !== '') {
-                return count + 1;
-            }
-
-            return count;
-        }, 0);
-
         const shouldRenderCreditDebitCardBlock = this.state.isACHForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'card'].includes(this.state.activeForm);
         const shouldRenderACHBlock = this.state.isCreditDebitCardForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'us_bank_account'].includes(this.state.activeForm);
 
@@ -349,118 +272,12 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                         {this.state.isDashboard && this.state.activeForm === 'wire' && !this.state.isEdit && (
                                             <div
                                                 className={this.state.activeForm === 'wire' ? '' : 'd-none'}>
-                                                <div className={'view_panel flex-1 mx-0 mt-2'}>
-                                                    <>
-
-                                                        {count >= 3 ? (
-                                                            <>
-                                                                {Object.keys(this.state.bank.columnDefinition).map((columnName) => {
-                                                                    const values = this.state.bank.columnValues[columnName];
-
-                                                                    if (typeof values === "object") {
-                                                                        const nonEmptyValues = Object.values(values)
-                                                                            .filter(value => value !== null && value !== undefined && value !== '');
-
-
-                                                                        return (
-                                                                            <div className={'view_block'}
-                                                                                 key={columnName}>
-                                                                                <div
-                                                                                    className={'view_block_title bold'}>
-                                                                                    {this.state.bank.columnDefinition[columnName].title}
-                                                                                </div>
-                                                                                <div className={''}>
-                                                                                    {nonEmptyValues.join(', ') || '-'}
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-
-                                                                    } else if (values !== null && values !== undefined && values !== '') {
-                                                                        return (
-                                                                            <div className={'view_block'}
-                                                                                 key={columnName}>
-                                                                                <div
-                                                                                    className={'view_block_title bold'}>
-                                                                                    {this.state.bank.columnDefinition[columnName].title}
-                                                                                </div>
-                                                                                <div className={''}>
-                                                                                    {values || '-'}
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    }
-
-                                                                    return null;
-                                                                })}</>
-                                                        ) : (
-                                                            <NoDataBlock
-                                                                primaryText={' '}
-                                                                secondaryText={'The payment information is not available now. Please contact the administrator.'}
-                                                            />
-                                                        )}
-                                                        <div className={'view_block'}>
-                                                            <div className={'view_block_title bold'}>
-                                                                Decsription
-                                                            </div>
-                                                            <div className={''}>
-                                                                Ref#: {this.context.userProfile.reference_number}
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                    <div className={'w-100 my-0 '}>Be sure you set
-                                                        Your Ref# {`"${this.context.userProfile.reference_number}"`} to
-                                                        payment
-                                                        description. We will be
-                                                        able to figure out whose the payment if there is no the number
-                                                    </div>
-                                                    <div className={'w-100 my-0 '}>
-                                                        <Formik
-                                                            initialValues={this.state.formConfirmInitialValues}
-                                                            validationSchema={formSchemaConfirm}
-                                                            onSubmit={this.handleConfirm}
-                                                        >
-                                                            {({
-                                                                  isSubmitting,
-                                                                  setFieldValue,
-
-                                                              }) => {
-                                                                return (
-                                                                    <Form className={``}>
-                                                                        <div className="input">
-                                                                            <div
-                                                                                className={`b-checkbox${isSubmitting ? ' disable' : ''}`}>
-                                                                                <Field
-                                                                                    type="checkbox"
-                                                                                    name="isConfirmed"
-                                                                                    id="isConfirmed"
-                                                                                    disabled={isSubmitting}
-                                                                                    onClick={(e: any) => {
-                                                                                        const confirm = e.target.value === 'false';
-                                                                                        setFieldValue("isConfirmed", confirm);
-
-                                                                                        if (confirm) this.paymentInfo();
-                                                                                    }}
-                                                                                />
-                                                                                <label htmlFor="isConfirmed">
-                                                            <span>
-
-                                                            </span>
-                                                                                    <i className={'label-normal'}> Confirm,
-                                                                                        you
-                                                                                        set Ref#
-                                                                                        to the description </i>
-                                                                                </label>
-                                                                                <ErrorMessage name="isConfirmed"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Form>
-                                                                );
-                                                            }}
-                                                        </Formik>
-                                                    </div>
-                                                </div>
+                                                <PaymentMethodWireBlock
+                                                    onCallback={this.onCallback}
+                                                    amount={this.state.amount}
+                                                    isDashboard={this.state.isDashboard}
+                                                    errorMessages={this.state.errorMessages}
+                                                />
                                             </div>
                                         )}
 

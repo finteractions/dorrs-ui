@@ -115,7 +115,6 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
             }))
             .finally(() => {
                 this.setState({isDeleting: false}, () => {
-                    // this.props.onCallback(null)
                 });
             })
     }
