@@ -131,6 +131,20 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
             });
     };
 
+    handleDelete = async (values: IOrder, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+        this.setState({errorMessages: null});
+
+        await ordersService.deleteOrder(values.ref_id)
+            .then(((res: any) => {
+                this.props.onCallback(null, this.isAdd());
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+            });
+    };
+
     isShow(): boolean {
         return this.props.action === 'view';
     }
@@ -412,7 +426,7 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
                                     initialValues={this.state.formInitialValues as IOrder}
                                     validationSchema={formSchema}
                                     innerRef={this.formRef}
-                                    onSubmit={this.handleSubmit}
+                                    onSubmit={this.handleDelete}
                                 >
                                     {({
                                           isSubmitting,

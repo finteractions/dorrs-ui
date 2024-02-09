@@ -18,7 +18,13 @@ import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {
+    faEdit,
+    faAnchorCircleCheck,
+    faCheck,
+    faPersonCircleCheck,
+    faBridgeCircleCheck, faFlagCheckered, faSquareCheck, faCheckSquare
+} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 
@@ -62,8 +68,12 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
     customBtns: Array<ICustomButtonProps> = this.props.access.edit ? [
         {
             icon: <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
-            onCallback: 'customBtnAction'
-        }
+            onCallback: 'addOrder'
+        },
+        // {
+        //     icon: <FontAwesomeIcon className="nav-icon" icon={faCheckSquare}/>,
+        //     onCallback: 'closeOrder'
+        // }
     ] : [];
 
     constructor(props: DepthOfBookHistoryBlockProps, context: IDataContext<null>) {
@@ -211,7 +221,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         } else if (mode === 'add') {
             return 'Edit Order'
         } else if (mode === 'delete') {
-            return 'Do you want to cancel this Order?';
+            // return 'Do you want to cancel this Order?';
+            return 'Do you want to delete this Order?';
         } else {
             return '';
         }
@@ -279,7 +290,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         })
     }
 
-    customBtnAction = (data: any) => {
+    addOrder = (data: any) => {
         this.setState({
             isOpenModal: true,
             formData: data,

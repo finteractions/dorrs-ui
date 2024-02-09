@@ -32,6 +32,10 @@ class OrdersService extends BaseService {
         return (await apiWebBackendService.post<IResponse<IOrder[]>>(`${this.PATH}place/`, data, {}, this.getUserAccessToken())).data;
     }
 
+    public async deleteOrder(ref_id: string): Promise<any> {
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}place/${ref_id}/`, {}, {}, this.getUserAccessToken())).data;
+    }
+
     public async getDepthByOrder(symbol: string): Promise<Array<IDepthByOrder>> {
         return (await apiWebBackendService.get<IResponse<Array<IDepthByOrder>>>(`${this.PATH}depth_by_order/?symbol=${symbol}`, {}, this.getUserAccessToken())).data;
     }

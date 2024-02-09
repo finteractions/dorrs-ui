@@ -3107,6 +3107,11 @@ body {
       :disabled {
         cursor: not-allowed;
       }
+
+      .fa-check {
+        color: #1F8CEB!important;
+        background: #F6F9FC;
+      }
     }
 
     //.admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover {
