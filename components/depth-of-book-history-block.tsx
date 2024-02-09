@@ -19,11 +19,8 @@ import ordersService from "@/services/orders/orders-service";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
 import {
-    faEdit,
-    faAnchorCircleCheck,
-    faCheck,
-    faPersonCircleCheck,
-    faBridgeCircleCheck, faFlagCheckered, faSquareCheck, faCheckSquare
+    faCheckDouble,
+    faEdit
 } from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
@@ -70,10 +67,10 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             icon: <FontAwesomeIcon className="nav-icon" icon={faEdit}/>,
             onCallback: 'addOrder'
         },
-        // {
-        //     icon: <FontAwesomeIcon className="nav-icon" icon={faCheckSquare}/>,
-        //     onCallback: 'closeOrder'
-        // }
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faCheckDouble}/>,
+            onCallback: 'removeOrder'
+        }
     ] : [];
 
     constructor(props: DepthOfBookHistoryBlockProps, context: IDataContext<null>) {
@@ -223,6 +220,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         } else if (mode === 'delete') {
             // return 'Do you want to cancel this Order?';
             return 'Do you want to delete this Order?';
+        } else if (mode === 'remove') {
+            return 'Do you want to close this Order?';
         } else {
             return '';
         }
@@ -290,12 +289,21 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         })
     }
 
-    addOrder = (data: any) => {
+    addOrder = (data: IOrder) => {
         this.setState({
             isOpenModal: true,
             formData: data,
             formAction: 'add',
             modalTitle: this.modalTitle('add')
+        })
+    }
+
+    removeOrder = (data: IOrder) => {
+        this.setState({
+            isOpenModal: true,
+            formData: data,
+            formAction: 'remove',
+            modalTitle: this.modalTitle('remove')
         })
     }
 

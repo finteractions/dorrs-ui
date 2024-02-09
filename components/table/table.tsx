@@ -183,6 +183,10 @@ const Table = ({
         return row && [FormStatus.DELETED, OrderStatus.CLOSED].includes(row['status']?.toLowerCase());
     };
 
+    const isButtonDeleteDisabled = (row: any) => {
+        return row && [FormStatus.DELETED].includes(row['status']?.toLowerCase());
+    };
+
     const [currentPage, setCurrentPage] = React.useState(0);
 
     React.useEffect(() => {
@@ -327,9 +331,9 @@ const Table = ({
                                                         )}
                                                         {deleteBtn && (!access || access.delete) && (
                                                             <button
-                                                                disabled={isButtonDisabled(row.original)}
+                                                                disabled={isButtonDeleteDisabled(row.original)}
                                                                 onClick={() => block.openModal('delete', row.original)}
-                                                                className={`admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                className={`admin-table-btn ripple ${isButtonDeleteDisabled(row.original) ? 'disable' : ''}`}>
                                                                 <FontAwesomeIcon
                                                                     className="nav-icon" icon={faTrashCan}/></button>
                                                         )}

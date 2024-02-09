@@ -14,7 +14,6 @@ export const OrderActionValue: { [key: string]: OrderAction } = {
     'new': OrderAction.n,
     'add': OrderAction.a,
     'remove': OrderAction.r,
-    'delete': OrderAction.r,
 };
 
 export const getOrderActionDescriptions = (orderAction: OrderAction): string => {

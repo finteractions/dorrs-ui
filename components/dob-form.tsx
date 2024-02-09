@@ -478,6 +478,70 @@ class DOBForm extends React.Component<DOBProps, DOBState> {
                         )}
                     </>
                 )
+            case 'remove':
+                return (
+                    <>
+                        {this.state.loading ? (
+                            <LoaderBlock/>
+                        ) : (
+
+                            <>
+                                <Formik<IOrder>
+                                    initialValues={this.state.formInitialValues as IOrder}
+                                    validationSchema={formSchema}
+                                    innerRef={this.formRef}
+                                    onSubmit={this.handleSubmit}
+                                >
+                                    {({
+                                          isSubmitting,
+                                          setFieldValue,
+                                          isValid,
+                                          dirty,
+                                          values,
+                                          errors,
+                                          touched,
+                                          setTouched
+                                      }) => {
+                                        return (
+                                            <Form className={``}>
+                                                <div className={'profile__right-wrap-full'}>
+                                                    <div className={'mt-2'}>
+                                                        <div className={'profile__panel'}>
+                                                            <div className={'profile__info__panel'}>
+                                                                <div className={'input__box buttons'}>
+                                                                    <div className="input__box buttons">
+                                                                        <button
+                                                                            className={`b-btn ripple ${(isSubmitting) ? 'disable' : ''}`}
+                                                                            type="submit"
+                                                                            disabled={isSubmitting}
+                                                                        >
+                                                                            Submit
+                                                                        </button>
+                                                                        <button type={"button"}
+                                                                                className={`b-btn-border ripple ${(isSubmitting) ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting}
+                                                                                onClick={this.cancel}
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {this.state.errorMessages && (
+                                                    <AlertBlock type={"error"} messages={this.state.errorMessages}/>
+                                                )}
+                                            </Form>
+                                        );
+                                    }}
+                                </Formik>
+                            </>
+                        )}
+                    </>
+                )
         }
 
     }
