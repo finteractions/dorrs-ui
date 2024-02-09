@@ -258,7 +258,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                     </div>
 
                                 </div>
-                                <div className="active-form">
+                                <div className="active-form d-none">
                                     <div className="active-form-text">Block all activity of the user: {this.state.data?.user_id.is_blocked ? 'YES' : 'OFF'}</div>
                                     <div className="active-form-confirm">
                                         {this.state.isConfirmedActivation ? (
@@ -283,7 +283,11 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                 )}
 
                                 <UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>
-                                <UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>
+
+                                <div className={'d-none'}>
+                                    <UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>
+                                </div>
+
                             </>
                         )}
                     </>
