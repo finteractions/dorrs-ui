@@ -83,7 +83,7 @@ class DashboardBlock extends React.Component<{}> {
             <>
                 <div className="dashboard section">
                     <div className="content__top">
-                        <div className="content__title">Dashboard {JSON.stringify(this.state.loadingUsers)}</div>
+                        <div className="content__title">Dashboard</div>
                     </div>
 
                     {this.state.loadingUsers ? (

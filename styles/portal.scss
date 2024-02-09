@@ -3109,7 +3109,7 @@ body {
       }
 
       .fa-check {
-        color: #1F8CEB!important;
+        color: #1F8CEB !important;
         background: #F6F9FC;
       }
     }
@@ -3387,6 +3387,11 @@ body {
           max-width: unset;
         }
 
+        &.dashboard {
+          flex: 1 0 30%;
+          max-width: unset;
+        }
+
         .indicator__item__graph {
           display: flex;
           margin-top: 30px;
@@ -3525,6 +3530,10 @@ body {
 
           &.statistics {
             min-width: calc(100% - 15px);
+          }
+
+          &.dashboard {
+            flex: 0 1 100%;
           }
         }
         > div {
