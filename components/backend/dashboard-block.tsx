@@ -11,21 +11,12 @@ import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import Link from "next/link";
 
-const columnHelper = createColumnHelper<any>();
-let columns: any[] = [];
-
 
 interface DashboardBlockState {
     loadingUsers: boolean;
-    loadingTransactions: boolean;
-    loadingBankAccounts: boolean;
     userStatusCounts: any[];
-    transactionStatusCounts: any[];
-    bankAccountStatusCounts: any[];
     emailVerifiedCount: any[];
     errors: string[];
-    transactionsData: ICustody[];
-
 }
 
 
@@ -37,89 +28,14 @@ class DashboardBlock extends React.Component<{}> {
 
         this.state = {
             loadingUsers: true,
-            loadingTransactions: true,
-            loadingBankAccounts: true,
             userStatusCounts: [],
-            transactionStatusCounts: [],
-            bankAccountStatusCounts: [],
             emailVerifiedCount: [],
             errors: [],
-            transactionsData: [],
         }
-
-        columns = [
-
-            columnHelper.accessor((row) => row.user_id, {
-                id: "user_id",
-                cell: (item) => item.getValue(),
-                header: () => <span>User</span>,
-            }),
-            columnHelper.accessor((row) => row.type, {
-                id: "type",
-                cell: (item) => item.getValue(),
-                header: () => <span>Type</span>,
-            }),
-            columnHelper.accessor((row) => ({
-                type: row.type,
-                base_price: row.base_price,
-                base_currency: row.base_currency,
-                quote_price: row.quote_price,
-                quote_currency: row.quote_currency
-            }), {
-                id: "base_price",
-                cell: (item) =>
-                    item.getValue().type.toLowerCase() == 'exchange' ? (
-                        <span>{formatterService.numberFormat(item.getValue().base_price)} {item.getValue().base_currency} -&gt; {formatterService.numberFormat(item.getValue().quote_price)} {item.getValue().quote_currency}</span>
-                    ) : (
-                        <span>{formatterService.numberFormat(item.getValue().base_price)} {item.getValue().base_currency}</span>
-                    ),
-                header: () => <span>Amount</span>,
-            }),
-            columnHelper.accessor((row) => row.status, {
-                id: "status",
-                cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                        {item.getValue()}
-                    </div>,
-                header: () => <span>Status</span>,
-            }),
-            columnHelper.accessor((row) => row.from_address, {
-                id: "from_address",
-                cell: (item) => <div title={item.getValue()} className='simple-hash'>{item.getValue()}</div>,
-                header: () => <span>From Address</span>,
-            }),
-            columnHelper.accessor((row) => row.to_address, {
-                id: "to_address",
-                cell: (item) => <div title={item.getValue()} className='simple-hash'>{item.getValue()}</div>,
-                header: () => <span>To Address</span>,
-            }),
-            columnHelper.accessor((row) => row.transaction_hash, {
-                id: "transaction_hash",
-                cell: (item) => <div title={item.getValue()} className='simple-hash'>{item.getValue()}</div>,
-                header: () => <span>Transaction Hash</span>,
-            }),
-            columnHelper.accessor((row) => row.approved_by, {
-                id: "approved_by",
-                cell: (item) => item.getValue(),
-                header: () => <span>Approved By</span>,
-            }),
-            columnHelper.accessor((row) => row.approved_date_time, {
-                id: "approved_date_time",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Approved Date</span>,
-            }),
-            columnHelper.accessor((row) => row.date_time, {
-                id: "date_time",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created Date</span>,
-            }),
-        ];
     }
 
     componentDidMount() {
         this.getUsers();
-        this.getCustodians();
-        this.getBankAccounts();
     }
 
     getUsers = () => {
@@ -146,47 +62,6 @@ class DashboardBlock extends React.Component<{}> {
             });
     }
 
-    getCustodians = () => {
-        adminService.getCustodians()
-            .then((res: ICustody[]) => {
-                const data = res?.sort((a, b) => b.id - a.id) || [];
-                const transactionStatusCounts: any = {}
-
-                data.forEach(s => {
-                    transactionStatusCounts[s.status] = (transactionStatusCounts[s.status] || 0) + 1;
-                })
-
-                this.setState({transactionsData: data, transactionStatusCounts: transactionStatusCounts});
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loadingTransactions: false})
-            });
-    }
-
-    getBankAccounts = () => {
-        adminService.getBankAccounts()
-            .then((res: IAdminBankAccount[]) => {
-                const data = res?.sort((a, b) => a.id - b.id) || [];
-                const bankAccountStatusCounts: any = {}
-
-                data.forEach(s => {
-                    s.status = s.deleted ? 'Deleted' : s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase();
-                    bankAccountStatusCounts[s.status] = (bankAccountStatusCounts[s.status] || 0) + 1;
-                })
-
-                this.setState({bankAccountStatusCounts: bankAccountStatusCounts});
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loadingBankAccounts: false})
-            });
-    }
-
     getStatusColor(name: string) {
         const statuses: any = {
             'approved': '#34cb68',
@@ -208,10 +83,10 @@ class DashboardBlock extends React.Component<{}> {
             <>
                 <div className="dashboard section">
                     <div className="content__top">
-                        <div className="content__title">Dashboard</div>
+                        <div className="content__title">Dashboard {JSON.stringify(this.state.loadingUsers)}</div>
                     </div>
 
-                    {this.state.loadingUsers || this.state.loadingTransactions || this.state.loadingBankAccounts ? (
+                    {this.state.loadingUsers ? (
                         <LoaderBlock/>
                     ) : (
                         <>
@@ -232,45 +107,7 @@ class DashboardBlock extends React.Component<{}> {
                                         backgroundColors={[this.getStatusColor('approved'), this.getStatusColor('rejected')]}
                                     />
                                 </div>
-                                <div className="dashboard__chart">
-                                    <DoughnutChart
-                                        labels={Object.keys(this.state.transactionStatusCounts)}
-                                        data={Object.values(this.state.transactionStatusCounts)}
-                                        title="Transaction Statuses"
-                                        backgroundColors={Object.keys(this.state.transactionStatusCounts).map(item => this.getStatusColor(item))}
-                                    />
-                                </div>
-                                <div className="dashboard__chart">
-                                    <DoughnutChart
-                                        labels={Object.keys(this.state.bankAccountStatusCounts)}
-                                        data={Object.values(this.state.bankAccountStatusCounts)}
-                                        title="Bank Account Statuses"
-                                        backgroundColors={Object.keys(this.state.bankAccountStatusCounts).map(item => this.getStatusColor(item))}
-                                    />
-                                </div>
-                            </div>
 
-
-                            <div className="dashboard__transaction__panel">
-                                <div className="content__top mt-5 mb-3">
-                                    <h4 className="m-0">Transactions (last 10 actions)</h4>
-                                    <Link className="link" href="/backend/custody-management">
-                                        All transactions
-                                    </Link>
-                                </div>
-                                {this.state.transactionsData.length ? (
-
-                                    <Table
-                                        columns={columns}
-                                        data={this.state.transactionsData.slice(0, 10)}
-                                        searchPanel={false}
-                                        filter={false}
-                                    />
-                                ) : (
-                                    <>
-                                        <NoDataBlock primaryText="No Transaction available yet"/>
-                                    </>
-                                )}
                             </div>
 
                             {this.state.errors.length > 0 && (
