@@ -10,14 +10,15 @@ interface NumericInputFieldProps {
     className: string,
     decimalScale?: number
     handleChange?: (event: React.ChangeEvent<HTMLInputElement>) => void,
-    disabled?: boolean
+    disabled?: boolean,
+    isThousandSeparator?: boolean
 }
 
 class NumericInputField extends React.Component<NumericInputFieldProps> {
 
     handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { field, form, handleChange } = this.props;
-        const { name } = field;
+        const {field, form, handleChange} = this.props;
+        const {name} = field;
 
         if (event.target) {
             const inputValue = event.target.value;
@@ -30,18 +31,28 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
             }
         }
     };
-    render() {
-        const {field, form, placeholder, className, decimalScale, disabled, handleChange} = this.props;
-        const {name} = field;
 
+    render() {
+        const {
+            field,
+            form,
+            placeholder,
+            className,
+            decimalScale,
+            disabled,
+            handleChange,
+            isThousandSeparator
+        } = this.props;
+        const {name} = field;
         field.value = field.value !== '' ? formatterService.numberDown(field.value, decimalScale || 0) : field.value;
+        const isSeparator = isThousandSeparator ?? true;
 
         return (
             <div>
                 <NumericFormat
                     name={name}
                     allowLeadingZeros
-                    thousandSeparator=","
+                    thousandSeparator={isSeparator ? ',' : ''}
                     className={className}
                     placeholder={placeholder}
                     decimalScale={decimalScale}

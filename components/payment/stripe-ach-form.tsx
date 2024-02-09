@@ -9,6 +9,7 @@ import Image from "next/image";
 import {IStripeACHInfo} from "@/interfaces/i-stripe-ach-info";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import NumericInputField from "@/components/numeric-input-field";
 
 interface StripeACHFormProps extends ICallback {
     amount?: number;
@@ -195,6 +196,9 @@ const StripeACHForm = (props: StripeACHFormProps) => {
                                             className="input__text"
                                             placeholder="Account number"
                                             disabled={isFormSubmit}
+                                            component={NumericInputField}
+                                            decimalScale={0}
+                                            isThousandSeparator={false}
                                         />
                                         <ErrorMessage name="accountNumber" component="div"
                                                       className="error-message"/>
@@ -210,6 +214,9 @@ const StripeACHForm = (props: StripeACHFormProps) => {
                                             className="input__text"
                                             placeholder="Routing number"
                                             disabled={isFormSubmit}
+                                            component={NumericInputField}
+                                            decimalScale={0}
+                                            isThousandSeparator={false}
                                         />
                                         <ErrorMessage name="routingNumber" component="div"
                                                       className="error-message"/>
