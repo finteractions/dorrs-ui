@@ -259,112 +259,114 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
                 ) : (
                     <>
 
-                        {!this.state.isForm ? (
-                            <>
-
-                                {!this.isDashboard && (
-                                    <div
-                                        className="profile__right-title justify-content-between align-items-center d-flex">
-                                        <div>Bank Account (ACH) List</div>
-                                    </div>
-                                )}
-                                {this.state.cards.length > 0 ? (
-                                    <>
+                        {((this.isDashboard && !this.state.isEdit && !this.state.isForm && !this.state.isEdit) ||
+                                (this.isDashboard && !this.state.isEdit && this.state.isForm && !this.state.isEdit && this.amount !== undefined) ||
+                                !this.isDashboard && !this.state.isForm)
+                            && (
+                                <>
+                                    {!this.isDashboard && (
                                         <div
-                                            className={`${this.state.cards.length > 0 ? 'tile indicators' : ''} content__bottom mt-3 mb-4`}>
-                                            <>
-                                                {this.state.cards.map((card: IStripeACHInfo) => (
-                                                    <div key={card.pm_id}
-                                                         className={`d-flex align-items-center gap-20 border p-3 payment-form card-block w-100 ${card.is_default ? 'default' : ''}`}>
-                                                        {card.isLoading ? (
-                                                            <LoaderBlock width={68} height={68}/>
-                                                        ) : (
-                                                            <>
-                                                                <div>
-                                                                    <Image src={`/img/ach.svg`}
-                                                                           width={55}
-                                                                           height={39}
-                                                                           alt='ACH'/>
-                                                                </div>
-                                                                <div>
-                                                                    <div
-                                                                        className={`input__title bold d-flex align-items-center`}>
-                                                                        <div>{card.bank_name} *{card.last4}</div>
-                                                                        <div>
-                                                                            <div className={'d-flex'}>
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                    onClick={() => this.ACHChange(card)}
-                                                                                    disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                                >
-                                                                                    <FontAwesomeIcon
-                                                                                        className={`nav-icon `}
-                                                                                        icon={faEdit}/>
-                                                                                </button>
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                    onClick={() => this.cardDelete(card)}
-                                                                                    disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                                >
-                                                                                    <FontAwesomeIcon
-                                                                                        className={`nav-icon `}
-                                                                                        icon={faTrash}/>
-                                                                                </button>
-                                                                                <input type={'radio'}
-                                                                                       className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
-                                                                                       checked={card.is_default}
-                                                                                       disabled={this.state.isDeleting || this.state.isProcessing}
-                                                                                       onChange={() => this.cardDefault(card)}
-                                                                                />
+                                            className="profile__right-title justify-content-between align-items-center d-flex">
+                                            <div>Bank Account (ACH) List</div>
+                                        </div>
+                                    )}
+
+                                    {this.state.cards.length > 0 ? (
+                                        <>
+                                            <div
+                                                className={`${this.state.cards.length > 0 ? 'tile indicators' : ''} content__bottom mt-3 mb-${this.isDashboard ? '2' : '4'}`}>
+                                                <>
+                                                    {this.state.cards.map((card: IStripeACHInfo) => (
+                                                        <div key={card.pm_id}
+                                                             className={`d-flex align-items-center gap-20 border p-3 payment-form card-block w-100 ${card.is_default ? 'default' : ''}`}>
+                                                            {card.isLoading ? (
+                                                                <LoaderBlock width={68} height={68}/>
+                                                            ) : (
+                                                                <>
+                                                                    <div>
+                                                                        <Image src={`/img/ach.svg`}
+                                                                               width={55}
+                                                                               height={39}
+                                                                               alt='ACH'/>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div
+                                                                            className={`input__title bold d-flex align-items-center`}>
+                                                                            <div>{card.bank_name} *{card.last4}</div>
+                                                                            <div>
+                                                                                <div className={'d-flex'}>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                        onClick={() => this.ACHChange(card)}
+                                                                                        disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className={`nav-icon `}
+                                                                                            icon={faEdit}/>
+                                                                                    </button>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                        onClick={() => this.cardDelete(card)}
+                                                                                        disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className={`nav-icon `}
+                                                                                            icon={faTrash}/>
+                                                                                    </button>
+                                                                                    <input type={'radio'}
+                                                                                           className={`height-auto admin-table-btn ripple ${this.state.isDeleting || this.state.isProcessing ? 'disable' : ''}`}
+                                                                                           checked={card.is_default}
+                                                                                           disabled={this.state.isDeleting || this.state.isProcessing}
+                                                                                           onChange={() => this.cardDefault(card)}
+                                                                                    />
+                                                                                </div>
                                                                             </div>
                                                                         </div>
+                                                                        <div
+                                                                            className={'input__title d-flex align-items-center'}>
+                                                                            <span>{card.account_holder_type.toUpperCase()}</span>
+                                                                        </div>
                                                                     </div>
-                                                                    <div
-                                                                        className={'input__title d-flex align-items-center'}>
-                                                                        <span>{card.account_holder_type.toUpperCase()}</span>
-                                                                        {card.is_default && (
-                                                                            <span
-                                                                                className={'default bg-default'}>Default</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </>
-                                        </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </>
+                                            </div>
 
-                                        {(this.state.cardInfoStored && this.isDashboard) && (
-                                            <button
-                                                className={`b-btn-border ripple`}
-                                                onClick={this.cancel}
-                                            >
-                                                Cancel
-                                            </button>
-                                        )}
-                                    </>
+                                            {(this.state.cardInfoStored && this.isDashboard) && (
+                                                <button
+                                                    className={`b-btn-border ripple d-none`}
+                                                    onClick={this.cancel}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </>
 
-                                ) : (
-                                    <>
-                                        <NoDataBlock primaryText={'No Bank Accounts (ACH) available yet'}/>
-                                    </>
-                                )}
+                                    ) : (
+                                        <>
+                                            <NoDataBlock primaryText={'No Bank Accounts (ACH) available yet'}/>
+                                        </>
+                                    )}
+                                </>
 
+                            )}
 
-                            </>
-                        ) : (
+                        {this.state.isForm && (
                             <>
                                 <StripeACHForm
                                     card={this.state.cardInfo}
                                     amount={this.amount}
+                                    processing={this.state.isProcessing}
                                     errorMessages={this.state.errorMessages}
                                     onCallback={this.onCallback}
                                 />
                             </>
                         )}
+
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
                                title={'Do you want to delete this ACH?'}

@@ -13,6 +13,7 @@ import {faEdit, faTrash} from "@fortawesome/free-solid-svg-icons";
 interface StripeCreditDebitFormProps extends ICallback {
     amount?: number;
     card?: IStripeCardInfo | null;
+    processing?: boolean;
     errorMessages?: Array<string> | null;
 }
 
@@ -34,6 +35,7 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
     const [isFormSubmit, setFormSubmit] = useState(false);
     const [isFormEdit, setFormEdit] = useState(false);
     const [isCardShow, setCardShow] = useState(false);
+    const [isProcessing, setProcessing] = useState(false);
     const [errorMessages, setErrorMessages] = useState<Array<string> | null>(null);
 
     useEffect(() => {
@@ -57,6 +59,10 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
             setErrorMessages(props.errorMessages);
         }
     }, [props.errorMessages]);
+
+    useEffect(() => {
+        setProcessing(props?.processing ?? false)
+    }, [props.processing]);
 
     const cardChange = () => {
         props.onCallback(null);
@@ -159,7 +165,7 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
                 return (
                     <Form className={'payment-form'}>
                         <div className={'profile__right-wrap-full'}>
-                            {isCardShow && props.card && (
+                            {isCardShow && props.card && !props?.amount && (
                                 <>
                                     <div className={'tile indicators content__bottom mt-3 mb-2'}>
                                         <div
@@ -173,19 +179,6 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
                                                 <div
                                                     className={`input__title bold d-flex align-items-center`}>
                                                     <div>{props.card.brand.toUpperCase()} *{props.card.last4}</div>
-                                                    <div>
-                                                        <div className={'d-flex'}>
-                                                            <button
-                                                                type="button"
-                                                                className={`height-auto admin-table-btn ripple`}
-                                                                onClick={cardList}
-                                                            >
-                                                                <FontAwesomeIcon
-                                                                    className={`nav-icon `}
-                                                                    icon={faEdit}/>
-                                                            </button>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                                 <div
                                                     className={'input__title d-flex align-items-center'}>Expires: {props.card.exp_month}/{props.card.exp_year}</div>
@@ -318,9 +311,9 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
                                     <div className={'input__box buttons'}>
                                         {!isFormEdit ? (
                                             <button
-                                                className={`mt-2 b-btn ripple  ${isFormSubmit ? 'disable' : ''}`}
+                                                className={`mt-2 b-btn ripple  ${isFormSubmit || isProcessing ? 'disable' : ''}`}
                                                 type="submit"
-                                                disabled={isFormSubmit}
+                                                disabled={isFormSubmit || isProcessing}
                                             >
                                                 Pay {props.amount ? `$${formatterService.numberFormat(props.amount, 2)}` : ''}
                                             </button>

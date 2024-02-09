@@ -143,7 +143,10 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     }
 
     setActiveForm = (form: string) => {
-        this.setState({activeForm: form, errorMessages:[]})
+        this.setState({
+            activeForm: form,
+            errorMessages: []
+        })
     }
 
     componentDidUpdate(prevProps: PaymentMethodBlockProps) {
@@ -240,7 +243,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                     <div
                                         className={this.state.isForm || this.state.amount ? 'payment-method-form' : ''}>
                                         <div
-                                            className={shouldRenderCreditDebitCardBlock ? 'd-none' : ''}>
+                                            className={shouldRenderCreditDebitCardBlock || (this.state.activeForm !== 'card' && this.state.isDashboard) ? 'd-none' : ''}>
                                             <PaymentMethodStripeCreditDebitCardBlock
                                                 ref={this.creditDebitCardBlockRef}
                                                 onCallback={this.onCallback}
@@ -255,7 +258,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                                         </div>
 
                                         <div
-                                            className={shouldRenderACHBlock ? 'd-none' : ''}>
+                                            className={shouldRenderACHBlock || (this.state.activeForm !== 'us_bank_account' && this.state.isDashboard) ? 'd-none' : ''}>
                                             <PaymentMethodStripeACHBlock
                                                 ref={this.achBlockRef}
                                                 onCallback={this.onCallback}

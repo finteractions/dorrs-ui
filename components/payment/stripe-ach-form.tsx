@@ -13,6 +13,7 @@ import {faEdit} from "@fortawesome/free-solid-svg-icons";
 interface StripeACHFormProps extends ICallback {
     amount?: number;
     card?: IStripeACHInfo | null;
+    processing?: boolean;
     errorMessages?: Array<string> | null;
 }
 
@@ -34,6 +35,7 @@ const StripeACHForm = (props: StripeACHFormProps) => {
     const [isFormSubmit, setFormSubmit] = useState(false);
     const [isFormEdit, setFormEdit] = useState(false);
     const [isCardShow, setCardShow] = useState(false);
+    const [isProcessing, setProcessing] = useState(false);
     const [errorMessages, setErrorMessages] = useState<Array<string> | null>(null);
 
     useEffect(() => {
@@ -57,6 +59,10 @@ const StripeACHForm = (props: StripeACHFormProps) => {
             setErrorMessages(props.errorMessages);
         }
     }, [props.errorMessages]);
+
+    useEffect(() => {
+        setProcessing(props?.processing ?? false)
+    }, [props.processing]);
 
     const cardChange = () => {
         props.onCallback(null);
@@ -104,7 +110,7 @@ const StripeACHForm = (props: StripeACHFormProps) => {
                         }
 
                         callbackObj.token = token;
-                        
+
                         if (props.card?.pm_id) {
                             callbackObj.pm_id = props.card.pm_id
                         }
@@ -134,7 +140,7 @@ const StripeACHForm = (props: StripeACHFormProps) => {
             return (
                 <Form className={'payment-form'}>
                     <div className={'profile__right-wrap-full'}>
-                        {isCardShow && props.card && (
+                        {isCardShow && props.card && !props?.amount && (
                             <>
                                 <div className={'tile indicators content__bottom mt-3 mb-2'}>
                                     <div
@@ -150,19 +156,6 @@ const StripeACHForm = (props: StripeACHFormProps) => {
                                             <div
                                                 className={`input__title bold d-flex align-items-center ${isFormSubmit ? 'disable' : ''}`}>
                                                 <div>{props.card.bank_name} *{props.card.last4}</div>
-                                                <div>
-                                                    <div className={'d-flex'}>
-                                                        <button
-                                                            type="button"
-                                                            className={`height-auto admin-table-btn ripple`}
-                                                            onClick={cardList}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                className={`nav-icon `}
-                                                                icon={faEdit}/>
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             </div>
                                             <div
                                                 className={'input__title d-flex align-items-center'}>
