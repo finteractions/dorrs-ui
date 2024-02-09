@@ -34,6 +34,7 @@ interface FirmsBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class FirmsBlock extends React.Component<{}> {
     state: FirmsBlockState;
@@ -279,6 +280,7 @@ class FirmsBlock extends React.Component<{}> {
 
                                     {this.state.data.length ? (
                                         <Table columns={columns}
+                                               pageLength={pageLength}
                                                data={this.state.data}
                                                searchPanel={true}
                                                block={this}

@@ -32,6 +32,7 @@ interface BankAccountsBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class BankAccountsBlock extends React.Component<{}> {
     state: BankAccountsBlockState;
@@ -104,7 +105,9 @@ class BankAccountsBlock extends React.Component<{}> {
                         <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
                             {item.getValue().status}
                         </div>
-                        {item.getValue().comment ? <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon className="nav-icon" icon={faComment}/></div> : ''}
+                        {item.getValue().comment ?
+                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
+                                className="nav-icon" icon={faComment}/></div> : ''}
                     </div>,
                 header: () => <span>Status</span>,
             }),
@@ -162,7 +165,7 @@ class BankAccountsBlock extends React.Component<{}> {
             return 'Do you want to remove this bank account?';
         } else if (mode === 'view') {
             return 'View Bank Account'
-        }else {
+        } else {
             return `${mode === 'edit' ? 'Edit' : 'Add'} Bank Account`;
         }
     }
@@ -182,7 +185,7 @@ class BankAccountsBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -309,13 +312,15 @@ class BankAccountsBlock extends React.Component<{}> {
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
                                         </button>
                                     </div>
 
                                     {this.state.data.length ? (
                                         <Table
                                             columns={columns}
+                                            pageLength={pageLength}
                                             data={this.state.data}
                                             searchPanel={true}
                                             block={this}
@@ -337,7 +342,10 @@ class BankAccountsBlock extends React.Component<{}> {
                     )}
                 </div>
                 <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>
-                    <BankAccountForm updateModalTitle={(title) => this.setState({ modalTitle: title })} action={this.state.formAction} data={this.state.formData} onCancel={() => this.cancelForm()} onCallback={(isOpenModal) => this.submitForm(isOpenModal)} />
+                    <BankAccountForm updateModalTitle={(title) => this.setState({modalTitle: title})}
+                                     action={this.state.formAction} data={this.state.formData}
+                                     onCancel={() => this.cancelForm()}
+                                     onCallback={(isOpenModal) => this.submitForm(isOpenModal)}/>
                 </Modal>
 
             </>

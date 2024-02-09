@@ -34,6 +34,7 @@ interface ActivityLogsBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class ActivityLogsBlock extends React.Component<{}> {
     state: ActivityLogsBlockState;
@@ -199,7 +200,7 @@ class ActivityLogsBlock extends React.Component<{}> {
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
             return 'Do you want to remove this IP address?';
-        } else if  (mode === 'add') {
+        } else if (mode === 'add') {
             return `Add IP Address`;
         }
     }
@@ -211,7 +212,7 @@ class ActivityLogsBlock extends React.Component<{}> {
 
     handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
+            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
         }), () => {
             this.filterData();
         });
@@ -219,7 +220,7 @@ class ActivityLogsBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -292,8 +293,11 @@ class ActivityLogsBlock extends React.Component<{}> {
                                 </div>
                                 <div className="date__range__wrap">
                                     <DateRangePicker
-                                        onChange={(startDate, endDate) => {this.handleFilterDateChange('created_at',startDate, endDate)}}
-                                        onReset={() => {}}
+                                        onChange={(startDate, endDate) => {
+                                            this.handleFilterDateChange('created_at', startDate, endDate)
+                                        }}
+                                        onReset={() => {
+                                        }}
                                         ref={this.dateRangePickerRef}
                                     />
                                 </div>
@@ -307,6 +311,7 @@ class ActivityLogsBlock extends React.Component<{}> {
                             {this.state.data.length ? (
                                 <Table
                                     columns={columns}
+                                    pageLength={pageLength}
                                     data={this.state.data}
                                     searchPanel={true}
                                     block={this}
@@ -350,7 +355,8 @@ class ActivityLogsBlock extends React.Component<{}> {
                         </>
                     )}
 
-                    <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>
+                    <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()}
+                           title={this.state.modalTitle}>
                         <BlacklistForm action={this.state.formAction} data={this.state.formData}
                                        onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
                     </Modal>

@@ -39,6 +39,7 @@ interface UsersBlockProps {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class UsersBlock extends React.Component<UsersBlockProps> {
     state: UsersBlockState;
@@ -322,6 +323,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                                 <>
                                     <Table
                                         columns={columns}
+                                        pageLength={pageLength}
                                         data={this.state.data}
                                         searchPanel={true}
                                         block={this}

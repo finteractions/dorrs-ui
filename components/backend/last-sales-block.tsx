@@ -33,6 +33,7 @@ interface LastSalesBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class LastSalesBlock extends React.Component<{}> {
     state: LastSalesBlockState;
@@ -392,6 +393,7 @@ class LastSalesBlock extends React.Component<{}> {
 
                                     {this.state.data.length ? (
                                         <Table columns={columns}
+                                               pageLength={pageLength}
                                                data={this.state.data}
                                                searchPanel={true}
                                                block={this}

@@ -39,6 +39,7 @@ interface AssetsBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class AssetsBlock extends React.Component<{}> {
     state: AssetsBlockState;
@@ -231,7 +232,7 @@ class AssetsBlock extends React.Component<{}> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
-                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status :  '-'
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-'
                 })
 
                 this.setState({dataFull: data, data: data}, () => {
@@ -482,6 +483,7 @@ class AssetsBlock extends React.Component<{}> {
 
                                     {this.state.data.length ? (
                                         <Table columns={columns}
+                                               pageLength={pageLength}
                                                data={this.state.data}
                                                searchPanel={true}
                                                block={this}

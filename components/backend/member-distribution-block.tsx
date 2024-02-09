@@ -45,6 +45,7 @@ let memberDistributionsDataColumns: any[] = [];
 const columnmemberDistributionHistoryDataHelper = createColumnHelper<any>();
 let memberDistributionsHistoryColumns: any[] = [];
 
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class MemberDistributionBlock extends React.Component<{}> {
     state: MemberDistributionBlockState;
@@ -399,6 +400,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                         {this.state.memberDistributionViewData.length ? (
                                             <Table
                                                 columns={memberDistributionsDataColumns}
+                                                pageLength={pageLength}
                                                 data={this.state.memberDistributionViewData}
                                                 searchPanel={false}
                                                 block={this}
@@ -456,6 +458,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                 {this.state.memberDistributionHistoryData.length ? (
                                                     <Table
                                                         columns={memberDistributionsHistoryColumns}
+                                                        pageLength={pageLength}
                                                         data={this.state.memberDistributionHistoryData}
                                                         searchPanel={false}
                                                         block={this}
