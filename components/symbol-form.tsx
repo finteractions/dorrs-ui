@@ -24,6 +24,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {IActivityStorage} from "@/interfaces/i-activity-storage";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import NumericInputField from "@/components/numeric-input-field";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -34,6 +35,7 @@ const formSchema = Yup.object().shape({
     transfer_agent: Yup.string().min(3).max(50).label('Transfer Agent'),
     custodian: Yup.string().min(3).max(50).label('Custodian'),
     market_sector: Yup.string().min(3).max(50).required('Required').label('Market Sector'),
+    lot_size: Yup.number().required('Required').label('Lot Size'),
     fractional_lot_size: Yup.number()
         .typeError('Invalid Fractional Lot Size')
         .test('is-fractional', 'Invalid Fractional Lot Size. Example: .01. .001, .0001 and etc.', function (value) {
@@ -364,22 +366,22 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                             <Form id="bank-form">
                                                 {this.props.isAdmin && (
                                                     <>
-                                                        {this.props.data?.created_by && (
-                                                            <div className='approve-form'>
-                                                                <div className='approve-form-text'>
-                                                                    <>
-                                                                        Created
-                                                                        by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
-                                                                    </>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        
                                                         {!['add', 'delete'].includes(this.props.action) && (
                                                             <div className='approve-form'>
+                                                                {this.props.data?.created_by && (
+                                                                    <div
+                                                                        className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pb-1' : ''}`}>
+                                                                        <>
+                                                                            Created
+                                                                            by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
+                                                                        </>
+                                                                    </div>
+                                                                )}
+
                                                                 {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
                                                                     <>
-                                                                        <div className='approve-form-text'>
+                                                                        <div
+                                                                            className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
                                                                             <>
                                                                                 Status: {this.props.data?.status} by {this.props.data?.deleted_by || this.props.data?.changed_by || this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.deleted_date_time || this.props.data?.changed_date_time || this.props.data?.approved_date_time || '')}
                                                                             </>
@@ -388,7 +390,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 ) : (
                                                                     <>
                                                                         <div
-                                                                            className='approve-form-text'>Status: {this.props.data?.status}</div>
+                                                                            className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>Status: {this.props.data?.status}</div>
                                                                         <div className='approve-form-confirm'>
                                                                             {this.state.isConfirmedApproving ? (
                                                                                 <>
@@ -951,6 +953,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     type="text"
                                                                     className="input__text"
                                                                     placeholder="Type Lot Size"
+                                                                    component={NumericInputField}
+                                                                    decimalScale={0}
+                                                                    isThousandSeparator={false}
                                                                     disabled={isSubmitting || this.isShow()}
                                                                 />
                                                                 <ErrorMessage name="lot_size" component="div"
@@ -988,6 +993,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     type="text"
                                                                     className="input__text"
                                                                     placeholder="Type MPV"
+                                                                    component={NumericInputField}
+                                                                    decimalScale={2}
+                                                                    isThousandSeparator={false}
                                                                     disabled={isSubmitting || this.isShow()}
                                                                 />
                                                                 <ErrorMessage name="mvp" component="div"
