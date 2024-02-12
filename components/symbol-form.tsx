@@ -364,6 +364,17 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                             <Form id="bank-form">
                                                 {this.props.isAdmin && (
                                                     <>
+                                                        {this.props.data?.created_by && (
+                                                            <div className='approve-form'>
+                                                                <div className='approve-form-text'>
+                                                                    <>
+                                                                        Created
+                                                                        by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
+                                                                    </>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
                                                         {!['add', 'delete'].includes(this.props.action) && (
                                                             <div className='approve-form'>
                                                                 {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
@@ -423,18 +434,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 )}
                                                             </div>
                                                         )}
-
-                                                        {this.props.data?.created_by && (
-                                                            <div className='approve-form'>
-                                                                <div className='approve-form-text'>
-                                                                    <>
-                                                                        Created
-                                                                        by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
-                                                                    </>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
                                                     </>
                                                 )}
 
