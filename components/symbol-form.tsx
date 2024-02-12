@@ -23,8 +23,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IActivityStorage} from "@/interfaces/i-activity-storage";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit, faMinus} from "@fortawesome/free-solid-svg-icons";
-import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
@@ -363,64 +362,81 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                     {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                         return (
                                             <Form id="bank-form">
-                                                {this.props.isAdmin && !['add', 'delete'].includes(this.props.action) && (
-                                                    <div className='approve-form'>
-                                                        {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
-                                                            <>
+                                                {this.props.isAdmin && (
+                                                    <>
+                                                        {!['add', 'delete'].includes(this.props.action) && (
+                                                            <div className='approve-form'>
+                                                                {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
+                                                                    <>
+                                                                        <div className='approve-form-text'>
+                                                                            <>
+                                                                                Status: {this.props.data?.status} by {this.props.data?.deleted_by || this.props.data?.changed_by || this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.deleted_date_time || this.props.data?.changed_date_time || this.props.data?.approved_date_time || '')}
+                                                                            </>
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <div
+                                                                            className='approve-form-text'>Status: {this.props.data?.status}</div>
+                                                                        <div className='approve-form-confirm'>
+                                                                            {this.state.isConfirmedApproving ? (
+                                                                                <>
+                                                                                    <div
+                                                                                        className='approve-form-confirm-title mb-2'>Are
+                                                                                        you sure you want
+                                                                                        to {this.state.isApproving ? 'approve' : 'reject'}?
+                                                                                    </div>
+                                                                                    <button className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            onClick={() => this.handleApprove(this.props.data)}>Confirm
+                                                                                    </button>
+                                                                                    <button
+                                                                                        className={`border-btn ripple`}
+                                                                                        type="button"
+                                                                                        onClick={() => this.setState({
+                                                                                            isConfirmedApproving: false,
+                                                                                            isApproving: null
+                                                                                        })}>Cancel
+                                                                                    </button>
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <button className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            onClick={() => this.setState({
+                                                                                                isConfirmedApproving: true,
+                                                                                                isApproving: true
+                                                                                            })}>Approve
+                                                                                    </button>
+                                                                                    <button
+                                                                                        className={`border-btn ripple`}
+                                                                                        type="button"
+                                                                                        onClick={() => this.setState({
+                                                                                            isConfirmedApproving: true,
+                                                                                            isApproving: false
+                                                                                        })}>Reject
+                                                                                    </button>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        )}
+
+                                                        {this.props.data?.created_by && (
+                                                            <div className='approve-form'>
                                                                 <div className='approve-form-text'>
                                                                     <>
-                                                                        Status: {this.props.data?.status} by {this.props.data?.deleted_by || this.props.data?.changed_by || this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.deleted_date_time || this.props.data?.changed_date_time || this.props.data?.approved_date_time || '')}
+                                                                        Created
+                                                                        by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
                                                                     </>
                                                                 </div>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <div
-                                                                    className='approve-form-text'>Status: {this.props.data?.status}</div>
-                                                                <div className='approve-form-confirm'>
-                                                                    {this.state.isConfirmedApproving ? (
-                                                                        <>
-                                                                            <div
-                                                                                className='approve-form-confirm-title mb-2'>Are
-                                                                                you sure you want
-                                                                                to {this.state.isApproving ? 'approve' : 'reject'}?
-                                                                            </div>
-                                                                            <button className={`b-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.handleApprove(this.props.data)}>Confirm
-                                                                            </button>
-                                                                            <button className={`border-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: false,
-                                                                                        isApproving: null
-                                                                                    })}>Cancel
-                                                                            </button>
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <button className={`b-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: true,
-                                                                                        isApproving: true
-                                                                                    })}>Approve
-                                                                            </button>
-                                                                            <button className={`border-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: true,
-                                                                                        isApproving: false
-                                                                                    })}>Reject
-                                                                            </button>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </>
+                                                            </div>
                                                         )}
-                                                    </div>
-                                                )}
 
+                                                    </>
+                                                )}
 
                                                 {(values.is_delete) && (
                                                     <>

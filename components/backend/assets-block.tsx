@@ -192,7 +192,7 @@ class AssetsBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.updated_at, {
+            columnHelper.accessor((row) => row.created_at, {
                 id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Created Date</span>,
@@ -222,7 +222,9 @@ class AssetsBlock extends React.Component<{}> {
     getAssets = () => {
         adminService.getAssets()
             .then((res: ISymbol[]) => {
-                const data = res?.sort((a, b) => a.id - b.id) || [];
+                const data = res?.sort((a, b) => {
+                    return Date.parse(b.created_at) - Date.parse(a.created_at);
+                }) || [];
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;

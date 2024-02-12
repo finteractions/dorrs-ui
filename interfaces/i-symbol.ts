@@ -21,6 +21,7 @@ export interface ISymbol {
     blockchain: string;
     smart_contract_type: string;
     status: string;
+    created_at: string;
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
@@ -48,4 +49,6 @@ export interface ISymbol {
     deleted_date_time: string;
     history: Array<IActivityStorage>;
     symbol_suffix: string;
+    created_by: string;
+    created_date_time: string;
 }
