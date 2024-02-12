@@ -18,7 +18,7 @@ import BBOForm from "@/components/bbo-form";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
-import DOBForm from "@/components/dob-form";
+import DepthOfBookForm from "@/components/depth-of-book-form";
 import userPermissionService from "@/services/user/user-permission-service";
 
 
@@ -273,7 +273,7 @@ class IndicatorBlock extends React.Component {
                 );
             case 'dob':
                 return (
-                    <DOBForm
+                    <DepthOfBookForm
                         action={'new'}
                         data={null}
                         onCallback={this.onCallback}
@@ -361,6 +361,7 @@ class IndicatorBlock extends React.Component {
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
                                title={this.modalTitle()}
+                               className={`${this.state.formType !== 'security' ? 'big_modal' : ''}`}
                         >
                             {this.renderFormBasedOnType(this.state.formType)}
                         </Modal>

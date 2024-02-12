@@ -18,8 +18,17 @@ class OrdersService extends BaseService {
         return (await apiWebBackendService.get<IResponse<IDepthOrder[]>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
     }
 
-    public async getOrderHistory(symbol?: string): Promise<IOrder[]> {
-        const queryString = symbol ? `?symbol=${symbol}` : ``
+    public async getOrderHistory(symbol?: string | null, status?: string | null, limit?: number | null): Promise<IOrder[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+        if (status) {
+            queryString += `${queryString ? '&' : '?'}status=${status}`;
+        }
+        if (limit) {
+            queryString += `${queryString ? '&' : '?'}limit=${limit}`;
+        }
         return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}history/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 

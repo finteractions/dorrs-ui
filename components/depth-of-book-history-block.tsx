@@ -13,7 +13,7 @@ import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import {QuoteCondition} from "@/enums/quote-condition";
-import DOBForm from "@/components/dob-form";
+import DepthOfBookForm from "@/components/depth-of-book-form";
 import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
@@ -177,7 +177,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             .then((res: Array<IOrder>) => {
 
                 const data = res?.sort((a, b) => {
-                    return Date.parse(b.created_at) - Date.parse(a.created_at);
+                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
 
                 data.forEach(s => {
@@ -452,9 +452,9 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`bbo ${this.state.formAction}`}
+                                   className={`bbo ${this.state.formAction} ${['new', 'add'].includes(this.state.formAction) ? 'big_modal' : ''}`}
                             >
-                                <DOBForm
+                                <DepthOfBookForm
                                     symbol={this.props.symbol}
                                     action={this.state.formAction}
                                     data={this.state.formData}

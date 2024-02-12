@@ -11,16 +11,10 @@ import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
-import {QuoteCondition} from "@/enums/quote-condition";
-import DOBForm from "@/components/dob-form";
+import DepthOfBookForm from "@/components/depth-of-book-form";
 import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
-import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
-import {OrderSide} from "@/enums/order-side";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
-import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {IDepthOrder} from "@/interfaces/i-depth-order";
 
 
@@ -335,9 +329,9 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`bbo ${this.state.formAction}`}
+                                   className={`bbo ${this.state.formAction} ${['new', 'add'].includes(this.state.formAction) ? 'big_modal' : ''}`}
                             >
-                                <DOBForm
+                                <DepthOfBookForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
