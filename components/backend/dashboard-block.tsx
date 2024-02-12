@@ -4,12 +4,6 @@ import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
 import {IUserDetail} from "@/interfaces/i-user-detail";
 import DoughnutChart from "@/components/chart/doughnut-chart";
-import {ICustody} from "@/interfaces/i-custody";
-import {createColumnHelper} from "@tanstack/react-table";
-import formatterService from "@/services/formatter/formatter-service";
-import Table from "@/components/table/table";
-import NoDataBlock from "@/components/no-data-block";
-import Link from "next/link";
 
 
 interface DashboardBlockState {
