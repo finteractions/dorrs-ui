@@ -3208,6 +3208,10 @@ body {
       align-items: center;
     }
 
+    .align-items-baseline {
+      align-items: baseline;
+    }
+
     .flex-1 {
       flex: 1;
     }
@@ -3908,8 +3912,15 @@ body {
         overflow: hidden;
         max-width: calc(100% - 15px);
         min-width: calc(50% - 15px);
+        align-self: baseline;
       }
     }
+
+    .border-none {
+     border-style: none!important;
+    }
+
+
 
     //.flex-50 {
     //  max-width: calc(50% - );

@@ -512,8 +512,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                     </Formik>
                                 </div>
                                 {this.isAdd() && (
-                                    <div className={'order-block__item'}>
-                                        <div className="content__top p-0 mb-0">
+                                    <div className={'order-block__item align-items-baseline'}>
+                                        <div className="content__top p-0 mb-0 w-100 border-none">
                                             <div className="profile__right-title mb-2">Order history
                                                 (last {pageLength})
                                             </div>
@@ -528,7 +528,9 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                 />
                                             </div>
                                         ) : (
-                                            <NoDataBlock/>
+                                            <div className={'content__bottom w-100'}>
+                                                <NoDataBlock/>
+                                            </div>
                                         )}
                                     </div>
                                 )}
