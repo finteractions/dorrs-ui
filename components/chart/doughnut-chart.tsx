@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {Chart} from 'chart.js/auto';
+import NoDataBlock from "@/components/no-data-block";
 
 type ChartProps = {
     labels: string[];
@@ -18,13 +19,18 @@ const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, ti
             if (ctx) {
                 canvasRef.current.width = 320;
                 Chart.defaults.font.family = '"PT Serif", serif';
+
+                if (data.every(value => value === 0)) {
+                    return;
+                }
+
                 const chart = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
                         datasets: [
                             {
-                                label: labelName || ' Count',
+                                label: labelName ? ` ${labelName}` : ` Count`,
                                 data: data,
                                 backgroundColor: backgroundColors,
                             },
@@ -37,7 +43,7 @@ const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, ti
                         responsive: false,
                         plugins: {
                             title: {
-                                display: true,
+                                display: false,
                                 text: title,
                                 align: 'start',
                                 padding: 0,
@@ -48,7 +54,7 @@ const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, ti
                             legend: {
                                 display: true,
                                 position: "right",
-                                maxWidth: 135,
+                                maxWidth: undefined,
                                 labels: {
                                     padding: 20
                                 }
@@ -66,7 +72,22 @@ const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, ti
         }
     }, []);
 
-    return <canvas ref={canvasRef}></canvas>;
+
+    return (
+        <>
+            <div className=" w-100">
+                <div className="content__title">{title}</div>
+            </div>
+            <div className={'w-100 chart'}>
+                {data.every(value => value === 0) ? (
+                        <NoDataBlock primaryText="No Chart available yet"/>
+                ) : (
+                    <canvas ref={canvasRef}></canvas>
+                )}
+            </div>
+
+        </>
+    );
 };
 
 export default DoughnutChart;

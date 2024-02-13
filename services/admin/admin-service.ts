@@ -19,6 +19,7 @@ import {IChartStatistics} from "@/interfaces/i-chart-statistics";
 import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
+import {IOrder} from "@/interfaces/i-order";
 
 class AdminService extends BaseService {
 
@@ -356,6 +357,10 @@ class AdminService extends BaseService {
 
     public async getMemberDistributionStatistics(data: any): Promise<IChartStatistics[]> {
         return (await apiWebBackendService.post<IResponse<IChartStatistics[]>>(`${this.PATH}member_distributions/statistics/`, data, {}, this.getAdminToken())).data;
+    }
+
+    public async getOrders(): Promise<IOrder[]> {
+        return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}order/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
 }

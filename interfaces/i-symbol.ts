@@ -23,6 +23,7 @@ export interface ISymbol {
     status: string;
     created_at: string;
     updated_at: string;
+    is_approved: boolean;
     approved_by: string;
     approved_date_time: string;
     company_profile: ICompanyProfile | null;

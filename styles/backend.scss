@@ -4098,12 +4098,20 @@
     .dashboard__chart {
       //flex: 0 0 400px;
       //max-width: 400px;
-      flex: 1;
+      flex: 1 0 30%;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      //justify-content: center;
       background: #fff;
       box-shadow: 0 2px 16px rgba(0, 0, 0, .08);
       padding: 30px 30px 0 30px;
+
+      .chart {
+        height: 100%;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
     }
   }
 
