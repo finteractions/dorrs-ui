@@ -944,7 +944,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>
+                                                {/*<UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>*/}
                                             </div>
                                             <div className="active-form d-none">
                                                 <div className="active-form-text">Block all activity of the
@@ -990,8 +990,8 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                             {this.state.errorMessages && (
                                                 <AlertBlock type={"error"} messages={this.state.errorMessages}/>
                                             )}
-                                            <div className="info-panel-block mt-5 d-none">
-                                                <UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>
+                                            <div className="info-panel-block mt-5">
+                                                {/*<UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>*/}
                                             </div>
                                         </>
                                     ) : (

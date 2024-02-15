@@ -313,7 +313,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             <>
                 <div className="panel">
                     <div className="content__top">
-                        <div className="content__title">History by order additing</div>
+                        <div className="content__title">History</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
                             <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadBBOCSV}>

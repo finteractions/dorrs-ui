@@ -149,12 +149,12 @@ const MENU_LIST: MenuItem[] = [
     //         }
     //     ]
     // },
-    {
-        text: 'Balances Screen',
-        href: "/backend/balances-screen",
-        icon: faWallet,
-        submenus: []
-    },
+    // {
+    //     text: 'Balances Screen',
+    //     href: "/backend/balances-screen",
+    //     icon: faWallet,
+    //     submenus: []
+    // },
     {
         text: 'Fees',
         href: "/backend/fees",

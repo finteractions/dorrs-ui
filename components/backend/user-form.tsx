@@ -15,7 +15,6 @@ import UserBalancesBlock from "@/components/backend/user-balances-block";
 import UserImage from "@/components/user-image";
 
 
-
 interface UserFormState extends IState {
     mode: string;
     data: IUserDetail | null;
@@ -95,7 +94,13 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                this.setState({loading: false, isApproving: null, isConfirmedApproving: false, isActivation: null, isConfirmedActivation: false})
+                this.setState({
+                    loading: false,
+                    isApproving: null,
+                    isConfirmedApproving: false,
+                    isActivation: null,
+                    isConfirmedActivation: false
+                })
             });
     }
 
@@ -106,7 +111,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                 this.getApprovedByUser(res[0].approved_by || 0);
             })
             .catch((errors: IError) => {
-              this.setState({errorMessages: errors.messages});
+                this.setState({errorMessages: errors.messages});
             })
     }
 
@@ -126,36 +131,59 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                 <div className='approve-form'>
                                     {this.state.data?.approved_by ? (
                                         <>
-                                            <div className='approve-form-text'>Status: {this.state.data.is_approved ? 'Approved' : 'Rejected'} by {this.state.approved_by_user?.first_name || ''} {this.state.approved_by_user?.last_name || ''} at {formatterService.dateTimeFormat(this.state.data?.approved_date_time || '')}</div>
+                                            <div
+                                                className='approve-form-text'>Status: {this.state.data.is_approved ? 'Approved' : 'Rejected'} by {this.state.approved_by_user?.first_name || ''} {this.state.approved_by_user?.last_name || ''} at {formatterService.dateTimeFormat(this.state.data?.approved_date_time || '')}</div>
                                             {this.state.data.comment && (
                                                 <div className="approve-form-comment">
                                                     <div className="approve-form-comment-text-panel">
                                                         <div className="approve-form-comment-text-title">Comment:</div>
-                                                        <div className="approve-form-comment-text-message" title={this.state.data.comment}>{this.state.data.comment}</div>
+                                                        <div className="approve-form-comment-text-message"
+                                                             title={this.state.data.comment}>{this.state.data.comment}</div>
                                                     </div>
                                                 </div>
                                             )}
                                         </>
-                                    ):(
+                                    ) : (
                                         <>
                                             <div className='approve-form-text'>Status: Pending</div>
                                             <div className='approve-form-confirm'>
                                                 {this.state.isConfirmedApproving ? (
                                                     <>
-                                                        <div className='approve-form-confirm-title mb-2'>Are you sure you want to {this.state.isApproving ? 'approve' : 'reject'}?</div>
-                                                        <button className={`b-btn ripple`} type="button" onClick={() => this.handleApprove(this.state.data, this.commentTextarea?.current?.value ?? '')}>Confirm</button>
-                                                        <button className={`border-btn ripple`} type="button" onClick={() => this.setState({isConfirmedApproving: false, isApproving: null})}>Cancel</button>
+                                                        <div className='approve-form-confirm-title mb-2'>Are you sure
+                                                            you want to {this.state.isApproving ? 'approve' : 'reject'}?
+                                                        </div>
+                                                        <button className={`b-btn ripple`} type="button"
+                                                                onClick={() => this.handleApprove(this.state.data, this.commentTextarea?.current?.value ?? '')}>Confirm
+                                                        </button>
+                                                        <button className={`border-btn ripple`} type="button"
+                                                                onClick={() => this.setState({
+                                                                    isConfirmedApproving: false,
+                                                                    isApproving: null
+                                                                })}>Cancel
+                                                        </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button className={`b-btn ripple`} type="button" onClick={() =>  this.setState({isConfirmedApproving: true, isApproving: true}) }>Approve</button>
-                                                        <button className={`border-btn ripple`} type="button" onClick={() =>  this.setState({isConfirmedApproving: true, isApproving: false}) }>Reject</button>
+                                                        <button className={`b-btn ripple`} type="button"
+                                                                onClick={() => this.setState({
+                                                                    isConfirmedApproving: true,
+                                                                    isApproving: true
+                                                                })}>Approve
+                                                        </button>
+                                                        <button className={`border-btn ripple`} type="button"
+                                                                onClick={() => this.setState({
+                                                                    isConfirmedApproving: true,
+                                                                    isApproving: false
+                                                                })}>Reject
+                                                        </button>
                                                     </>
                                                 )}
                                             </div>
                                             {this.state.isConfirmedApproving && (
                                                 <div className="approve-form-comment">
-                                                    <textarea ref={this.commentTextarea} placeholder={`Comment about "${this.state.isApproving ? 'Approve' : 'Reject'}" status set reason`} rows={5}/>
+                                                    <textarea ref={this.commentTextarea}
+                                                              placeholder={`Comment about "${this.state.isApproving ? 'Approve' : 'Reject'}" status set reason`}
+                                                              rows={5}/>
                                                 </div>
                                             )}
                                         </>
@@ -172,7 +200,8 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Name</div>
-                                        <div className="box__wrap">{this.state.data?.user_id.first_name || ''} {this.state.data?.user_id.last_name || ''}</div>
+                                        <div
+                                            className="box__wrap">{this.state.data?.user_id.first_name || ''} {this.state.data?.user_id.last_name || ''}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Email</div>
@@ -191,7 +220,9 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                     <div className="view-form-box">
                                         <div className="box__title">Email Verified</div>
                                         <div
-                                            className="box__wrap"><FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(this.state.data?.user_id.email_verified || false)}/> {this.state.data?.user_id.email_verified ? 'Yes' : 'No'}</div>
+                                            className="box__wrap"><FontAwesomeIcon className="nav-icon"
+                                                                                   icon={adminIconService.iconBoolean(this.state.data?.user_id.email_verified || false)}/> {this.state.data?.user_id.email_verified ? 'Yes' : 'No'}
+                                        </div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Account Type</div>
@@ -221,9 +252,10 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                         <div className="box__title">Identity Verification</div>
                                         <div className="box__wrap">
                                             {this.state.data?.identity_verification && (
-                                                <a target='_blank' href={this.state.data?.identity_verification || ''}>{<FontAwesomeIcon
-                                                    className="nav-icon"
-                                                    icon={adminFileService.getIcon(this.state.data?.identity_verification || '')}/>} Download</a>
+                                                <a target='_blank' href={this.state.data?.identity_verification || ''}>{
+                                                    <FontAwesomeIcon
+                                                        className="nav-icon"
+                                                        icon={adminFileService.getIcon(this.state.data?.identity_verification || '')}/>} Download</a>
                                             )}
 
                                         </div>
@@ -232,19 +264,23 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                         <div className="box__title">Sign DMCC Agreement</div>
                                         <div className="box__wrap">
                                             {this.state.data?.sign_dmcc_agreement && (
-                                                <a target='_blank' href={this.state.data?.sign_dmcc_agreement || ''}>{<FontAwesomeIcon
-                                                    className="nav-icon"
-                                                    icon={adminFileService.getIcon(this.state.data?.sign_dmcc_agreement || '')}/>} Download</a>
+                                                <a target='_blank' href={this.state.data?.sign_dmcc_agreement || ''}>{
+                                                    <FontAwesomeIcon
+                                                        className="nav-icon"
+                                                        icon={adminFileService.getIcon(this.state.data?.sign_dmcc_agreement || '')}/>} Download</a>
                                             )}
                                         </div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Approved</div>
-                                        <div className="box__wrap"><FontAwesomeIcon className="nav-icon" icon={adminIconService.iconBoolean(this.state.data?.is_approved || false)}/> {this.state.data?.is_approved ? 'Yes' : 'No'}</div>
+                                        <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
+                                                                                    icon={adminIconService.iconBoolean(this.state.data?.is_approved || false)}/> {this.state.data?.is_approved ? 'Yes' : 'No'}
+                                        </div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Approved By</div>
-                                        <div className="box__wrap">{this.state.approved_by_user?.first_name || ''} {this.state.approved_by_user?.last_name || ''}</div>
+                                        <div
+                                            className="box__wrap">{this.state.approved_by_user?.first_name || ''} {this.state.approved_by_user?.last_name || ''}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Approved Date</div>
@@ -259,20 +295,38 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
 
                                 </div>
                                 <div className="active-form d-none">
-                                    <div className="active-form-text">Block all activity of the user: {this.state.data?.user_id.is_blocked ? 'YES' : 'OFF'}</div>
+                                    <div className="active-form-text">Block all activity of the
+                                        user: {this.state.data?.user_id.is_blocked ? 'YES' : 'OFF'}</div>
                                     <div className="active-form-confirm">
                                         {this.state.isConfirmedActivation ? (
                                             <>
-                                                <div className='active-form-confirm-title mb-2'>Are you sure you want to {this.state.isActivation ? 'unblock' : 'block'} the user?</div>
-                                                <button className={`b-btn ripple`} type="button" onClick={() => this.handleActivate(this.state.data)}>Confirm</button>
-                                                <button className={`border-btn ripple`} type="button" onClick={() => this.setState({isConfirmedActivation: false, isActivation: null})}>Cancel</button>
+                                                <div className='active-form-confirm-title mb-2'>Are you sure you want
+                                                    to {this.state.isActivation ? 'unblock' : 'block'} the user?
+                                                </div>
+                                                <button className={`b-btn ripple`} type="button"
+                                                        onClick={() => this.handleActivate(this.state.data)}>Confirm
+                                                </button>
+                                                <button className={`border-btn ripple`} type="button"
+                                                        onClick={() => this.setState({
+                                                            isConfirmedActivation: false,
+                                                            isActivation: null
+                                                        })}>Cancel
+                                                </button>
                                             </>
                                         ) : (
                                             <>
                                                 {this.state.data?.user_id.is_blocked ? (
-                                                    <button className="b-btn ripple" type="button" onClick={() => this.setState({isConfirmedActivation: true, isActivation: true}) }>Unblock</button>
-                                               ) : (
-                                                    <button className="border-btn ripple" type="button" onClick={() => this.setState({isConfirmedActivation: true, isActivation: false}) }>Block the user</button>
+                                                    <button className="b-btn ripple" type="button"
+                                                            onClick={() => this.setState({
+                                                                isConfirmedActivation: true,
+                                                                isActivation: true
+                                                            })}>Unblock</button>
+                                                ) : (
+                                                    <button className="border-btn ripple" type="button"
+                                                            onClick={() => this.setState({
+                                                                isConfirmedActivation: true,
+                                                                isActivation: false
+                                                            })}>Block the user</button>
                                                 )}
                                             </>
                                         )}
@@ -282,11 +336,11 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                     <AlertBlock type={"error"} messages={this.state.errorMessages}/>
                                 )}
 
-                                <UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>
+                                {/*<UserBalancesBlock user_id={this.state.data?.user_id.email || ''}/>*/}
 
-                                <div className={'d-none'}>
-                                    <UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>
-                                </div>
+
+                                {/*<UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>*/}
+
 
                             </>
                         )}
