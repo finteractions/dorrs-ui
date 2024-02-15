@@ -1056,7 +1056,7 @@ body {
       max-width: 718px;
       margin: 0 auto;
       pointer-events: auto;
-      background: #f8fbff;
+      background: #F6F9FC;
       position: relative;
       padding: 40px 20px 20px;
       -webkit-box-sizing: border-box;
@@ -1068,6 +1068,26 @@ body {
 
         > div {
           width: 100%;
+        }
+      }
+
+      .panel {
+        .content__top {
+          padding-bottom: 10px !important;
+
+          .content__title {
+            //font-size: 17px !important;
+          }
+        }
+      }
+
+      .table table {
+        tbody {
+          tr {
+            td {
+              height: 29px;
+            }
+          }
         }
       }
     }
@@ -2364,12 +2384,6 @@ body {
                   height: 28px;
                   overflow: hidden;
                 }
-              }
-            }
-
-            &.compact-row {
-              td {
-                height: 24px;
               }
             }
           }
@@ -3917,9 +3931,8 @@ body {
     }
 
     .border-none {
-     border-style: none!important;
+      border-style: none !important;
     }
-
 
 
     //.flex-50 {

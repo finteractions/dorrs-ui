@@ -1131,28 +1131,31 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
                                                 {this.props.action === 'view' && (
                                                     <>
-                                                        <div className="input">
-                                                            <div className="input__title">History Log</div>
-                                                            <div
-                                                                className={`input__wrap`}>
-                                                                {this.state.history.length > 0 ? (
-                                                                    <Table columns={columns}
-                                                                           data={this.state.history}
-                                                                           searchPanel={false}
-                                                                           block={this}
-                                                                           viewBtn={false}
-                                                                           editBtn={false}
-                                                                           deleteBtn={false}
-                                                                           pageLength={5}
-                                                                    />
-                                                                ) : (
-                                                                    <>
+                                                        <div className={'order-block__item'}>
+                                                            <div className={'panel'}>
+                                                                <div className={'content__top'}>
+                                                                    <div className={'content__title'}>History Log</div>
+                                                                </div>
+                                                                <div className={'content__bottom'}>
+                                                                    {this.state.history.length > 0 ? (
+                                                                        <Table columns={columns}
+                                                                               data={this.state.history}
+                                                                               searchPanel={false}
+                                                                               block={this}
+                                                                               viewBtn={false}
+                                                                               editBtn={false}
+                                                                               deleteBtn={false}
+                                                                               pageLength={5}
+                                                                        />
+                                                                    ) : (
+                                                                        <>
 
-                                                                        <NoDataBlock
-                                                                            primaryText="No history available yet"/>
+                                                                            <NoDataBlock
+                                                                                primaryText="No history available yet"/>
 
-                                                                    </>
-                                                                )}
+                                                                        </>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </>

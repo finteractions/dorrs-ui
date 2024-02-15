@@ -58,7 +58,7 @@ interface DepthOfBookProps extends ICallback {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let rowProps: ITableRowProps;
-const pageLength = 25;
+const pageLength = 20;
 
 class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -142,7 +142,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
         ];
 
         rowProps = {
-            className: 'cursor-pointer compact-row',
+            className: 'cursor-pointer',
             onCallback: (order: IOrder) => this.fillForm(order)
         }
 
@@ -512,26 +512,23 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                     </Formik>
                                 </div>
                                 {this.isAdd() && (
-                                    <div className={'order-block__item align-items-baseline'}>
-                                        <div className="content__top p-0 mb-0 w-100 border-none">
-                                            <div className="profile__right-title mb-2">Order history
-                                                (last {pageLength})
+                                    <div className={'order-block__item'}>
+                                        <div className={'panel'}>
+                                            <div className={'content__top'}>
+                                                <div className={'content__title'}>Order history (last {pageLength})</div>
+                                            </div>
+                                            <div className={'content__bottom'}>
+                                                {this.state.data.length ? (
+                                                    <Table columns={columns}
+                                                           rowProps={rowProps}
+                                                           pageLength={pageLength}
+                                                           data={this.state.data}
+                                                    />
+                                                ) : (
+                                                    <NoDataBlock primaryText={' '} secondaryText={ 'No data available'}/>
+                                                )}
                                             </div>
                                         </div>
-
-                                        {this.state.data.length ? (
-                                            <div className={'w-100'}>
-                                                <Table columns={columns}
-                                                       rowProps={rowProps}
-                                                       pageLength={pageLength}
-                                                       data={this.state.data}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className={'content__bottom w-100'}>
-                                                <NoDataBlock/>
-                                            </div>
-                                        )}
                                     </div>
                                 )}
                             </div>
