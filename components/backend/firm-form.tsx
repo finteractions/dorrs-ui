@@ -14,6 +14,7 @@ import {IBankTemplate} from "@/interfaces/i-bank-template";
 const formSchema = Yup.object().shape({
     name: Yup.string().min(3).required('Required').label('Name'),
     is_member: Yup.boolean().label('DORRS Member'),
+    is_ats: Yup.boolean().label('ATS'),
 });
 
 interface FirmFormState extends IState {
@@ -40,14 +41,16 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
         super(props);
 
         const initialData = this.props.firmData || {} as IFirm;
-        
+
         const initialValues: {
             name: string;
             is_member: boolean;
+            is_ats: boolean;
             bank: any
         } = {
             name: initialData?.name || this.props.firmData?.name || '',
             is_member: initialData?.is_member || false,
+            is_ats: initialData?.is_ats || false,
             bank: initialData?.bank ? initialData?.bank[0] : this.props.bankData?.columnValues || null
         };
 
@@ -141,23 +144,43 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                                     </div>
                                                 </div>
 
-                                                <div className="input">
-                                                    <div
-                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
-                                                        <Field
-                                                            type="checkbox"
-                                                            name="is_member"
-                                                            id="is_member"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            onClick={(e: any) => this.handleMemberChange(e, setFieldValue)}
-                                                        />
-                                                        <label htmlFor="is_member">
-                                                            <span></span><i> DORRS Member
-                                                        </i>
-                                                        </label>
-                                                        <ErrorMessage name="is_member" component="div"
-                                                                      className="error-message"/>
+                                                <div className="input__group">
+                                                    <div className={'input'}>
+                                                        <div
+                                                            className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
+                                                            <Field
+                                                                type="checkbox"
+                                                                name="is_member"
+                                                                id="is_member"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                                onClick={(e: any) => this.handleMemberChange(e, setFieldValue)}
+                                                            />
+                                                            <label htmlFor="is_member">
+                                                                <span></span><i> DORRS Member
+                                                            </i>
+                                                            </label>
+                                                            <ErrorMessage name="is_member" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
                                                     </div>
+                                                    <div className={'input'}>
+                                                        <div
+                                                            className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
+                                                            <Field
+                                                                type="checkbox"
+                                                                name="is_ats"
+                                                                id="is_ats"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <label htmlFor="is_ats">
+                                                                <span></span><i> ATS
+                                                            </i>
+                                                            </label>
+                                                            <ErrorMessage name="is_ats" component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
                                                 </div>
 
                                                 {this.state.isMember && (
@@ -261,6 +284,12 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                 <div className="box__title">DORRS Member</div>
                                 <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
                                                                             icon={adminIconService.iconBoolean(this.props.firmData?.is_member || false)}/> {this.props.firmData?.is_member ? 'Yes' : 'No'}
+                                </div>
+                            </div>
+                            <div className="view-form-box">
+                                <div className="box__title">ATS</div>
+                                <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
+                                                                            icon={adminIconService.iconBoolean(this.props.firmData?.is_ats || false)}/> {this.props.firmData?.is_ats ? 'Yes' : 'No'}
                                 </div>
                             </div>
 

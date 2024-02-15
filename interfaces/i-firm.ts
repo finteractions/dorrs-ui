@@ -10,4 +10,6 @@ export interface IFirm {
     is_member: boolean;
     is_member_text?: string;
     bank: Array<any>
+    is_ats: boolean;
+    is_ats_text?: string;
 }

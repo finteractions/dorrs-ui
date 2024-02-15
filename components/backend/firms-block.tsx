@@ -71,6 +71,12 @@ class FirmsBlock extends React.Component<{}> {
                                                  icon={adminIconService.iconBoolean(item.getValue())}/>,
                 header: () => <span>DORRS Member</span>,
             }),
+            columnHelper.accessor((row) => row.is_ats, {
+                id: "is_ats",
+                cell: (item) => <FontAwesomeIcon className="nav-icon"
+                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
+                header: () => <span>ATS</span>,
+            }),
             columnHelper.accessor((row) => row.status, {
                 id: "status",
                 cell: (item) =>
@@ -89,10 +95,15 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     componentDidMount() {
-        this.setState({loading: true});
-        this.getFirms();
-        this.getBank();
-        this.startAutoUpdate();
+        this.getFirms()
+            .then(() => this.getBank())
+            .finally(() => {
+                this.setState({loading: false}, () => {
+                    this.startAutoUpdate();
+                })
+            })
+
+
     }
 
     componentWillUnmount() {
@@ -100,54 +111,59 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     getFirms = () => {
-        adminService.getFirms()
-            .then((res: IFirm[]) => {
-                const data = res?.sort((a, b) => a.id - b.id) || [];
-                data.forEach((s, idx) => {
-                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-                    s.is_member_text = s.is_member? 'Yes' : 'No'
+        return new Promise(resolve => {
+            adminService.getFirms()
+                .then((res: IFirm[]) => {
+                    const data = res?.sort((a, b) => a.id - b.id) || [];
+                    data.forEach((s, idx) => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                        s.is_member_text = s.is_member ? 'Yes' : 'No'
+                        s.is_ats_text = s.is_ats ? 'Yes' : 'No'
+                    });
+                    this.setState({dataFull: data, data: data}, () => {
+                        this.filterData();
+                    });
+                })
+                .catch((errors: IError) => {
+                    this.setState({errors: errors.messages});
+                })
+                .finally(() => {
+                    resolve(true)
                 });
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+        })
     }
 
     getBank = () => {
-        adminService.getFirmBank()
-            .then((res: IBank[]) => {
-                const bank = res[0];
+        return new Promise(resolve => {
+            adminService.getFirmBank()
+                .then((res: IBank[]) => {
+                    const bank = res[0];
 
-                const columns = bank.columns;
-                let values = bank.values;
+                    const columns = bank.columns;
+                    let values = bank.values;
 
-                const columnsObject = JSON.parse(columns) as any
-                values = values.replace(/'/g, '"');
-                const valuesObject = JSON.parse(values)
+                    const columnsObject = JSON.parse(columns) as any
+                    values = values.replace(/'/g, '"');
+                    const valuesObject = JSON.parse(values)
 
-                this.columnDefinition = columnsObject;
-                this.columnValues = valuesObject;
+                    this.columnDefinition = columnsObject;
+                    this.columnValues = valuesObject;
 
-                this.setState({
-                    formBankData: new class implements IBankTemplate {
-                        columnDefinition = columnsObject;
-                        columnValues = valuesObject
-                    }
+                    this.setState({
+                        formBankData: new class implements IBankTemplate {
+                            columnDefinition = columnsObject;
+                            columnValues = valuesObject
+                        }
+                    });
+
+                })
+                .catch((errors: IError) => {
+                    this.setState({errors: errors.messages});
+                })
+                .finally(() => {
+                    resolve(true)
                 });
-
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+        })
     }
 
     startAutoUpdate(): void {
@@ -185,8 +201,10 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     submitForm(): void {
-        this.setState({isOpenModal: false});
-        this.getFirms();
+        this.setState({isOpenModal: false}, async () => {
+            await this.getFirms();
+        });
+
     }
 
     handleResetButtonClick = () => {
@@ -208,8 +226,8 @@ class FirmsBlock extends React.Component<{}> {
 
 
     onCallback = async (values: any, step: boolean) => {
-        this.getFirms();
         this.closeModal();
+        await this.getFirms();
     };
 
     render() {
@@ -255,6 +273,18 @@ class FirmsBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('is_member_text', item)}
                                                 options={filterService.buildOptions('is_member_text', this.state.dataFull)}
                                                 placeholder="DORRS Member"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('is_ats_text', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('is_ats_text', item)}
+                                                options={filterService.buildOptions('is_ats_text', this.state.dataFull)}
+                                                placeholder="ATS"
                                             />
                                         </div>
                                         <div className="input__wrap">
