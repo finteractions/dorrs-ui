@@ -247,7 +247,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     }
 
     onCallback = async (values: any, step: boolean) => {
-        await this.getDepthByOrder();
+        await this.getData();
     };
 
 
