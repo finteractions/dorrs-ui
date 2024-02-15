@@ -1,5 +1,5 @@
 export enum UserType {
-    TRADING_SYSTEM = 'Trading System',
+    ATS = 'ATS',
     BROKER_DEALER = 'Broker-dealer',
     INVESTMENT_FIRM = 'Investment Firm',
     INVESTOR = 'Investor',
