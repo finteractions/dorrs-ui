@@ -20,6 +20,7 @@ import {
     QuoteCondition
 } from "@/enums/quote-condition";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
+import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
 
 
 const formSchema = Yup.object().shape({
@@ -90,7 +91,7 @@ const formSchema = Yup.object().shape({
 
 interface BestBidAndBestOfferFormState extends IState {
     formInitialValues: {};
-    loading: boolean;
+    isLoading: boolean;
     focusedInputBidDate: any;
     focusedInputOfferDate: any;
 }
@@ -151,7 +152,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         this.state = {
             success: false,
             formInitialValues: initialValues,
-            loading: true,
+            isLoading: true,
             focusedInputBidDate: null,
             focusedInputOfferDate: null,
         };
@@ -170,13 +171,15 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                this.setState({loading: false})
+                !this.isAdd() ? this.setState({isLoading: false}) : null;
             });
 
 
     }
 
-    handleSubmit = async (values: IBestBidAndBestOffer, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleSubmit = async (values: IBestBidAndBestOffer, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
         this.setState({errorMessages: null});
 
         let data = values;
@@ -206,7 +209,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
     }
 
     isAdd(): boolean {
-        return this.props.action === 'add';
+        return ['add', 'edit'].includes(this.props.action);
     }
 
     componentDidMount() {
@@ -234,6 +237,10 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         if (getOfferQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("offer_time", initialTime);
     };
 
+    onCallback = () => {
+        this.setState({isLoading: false})
+    }
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -241,11 +248,11 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             case 'view':
                 return (
                     <>
-                        {this.state.loading ? (
+                        {this.state.isLoading && (
                             <LoaderBlock/>
-                        ) : (
-
-                            <>
+                        )}
+                        <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
+                            <div className={'column-block__item'}>
                                 <Formik<IBestBidAndBestOffer>
                                     initialValues={this.state.formInitialValues as IBestBidAndBestOffer}
                                     validationSchema={formSchema}
@@ -262,7 +269,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                           setTouched
                                       }) => {
                                         return (
-                                            <Form className={`quote_condition_${values.quote_condition}`}>
+                                            <Form className={`quote_condition_${values.quote_condition} w-100`}>
                                                 <div className="input">
                                                     <div className="input__title">Origin <i>*</i></div>
                                                     <div
@@ -568,8 +575,16 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                         );
                                     }}
                                 </Formik>
-                            </>
-                        )}
+                            </div>
+                            {this.isAdd() && (
+                                <div className={'column-block__item'}>
+                                    <ModalDepthOfBookHistoryBlock
+                                        pageLength={28}
+                                        onCallback={this.onCallback}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </>
                 )
         }

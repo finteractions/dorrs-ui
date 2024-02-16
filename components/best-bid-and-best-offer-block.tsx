@@ -229,11 +229,12 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
     }
 
     onCallback = async (values: any, open: boolean) => {
+        console.log(values, open)
         this.getBBO();
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                this.openModal('edit', values as IBestBidAndBestOffer);
+                this.openModal('view', values as IBestBidAndBestOffer);
             })
         } else {
             this.closeModal();
@@ -397,12 +398,13 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`bbo ${this.state.formAction}`}
+                                   className={`bbo ${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) ? 'big_modal' : ''}`}
                             >
                                 <BestBidAndBestOfferForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
+
                                 />
                             </Modal>
 

@@ -19,8 +19,8 @@ class BestBidAndBestOfferService extends BaseService {
         return (await apiWebBackendService.post<IResponse<Array<IBestBidAndBestOffer>>>(`${this.PATH}reporting/`, data, {}, this.getUserAccessToken())).data
     }
 
-    public updateBestBidAndBestOffer(data: any, id: number): Promise<any> {
-        return apiWebBackendService.put(`${this.PATH}reporting/${id}/`, data, {}, this.getUserAccessToken());
+    public async updateBestBidAndBestOffer(data: any, id: number): Promise<Array<IBestBidAndBestOffer>> {
+        return (await apiWebBackendService.put<IResponse<Array<IBestBidAndBestOffer>>>(`${this.PATH}reporting/${id}/`, data, {}, this.getUserAccessToken())).data
     }
 
     public async getBestBidAndBestOfferBySymbol(symbol: string): Promise<Array<IBestBidAndBestOffer>> {
