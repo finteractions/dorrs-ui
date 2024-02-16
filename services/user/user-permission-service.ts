@@ -2,7 +2,7 @@ const comparison_matrix: Record<string, string> = {
     'SymbolBlock': 'security',
     'CompanyProfileBlock': 'company_profile',
     'LastSaleReportingBlock': 'last_sale_reporting',
-    'BBOBlock': 'bbo',
+    'BestBidAndBestOfferBlock': 'bbo',
     'WeeklyAndMonthlyReportsBlock': 'weekly_and_monthly_reports',
     'DepthOfBookBlock': 'dob',
     'QuoteBoardBlock': 'quote_board'

@@ -7,30 +7,30 @@ import {createColumnHelper} from "@tanstack/react-table";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
-import bboService from "@/services/bbo/bbo-service";
-import {IBBO} from "@/interfaces/i-bbo";
+import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
-import BBOForm from "@/components/bbo-form";
+import BestBidAndBestOfferForm from "@/components/best-bid-and-best-offer-form";
 import {QuoteCondition} from "@/enums/quote-condition";
 
 
-interface BBOBlockState extends IState, IModalState {
+interface BestBidAndBestOfferBlockState extends IState, IModalState {
     isLoading: boolean;
     formAction: string;
-    formData: IBBO | null;
+    formData: IBestBidAndBestOffer | null;
     modalTitle: string;
     errors: string[];
-    data: IBBO[];
-    dataFull: IBBO[];
+    data: IBestBidAndBestOffer[];
+    dataFull: IBestBidAndBestOffer[];
     filterData: any;
 }
 
-interface BBOBlockProps extends ICallback {
+interface BestBidAndBestOfferBlockProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -46,16 +46,16 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
 
-class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
+class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockProps, BestBidAndBestOfferBlockState> {
 
-    state: BBOBlockState;
+    state: BestBidAndBestOfferBlockState;
     errors: Array<string> = new Array<string>();
     getBBOInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
-    constructor(props: BBOBlockProps, context: IDataContext<null>) {
+    constructor(props: BestBidAndBestOfferBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -186,8 +186,8 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
     }
 
     getBBO = () => {
-        bboService.getBBO()
-            .then((res: Array<IBBO>) => {
+        bestBidAndBestOfferService.getBestBidAndBestOffer()
+            .then((res: Array<IBestBidAndBestOffer>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
@@ -211,7 +211,7 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
     filterData = () => {
         this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
-    openModal = (mode: string, data?: IBBO) => {
+    openModal = (mode: string, data?: IBestBidAndBestOffer) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
 
@@ -233,7 +233,7 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                this.openModal('edit', values as IBBO);
+                this.openModal('edit', values as IBestBidAndBestOffer);
             })
         } else {
             this.closeModal();
@@ -253,13 +253,13 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
     }
 
     downloadBBOCSV = () => {
-        bboService.downloadBBO(this.state.filterData).then((res) => {
+        bestBidAndBestOfferService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
             downloadFile.CSV('bbo', res);
         })
     }
 
     downloadBBOXLSX = () => {
-        bboService.downloadBBO(this.state.filterData).then((res) => {
+        bestBidAndBestOfferService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
             downloadFile.XLSX('bbo', res);
         })
     }
@@ -399,7 +399,7 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
                                    title={this.state.modalTitle}
                                    className={`bbo ${this.state.formAction}`}
                             >
-                                <BBOForm
+                                <BestBidAndBestOfferForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
                                     onCallback={this.onCallback}
@@ -416,4 +416,4 @@ class BBOBlock extends React.Component<BBOBlockProps, BBOBlockState> {
     }
 }
 
-export default portalAccessWrapper(BBOBlock, 'BBOBlock');
+export default portalAccessWrapper(BestBidAndBestOfferBlock, 'BestBidAndBestOfferBlock');

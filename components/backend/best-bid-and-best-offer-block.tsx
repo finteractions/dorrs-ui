@@ -11,7 +11,7 @@ import Modal from "@/components/modal";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
-import {IBBO} from "@/interfaces/i-bbo";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import {getBidQuoteCondition, getOfferQuoteCondition, QuoteCondition} from "@/enums/quote-condition";
@@ -19,15 +19,15 @@ import {getBidQuoteCondition, getOfferQuoteCondition, QuoteCondition} from "@/en
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-interface BBOBlockState {
+interface BestBidAndBestOfferBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formData: IBBO | null;
+    formData: IBestBidAndBestOffer | null;
     formAction: string;
-    data: IBBO[];
+    data: IBestBidAndBestOffer[];
     errors: string[];
     modalTitle: string;
-    dataFull: IBBO[];
+    dataFull: IBestBidAndBestOffer[];
     filterData: any;
     showSymbolForm: boolean;
 }
@@ -35,8 +35,8 @@ interface BBOBlockState {
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
-class BBOBlock extends React.Component<{}> {
-    state: BBOBlockState;
+class BestBidAndBestOfferBlock extends React.Component<{}> {
+    state: BestBidAndBestOfferBlockState;
     getAssetsInterval!: NodeJS.Timer;
 
     constructor(props: {}) {
@@ -162,9 +162,12 @@ class BBOBlock extends React.Component<{}> {
     }
 
     componentDidMount() {
-        this.setState({loading: true});
-        this.getBBO();
-        this.startAutoUpdate();
+        this.getBBO()
+            .then(() => {
+                this.setState({loading: false}, () => {
+                    this.startAutoUpdate();
+                })
+            })
     }
 
     componentWillUnmount() {
@@ -172,24 +175,26 @@ class BBOBlock extends React.Component<{}> {
     }
 
     getBBO = () => {
-        adminService.getBBO()
-            .then((res: IBBO[]) => {
-                const data = res?.sort((a, b) => a.id - b.id) || [];
+        return new Promise(resolve => {
+            adminService.getBestBidAndBestOffer()
+                .then((res: IBestBidAndBestOffer[]) => {
+                    const data = res || [];
 
-                data.forEach(s => {
-                    s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                    data.forEach(s => {
+                        s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
+                    })
+
+                    this.setState({dataFull: data, data: data}, () => {
+                        this.filterData();
+                    });
                 })
-
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
+                .catch((errors: IError) => {
+                    this.setState({errors: errors.messages});
+                })
+                .finally(() => {
+                    resolve(true)
                 });
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+        })
     }
 
     startAutoUpdate(): void {
@@ -249,13 +254,13 @@ class BBOBlock extends React.Component<{}> {
     };
 
     downloadBBOCSV = () => {
-        adminService.downBBO(this.state.filterData).then((res) => {
+        adminService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
             downloadFile.CSV('bbo', res);
         })
     }
 
     downloadBBOXLSX = () => {
-        adminService.downBBO(this.state.filterData).then((res) => {
+        adminService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
             downloadFile.XLSX('bbo', res);
         })
     }
@@ -533,4 +538,4 @@ class BBOBlock extends React.Component<{}> {
     }
 }
 
-export default BBOBlock;
+export default BestBidAndBestOfferBlock;

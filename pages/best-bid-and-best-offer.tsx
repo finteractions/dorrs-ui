@@ -2,7 +2,7 @@ import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
 import {useRouter} from "next/router";
-import BboBlock from "@/components/bbo-block";
+import BestBidAndBestOfferBlock from "@/components/best-bid-and-best-offer-block";
 
 
 const BestBidAndBestOffer: NextPageWithLayout = () => {
@@ -16,7 +16,7 @@ const BestBidAndBestOffer: NextPageWithLayout = () => {
     return (
         <>
             <div className={'flex-panel-box'}>
-                <BboBlock onCallback={onCallback}/>
+                <BestBidAndBestOfferBlock onCallback={onCallback}/>
             </div>
         </>
     )

@@ -1,6 +1,6 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
-import {IBBO} from "@/interfaces/i-bbo";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {IBank} from "@/interfaces/i-bank";
 
 class BankService extends BaseService {

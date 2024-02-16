@@ -2806,6 +2806,10 @@
     background: #cb3d34
   }
 
+  .table__status.table__status-closed:before {
+    background: #cb3d34
+  }
+
   .table__status.table__status-archived:before {
     background: #b8bec5
   }
@@ -2816,6 +2820,14 @@
 
   .table__status.table__status-payment-due:before {
     background: #FFA800
+  }
+
+  .b-order-side {
+    color: #34cb68;
+  }
+
+  .s-order-side {
+    color: #cb3d34;
   }
 
   @media(max-width: 1299px) {

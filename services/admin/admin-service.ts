@@ -11,7 +11,7 @@ import {IPermission} from "@/interfaces/i-permission";
 import {IFirm} from "@/interfaces/i-firm";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {IDoc} from "@/interfaces/i-doc";
-import {IBBO} from "@/interfaces/i-bbo";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {IFees} from "@/interfaces/i-fees";
 import {IInvoice} from "@/interfaces/i-invoice";
 import {IBank} from "@/interfaces/i-bank";
@@ -298,11 +298,11 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_customer_type/`, data, {}, this.getAdminToken()));
     }
 
-    public async getBBO(): Promise<IBBO[]> {
-        return (await apiWebBackendService.get<IResponse<IBBO[]>>(`${this.PATH}bbo/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    public async getBestBidAndBestOffer(): Promise<IBestBidAndBestOffer[]> {
+        return (await apiWebBackendService.get<IResponse<IBestBidAndBestOffer[]>>(`${this.PATH}bbo/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }
 
-    public async downBBO(data: any): Promise<string> {
+    public async downloadBestBidAndBestOffer(data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_bbo/`, data, {}, this.getAdminToken()));
     }
@@ -361,6 +361,11 @@ class AdminService extends BaseService {
 
     public async getOrders(): Promise<IOrder[]> {
         return (await apiWebBackendService.get<IResponse<IOrder[]>>(`${this.PATH}order/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    }
+
+    public async downloadOrders(data: any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_orders/`, data, {}, this.getAdminToken()));
     }
 
 }

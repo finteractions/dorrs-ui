@@ -1,13 +1,13 @@
 import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "../_app";
 import BackendLayout from "@/components/layouts/backend/backend-layout";
-import BBOBlock from "@/components/backend/bbo-block";
+import BestBidAndBestOfferBlock from "@/components/backend/best-bid-and-best-offer-block";
 
 const BestBidAndBestOffer: NextPageWithLayout = () => {
 
     return (
         <>
-            <BBOBlock/>
+            <BestBidAndBestOfferBlock/>
         </>
     )
 }

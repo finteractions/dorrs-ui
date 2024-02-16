@@ -3,8 +3,8 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
 import LoaderBlock from "@/components/loader-block";
-import {IBBO} from "@/interfaces/i-bbo";
-import bboSaleService from "@/services/bbo/bbo-service";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
+import bboSaleService from "@/services/bbo/best-bid-and-best-offer-service";
 import symbolService from "@/services/symbol/symbol-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import 'react-dates/initialize';
@@ -88,24 +88,24 @@ const formSchema = Yup.object().shape({
         }),
 });
 
-interface BBOState extends IState {
+interface BestBidAndBestOfferFormState extends IState {
     formInitialValues: {};
     loading: boolean;
     focusedInputBidDate: any;
     focusedInputOfferDate: any;
 }
 
-interface BBOProps extends ICallback {
+interface BestBidAndBestOfferFormProps extends ICallback {
     action: string;
-    data: IBBO | null;
+    data: IBestBidAndBestOffer | null;
     onCancel?: () => void;
 }
 
-class BBOForm extends React.Component<BBOProps, BBOState> {
+class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
-    state: BBOState;
+    state: BestBidAndBestOfferFormState;
 
-    constructor(props: BBOProps) {
+    constructor(props: BestBidAndBestOfferFormProps) {
         super(props);
 
         const currentDateTime = new Date();
@@ -113,7 +113,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
         const initialTime = `${currentHour}:${currentMinute}`;
 
-        const initialData = this.props.data || {} as IBBO;
+        const initialData = this.props.data || {} as IBestBidAndBestOffer;
 
         const initialValues: {
             origin: string;
@@ -176,7 +176,7 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
 
     }
 
-    handleSubmit = async (values: IBBO, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleSubmit = async (values: IBestBidAndBestOffer, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null});
 
         let data = values;
@@ -187,8 +187,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
         data.offer_price = data.offer_price.replace(/,/g, '');
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            bboSaleService.updateBBO(values, this.props.data?.id || 0) :
-            bboSaleService.createBBO(values);
+            bboSaleService.updateBestBidAndBestOffer(values, this.props.data?.id || 0) :
+            bboSaleService.createBestBidAndBestOffer(values);
 
         await request
             .then(((res: any) => {
@@ -246,8 +246,8 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
                         ) : (
 
                             <>
-                                <Formik<IBBO>
-                                    initialValues={this.state.formInitialValues as IBBO}
+                                <Formik<IBestBidAndBestOffer>
+                                    initialValues={this.state.formInitialValues as IBestBidAndBestOffer}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                 >
@@ -578,4 +578,4 @@ class BBOForm extends React.Component<BBOProps, BBOState> {
     }
 }
 
-export default BBOForm;
+export default BestBidAndBestOfferForm;

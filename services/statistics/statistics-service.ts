@@ -3,7 +3,7 @@ import apiWebBackendService from "@/services/web-backend/web-backend-api-service
 import {IIndicator} from "@/interfaces/i-indicator";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
 import {ILastSale} from "@/interfaces/i-last-sale";
-import {IBBO} from "@/interfaces/i-bbo";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 
 class StatisticsService extends BaseService {
 
@@ -28,11 +28,11 @@ class StatisticsService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(url, {}, this.getUserAccessToken())).data;
     }
 
-    public async getBestBidAndBestOfferBySymbol(symbol: string): Promise<Array<IBBO>> {
+    public async getBestBidAndBestOfferBySymbol(symbol: string): Promise<Array<IBestBidAndBestOffer>> {
         let queryString = `symbol=${symbol}`;
 
         const url = `${this.PATH}best_bid_and_best_offer/?${queryString}`;
-        return (await apiWebBackendService.get<IResponse<Array<IBBO>>>(url, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<Array<IBestBidAndBestOffer>>>(url, {}, this.getUserAccessToken())).data;
     }
 
 }

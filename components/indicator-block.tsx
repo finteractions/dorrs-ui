@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import Select from "react-select";
 import AreaChart from "@/components/chart/area-chart";
-import BBOForm from "@/components/bbo-form";
+import BestBidAndBestOfferForm from "@/components/best-bid-and-best-offer-form";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
@@ -265,7 +265,7 @@ class IndicatorBlock extends React.Component {
                 );
             case 'bbo':
                 return (
-                    <BBOForm
+                    <BestBidAndBestOfferForm
                         action={this.state.formAction}
                         data={null}
                         onCallback={this.onCallback}

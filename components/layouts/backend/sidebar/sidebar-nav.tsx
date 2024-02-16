@@ -124,6 +124,17 @@ const MENU_LIST: MenuItem[] = [
             }
         ]
     },
+    {
+        text: 'DOB Management',
+        href: '#',
+        icon: faBook,
+        submenus: [
+            {
+                text: 'Orders',
+                href: "/backend/orders",
+            }
+        ]
+    },
     // {
     //     text: 'Trade Management',
     //     href: "/backend/trade-management",

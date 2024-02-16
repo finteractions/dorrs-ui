@@ -1,6 +1,6 @@
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
-export interface IBBO {
+export interface IBestBidAndBestOffer {
     id: number;
     origin: string;
     symbol_name: string;

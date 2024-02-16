@@ -2,8 +2,8 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Link from "next/link";
 import {useRouter} from "next/router";
-import bboService from "@/services/bbo/bbo-service";
-import {IBBO} from "@/interfaces/i-bbo";
+import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
@@ -19,17 +19,17 @@ import {QuoteCondition} from "@/enums/quote-condition";
 import NoDataBlock from "@/components/no-data-block";
 
 
-interface BBOPerSymbolProps {
+interface BestBidAndBestOfferPerSymbolBlockProps {
     symbol: string;
     isDashboard?: boolean;
 }
 
-interface BBOPerSymbolState extends IState {
+interface BestBidAndBestOfferPerSymbolBlockState extends IState {
     isLoading: boolean;
     isLoadingChart: boolean;
     errors: string[];
-    data: IBBO[];
-    dataFull: IBBO[];
+    data: IBestBidAndBestOffer[];
+    dataFull: IBestBidAndBestOffer[];
     filterData: any;
     chart: string;
 }
@@ -37,14 +37,14 @@ interface BBOPerSymbolState extends IState {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
-class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
+class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOfferPerSymbolBlockProps> {
 
     companyProfile: ICompanyProfile | null;
     charts: Array<ITradingView> = new Array<ITradingView>();
-    state: BBOPerSymbolState;
+    state: BestBidAndBestOfferPerSymbolBlockState;
     isDashboard: boolean;
 
-    constructor(props: BBOPerSymbolProps) {
+    constructor(props: BestBidAndBestOfferPerSymbolBlockProps) {
         super(props);
 
         this.companyProfile = null;
@@ -141,7 +141,7 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
     getBBOChart = () => {
         return new Promise((resolve) => {
-            bboService.getBBOChartBySymbol(this.props.symbol, this.state.chart)
+            bestBidAndBestOfferService.getBestBidAndBestOfferChartBySymbol(this.props.symbol, this.state.chart)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
                 })
@@ -183,8 +183,8 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
     getBBO = () => {
         return new Promise((resolve) => {
-            bboService.getBBOBySymbol(this.props.symbol)
-                .then((res: Array<IBBO>) => {
+            bestBidAndBestOfferService.getBestBidAndBestOfferBySymbol(this.props.symbol)
+                .then((res: Array<IBestBidAndBestOffer>) => {
                     const data = res?.sort((a, b) => {
                         return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                     }) || [];
@@ -228,13 +228,13 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
     }
 
     downloadBBOCSV = () => {
-        bboService.downloadBBOBySymbol(this.props.symbol, this.state.filterData).then((res) => {
+        bestBidAndBestOfferService.downloadBestBidAndBestOfferBySymbol(this.props.symbol, this.state.filterData).then((res) => {
             downloadFile.CSV('bbo', res);
         })
     }
 
     downloadBBOXLSX = () => {
-        bboService.downloadBBOBySymbol(this.props.symbol, this.state.filterData).then((res) => {
+        bestBidAndBestOfferService.downloadBestBidAndBestOfferBySymbol(this.props.symbol, this.state.filterData).then((res) => {
             downloadFile.XLSX('bbo', res);
         })
     }
@@ -423,4 +423,4 @@ class BBOPerSymbolBlock extends React.Component<BBOPerSymbolProps> {
 
 }
 
-export default BBOPerSymbolBlock;
+export default BestBidAndBestOfferPerSymbolBlock;

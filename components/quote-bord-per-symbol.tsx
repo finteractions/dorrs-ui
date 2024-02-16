@@ -2,28 +2,17 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Link from "next/link";
 import {useRouter} from "next/router";
-import bboService from "@/services/bbo/bbo-service";
-import {IBBO} from "@/interfaces/i-bbo";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
-import Table from "@/components/table/table";
-import {TradingViewWidget} from "@/components/trading-view-widget";
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import symbolService from "@/services/symbol/symbol-service";
-import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
-import {QuoteCondition} from "@/enums/quote-condition";
-import NoDataBlock from "@/components/no-data-block";
-import AssetImage from "@/components/asset-image";
-import {faEye, faMinus} from "@fortawesome/free-solid-svg-icons";
 import statisticsService from "@/services/statistics/statistics-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
-import DepthOfBookPerSymbolBlock from "@/components/dob-per-symbol";
+import DepthOfBookPerSymbolBlock from "@/components/depth-of-book-per-symbol-block";
 import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-per-symbol";
-import BBOPerSymbolBlock from "@/components/bbo-per-symbol";
+import BestBidAndBestOfferPerSymbolBlock from "@/components/best-bid-and-best-offer-per-symbol-block";
 
 
 interface QuoteBoardPerSymbolProps {
@@ -35,7 +24,7 @@ interface QuoteBoardPerSymbolState extends IState {
     isLoadingChart: boolean;
     errors: string[];
     lastSale: ILastSale | null;
-    bestBidAndBestOffer: IBBO | null;
+    bestBidAndBestOffer: IBestBidAndBestOffer | null;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -180,7 +169,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
     getBBO = () => {
         return new Promise((resolve) => {
             statisticsService.getBestBidAndBestOfferBySymbol(this.props.symbol)
-                .then((res: Array<IBBO>) => {
+                .then((res: Array<IBestBidAndBestOffer>) => {
                     const bestBidAndBestOffer = res[0] || null;
                     this.setState({bestBidAndBestOffer: bestBidAndBestOffer})
                 })
@@ -341,7 +330,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                             isDashboard={true}
                         />
 
-                        <BBOPerSymbolBlock
+                        <BestBidAndBestOfferPerSymbolBlock
                             symbol={this.props.symbol}
                             isDashboard={true}
                         />
