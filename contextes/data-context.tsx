@@ -7,7 +7,6 @@ import authService from "@/services/auth/auth-service";
 import {AuthUserContext} from "@/contextes/auth-user-context";
 import {AuthAdminContext} from "@/contextes/auth-admin-context";
 import {useRouter} from "next/router";
-import {getGlobalConfig} from "@/utils/global-config";
 import {IUserProfile} from "@/interfaces/i-user-profile";
 
 const DataContext = React.createContext<any>(null);

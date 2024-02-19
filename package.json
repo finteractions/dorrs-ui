@@ -75,9 +75,11 @@
     "@types/nprogress": "^0.2.0",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-dates": "^21.8.3",
+    "@types/react-scroll": "^1.8.10",
     "@types/scrollreveal": "^0.0.8",
     "dotenv": "^16.0.3",
     "js-cookie": "^3.0.5",
+    "react-scroll": "^1.9.0",
     "sass": "^1.62.1",
     "webpack": "^5.88.2"
   }

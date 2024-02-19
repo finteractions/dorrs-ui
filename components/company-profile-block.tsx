@@ -11,7 +11,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 
 
-interface CompanyProfileProps {
+interface CompanyProfileProps extends ICallback {
     symbol: string;
 }
 
@@ -97,7 +97,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
             })
             .finally(() => {
-                this.setState({isLoading: false})
+                this.setState({isLoading: false}, () => {
+                    this.props.onCallback(this.companyProfile?.logo)
+                })
             });
     }
     handleBack = () => {
@@ -137,213 +139,250 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
+                        {this.companyProfile && !this.companyProfile.is_approved && (
+                            <div className="flex-panel-box">
+                                <div className="d-flex align-items-center justify-content-between flex-1">
 
-                        <div className="d-flex align-items-center justify-content-between flex-1">
-                            <div className="login__bottom">
-                                <p>
-                                    <i className="icon-chevron-left"/> <Link
-                                    className="login__link"
-                                    href="/symbols"
+                                    <button
+                                        className={`b-btn ripple`}
+                                        onClick={() => this.openCompanyModal('edit')}
+                                    >Edit
+                                    </button>
 
-                                >Back
-                                </Link>
-                                </p>
+                                </div>
                             </div>
-                            {this.companyProfile && !this.companyProfile.is_approved && (
-                                <button
-                                    className={`b-btn ripple`}
-                                    onClick={() => this.openCompanyModal('edit')}
-                                >Edit
-                                </button>
-                            )}
+                        )}
 
-                        </div>
-                        <div className={'panel'}>
-                            {this.symbol ? (
-                                <>
+                        {this.symbol ? (
+                            <>
+                                <div className="flex-panel-box">
                                     {this.companyProfile ? (
-                                        <div className={'content__bottom'}>
-                                            <h2 className={'view_block_main_title'}>
-                                                {this.companyProfile.logo && (
-                                                    <div className={"company-profile-logo"}>
-                                                        <img src={this.companyProfile.logo} alt="Logo"/>
-                                                    </div>
-                                                )}
+                                        <>
 
-                                                {this.companyProfile.company_name} ({this.companyProfile.security_name})
-                                            </h2>
+                                            <div className="panel">
+                                                <div className="content__bottom">
+                                                    <h2 className="view_block_main_title">
+                                                        {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                    </h2>
+                                                </div>
+                                            </div>
 
-                                            <div className='view_panel'>
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Company Address</div>
-                                                        <div>{[this.companyProfile.street_address_1, this.companyProfile.street_address_2, this.companyProfile.city, this.companyProfile.zip_code, this.companyProfile.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                            <div id={'company_address'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Company Address</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{[this.companyProfile.street_address_1, this.companyProfile.street_address_2, this.companyProfile.city, this.companyProfile.zip_code, this.companyProfile.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                                    {this.companyProfile.phone && (
                                                         <div className="mt-2">{this.companyProfile.phone}</div>
-                                                        <div className="mt-2">{this.companyProfile.web_address}</div>
-                                                    </div>
+                                                    )}
+                                                    {this.companyProfile.web_address && (
+                                                        <div className="mt-2">
+                                                            <Link className={'link'}
+                                                                  href={`http://${this.companyProfile.web_address}`}
+                                                                  target={'_blank'}>
+                                                                {this.companyProfile.web_address}
+                                                            </Link>
+                                                        </div>
+                                                    )}
+
                                                 </div>
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Business Description</div>
-                                                        <div>{this.companyProfile.business_description || 'not filled'}</div>
-                                                    </div>
+                                            </div>
+                                            <div id={'business_description'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Business Description</div>
                                                 </div>
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Company Profile Data</div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">SIC Industry
-                                                                Classification
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile.business_description || 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'company_profile_data'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Company Profile Data</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div className={'view_panel'}>
+                                                        <div className="view_block">
+                                                            <div className="view_block_body">
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title mt-0">SIC
+                                                                        Industry
+                                                                        Classification
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.sic_industry_classification || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Incorporation
+                                                                        Information
+                                                                    </div>
+                                                                    <div
+                                                                        className="">
+                                                                        {this.companyProfile?.incorporation_information ? (
+
+                                                                            this.state.usaStates.filter(currency => currency.abbreviation === this.companyProfile?.incorporation_information).map(filteredState => (
+                                                                                <React.Fragment
+                                                                                    key={filteredState.abbreviation}>
+                                                                                    {filteredState.name} ({filteredState.abbreviation})
+                                                                                </React.Fragment>
+                                                                            ))
+                                                                        ) : (
+                                                                            <>not filled</>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Number of
+                                                                        Employees
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.number_of_employees || 'not filled'}</div>
+                                                                </div>
                                                             </div>
-                                                            <div
-                                                                className="">{this.companyProfile.sic_industry_classification || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Incorporation
-                                                                Information
-                                                            </div>
-                                                            <div
-                                                                className="">
-                                                                {this.companyProfile?.incorporation_information ? (
-
-                                                                    this.state.usaStates.filter(currency => currency.abbreviation === this.companyProfile?.incorporation_information).map(filteredState => (
-                                                                        <React.Fragment
-                                                                            key={filteredState.abbreviation}>
-                                                                            {filteredState.name} ({filteredState.abbreviation})
-                                                                        </React.Fragment>
-                                                                    ))
-                                                                ) : (
-                                                                    <>not filled</>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Number of Employees
-                                                            </div>
-                                                            <div
-                                                                className="">{this.companyProfile.number_of_employees || 'not filled'}</div>
                                                         </div>
                                                     </div>
+
                                                 </div>
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Company Officers & Contacts
-                                                        </div>
-
-                                                        {this.companyProfile.company_officers_and_contacts.length ? (
-
-                                                            this.companyProfile.company_officers_and_contacts.map((officer, index) => (
-                                                                <>
-                                                                    <div>{officer}</div>
-                                                                </>
-                                                            ))
-
-                                                        ) : (
-                                                            <>not filled</>
-                                                        )}
-                                                    </div>
+                                            </div>
+                                            <div id={'company_officers_and_contacts'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Company Officers & Contacts</div>
                                                 </div>
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Board of Directors
-                                                        </div>
+                                                <div className={'content__bottom'}>
+                                                    {this.companyProfile.company_officers_and_contacts.length > 0 && this.companyProfile.company_officers_and_contacts.every((value) => value !== "") ? (
 
-                                                        {this.companyProfile.board_of_directors.length ? (
+                                                        this.companyProfile.company_officers_and_contacts.map((officer, index) => (
+                                                            <>
+                                                                <div>{officer}</div>
+                                                            </>
+                                                        ))
 
-                                                            this.companyProfile.board_of_directors.map((director, index) => (
-                                                                <>
-                                                                    <div>{director}</div>
-                                                                </>
-                                                            ))
-
-                                                        ) : (
-                                                            <>not filled</>
-                                                        )}
-                                                    </div>
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
                                                 </div>
-                                                <div className="view_block full_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Product & Services</div>
-                                                        <div>{this.companyProfile.product_and_services || 'not filled'}</div>
-                                                    </div>
+                                            </div>
+                                            <div id={'board_of_directors'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Board of Directors</div>
                                                 </div>
-                                                <div className="view_block full_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Company Facilities</div>
-                                                        <div>{this.companyProfile.company_facilities || 'not filled'}</div>
-                                                    </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile.product_and_services || 'not filled'}</div>
                                                 </div>
-
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Service Providers</div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Transfer Agent</div>
-                                                            <div
-                                                                className="">{this.companyProfile.transfer_agent || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Accounting / Auditing
-                                                                Firm
+                                            </div>
+                                            <div id={'product_and_services'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Product & Services</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile.product_and_services || 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'company_facilities'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Company Facilities</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile.company_facilities || 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'service_providers'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Service Providers</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div className={'view_panel'}>
+                                                        <div className="view_block">
+                                                            <div className="view_block_body">
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title mt-0">Transfer
+                                                                        Agent
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.transfer_agent || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Accounting /
+                                                                        Auditing
+                                                                        Firm
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.accounting_auditing_firm || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Investor
+                                                                        Relations
+                                                                        /
+                                                                        Marketing
+                                                                        / Communications
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.investor_relations_marketing_communications || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Securities
+                                                                        Counsel
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.securities_counsel || 'not filled'}</div>
+                                                                </div>
                                                             </div>
-                                                            <div
-                                                                className="">{this.companyProfile.accounting_auditing_firm || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Investor Relations /
-                                                                Marketing
-                                                                / Communications
-                                                            </div>
-                                                            <div
-                                                                className="">{this.companyProfile.investor_relations_marketing_communications || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Securities Counsel
-                                                            </div>
-                                                            <div
-                                                                className="">{this.companyProfile.securities_counsel || 'not filled'}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="view_block_title">Financial Reporting</div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">US Reporting</div>
-                                                            <div
-                                                                className="">{this.companyProfile.us_reporting || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Edgar CIK</div>
-                                                            <div
-                                                                className="">{this.companyProfile.edgar_cik || 'not filled'}</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                            <div id={'financial_reporting'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Financial Reporting</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div className={'view_panel'}>
+                                                        <div className="view_block">
+                                                            <div className="view_block_body">
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title mt-0">US
+                                                                        Reporting
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.us_reporting || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Edgar CIK
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.edgar_cik || 'not filled'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </>
+
                                     ) : (
-                                        <div
-                                            className={'content__bottom flex flex-1 justify-content-center text-center'}>
-                                            <div className="mb-24">This is Company Profile
-                                                for {this.symbol?.symbol}</div>
-                                            <button
-                                                className={`b-btn ripple`}
-                                                onClick={() => this.openCompanyModal('add')}
-                                            >Add
-                                            </button>
+                                        <div className={'panel'}>
+                                            <div
+                                                className={'content__bottom flex flex-1 justify-content-center text-center'}>
+                                                <div className="mb-24">This is Company Profile
+                                                    for {this.symbol?.symbol}</div>
+                                                <button
+                                                    className={`b-btn ripple`}
+                                                    onClick={() => this.openCompanyModal('add')}
+                                                >Add
+                                                </button>
+                                            </div>
                                         </div>
-                                    )}</>
-                            ) : (
-                                <div className={'content__bottom'}>
-                                    <NoDataBlock/>
+                                    )}
                                 </div>
-                            )}
+                            </>
+                        ) : (
+                            <div className={'content__bottom'}>
+                                <NoDataBlock/>
+                            </div>
+                        )}
 
-
-                        </div>
 
                         <Modal isOpen={this.state.isOpenCompanyModal}
                                className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}

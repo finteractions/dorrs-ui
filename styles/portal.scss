@@ -1934,6 +1934,7 @@ body {
       flex-wrap: wrap;
       column-gap: 25px;
       row-gap: 25px;
+      width: 100%;
 
       .panel {
         flex: 0 0 100%;
@@ -2796,7 +2797,34 @@ body {
       border-radius: 12px;
       padding: 16px 0;
       -webkit-box-sizing: border-box;
-      box-sizing: border-box
+      box-sizing: border-box;
+
+      .logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 290px;
+        height: 290px;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        padding: 22px;
+
+        > div {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          > img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+          }
+        }
+      }
     }
 
     .profile__left ul li a {
@@ -2812,7 +2840,7 @@ body {
       font-weight: 400;
       font-size: 14px;
       line-height: 16px;
-      text-align: justify;
+      text-align: left;
       -webkit-font-feature-settings: "kern" off;
       font-feature-settings: "kern" off;
       color: #828c97;
@@ -3057,6 +3085,7 @@ body {
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
+        flex-wrap: wrap;
         -webkit-box-pack: start;
         -ms-flex-pack: start;
         justify-content: flex-start;
@@ -3070,13 +3099,17 @@ body {
       .profile__left ul li a {
         border-left: none;
         border-bottom: 2px solid #fff;
-        padding: 16px 0;
+        //padding: 16px 0;
         -webkit-box-pack: center;
         -ms-flex-pack: center;
-        justify-content: center
+        //justify-content: center;
       }
       .profile__right {
         padding: 12px
+      }
+
+      .logo__pannel {
+        display: none;
       }
     }
 
@@ -3814,6 +3847,7 @@ body {
 
     .bg-transparent {
       background-color: transparent;
+      box-shadow: none;
     }
 
     .text-justify {

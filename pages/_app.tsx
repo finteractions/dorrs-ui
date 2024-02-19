@@ -24,6 +24,7 @@ config.autoAddCss = false
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode;
     layoutName: string,
+    logo?:string | null
 };
 
 type AppPropsWithLayout<P = {}, IP = P> = AppProps<P> & {
