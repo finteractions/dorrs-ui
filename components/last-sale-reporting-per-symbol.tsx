@@ -8,7 +8,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {Condition} from "@/enums/condition";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
-import {TradingViewWidget} from "@/components/trading-view-widget";
+import {TradingViewChart} from "@/components/chart/trading-view-chart";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -261,7 +261,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                 ) : (
                                     <>
                                         {this.charts.length ? (
-                                            <TradingViewWidget data={this.charts}/>
+                                            <TradingViewChart data={this.charts}/>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

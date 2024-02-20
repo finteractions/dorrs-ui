@@ -229,7 +229,6 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
     }
 
     onCallback = async (values: any, open: boolean) => {
-        console.log(values, open)
         this.getBBO();
 
         if (open) {
