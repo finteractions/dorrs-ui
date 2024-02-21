@@ -991,7 +991,7 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                 <AlertBlock type={"error"} messages={this.state.errorMessages}/>
                                             )}
                                             <div className="info-panel-block mt-5">
-                                                {/*<UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>*/}
+                                                <UserActivityLogsBlock user_id={this.state.data?.user_id.email || ''}/>
                                             </div>
                                         </>
                                     ) : (

@@ -15,6 +15,7 @@ import filterService from "@/services/filter/filter";
 import DateRangePicker from "@/components/date-range-picker";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {getLogActivitySourceTypeNames, LogActivitySourceType} from "@/enums/log-activity-source-ty[e";
 
 
 const columnHelper = createColumnHelper<any>();
@@ -58,25 +59,41 @@ class ActivityLogsBlock extends React.Component<{}> {
         }
 
         columns = [
-            columnHelper.accessor((row) => row.user_id, {
-                id: "user_id",
-                cell: (item) => item.getValue(),
-                header: () => <span>User</span>,
+            columnHelper.accessor((row) => ({
+                name: row.user_name,
+                email: row.user_id
+            }), {
+                id: "user",
+                cell: (item) => <div>
+                    <span>{item.getValue().name}</span><br/>
+                    <span className="text-ellipsis">{item.getValue().email}</span>
+                </div>,
+                header: () => <span>Name <br/>Email</span>,
             }),
-            columnHelper.accessor((row) => row.action, {
-                id: "action",
+            columnHelper.accessor((row) => row.firm_name, {
+                id: "firm_name",
                 cell: (item) => item.getValue(),
-                header: () => <span>Action</span>,
+                header: () => <span>Firm</span>,
             }),
-            columnHelper.accessor((row) => row.ip_address, {
-                id: "ip_address",
+            columnHelper.accessor((row) => row.source, {
+                id: "source",
+                cell: (item) => item.getValue(),
+                header: () => <span>Source</span>,
+            }),
+            columnHelper.accessor((row) => row.details, {
+                id: "details",
+                cell: (item) => item.getValue(),
+                header: () => <span>Details</span>,
+            }),
+            columnHelper.accessor((row) => row.ip_user, {
+                id: "ip_user",
                 cell: (item) => item.getValue(),
                 header: () => <span>IP</span>,
             }),
-            columnHelper.accessor((row) => row.country_region_city, {
-                id: "country_region_city",
+            columnHelper.accessor((row) => row.georegion, {
+                id: "georegion",
                 cell: (item) => item.getValue(),
-                header: () => <span>Near</span>,
+                header: () => <span>Location</span>,
             }),
             columnHelper.accessor((row) => row.created_at, {
                 id: "created_at",
@@ -119,7 +136,8 @@ class ActivityLogsBlock extends React.Component<{}> {
 
     componentDidMount() {
         this.setState({loading: true});
-        this.getBlacklist();
+        // this.getBlacklist();
+        this.getActivityLogs()
         this.startAutoUpdate();
     }
 
@@ -127,17 +145,17 @@ class ActivityLogsBlock extends React.Component<{}> {
         this.stopAutoUpdate();
     }
 
-    getBlacklist = () => {
-        adminService.getBlacklist()
-            .then((res: IBlacklist[]) => {
-                const data = res?.sort((a, b) => b.id - a.id) || [];
-                this.setState({dataBlacklist: data});
-                this.getActivityLogs();
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-    }
+    // getBlacklist = () => {
+    //     adminService.getBlacklist()
+    //         .then((res: IBlacklist[]) => {
+    //             const data = res?.sort((a, b) => b.id - a.id) || [];
+    //             this.setState({dataBlacklist: data});
+    //             this.getActivityLogs();
+    //         })
+    //         .catch((errors: IError) => {
+    //             this.setState({errors: errors.messages});
+    //         })
+    // }
 
     getActivityLogs = () => {
         adminService.getActivityLogs()
@@ -145,10 +163,8 @@ class ActivityLogsBlock extends React.Component<{}> {
                 const data = res?.sort((a, b) => b.id - a.id) || [];
 
                 data.forEach(s => {
-                    const country = s.country ? `${s.country}, ` : ''
-                    const city = s.city || ''
-                    s.country_region_city = `${country}${city}`
-                    s.blockIpBtnDisabled = this.state.dataBlacklist.some(item => (item.ip_address === s.ip_address && item.user_id === s.user_id));
+                    s.source = getLogActivitySourceTypeNames(s.source as LogActivitySourceType);
+                    s.details = s.log?.details;
                 })
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
@@ -162,18 +178,18 @@ class ActivityLogsBlock extends React.Component<{}> {
             });
     }
 
-    blockIp = (values: IBlacklist) => {
-        adminService.updateBlacklistStatus(values.ip_address, true, values.user_id, 'Blocked from Activity Logs')
-            .then((res: any) => {
-                this.getBlacklist();
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-    };
+    // blockIp = (values: IBlacklist) => {
+    //     adminService.updateBlacklistStatus(values.ip_address, true, values.user_id, 'Blocked from Activity Logs')
+    //         .then((res: any) => {
+    //             this.getBlacklist();
+    //         })
+    //         .catch((errors: IError) => {
+    //             this.setState({errors: errors.messages});
+    //         })
+    // };
 
     startAutoUpdate(): void {
-        this.getActivityLogsInterval = setInterval(this.getBlacklist, Number(fetchIntervalSec) * 1000);
+        this.getActivityLogsInterval = setInterval(this.getActivityLogs, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate(): void {
@@ -184,9 +200,9 @@ class ActivityLogsBlock extends React.Component<{}> {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
 
-    customBtnAction = (action: any, data: any) => {
-        if (action === 'blockIp') this.blockIp(data)
-    }
+    // customBtnAction = (action: any, data: any) => {
+    //     if (action === 'blockIp') this.blockIp(data)
+    // }
 
     cancelForm(): void {
         this.setState({isOpenModal: false})
@@ -194,7 +210,7 @@ class ActivityLogsBlock extends React.Component<{}> {
 
     submitForm(): void {
         this.setState({isOpenModal: false})
-        this.getBlacklist();
+        // this.getBlacklist();
     }
 
     modalTitle = (mode: string) => {
@@ -249,10 +265,22 @@ class ActivityLogsBlock extends React.Component<{}> {
                                         classNamePrefix="select__react"
                                         isClearable={true}
                                         isSearchable={true}
+                                        value={filterService.setValue('user_name', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('user_name', item)}
+                                        options={filterService.buildOptions('user_name', this.state.dataFull)}
+                                        placeholder="Name"
+                                    />
+                                </div>
+                                <div className="input__wrap">
+                                    <Select
+                                        className="select__react"
+                                        classNamePrefix="select__react"
+                                        isClearable={true}
+                                        isSearchable={true}
                                         value={filterService.setValue('user_id', this.state.filterData)}
                                         onChange={(item) => this.handleFilterChange('user_id', item)}
                                         options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                        placeholder="User"
+                                        placeholder="Email"
                                     />
                                 </div>
                                 <div className="input__wrap">
@@ -261,10 +289,10 @@ class ActivityLogsBlock extends React.Component<{}> {
                                         classNamePrefix="select__react"
                                         isClearable={true}
                                         isSearchable={true}
-                                        value={filterService.setValue('action', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('action', item)}
-                                        options={filterService.buildOptions('action', this.state.dataFull)}
-                                        placeholder="Action"
+                                        value={filterService.setValue('firm_name', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('firm_name', item)}
+                                        options={filterService.buildOptions('firm_name', this.state.dataFull)}
+                                        placeholder="Firm"
                                     />
                                 </div>
                                 <div className="input__wrap">
@@ -273,9 +301,21 @@ class ActivityLogsBlock extends React.Component<{}> {
                                         classNamePrefix="select__react"
                                         isClearable={true}
                                         isSearchable={true}
-                                        value={filterService.setValue('ip_address', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('ip_address', item)}
-                                        options={filterService.buildOptions('ip_address', this.state.dataFull)}
+                                        value={filterService.setValue('source', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('source', item)}
+                                        options={filterService.buildOptions('source', this.state.dataFull)}
+                                        placeholder="Source"
+                                    />
+                                </div>
+                                <div className="input__wrap">
+                                    <Select
+                                        className="select__react"
+                                        classNamePrefix="select__react"
+                                        isClearable={true}
+                                        isSearchable={true}
+                                        value={filterService.setValue('ip_user', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('ip_user', item)}
+                                        options={filterService.buildOptions('ip_user', this.state.dataFull)}
                                         placeholder="IP"
                                     />
                                 </div>
@@ -285,10 +325,10 @@ class ActivityLogsBlock extends React.Component<{}> {
                                         classNamePrefix="select__react"
                                         isClearable={true}
                                         isSearchable={true}
-                                        value={filterService.setValue('country_region_city', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('country_region_city', item)}
-                                        options={filterService.buildOptions('country_region_city', this.state.dataFull)}
-                                        placeholder="Near"
+                                        value={filterService.setValue('georegion', this.state.filterData)}
+                                        onChange={(item) => this.handleFilterChange('georegion', item)}
+                                        options={filterService.buildOptions('georegion', this.state.dataFull)}
+                                        placeholder="Location"
                                     />
                                 </div>
                                 <div className="date__range__wrap">

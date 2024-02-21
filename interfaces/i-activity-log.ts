@@ -1,12 +1,12 @@
 export interface IActivityLog {
     id: number;
     user_id: string;
-    action: string;
-    ip_address: string;
+    firm_name: string;
+    source: string;
+    ip_user: string;
+    georegion: string;
+    log: { action: string, details: string };
+    details: string;
     created_at: string;
-    city: string | null;
-    region: string | null,
-    country: string | null;
-    country_region_city?: string | null;
     blockIpBtnDisabled?: boolean;
 }

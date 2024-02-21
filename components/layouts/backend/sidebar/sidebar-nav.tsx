@@ -55,10 +55,10 @@ const MENU_LIST: MenuItem[] = [
                 text: 'Users',
                 href: "/backend/user-management",
             },
-            // {
-            //     text: 'Activity Logs',
-            //     href: "/backend/activity-logs",
-            // },
+            {
+                text: 'Activity Logs',
+                href: "/backend/activity-logs",
+            },
             // {
             //     text: 'Blacklist (IP)',
             //     href: "/backend/blacklist",
