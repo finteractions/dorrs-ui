@@ -959,8 +959,19 @@
 
       > .modal__content {
         border-radius: 0;
-        padding: 20px;
+        padding: 10px;
         max-width: 100%;
+
+        > .modal-title {
+          margin: 0 0 16px;
+        }
+
+        .modal-close {
+          background-color: #FFFFFF;
+          padding: 20px;
+          top: 10px;
+          right: 10px;
+        }
       }
     }
   }

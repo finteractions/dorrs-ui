@@ -11,7 +11,7 @@ import {IActivityLog} from "@/interfaces/i-activity-log";
 import {IBlacklist} from "@/interfaces/i-blacklist";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faComment} from "@fortawesome/free-solid-svg-icons";
-import {getLogActivitySourceTypeNames, LogActivitySourceType} from "@/enums/log-activity-source-ty[e";
+import {getLogActivitySourceTypeNames, LogActivitySourceType} from "@/enums/log-activity-source-type";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];

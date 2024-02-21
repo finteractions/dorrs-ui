@@ -15,7 +15,7 @@ import filterService from "@/services/filter/filter";
 import DateRangePicker from "@/components/date-range-picker";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {getLogActivitySourceTypeNames, LogActivitySourceType} from "@/enums/log-activity-source-ty[e";
+import {getLogActivitySourceTypeNames, LogActivitySourceType} from "@/enums/log-activity-source-type";
 
 
 const columnHelper = createColumnHelper<any>();

@@ -3,6 +3,9 @@ import Link from "next/link"
 import Image from "next/image"
 import {useRouter} from 'next/router'
 import {AuthAdminContext} from "@/contextes/auth-admin-context";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBars, faClose} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
 
 interface Menus {
     isAdmin: boolean,
@@ -60,21 +63,39 @@ const activeLink = (url: string, pathname: string) => pathname === url ? 'active
 const ProfileNav = () => {
     const router = useRouter();
     const authAdminContext = useContext(AuthAdminContext);
-
+    const [isOpen, setIsOpen] = useState(false);
     const [menus, setMenus] = useState(MENU_LIST);
+
+    const toggleMenu = () => {
+        setIsOpen(!isOpen);
+    };
 
     useEffect(() => {
         setMenus(authAdminContext.isAuthenticated() ? MENU_LIST : MENU_LIST.filter(item => !item.isAdmin));
     }, [authAdminContext]);
 
     return (
-        <ul>
-            {menus.map((menu, idx) => (
-                <li key={menu.alt}>
-                    <NavItem active={activeLink(menu.href, router.pathname)} {...menu} />
-                </li>
-            ))}
-        </ul>
+        <div className="menu">
+            <Button
+                variant="link"
+                className="d-md-none header-menu-btn"
+                type="button"
+                onClick={toggleMenu}
+            >
+                {isOpen ? (
+                    <FontAwesomeIcon icon={faClose}/>
+                ) : (
+                    <FontAwesomeIcon icon={faBars}/>
+                )}
+            </Button>
+            <ul className={`${isOpen ? 'open' : ''}`}>
+                {menus.map((menu, idx) => (
+                    <li key={menu.alt}>
+                        <NavItem active={activeLink(menu.href, router.pathname)} {...menu} />
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 };
 
