@@ -1030,11 +1030,12 @@ body {
             margin: 0 0 16px;
           }
 
-          > .icon-x {
+          > .modal-close {
             background-color: #FFFFFF;
             padding: 20px;
             top: 10px;
             right: 15px;
+            border-radius: 12px;
 
             &::before {
               position: absolute;
