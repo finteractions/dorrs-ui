@@ -214,7 +214,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
 
         if (open) {
             this.setState({isOpenModal: false}, () => {
-                this.openModal('edit', values as ILastSale);
+                this.openModal('view', values as ILastSale);
             })
         } else {
             this.closeModal();

@@ -14,11 +14,9 @@ import PhoneInputField from "@/components/phone-input-field";
 import {UsaStates} from "usa-states";
 import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUp, faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import {SecurityType} from "@/enums/security-type";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
-import {CURRENCIES} from "@/constants/currencies";
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;

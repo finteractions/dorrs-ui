@@ -113,6 +113,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
         const initialTime = `${currentHour}:${currentMinute}`;
+        const initialDate = moment().format('YYYY-MM-DD').toString();
 
         const initialData = this.props.data || {} as IBestBidAndBestOffer;
 
@@ -138,16 +139,15 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             bid_mpid: initialData?.bid_mpid || '',
             bid_quantity: (initialData?.bid_quantity || '').toString(),
             bid_price: (initialData?.bid_price || '').toString(),
-            bid_date: (initialData?.bid_date || '').toString(),
+            bid_date: getBidQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.bid_date || initialDate) : '',
             bid_time: getBidQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.bid_time || initialTime) : '',
             offer_mpid: initialData?.offer_mpid || '',
             offer_quantity: (initialData?.offer_quantity || '').toString(),
             offer_price: (initialData?.offer_price || '').toString(),
-            offer_date: (initialData?.offer_date || '').toString(),
+            offer_date: getOfferQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.offer_date || initialDate) : '',
             offer_time: getOfferQuoteCondition().includes((initialData?.quote_condition || QuoteCondition.c).toUpperCase() as QuoteCondition) ? (initialData?.offer_time || initialTime) : '',
             uti: initialData?.uti || '',
         };
-
 
         this.state = {
             success: false,
@@ -233,8 +233,16 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
         const initialTime = `${currentHour}:${currentMinute}`;
 
-        if (getBidQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("bid_time", initialTime);
-        if (getOfferQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) setFieldValue("offer_time", initialTime);
+        const initialDate = moment().format('YYYY-MM-DD').toString();
+
+        if (getBidQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) {
+            setFieldValue("bid_date", initialDate);
+            setFieldValue("bid_time", initialTime);
+        }
+        if (getOfferQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) {
+            setFieldValue("offer_date", initialDate);
+            setFieldValue("offer_time", initialTime);
+        }
     };
 
     onCallback = () => {
@@ -404,7 +412,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <SingleDatePicker
                                                                         numberOfMonths={1}
-                                                                        date={values.bid_date ? moment(values.bid_date) : null}
+                                                                        date={values.bid_date ? moment(values.bid_date) : moment()}
                                                                         onDateChange={date => setFieldValue('bid_date', date?.format('YYYY-MM-DD').toString())}
                                                                         focused={this.state.focusedInputBidDate}
                                                                         onFocusChange={({focused}) => this.setState({focusedInputBidDate: focused})}
@@ -503,7 +511,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <SingleDatePicker
                                                                         numberOfMonths={1}
-                                                                        date={values.offer_date ? moment(values.offer_date) : null}
+                                                                        date={values.offer_date ? moment(values.offer_date) : moment()}
                                                                         onDateChange={date => setFieldValue('offer_date', date?.format('YYYY-MM-DD').toString())}
                                                                         focused={this.state.focusedInputOfferDate}
                                                                         onFocusChange={({focused}) => this.setState({focusedInputOfferDate: focused})}

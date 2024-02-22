@@ -57,6 +57,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
         const initialTime = `${currentHour}:${currentMinute}`;
+        const initialDate = moment().format('YYYY-MM-DD').toString();
 
         const initialData = this.props.data || {} as ILastSale;
 
@@ -79,8 +80,8 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             tick_indication: initialData?.tick_indication || '',
             quantity: (initialData?.quantity || '').toString(),
             price: (initialData?.price || '').toString(),
-            time: initialData?.time || initialTime,
-            date: (initialData?.date || '').toString(),
+            time: (initialData?.time || initialTime).toString(),
+            date: (initialData?.date || initialDate).toString(),
             uti: initialData?.uti || '',
         };
 
@@ -312,7 +313,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <SingleDatePicker
                                                                 numberOfMonths={1}
-                                                                date={values.date ? moment(values.date) : null}
+                                                                date={values.date ? moment(values.date) : moment()}
                                                                 onDateChange={date => setFieldValue('date', date?.format('YYYY-MM-DD').toString())}
                                                                 focused={this.state.focusedInput}
                                                                 onFocusChange={({focused}) => this.setState({focusedInput: focused})}
