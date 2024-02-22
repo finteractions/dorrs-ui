@@ -139,31 +139,28 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        {this.companyProfile && !this.companyProfile.is_approved && (
-                            <div className="flex-panel-box">
-                                <div className="d-flex align-items-center justify-content-between flex-1">
-
-                                    <button
-                                        className={`b-btn ripple`}
-                                        onClick={() => this.openCompanyModal('edit')}
-                                    >Edit
-                                    </button>
-
-                                </div>
-                            </div>
-                        )}
-
                         {this.symbol ? (
                             <>
                                 <div className="flex-panel-box">
                                     {this.companyProfile ? (
                                         <>
-
                                             <div className="panel">
                                                 <div className="content__bottom">
                                                     <h2 className="view_block_main_title">
                                                         {this.companyProfile.company_name} ({this.companyProfile.security_name})
                                                     </h2>
+                                                    {!this.companyProfile.is_approved && (
+                                                        <div
+                                                            className="content__title_btns content__filter download-buttons justify-content-end">
+
+                                                            <button
+                                                                className={`b-btn ripple`}
+                                                                onClick={() => this.openCompanyModal('edit')}
+                                                            >Edit
+                                                            </button>
+
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
