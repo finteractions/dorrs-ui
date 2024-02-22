@@ -17,6 +17,7 @@ import {getOrderSideDescriptions, OrderSide} from "@/enums/order-side";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import ordersService from "@/services/orders/orders-service";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
+import LocatorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -231,9 +232,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                             placeholder="Type Origin"
                                                             className="input__text"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            component={LocatorageField}
                                                         />
-                                                        <ErrorMessage name="origin" component="div"
-                                                                      className="error-message"/>
                                                     </div>
                                                 </div>
                                                 <div className="input">
@@ -302,10 +302,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                             className="input__text"
                                                             placeholder="Type MPID"
                                                             disabled={isSubmitting || this.isShow()}
-                                                            decimalScale={2}
+                                                            component={LocatorageField}
                                                         />
-                                                        <ErrorMessage name="mpid" component="div"
-                                                                      className="error-message"/>
                                                     </div>
                                                 </div>
 

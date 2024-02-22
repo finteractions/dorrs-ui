@@ -21,6 +21,7 @@ import {
 } from "@/enums/quote-condition";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
+import LocatorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -286,12 +287,11 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                             name="origin"
                                                             id="origin"
                                                             type="text"
-                                                            placeholder="Type Origin"
                                                             className="input__text"
+                                                            placeholder="Type Origin"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            component={LocatorageField}
                                                         />
-                                                        <ErrorMessage name="origin" component="div"
-                                                                      className="error-message"/>
                                                     </div>
                                                 </div>
                                                 <div className="input">
@@ -362,10 +362,9 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                     className="input__text"
                                                                     placeholder="Type Bid MPID"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    decimalScale={2}
+                                                                    keyName={'mpid'}
+                                                                    component={LocatorageField}
                                                                 />
-                                                                <ErrorMessage name="bid_mpid" component="div"
-                                                                              className="error-message"/>
                                                             </div>
                                                         </div>
 
@@ -460,10 +459,9 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                     className="input__text"
                                                                     placeholder="Type Offer  MPID"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    decimalScale={2}
+                                                                    keyName={'mpid'}
+                                                                    component={LocatorageField}
                                                                 />
-                                                                <ErrorMessage name="offer_mpid" component="div"
-                                                                              className="error-message"/>
                                                             </div>
                                                         </div>
                                                         <div className="input">

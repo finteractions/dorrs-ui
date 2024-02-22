@@ -16,6 +16,7 @@ import Select from "react-select";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
+import LocatorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -191,12 +192,11 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                             name="origin"
                                                             id="origin"
                                                             type="text"
-                                                            placeholder="Type Origin"
                                                             className="input__text"
+                                                            placeholder="Type Origin"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            component={LocatorageField}
                                                         />
-                                                        <ErrorMessage name="origin" component="div"
-                                                                      className="error-message"/>
                                                     </div>
                                                 </div>
                                                 <div className="input">
