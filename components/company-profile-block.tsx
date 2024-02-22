@@ -362,7 +362,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                         <div className={'panel'}>
                                             <div
                                                 className={'content__bottom flex flex-1 justify-content-center text-center'}>
-                                                <div className="mb-24">This is Company Profile
+                                                <div className="mb-24 w-100">This is Company Profile
                                                     for {this.symbol?.symbol}</div>
                                                 <button
                                                     className={`b-btn ripple`}
