@@ -145,7 +145,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                     {this.companyProfile ? (
                                         <>
                                             <div className="panel">
-                                                <div className="content__bottom">
+                                                <div className="content__bottom d-flex justify-content-between">
                                                     <h2 className="view_block_main_title">
                                                         {this.companyProfile.company_name} ({this.companyProfile.security_name})
                                                     </h2>
