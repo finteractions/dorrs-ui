@@ -4,7 +4,6 @@ import NoDataBlock from "./no-data-block";
 import Modal from "@/components/modal";
 import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
-import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import formatterService from "@/services/formatter/formatter-service";
@@ -325,12 +324,6 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                                 <span className="file-item__download"></span>
                                 <span>XLSX</span>
                             </button>
-                            {this.props.access.create && (
-                                <button className="b-btn ripple"
-                                        disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('new')}>Add Order
-                                </button>
-                            )}
                         </div>
 
                     </div>
@@ -473,4 +466,4 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
     }
 }
 
-export default portalAccessWrapper(DepthOfBookHistoryBlock, 'DepthOfBookBlock');
+export default DepthOfBookHistoryBlock;

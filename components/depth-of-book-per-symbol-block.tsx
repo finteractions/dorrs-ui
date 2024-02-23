@@ -14,6 +14,10 @@ import ordersService from "@/services/orders/orders-service";
 import {IDepthByOrder} from "@/interfaces/i-depth-by-order";
 import {IDepthByPrice} from "@/interfaces/i-depth-by-price";
 import DepthOfBookHistoryBlock from "@/components/depth-of-book-history-block";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
+import userPermissionService from "@/services/user/user-permission-service";
+import {IOrder} from "@/interfaces/i-order";
 
 
 interface DepthOfBookPerSymbolProps {
@@ -47,8 +51,16 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     state: DepthOfBookPerSymbolState;
     isDashboard: boolean;
 
-    constructor(props: DepthOfBookPerSymbolProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    orderAccess = {view: false, create: false, edit: false, delete: false}
+
+    depthOfBookHistoryBlockRef: React.RefObject<DepthOfBookHistoryBlock> = React.createRef();
+
+    constructor(props: DepthOfBookPerSymbolProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.companyProfile = null;
         this.isDashboard = this.props.isDashboard ?? false;
@@ -66,6 +78,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             filterDataDepthByPrice: [],
             type: 'by_order'
         }
+
+        this.orderAccess = userPermissionService.getAccessRulesByKey(
+            'dob',
+            this.context.userProfile.access
+        ).values
 
 
         columnsByOrder = [
@@ -291,6 +308,10 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         }
     }
 
+    openModal = (mode: string, data?: IOrder) => {
+        this.depthOfBookHistoryBlockRef.current?.openModal(mode, data);
+    }
+
     render() {
         return (
             <>
@@ -316,8 +337,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
                         {!this.isDashboard && (
                             <div className={'panel'}>
-                                <div className={`content__bottom`}>
-                                    <h2 className={'view_block_main_title'}>
+                                <div className="content__bottom d-flex justify-content-between">
+                                    <h2 className={'view_block_main_title mb-0'}>
                                         {this.companyProfile ? (
                                             <>
                                                 <div className={"company-profile-logo"}>
@@ -329,6 +350,15 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
+                                    {this.orderAccess.create && (
+                                        <div
+                                            className="content__title_btns content__filter download-buttons justify-content-end">
+                                            <button className="b-btn ripple"
+                                                    disabled={this.state.isLoading}
+                                                    onClick={() => this.openModal('new')}>Add Order
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -369,7 +399,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                         </div>
 
                         {!this.isDashboard && (
-                            <DepthOfBookHistoryBlock symbol={this.props.symbol} onCallback={this.onCallback}/>
+                            <DepthOfBookHistoryBlock
+                                access={this.orderAccess}
+                                ref={this.depthOfBookHistoryBlockRef}
+                                symbol={this.props.symbol}
+                                onCallback={this.onCallback}/>
                         )}
                     </>
                 )}
