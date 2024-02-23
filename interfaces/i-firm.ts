@@ -12,4 +12,6 @@ export interface IFirm {
     bank: Array<any>
     is_ats: boolean;
     is_ats_text?: string;
+    created_by: string;
+    created_date_time: string;
 }

@@ -23,4 +23,6 @@ interface IMembership {
     updated_at: string;
     approved_by: string;
     approved_date_time: string;
+    created_by: string;
+    created_date_time: string;
 }

@@ -8,7 +8,6 @@ import Table from "@/components/table/table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
-import {faComment} from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/modal";
 import MembershipForm from "@/components/membership-form";
 import formatterService from "@/services/formatter/formatter-service";

@@ -249,9 +249,19 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                     <Form id="bank-form">
                                         {this.props.isAdmin && (
                                             <div className='approve-form'>
+                                                {this.props.data?.created_by && (
+                                                    <div
+                                                        className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pb-1' : ''}`}>
+                                                        <>
+                                                            Created
+                                                            by {this.props.data?.created_by} at {formatterService.dateTimeFormat(this.props.data?.created_date_time || '')}
+                                                        </>
+                                                    </div>
+                                                )}
+
                                                 {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
                                                     <>
-                                                        <div className='approve-form-text'>
+                                                        <div className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
                                                             <>
                                                                 Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
                                                             </>

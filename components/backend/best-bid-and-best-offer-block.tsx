@@ -444,10 +444,14 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
 
                     <div className="form-panel">
                         <div className='view-form user-view-form'>
-                            <div className="view-form-box">
-                                <div className="box__title">Name</div>
+                            <div className='approve-form'>
                                 <div
-                                    className="box__wrap">{this.state.formData?.user_name || ''}</div>
+                                    className={`approve-form-text w-100`}>
+                                    <>
+                                        Created
+                                        by {this.state.formData?.user_name} at {formatterService.dateTimeFormat(this.state.formData?.created_at || '')}
+                                    </>
+                                </div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Email</div>
@@ -524,11 +528,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                 <div
                                     className="box__wrap">{this.state.formData?.uti}</div>
                             </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Created Date</div>
-                                <div
-                                    className="box__wrap">{formatterService.dateTimeFormat(this.state.formData?.created_at || '')}</div>
-                            </div>
+
                         </div>
                     </div>
                 </Modal>

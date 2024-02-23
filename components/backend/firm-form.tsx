@@ -9,6 +9,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import adminIconService from "@/services/admin/admin-icon-service";
 import {IBankTemplate} from "@/interfaces/i-bank-template";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 
 const formSchema = Yup.object().shape({
@@ -258,28 +259,29 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
             case 'view':
                 return (
                     <div className="form-panel">
-                        <div className='view-form user-view-form'>
-                            <div className="view-form-box">
-                                <div className="box__title">Approved</div>
-                                <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
-                                                                            icon={adminIconService.iconBoolean(this.props.firmData?.is_approved || false)}/> {this.props.firmData?.is_approved ? 'Yes' : 'No'}
+                        <div className='approve-form'>
+                            {this.props.firmData?.created_by && (
+                                <div
+                                    className={`approve-form-text w-100 ${this.props.firmData?.created_by ? 'pb-1' : ''}`}>
+                                    <>
+                                        Created
+                                        by {this.props.firmData?.created_by} at {formatterService.dateTimeFormat(this.props.firmData?.created_date_time || '')}
+                                    </>
                                 </div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Approved By</div>
+                            )}
+
+                            {getApprovedFormStatus().includes(this.props.firmData?.status.toLowerCase() as FormStatus) && (
+
                                 <div
-                                    className="box__wrap">{this.props.firmData?.approved_by || ''}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Approved Date</div>
-                                <div
-                                    className="box__wrap">{formatterService.dateTimeFormat(this.props.firmData?.approved_date_time || '')}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Created Date</div>
-                                <div
-                                    className="box__wrap">{formatterService.dateTimeFormat(this.props.firmData?.created_at || '')}</div>
-                            </div>
+                                    className={`approve-form-text w-100 ${this.props.firmData?.created_by ? 'pt-1' : ''}`}>
+                                    <>
+                                        Status: {this.props.firmData?.status} by {this.props.firmData?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.firmData?.approved_date_time || '')}
+                                    </>
+                                </div>
+
+                            )}
+                        </div>
+                        <div className='view-form user-view-form'>
                             <div className="view-form-box">
                                 <div className="box__title">DORRS Member</div>
                                 <div className="box__wrap"><FontAwesomeIcon className="nav-icon"

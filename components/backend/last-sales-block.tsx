@@ -15,6 +15,7 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -422,12 +423,17 @@ class LastSalesBlock extends React.Component<{}> {
                 >
 
                     <div className="form-panel">
-                        <div className='view-form user-view-form'>
-                            <div className="view-form-box">
-                                <div className="box__title">Name</div>
-                                <div
-                                    className="box__wrap">{this.state.formData?.user_name || ''}</div>
+                        <div className='approve-form'>
+                            <div
+                                className={`approve-form-text w-100`}>
+                                <>
+                                    Created
+                                    by {this.state.formData?.user_name} at {formatterService.dateTimeFormat(this.state.formData?.created_at || '')}
+                                </>
                             </div>
+                        </div>
+
+                        <div className='view-form user-view-form'>
                             <div className="view-form-box">
                                 <div className="box__title">Email</div>
                                 <div
@@ -437,11 +443,6 @@ class LastSalesBlock extends React.Component<{}> {
                                 <div className="box__title">Origin</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.origin || ''}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title"></div>
-                                <div
-                                    className="box__wrap"></div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Symbol</div>
@@ -487,11 +488,6 @@ class LastSalesBlock extends React.Component<{}> {
                                 <div className="box__title">Universal Transaction ID (UTI)</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.uti}</div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">Created Date</div>
-                                <div
-                                    className="box__wrap">{formatterService.dateTimeFormat(this.state.formData?.created_at || '')}</div>
                             </div>
                         </div>
                     </div>
