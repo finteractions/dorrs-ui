@@ -23,6 +23,7 @@ function PortalLayoutWrapper({children}: PortalLayoutProps) {
     const toggleIsShowSidebarMd = () => {
         const newValue = !isShowSidebarMd
         localStorage.setItem('isPortalShowSidebarMd', newValue ? 'true' : 'false')
+        window.dispatchEvent(new Event('isPortalShowSidebarMd'))
         setIsShowSidebarMd(newValue)
     }
 

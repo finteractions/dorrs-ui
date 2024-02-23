@@ -217,17 +217,19 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         this.getSymbols();
     }
 
-    handleQuoteConditionChange = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+    handleQuoteConditionChange = async (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         const selectedQuoteCondition = e.target.value;
-        setFieldValue("quote_condition", selectedQuoteCondition);
-        setFieldValue("bid_quantity", '');
-        setFieldValue("bid_price", '');
-        setFieldValue("bid_date", '');
-        setFieldValue("bid_time", '');
-        setFieldValue("offer_quantity", '');
-        setFieldValue("offer_price", '');
-        setFieldValue("offer_date", '');
-        setFieldValue("offer_time", '');
+        await setFieldValue("quote_condition", selectedQuoteCondition, true);
+        await setFieldValue("bid_quantity", '', true);
+        await setFieldValue("bid_price", '', true);
+        await setFieldValue("bid_date", '', true);
+        await setFieldValue("bid_time", '', true);
+        await setFieldValue("offer_quantity", '', true);
+        await setFieldValue("offer_price", '', true);
+        await setFieldValue("offer_date", '', true);
+        await setFieldValue("offer_time", '', true);
+        await setFieldValue("bid_mpid", '', false);
+        await setFieldValue("offer_mpid", '', false);
 
         const currentDateTime = new Date();
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
@@ -237,12 +239,12 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         const initialDate = moment().format('YYYY-MM-DD').toString();
 
         if (getBidQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) {
-            setFieldValue("bid_date", initialDate);
-            setFieldValue("bid_time", initialTime);
+            await setFieldValue("bid_date", initialDate, true);
+            await setFieldValue("bid_time", initialTime, true);
         }
         if (getOfferQuoteCondition().includes(selectedQuoteCondition.toUpperCase() as QuoteCondition)) {
-            setFieldValue("offer_date", initialDate);
-            setFieldValue("offer_time", initialTime);
+            await setFieldValue("offer_date", initialDate, true);
+            await setFieldValue("offer_time", initialTime, true);
         }
     };
 
