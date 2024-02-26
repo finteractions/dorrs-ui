@@ -8,6 +8,7 @@ export enum LogActivitySourceType {
     SYMBOL = 'symbol',
     USER = 'user',
     DOB = 'dob',
+    PROFILE = 'profile',
 }
 
 export const LogActivitySourceTypeNames = {
@@ -20,6 +21,7 @@ export const LogActivitySourceTypeNames = {
     [LogActivitySourceType.SYMBOL]: 'Symbol',
     [LogActivitySourceType.USER]: 'User',
     [LogActivitySourceType.DOB]: 'Order',
+    [LogActivitySourceType.PROFILE]: 'Profile',
 };
 
 export const getLogActivitySourceTypeNames = <T extends LogActivitySourceType>(logActivitySourceType: T): string => {

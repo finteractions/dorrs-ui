@@ -1,4 +1,4 @@
-import React from "react";
+import React, {RefObject} from "react";
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import userService from "@/services/user/user-service";
@@ -37,8 +37,9 @@ interface ProfileChangePasswordFormState extends IState {
 class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswordFormState> {
 
     state: ProfileChangePasswordFormState;
-
     initialValues: ProfileChangePasswordFormFields;
+    formRef: RefObject<any>;
+
 
     constructor(props: {}) {
         super(props);
@@ -55,6 +56,7 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
         };
 
         this.initialValues = initialValues;
+        this.formRef = React.createRef();
 
         this.handleTogglePassword = this.handleTogglePassword.bind(this);
         this.handleTogglePasswordNew = this.handleTogglePasswordNew.bind(this);
@@ -79,8 +81,10 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
     }
 
     handleSubmit = async (values: Record<string, string>) => {
-        this.setState({success: false, errorMessages: null, formValues: values, isFormDirty: false});
-        this.handleNext();
+        this.setState({success: false, errorMessages: null, formValues: values, isFormDirty: false}, async () => {
+            await this.changePassword(values)
+        });
+        // this.handleNext();
     };
 
     onCallbackOTP = async (values: any, step: boolean) => {
@@ -98,15 +102,16 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
             .then((res => {
                 this.setState({success: true});
                 this.initialValues = initialValues;
+                this.formRef?.current.resetForm()
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
-                this.setState({isProcessing: false, step: 0, isFormDirty: false});
+            this.setState({isProcessing: false, step: 0, isFormDirty: false});
 
-                setTimeout(() => {
-                    this.setState({success: false});
-                }, 3000);
+            setTimeout(() => {
+                this.setState({success: false});
+            }, 3000);
         });
     };
 
@@ -120,8 +125,9 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
                             initialValues={this.initialValues}
                             validationSchema={formSchema}
                             onSubmit={this.handleSubmit}
+                            innerRef={this.formRef}
                         >
-                            {({isSubmitting, isValid, dirty, errors,touched}) => {
+                            {({isSubmitting, isValid, dirty, errors, touched}) => {
                                 return (
                                     <Form>
                                         <div className="input">
@@ -148,7 +154,8 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
                                         </div>
                                         <div className="input">
                                             <div className="input__title">New password <i>*</i></div>
-                                            <div className={`input__wrap ${this.state.showPasswordNew ? "active" : ""}`}>
+                                            <div
+                                                className={`input__wrap ${this.state.showPasswordNew ? "active" : ""}`}>
                                                 <Field
                                                     name="new_password"
                                                     id="new_password"
@@ -177,7 +184,8 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
                                         {/*    </div>*/}
                                         {/*}*/}
                                         <div className="input">
-                                            <div className={`input__wrap ${this.state.showPasswordNew ? "active" : ""}`}>
+                                            <div
+                                                className={`input__wrap ${this.state.showPasswordNew ? "active" : ""}`}>
                                                 <Field
                                                     name="confirm_password"
                                                     id="confirm_password"
@@ -199,7 +207,8 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
                                         </div>
                                         <button
                                             className={`b-btn ripple ${(isSubmitting || !isValid || (!dirty && !this.state.isFormDirty)) ? 'disable' : ''}`}
-                                            type="submit" disabled={isSubmitting || !isValid || (!dirty && !this.state.isFormDirty)}
+                                            type="submit"
+                                            disabled={isSubmitting || !isValid || (!dirty && !this.state.isFormDirty)}
                                         >Save Password
                                         </button>
                                     </Form>
