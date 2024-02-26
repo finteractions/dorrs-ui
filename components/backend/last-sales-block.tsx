@@ -421,18 +421,16 @@ class LastSalesBlock extends React.Component<{}> {
                        onClose={() => this.closeModal()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-
-                    <div className="form-panel">
-                        <div className='approve-form'>
-                            <div
-                                className={`approve-form-text w-100`}>
-                                <>
-                                    Created
-                                    by {this.state.formData?.user_name} at {formatterService.dateTimeFormat(this.state.formData?.created_at || '')}
-                                </>
-                            </div>
+                    <div className='approve-form'>
+                        <div
+                            className={`approve-form-text w-100`}>
+                            <>
+                                Created
+                                by {this.state.formData?.user_name} at {formatterService.dateTimeFormat(this.state.formData?.created_at || '')}
+                            </>
                         </div>
-
+                    </div>
+                    <div className="form-panel">
                         <div className='view-form user-view-form'>
                             <div className="view-form-box">
                                 <div className="box__title">Email</div>

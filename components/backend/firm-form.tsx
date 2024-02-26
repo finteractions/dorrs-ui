@@ -258,7 +258,7 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                 )
             case 'view':
                 return (
-                    <div className="form-panel">
+                    <>
                         <div className='approve-form'>
                             {this.props.firmData?.created_by && (
                                 <div
@@ -281,52 +281,55 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
 
                             )}
                         </div>
-                        <div className='view-form user-view-form'>
-                            <div className="view-form-box">
-                                <div className="box__title">DORRS Member</div>
-                                <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
-                                                                            icon={adminIconService.iconBoolean(this.props.firmData?.is_member || false)}/> {this.props.firmData?.is_member ? 'Yes' : 'No'}
+                        <div className="form-panel">
+                            <div className='view-form user-view-form'>
+                                <div className="view-form-box">
+                                    <div className="box__title">DORRS Member</div>
+                                    <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
+                                                                                icon={adminIconService.iconBoolean(this.props.firmData?.is_member || false)}/> {this.props.firmData?.is_member ? 'Yes' : 'No'}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="view-form-box">
-                                <div className="box__title">ATS</div>
-                                <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
-                                                                            icon={adminIconService.iconBoolean(this.props.firmData?.is_ats || false)}/> {this.props.firmData?.is_ats ? 'Yes' : 'No'}
+                                <div className="view-form-box">
+                                    <div className="box__title">ATS</div>
+                                    <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
+                                                                                icon={adminIconService.iconBoolean(this.props.firmData?.is_ats || false)}/> {this.props.firmData?.is_ats ? 'Yes' : 'No'}
+                                    </div>
                                 </div>
+
+                                {this.props.firmData?.is_member && (
+                                    <>
+                                        {Object.keys(this.columnDefinition).map((columnName) => (
+                                            <React.Fragment key={columnName}>
+                                                {typeof this.columnValues[columnName] === "object" ? (
+                                                    <>
+                                                        <h5 className={'w-100 my-0'}>{this.columnDefinition[columnName].title}</h5>
+
+                                                        {Object.keys(this.columnDefinition[columnName].properties).map((nestedPropertyName) => (
+                                                            <div key={nestedPropertyName}
+                                                                 className={'view-form-box'}>
+                                                                <div
+                                                                    className={'box__title'}>{this.columnDefinition[columnName].properties[nestedPropertyName]}</div>
+                                                                <div
+                                                                    className={'box__wrap'}>{this.columnValues[columnName][nestedPropertyName] || '-'}</div>
+                                                            </div>
+                                                        ))}</>
+
+                                                ) : (
+                                                    <div className={'view-form-box'}>
+                                                        <div
+                                                            className={'box__title'}>{this.columnDefinition[columnName].title}</div>
+                                                        <div
+                                                            className={'box__wrap'}>{this.columnValues[columnName] || '-'}</div>
+                                                    </div>
+                                                )}
+                                            </React.Fragment>
+
+                                        ))}</>
+                                )}
                             </div>
-
-                            {this.props.firmData?.is_member && (
-                                <>
-                                    {Object.keys(this.columnDefinition).map((columnName) => (
-                                        <React.Fragment key={columnName}>
-                                            {typeof this.columnValues[columnName] === "object" ? (
-                                                <>
-                                                    <h5 className={'w-100 my-0'}>{this.columnDefinition[columnName].title}</h5>
-
-                                                    {Object.keys(this.columnDefinition[columnName].properties).map((nestedPropertyName) => (
-                                                        <div key={nestedPropertyName}
-                                                             className={'view-form-box'}>
-                                                            <div
-                                                                className={'box__title'}>{this.columnDefinition[columnName].properties[nestedPropertyName]}</div>
-                                                            <div
-                                                                className={'box__wrap'}>{this.columnValues[columnName][nestedPropertyName] || '-'}</div>
-                                                        </div>
-                                                    ))}</>
-
-                                            ) : (
-                                                <div className={'view-form-box'}>
-                                                    <div
-                                                        className={'box__title'}>{this.columnDefinition[columnName].title}</div>
-                                                    <div
-                                                        className={'box__wrap'}>{this.columnValues[columnName] || '-'}</div>
-                                                </div>
-                                            )}
-                                        </React.Fragment>
-
-                                    ))}</>
-                            )}
                         </div>
-                    </div>
+                    </>
+
                 )
             case'delete'    :
                 return (
