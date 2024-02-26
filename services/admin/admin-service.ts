@@ -20,6 +20,7 @@ import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-p
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
 import {IOrder} from "@/interfaces/i-order";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 class AdminService extends BaseService {
 
@@ -366,6 +367,10 @@ class AdminService extends BaseService {
     public async downloadOrders(data: any): Promise<string> {
         data = Object.keys(data).length ? data : null;
         return (await apiWebBackendService.post<string>(`${this.PATH}download_orders/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getCompanyProfile(): Promise<Array<ICompanyProfile>> {
+        return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
     }
 
 }

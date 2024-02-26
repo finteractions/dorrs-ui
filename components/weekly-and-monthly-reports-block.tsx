@@ -329,4 +329,4 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
     }
 }
 
-export default portalAccessWrapper(WeeklyAndMonthlyReportsBlock, 'WeeklyAndMonthlyReportsBlock');
+export default WeeklyAndMonthlyReportsBlock;

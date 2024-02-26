@@ -11,7 +11,7 @@ import {
     faBuilding,
     faBook,
     faFileArchive,
-    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle
+    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle, faCalendarAlt
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -166,6 +166,18 @@ const MENU_LIST: MenuItem[] = [
     //     icon: faWallet,
     //     submenus: []
     // },
+    {
+        text: 'Company Profile',
+        href: "/backend/company-profile",
+        icon: faBuilding,
+        submenus: []
+    },
+    {
+        text: 'Weekly and Monthly Reports',
+        href: "/backend/weekly-and-monthly-reports",
+        icon: faCalendarAlt,
+        submenus: []
+    },
     {
         text: 'Fees',
         href: "/backend/fees",

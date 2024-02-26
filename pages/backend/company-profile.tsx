@@ -1,8 +1,8 @@
 import React, {ReactElement} from "react"
-import type {NextPageWithLayout} from "./_app";
-import PortalLayout from "../components/layouts/portal/portal-layout";
+import CompanyProfilesBlock from "@/components/company-profiles-block";
 import {useRouter} from "next/router";
-import CompanyProfilesPortalBlock from "@/components/company-profiles-portal-block";
+import BackendLayout from "@/components/layouts/backend/backend-layout";
+import {NextPageWithLayout} from "@/pages/_app";
 
 
 const CompanyProfile: NextPageWithLayout = () => {
@@ -10,14 +10,16 @@ const CompanyProfile: NextPageWithLayout = () => {
     const router = useRouter();
 
     const onCallback = (symbol: string) => {
-        router.push(`/symbols/${symbol}`)
+
     }
 
     return (
         <>
             <div className={'flex-panel-box'}>
-                <CompanyProfilesPortalBlock
+                <CompanyProfilesBlock
                     onCallback={onCallback}
+                    access={{create: true, delete: true, edit: true, view: true}}
+                    isAdmin={true}
                 />
             </div>
         </>
@@ -26,12 +28,12 @@ const CompanyProfile: NextPageWithLayout = () => {
 
 CompanyProfile.getLayout = function getLayout(page: ReactElement) {
     return (
-        <PortalLayout>
+        <BackendLayout>
             {page}
-        </PortalLayout>
+        </BackendLayout>
     )
 }
 
-CompanyProfile.layoutName = "PortalLayout"
+CompanyProfile.layoutName = "BackendLayout"
 
 export default CompanyProfile

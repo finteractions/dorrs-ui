@@ -16,6 +16,12 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import {countries} from "countries-list";
 import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import {IFees} from "@/interfaces/i-fees";
+import adminService from "@/services/admin/admin-service";
+import feesService from "@/services/fee/reports-service";
+import CompanyProfile from "@/components/company-profile-form";
+import Modal from "@/components/modal";
+import {ISymbol} from "@/interfaces/i-symbol";
 
 interface CompanyProfilesBlockState extends IState {
     isLoading: boolean;
@@ -23,15 +29,13 @@ interface CompanyProfilesBlockState extends IState {
         abbreviation: string;
         name: string;
     }[],
-    companyProfileAccess: {
-        view: boolean
-        create: boolean
-        edit: boolean
-        delete: boolean
-    };
     data: ICompanyProfile[];
     dataFull: ICompanyProfile[];
     filterData: any;
+    isAdmin: boolean,
+    isOpenCompanyModal: boolean;
+    formCompanyData: ICompanyProfile | null;
+    formCompanyAction: string;
 }
 
 interface CompanyProfilesBlockProps extends ICallback {
@@ -40,44 +44,39 @@ interface CompanyProfilesBlockProps extends ICallback {
         create: boolean
         edit: boolean
         delete: boolean
-    }
+    },
+    isAdmin?: boolean;
 }
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 
+const pageLength = Number(process.env.AZ_PAGE_LENGTH)
+
 class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, CompanyProfilesBlockState> {
 
     state: CompanyProfilesBlockState;
 
-    static contextType = DataContext;
-    declare context: React.ContextType<typeof DataContext>;
-
-    constructor(props: CompanyProfilesBlockProps, context: IDataContext<null>) {
+    constructor(props: CompanyProfilesBlockProps) {
         super(props);
 
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
 
-        this.context = context;
-
-        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
-            'CompanyProfileBlock',
-            this.context.userProfile.access
-        );
-
         this.state = {
             success: false,
             isLoading: true,
             usaStates: usaStatesList,
-            companyProfileAccess: companyProfileAccess,
             data: [],
             dataFull: [],
             filterData: [],
+            isAdmin: props.isAdmin ?? false,
+            isOpenCompanyModal: false,
+            formCompanyData: null,
+            formCompanyAction: 'add',
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
-
 
         columns = [
             columnHelper.accessor((row) => ({
@@ -90,7 +89,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                     <div onClick={() => {
                         this.navigate(item.getValue().symbol_name)
                     }}
-                         className={`table-image cursor-pointer link`}
+                         className={`table-image ${!this.state.isAdmin ? 'cursor-pointer link' : ''}`}
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
@@ -149,8 +148,21 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                 cell: (item) => item.getValue(),
                 header: () => <span>City </span>,
             }),
-
         ];
+
+        if (this.state.isAdmin) {
+            columns.push(
+                columnHelper.accessor((row) => row.company_profile_status, {
+                    id: "company_profile_status",
+                    cell: (item) =>
+                        <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                            {item.getValue()}
+                        </div>
+                    ,
+                    header: () => <span>Company Profile Status</span>,
+                })
+            )
+        }
     }
 
     componentDidMount() {
@@ -159,11 +171,18 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     }
 
     getCompanyProfiles = () => {
-        symbolService.getCompanyProfile()
+        const request: Promise<Array<ICompanyProfile>> = this.props.isAdmin ? adminService.getCompanyProfile() : symbolService.getCompanyProfile();
+
+        request
             .then((res: Array<ICompanyProfile>) => {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
+
+                data.forEach(s => {
+                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    s.company_profile_status = s.status ? s.status : '-'
+                })
 
                 this.setState({dataFull: data, data: data}, () => {
                     this.filterData();
@@ -183,6 +202,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
 
     onCallback = async (values: any, step: boolean) => {
         this.getCompanyProfiles();
+        this.cancelCompanyForm()
     };
 
     filterData = () => {
@@ -199,6 +219,22 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         }), () => {
             this.filterData();
         });
+    }
+
+    openModal = (mode: string, data?: ICompanyProfile) => {
+        this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode})
+    }
+
+    modalCompanyTitle = (mode: string) => {
+        if (mode === 'view') {
+            return 'View Company Profile'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+        }
+    }
+
+    cancelCompanyForm(): void {
+        this.setState({isOpenCompanyModal: false});
     }
 
     render() {
@@ -239,6 +275,20 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                             placeholder="SIC Industry Classification"
                                         />
                                     </div>
+                                    {this.state.isAdmin && (
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('company_profile_status', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('company_profile_status', item)}
+                                                options={filterService.buildOptions('company_profile_status', this.state.dataFull)}
+                                                placeholder="Company Profile Status"
+                                            />
+                                        </div>
+                                    )}
                                     <button
                                         className="content__filter-clear ripple"
                                         onClick={this.handleResetButtonClick}>
@@ -248,13 +298,40 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                 </div>
                                 {this.state.data.length ? (
                                     <Table columns={columns}
+                                           pageLength={this.state.isAdmin ? pageLength : undefined}
                                            data={this.state.data}
                                            searchPanel={true}
                                            block={this}
+                                           viewBtn={this.state.isAdmin}
+                                           editBtn={this.state.isAdmin}
                                     />
                                 ) : (
                                     <NoDataBlock/>
                                 )}
+
+                                <Modal isOpen={this.state.isOpenCompanyModal}
+                                       className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}
+                                       onClose={() => this.cancelCompanyForm()}
+                                       title={this.modalCompanyTitle(this.state.formCompanyAction)}
+                                >
+                                    {!this.state.isAdmin && (
+                                        <div className="modal__navigate">
+                                            <button className={'border-btn ripple'} onClick={() => this.setState({
+                                                isOpenCompanyModal: true,
+                                            })}>
+                                                Back to Symbol
+                                            </button>
+                                        </div>
+                                    )}
+
+
+                                    <CompanyProfile action={this.state.formCompanyAction}
+                                                    data={this.state.formCompanyData}
+                                                    symbolData={this.state.formCompanyData?.symbol_data || null}
+                                                    onCallback={this.onCallback}
+                                                    isAdmin={this.state.isAdmin}/>
+
+                                </Modal>
                             </div>
                         </>
                     )}
@@ -265,4 +342,4 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
 
 }
 
-export default portalAccessWrapper(CompanyProfilesBlock, 'CompanyProfileBlock');
+export default CompanyProfilesBlock;

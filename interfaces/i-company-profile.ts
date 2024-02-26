@@ -1,3 +1,5 @@
+import {ISymbol} from "@/interfaces/i-symbol";
+
 export interface ICompanyProfile {
     id: number;
     symbol: string;
@@ -32,4 +34,6 @@ export interface ICompanyProfile {
     is_approved: boolean;
     logo: string;
     logo_tmp?: string;
+    symbol_data?: ISymbol;
+    company_profile_status?: string;
 }

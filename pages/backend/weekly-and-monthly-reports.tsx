@@ -1,7 +1,7 @@
 import React, {ReactElement} from "react"
-import type {NextPageWithLayout} from "./_app";
-import PortalLayout from "../components/layouts/portal/portal-layout";
-import WeeklyAndMonthlyReportsPortalBlock from "@/components/weekly-and-monthly-reports-portal-block";
+import WeeklyAndMonthlyReportsBlock from "@/components/weekly-and-monthly-reports-block";
+import {NextPageWithLayout} from "@/pages/_app";
+import BackendLayout from "@/components/layouts/backend/backend-layout";
 
 
 const WeeklyAndMonthlyReports: NextPageWithLayout = () => {
@@ -9,7 +9,7 @@ const WeeklyAndMonthlyReports: NextPageWithLayout = () => {
     return (
         <>
             <div className="flex-panel-box">
-                <WeeklyAndMonthlyReportsPortalBlock/>
+                <WeeklyAndMonthlyReportsBlock/>
             </div>
         </>
     )
@@ -17,12 +17,12 @@ const WeeklyAndMonthlyReports: NextPageWithLayout = () => {
 
 WeeklyAndMonthlyReports.getLayout = function getLayout(page: ReactElement) {
     return (
-        <PortalLayout>
+        <BackendLayout>
             {page}
-        </PortalLayout>
+        </BackendLayout>
     )
 }
 
-WeeklyAndMonthlyReports.layoutName = "PortalLayout"
+WeeklyAndMonthlyReports.layoutName = "BackendLayout"
 
 export default WeeklyAndMonthlyReports
