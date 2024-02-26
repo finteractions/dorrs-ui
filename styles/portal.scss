@@ -1116,6 +1116,10 @@ body {
       .table table {
         tbody {
           tr {
+            &:hover {
+              background-color: #F6F9FC;
+            }
+
             td {
               height: 28px;
             }
