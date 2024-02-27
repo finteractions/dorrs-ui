@@ -315,22 +315,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                        onClose={() => this.cancelCompanyForm()}
                                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                                 >
-                                    {this.state.isAdmin ? (
-                                        <>
-                                            <div className='approve-form'>
-                                                {getApprovedFormStatus().includes(this.state.formCompanyData?.status.toLowerCase() as FormStatus) && (
-
-                                                    <div
-                                                        className={`approve-form-text w-100`}>
-                                                        <>
-                                                            Status: {this.state.formCompanyData?.status} by {this.state.formCompanyData?.approved_by || ''} at {formatterService.dateTimeFormat(this.state.formCompanyData?.approved_date_time || '')}
-                                                        </>
-                                                    </div>
-
-                                                )}
-                                            </div>
-                                        </>
-                                    ) : (
+                                    {!this.state.isAdmin && (
                                         <div className="modal__navigate">
                                             <button className={'border-btn ripple'} onClick={() => this.setState({
                                                 isOpenCompanyModal: true,

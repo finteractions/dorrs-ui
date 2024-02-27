@@ -2,7 +2,7 @@ import React from 'react';
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
-import {FormStatus} from "@/enums/form-status";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
@@ -889,7 +889,18 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                     <>
                         {this.props.data ? (
                             <div>
+                                <div className='approve-form'>
+                                    {getApprovedFormStatus().includes(this.props?.data.status.toLowerCase() as FormStatus) && (
 
+                                        <div
+                                            className={`approve-form-text w-100`}>
+                                            <>
+                                                Status: {this.props?.data.status} by {this.props?.data.approved_by || ''} at {formatterService.dateTimeFormat(this.props?.data.approved_date_time || '')}
+                                            </>
+                                        </div>
+
+                                    )}
+                                </div>
                                 <h2 className={'view_block_main_title'}>
                                     {this.props.data?.logo && (
                                         <div className={"company-profile-logo"}>
