@@ -4295,6 +4295,10 @@
     display: flex;
   }
 
+  .d-flex-1 {
+    flex: 1!important;
+  }
+
   .d-inline-flex {
     //display: inline-flex;
   }

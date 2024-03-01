@@ -71,6 +71,11 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                 cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
             }),
+            columnHelper.accessor((row) => row.mpid, {
+                id: "mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>MPID</span>,
+            }),
             columnHelper.accessor((row) => row.quantity, {
                 id: "quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
@@ -310,6 +315,18 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                             onChange={(item) => this.handleFilterChange('condition', item)}
                                             options={filterService.buildOptions('condition', this.state.dataFull)}
                                             placeholder="Condition"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('mpid', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('mpid', item)}
+                                            options={filterService.buildOptions('mpid', this.state.dataFull)}
+                                            placeholder="MPID"
                                         />
                                     </div>
                                     <div className="input__wrap">

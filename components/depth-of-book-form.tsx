@@ -37,6 +37,7 @@ const formSchema = Yup.object().shape({
 
 interface DepthOfBookState extends IState {
     formInitialValues: {};
+    isLoadingForm: boolean;
     isLoading: boolean;
     focusedInputDate: any;
     focusedInputOffer: any;
@@ -90,6 +91,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
         this.state = {
             success: false,
             formInitialValues: initialValues,
+            isLoadingForm: true,
             isLoading: true,
             focusedInputDate: null,
             focusedInputOffer: null,
@@ -123,7 +125,10 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                !this.isAdd() ? this.setState({isLoading: false}) : null;
+                !this.isAdd() ? this.setState({
+                    isLoadingForm: false,
+                    isLoading: false
+                }) : this.setState({isLoadingForm: false});
             });
     }
 
@@ -193,244 +198,249 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                         {this.state.isLoading && (
                             <LoaderBlock/>
                         )}
-                        <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
-                            <div className={'column-block__item'}>
-                                <Formik<IOrder>
-                                    initialValues={this.state.formInitialValues as IOrder}
-                                    validationSchema={formSchema}
-                                    onSubmit={this.handleSubmit}
-                                    innerRef={this.formRef}
-                                >
-                                    {({
-                                          isSubmitting,
-                                          setFieldValue,
-                                          isValid,
-                                          values,
-                                          dirty,
-                                          errors
-                                      }) => {
-                                        return (
-                                            <Form className={`w-100`}>
-                                                {values.status && (
-                                                    <div className="modal__navigate">
-                                                        <div className="modal__navigate__title">Status</div>
-                                                        <div
-                                                            className={`table__status table__status-${values.status}`}>
-                                                            {`${getOrderStatusNames(values.status as OrderStatus)}`}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                <div className="input">
-                                                    <div className="input__title">Origin <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="origin"
-                                                            id="origin"
-                                                            type="text"
-                                                            placeholder="Type Origin"
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            component={LocatorageField}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="input">
-                                                    <div className="input__title">Symbol <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="symbol_tmp"
-                                                            id="symbol_tmp"
-                                                            as={Select}
-                                                            className="b-select-search"
-                                                            placeholder="Select Symbol"
-                                                            classNamePrefix="select__react"
-                                                            isDisabled={isSubmitting || this.isShow()}
-                                                            options={Object.values(this.symbols).map((item) => ({
-                                                                value: item.symbol,
-                                                                label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
-                                                            }))}
-                                                            onChange={(selectedOption: any) => {
-                                                                setFieldValue('symbol', selectedOption.value);
-                                                            }}
-                                                            value={
-                                                                Object.values(this.symbols).filter(i => i.symbol === values.symbol).map((item) => ({
-                                                                    value: item.symbol,
-                                                                    label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
-                                                                }))?.[0] || null
-                                                            }
-                                                        />
-                                                        <Field type="hidden" name="symbol" id="symbol"/>
-                                                        <ErrorMessage name="symbol" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-                                                <div className="input">
-                                                    <div className="input__title">Quote Condition <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="quote_condition"
-                                                            id="quote_condition"
-                                                            as="select"
-                                                            className="b-select"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        >
-                                                            {Object.keys(QuoteCondition).map((item) => (
-                                                                <option key={item} value={item}>
-                                                                    {QuoteCondition[item as keyof typeof QuoteCondition]}
-                                                                    {item ? ` (${getQuoteConditionDescriptions(QuoteCondition[item as keyof typeof QuoteCondition])})` : ''}
-                                                                </option>
-                                                            ))}
-                                                        </Field>
-                                                        <ErrorMessage name="quote_condition" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-
-                                                <div className="input">
-                                                    <div className="input__title">MPID <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="mpid"
-                                                            id="mpid"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type MPID"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            component={LocatorageField}
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Side <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="side"
-                                                            id="side"
-                                                            as="select"
-                                                            className="b-select"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        >
-                                                            {Object.keys(OrderSide).map((item) => (
-                                                                <option key={item} value={item}>
-                                                                    {OrderSide[item as keyof typeof OrderSide]}
-                                                                    {item ? ` (${getOrderSideDescriptions(OrderSide[item as keyof typeof OrderSide])})` : ''}
-                                                                </option>
-                                                            ))}
-                                                        </Field>
-                                                        <ErrorMessage name="side" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Size <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="quantity"
-                                                            id="quantity"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Size"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            component={NumericInputField}
-                                                            decimalScale={2}
-                                                        />
-                                                        <ErrorMessage name="quantity" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-                                                <div className="input">
-                                                    <div className="input__title">Price <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="price"
-                                                            id="price"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Price"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            component={NumericInputField}
-                                                            decimalScale={2}
-                                                        />
-                                                        <ErrorMessage name="price" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Reference Number ID (RefID)
-                                                    </div>
-                                                    <div
-                                                        className={`input__wrap text-center`}>
-                                                        <Field
-                                                            name="ref_id"
-                                                            id="ref_id"
-                                                            type="text"
-                                                            className="input__text uti"
-                                                            disabled={true}
-                                                        />
-                                                        <ErrorMessage name="ref_id" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Universal Transaction ID (UTI)
-                                                    </div>
-                                                    <div
-                                                        className={`input__wrap text-center`}>
-                                                        <Field
-                                                            name="uti"
-                                                            id="uti"
-                                                            type="text"
-                                                            className="input__text uti"
-                                                            disabled={true}
-                                                        />
-                                                        <ErrorMessage name="uti" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                {this.props.action !== 'view' && (
-                                                    <button
-                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                                        Save Order
-                                                    </button>
-                                                )}
-
-                                                {this.state.errorMessages && (
-                                                    <AlertBlock type={"error"} messages={this.state.errorMessages}/>
-                                                )}
-                                            </Form>
-                                        );
-                                    }}
-                                </Formik>
-                            </div>
-                            {this.isAdd() && (
+                            <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
                                 <div className={'column-block__item'}>
-                                    <ModalDepthOfBookHistoryBlock
-                                        onCallback={this.onCallback}
-                                        onSelected={this.fillForm}/>
+                                    {!this.state.isLoadingForm && (
+                                        <Formik<IOrder>
+                                            initialValues={this.state.formInitialValues as IOrder}
+                                            validationSchema={formSchema}
+                                            onSubmit={this.handleSubmit}
+                                            innerRef={this.formRef}
+                                        >
+                                            {({
+                                                  isSubmitting,
+                                                  setFieldValue,
+                                                  isValid,
+                                                  values,
+                                                  dirty,
+                                                  errors
+                                              }) => {
+                                                return (
+                                                    <Form className={`w-100`}>
+                                                        {values.status && (
+                                                            <div className="modal__navigate">
+                                                                <div className="modal__navigate__title">Status</div>
+                                                                <div
+                                                                    className={`table__status table__status-${values.status}`}>
+                                                                    {`${getOrderStatusNames(values.status as OrderStatus)}`}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="input">
+                                                            <div className="input__title">Origin <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="origin"
+                                                                    id="origin"
+                                                                    type="text"
+                                                                    placeholder="Type Origin"
+                                                                    className="input__text"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                    component={LocatorageField}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="input">
+                                                            <div className="input__title">Symbol <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="symbol_tmp"
+                                                                    id="symbol_tmp"
+                                                                    as={Select}
+                                                                    className="b-select-search"
+                                                                    placeholder="Select Symbol"
+                                                                    classNamePrefix="select__react"
+                                                                    isDisabled={isSubmitting || this.isShow()}
+                                                                    options={Object.values(this.symbols).map((item) => ({
+                                                                        value: item.symbol,
+                                                                        label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
+                                                                    }))}
+                                                                    onChange={(selectedOption: any) => {
+                                                                        setFieldValue('symbol', selectedOption.value);
+                                                                    }}
+                                                                    value={
+                                                                        Object.values(this.symbols).filter(i => i.symbol === values.symbol).map((item) => ({
+                                                                            value: item.symbol,
+                                                                            label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
+                                                                        }))?.[0] || null
+                                                                    }
+                                                                />
+                                                                <Field type="hidden" name="symbol" id="symbol"/>
+                                                                <ErrorMessage name="symbol" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+                                                        <div className="input">
+                                                            <div className="input__title">Quote Condition <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="quote_condition"
+                                                                    id="quote_condition"
+                                                                    as="select"
+                                                                    className="b-select"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                >
+                                                                    {Object.keys(QuoteCondition).map((item) => (
+                                                                        <option key={item} value={item}>
+                                                                            {QuoteCondition[item as keyof typeof QuoteCondition]}
+                                                                            {item ? ` (${getQuoteConditionDescriptions(QuoteCondition[item as keyof typeof QuoteCondition])})` : ''}
+                                                                        </option>
+                                                                    ))}
+                                                                </Field>
+                                                                <ErrorMessage name="quote_condition" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div className="input">
+                                                            <div className="input__title">MPID <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="mpid"
+                                                                    id="mpid"
+                                                                    type="text"
+                                                                    className="input__text"
+                                                                    placeholder="Type MPID"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                    component={LocatorageField}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="input">
+                                                            <div className="input__title">Side <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="side"
+                                                                    id="side"
+                                                                    as="select"
+                                                                    className="b-select"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                >
+                                                                    {Object.keys(OrderSide).map((item) => (
+                                                                        <option key={item} value={item}>
+                                                                            {OrderSide[item as keyof typeof OrderSide]}
+                                                                            {item ? ` (${getOrderSideDescriptions(OrderSide[item as keyof typeof OrderSide])})` : ''}
+                                                                        </option>
+                                                                    ))}
+                                                                </Field>
+                                                                <ErrorMessage name="side" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="input">
+                                                            <div className="input__title">Size <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="quantity"
+                                                                    id="quantity"
+                                                                    type="text"
+                                                                    className="input__text"
+                                                                    placeholder="Type Size"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                    component={NumericInputField}
+                                                                    decimalScale={2}
+                                                                />
+                                                                <ErrorMessage name="quantity" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+                                                        <div className="input">
+                                                            <div className="input__title">Price <i>*</i></div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="price"
+                                                                    id="price"
+                                                                    type="text"
+                                                                    className="input__text"
+                                                                    placeholder="Type Price"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                    component={NumericInputField}
+                                                                    decimalScale={2}
+                                                                />
+                                                                <ErrorMessage name="price" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="input">
+                                                            <div className="input__title">Reference Number ID (RefID)
+                                                            </div>
+                                                            <div
+                                                                className={`input__wrap text-center`}>
+                                                                <Field
+                                                                    name="ref_id"
+                                                                    id="ref_id"
+                                                                    type="text"
+                                                                    className="input__text uti"
+                                                                    disabled={true}
+                                                                />
+                                                                <ErrorMessage name="ref_id" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="input">
+                                                            <div className="input__title">Universal Transaction ID (UTI)
+                                                            </div>
+                                                            <div
+                                                                className={`input__wrap text-center`}>
+                                                                <Field
+                                                                    name="uti"
+                                                                    id="uti"
+                                                                    type="text"
+                                                                    className="input__text uti"
+                                                                    disabled={true}
+                                                                />
+                                                                <ErrorMessage name="uti" component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+
+                                                        {this.props.action !== 'view' && (
+                                                            <button
+                                                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                                type="submit"
+                                                                disabled={isSubmitting || !isValid || !dirty}>
+                                                                Save Order
+                                                            </button>
+                                                        )}
+
+                                                        {this.state.errorMessages && (
+                                                            <AlertBlock type={"error"}
+                                                                        messages={this.state.errorMessages}/>
+                                                        )}
+                                                    </Form>
+                                                );
+                                            }}
+                                        </Formik>
+                                    )}
+
                                 </div>
-                            )}
-                        </div>
+                                {this.isAdd() && (
+                                    <div className={'column-block__item'}>
+                                        <ModalDepthOfBookHistoryBlock
+                                            onCallback={this.onCallback}
+                                            onSelected={this.fillForm}/>
+                                    </div>
+                                )}
+                            </div>
                     </>
                 )
             case 'delete':
                 return (
                     <>
-                        {this.state.isLoading ? (
+                        {this.state.isLoadingForm ? (
                             <LoaderBlock/>
                         ) : (
 
@@ -486,7 +496,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
             case 'remove':
                 return (
                     <>
-                        {this.state.isLoading ? (
+                        {this.state.isLoadingForm ? (
                             <LoaderBlock/>
                         ) : (
 

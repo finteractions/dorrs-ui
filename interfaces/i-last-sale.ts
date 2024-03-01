@@ -8,6 +8,7 @@ export interface ILastSale {
     symbol: string;
     symbol_suffix: string;
     condition: string;
+    mpid: string;
     tick_indication: string;
     quantity: string;
     price: string;

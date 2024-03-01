@@ -331,7 +331,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                     ) : (
                         <>
                             <div className={'approve-form mx-0'}>
-                                <div className={'approve-form-text'}>
+                                <div className={'approve-form-text d-flex-1'}>
                                     Date: {this.state.selectedDate}
                                 </div>
                                 {this.state.isMemberDistributionHistory && (

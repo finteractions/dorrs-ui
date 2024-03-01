@@ -15,7 +15,6 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
-import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -106,6 +105,11 @@ class LastSalesBlock extends React.Component<{}> {
                 id: "condition",
                 cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
+            }),
+            columnHelper.accessor((row) => row.mpid, {
+                id: "mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>MPID</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
                 id: "quantity",
@@ -353,6 +357,18 @@ class LastSalesBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
+                                                value={filterService.setValue('mpid', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('mpid', item)}
+                                                options={filterService.buildOptions('mpid', this.state.dataFull)}
+                                                placeholder="MPID"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
                                                 value={filterService.setValue('tick_indication', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('tick_indication', item)}
                                                 options={filterService.buildOptions('tick_indication', this.state.dataFull)}
@@ -458,9 +474,19 @@ class LastSalesBlock extends React.Component<{}> {
                                     className="box__wrap">{this.state.formData?.condition}</div>
                             </div>
                             <div className="view-form-box">
+                                <div className="box__title">MPID</div>
+                                <div
+                                    className="box__wrap">{this.state.formData?.mpid || ''}</div>
+                            </div>
+                            <div className="view-form-box">
                                 <div className="box__title">Tick Indication</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.tick_indication}</div>
+                            </div>
+                            <div className="view-form-box">
+                                <div className="box__title"></div>
+                                <div
+                                    className="box__wrap"></div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Quantity</div>
