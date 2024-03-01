@@ -56,6 +56,11 @@ class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHisto
                 cell: (item) => item.getValue().symbol,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.mpid, {
+                id: "mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>MPID</span>,
+            }),
             columnHelper.accessor((row) => row.side, {
                 id: "side",
                 cell: (item) => <span
