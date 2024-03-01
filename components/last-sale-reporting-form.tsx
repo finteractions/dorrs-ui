@@ -17,6 +17,7 @@ import {SingleDatePicker} from "react-dates";
 import moment from "moment";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import LocatorageField from "@/components/locatorage-field";
+import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
 
 
 const formSchema = Yup.object().shape({
@@ -37,7 +38,7 @@ const formSchema = Yup.object().shape({
 
 interface LastSaleReportingState extends IState {
     formInitialValues: {};
-    loading: boolean;
+    isLoading: boolean;
     focusedInput: any;
 }
 
@@ -90,7 +91,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         this.state = {
             success: false,
             formInitialValues: initialValues,
-            loading: true,
+            isLoading: true,
             focusedInput: null,
         };
     }
@@ -108,7 +109,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                this.setState({loading: false})
+                !this.isAdd() ? this.setState({isLoading: false}) : null;
             });
 
 
@@ -148,11 +149,15 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
     }
 
     isAdd(): boolean {
-        return this.props.action === 'add';
+        return ['add', 'edit'].includes(this.props.action);
     }
 
     componentDidMount() {
         this.getSymbols();
+    }
+
+    onCallback = () => {
+        this.setState({isLoading: false})
     }
 
     render() {
@@ -162,11 +167,11 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             case 'view':
                 return (
                     <>
-                        {this.state.loading ? (
+                        {this.state.isLoading && (
                             <LoaderBlock/>
-                        ) : (
-
-                            <>
+                        )}
+                        <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
+                            <div className={'column-block__item'}>
                                 <Formik<ILastSale>
                                     initialValues={this.state.formInitialValues as ILastSale}
                                     validationSchema={formSchema}
@@ -183,7 +188,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                           setTouched
                                       }) => {
                                         return (
-                                            <Form>
+                                            <Form className={'w-100'}>
                                                 <div className="input">
                                                     <div className="input__title">Origin <i>*</i></div>
                                                     <div
@@ -420,8 +425,17 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                         );
                                     }}
                                 </Formik>
-                            </>
-                        )}
+                            </div>
+                            {this.isAdd() && (
+                                <div className={'column-block__item'}>
+                                    <ModalDepthOfBookHistoryBlock
+                                        pageLength={20}
+                                        onCallback={this.onCallback}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
                     </>
                 )
         }

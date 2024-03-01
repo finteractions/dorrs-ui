@@ -361,7 +361,7 @@ class IndicatorBlock extends React.Component {
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
                                title={this.modalTitle()}
-                               className={`${['dob', 'bbo'].includes(this.state.formType) ? 'big_modal' : ''}`}
+                               className={`${['dob', 'bbo', 'last_sale_reporting'].includes(this.state.formType) ? 'big_modal' : ''}`}
                         >
                             {this.renderFormBasedOnType(this.state.formType)}
                         </Modal>

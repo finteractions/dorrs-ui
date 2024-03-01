@@ -378,7 +378,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`last-sale-reporting ${this.state.formAction}`}
+                                   className={`${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) ? 'big_modal' : ''}`}
                             >
                                 <LastSaleReportingForm
                                     action={this.state.formAction}
