@@ -287,6 +287,7 @@ class PaymentMethodStripeCreditDebitCardBlock extends React.Component<PaymentMet
                                                                     <>
                                                                         <div>
                                                                             <Image
+                                                                                className={card.brand}
                                                                                 src={`/img/${card.brand.toLowerCase()}.svg`}
                                                                                 width={55}
                                                                                 height={39}

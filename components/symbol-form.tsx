@@ -590,7 +590,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 <div className="input">
                                                                     <div className="input__title">Symbol <i>*</i></div>
                                                                     <div
-                                                                        className={`input__btns ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                        className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="symbol"
                                                                             id="symbol"
@@ -896,7 +896,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     placeholder="Type Transfer Agent"
                                                                     disabled={isSubmitting || this.isShow()}
                                                                 />
-                                                                <ErrorMessage name="primary_ats" component="div"
+                                                                <ErrorMessage name="transfer_agent" component="div"
                                                                               className="error-message"/>
                                                             </div>
                                                         </div>

@@ -16,11 +16,11 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = (props) => {
     const {
         data,
         colors: {
-            backgroundColor = 'white',
-            lineColor = '#718494',
-            textColor = '#464056',
-            areaTopColor = '#d4dadf',
-            areaBottomColor = '#d4dadf',
+            backgroundColor = props?.colors?.backgroundColor ?? 'white',
+            lineColor = props?.colors?.lineColor ?? '#718494',
+            textColor = props?.colors?.textColor ?? '#464056',
+            areaTopColor = props?.colors?.areaBottomColor ?? '#d4dadf',
+            areaBottomColor = props?.colors?.areaBottomColor ?? '#d4dadf',
         } = {},
     } = props;
 

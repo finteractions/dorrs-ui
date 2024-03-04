@@ -284,10 +284,12 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
                                                             ) : (
                                                                 <>
                                                                     <div>
-                                                                        <Image src={`/img/ach.svg`}
-                                                                               width={55}
-                                                                               height={39}
-                                                                               alt='ACH'/>
+                                                                        <Image
+                                                                            className={'ach'}
+                                                                            src={`/img/ach.svg`}
+                                                                            width={55}
+                                                                            height={39}
+                                                                            alt='ACH'/>
                                                                     </div>
                                                                     <div>
                                                                         <div

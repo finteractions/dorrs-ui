@@ -12,6 +12,7 @@ import {faUser, faBuilding} from "@fortawesome/free-regular-svg-icons";
 import {faPowerOff} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
+import ThemeToggle from "@/components/layouts/portal/theme-toggle";
 
 // interface Menus {
 //     isAdmin: boolean,
@@ -88,6 +89,9 @@ const PortalNav = () => {
 
 
             <Nav className={'justify-content-end align-items-center portal-navbar'}>
+                <NavItem>
+                    <ThemeToggle />
+                </NavItem>
                 <NavItem>
                     <div className={'portal-navbar-widget disable'}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

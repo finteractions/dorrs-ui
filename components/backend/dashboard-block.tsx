@@ -196,7 +196,7 @@ class DashboardBlock extends React.Component<{}> {
                                 <DoughnutChart
                                     labels={Object.keys(this.state.userStatusCount)}
                                     data={Object.values(this.state.userStatusCount)}
-                                    title="User Statuses"
+                                    title="User Status"
                                     backgroundColors={Object.keys(this.state.userStatusCount).map(item => this.getBackgroundColour(item))}
                                 />
                             )}

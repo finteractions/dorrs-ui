@@ -17,6 +17,7 @@ import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
+import {TradingViewChartWrapper} from "@/components/chart/trading-view-chart-wrapper";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -266,7 +267,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                 ) : (
                                     <>
                                         {this.charts.length ? (
-                                            <TradingViewChart data={this.charts}/>
+                                            <TradingViewChartWrapper data={this.charts}/>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

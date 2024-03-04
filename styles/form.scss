@@ -40,3 +40,101 @@ body {
   }
 }
 
+
+html.dark {
+  body {
+    .portal, .backend {
+      .SingleDatePicker .SingleDatePickerInput .DateInput,
+      .b-select-search .select__react__control.select__react__control,
+      .content__filter .select__react .select__react__control,
+      .react-tel-input input + .flag-dropdown,
+      .SingleDatePickerInput,
+      input.DateInput_input,
+      select.b-select,
+      input.input__text,
+      .StripeElement {
+        border: var(--border) !important;
+        background: var(--form-background-colour) !important;
+        color: var(--form-colour) !important;
+        cursor: default;
+        opacity: 1 !important;
+      }
+
+      .content__search .search-filter {
+        border: var(--border) !important;
+        background-color: var(--form-background-colour) !important;
+        color: var(--form-colour) !important;
+      }
+
+      .content__filter .content__filter-clear {
+        color: var(--text-colour-1);
+        background: var(--form-background-colour);
+      }
+
+      .input__wrap, .input {
+        cursor: default;
+        opacity: 1;
+        color: var(--form-colour);
+      }
+
+      .b-checkbox {
+        opacity: 1;
+        cursor: default;
+      }
+
+      .b-checkbox input[type=checkbox] {
+        + label span {
+          cursor: default;
+        }
+
+        + label i:not(.label-normal) {
+          color: #75808a;
+          cursor: default;
+        }
+      }
+
+      .select__react {
+        .select__react__value-container {
+
+          .select__react__single-value {
+            color: var(--form-colour) !important;
+          }
+        }
+
+        .select__react__control {
+          border: var(--border);
+          background: var(--form-background-colour) !important;
+          color: var(--form-colour) !important;
+
+          &:hover {
+            border: var(--border);
+            background: var(--form-background-colour) !important;
+            color: var(--form-colour) !important;
+            box-shadow: initial;
+          }
+        }
+
+
+        .select__react__menu {
+          background: var(--form-background-colour) !important;
+          color: var(--form-colour) !important;
+
+          .select__react__menu-list {
+
+            .select__react__option--is-focused {
+              background: var(--background) !important;
+              color: var(--form-colour) !important;
+            }
+
+            .select__react__option--is-selected {
+              background: var(--background) !important;
+            }
+          }
+        }
+      }
+
+    }
+  }
+}
+
+
