@@ -4102,9 +4102,13 @@ html.dark {
   }
 
   .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
-    color: var(--background-colour);
-    background-color: var(--text-colour-6);
-    //border-color: var(--bs-nav-tabs-link-active-border-color);
+    //color: var(--background-colour);
+    background-color: var(--background-colour-2);
+    color: var(--background-colour-1);
+  }
+
+  .down.bg-down, .up.bg-up, .stay.bg-stay {
+    color: #FFFFFF;
   }
 }
 

@@ -1,9 +1,20 @@
-// ThemeToggle.js
 import { useTheme } from 'next-themes';
 import { useEffect } from 'react';
+import {getGlobalConfig} from "@/utils/global-config";
 
 const ThemeToggle = () => {
+    const PATH = `${getGlobalConfig().host}-theme`;
     const { theme, setTheme } = useTheme();
+
+    useEffect(() => {
+        const root = document.documentElement;
+        const storedTheme = localStorage.getItem(PATH);
+        if (storedTheme) {
+            setTheme(storedTheme);
+        } else {
+            setTheme('light');
+        }
+    }, [PATH, setTheme]);
 
     useEffect(() => {
         const root = document.documentElement;
@@ -15,7 +26,8 @@ const ThemeToggle = () => {
             root.classList.add('light');
         }
         window.dispatchEvent(new Event("themeToggle"));
-    }, [theme]);
+        localStorage.setItem(PATH, theme ?? 'system');
+    }, [PATH, theme]);
 
     return (
         <div className={`theme-toggle ${theme}`}>

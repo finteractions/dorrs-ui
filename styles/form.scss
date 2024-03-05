@@ -52,6 +52,7 @@ html.dark {
       input.DateInput_input,
       select.b-select,
       input.input__text,
+      input[type="file"],
       .StripeElement {
         border: var(--border) !important;
         background: var(--form-background-colour) !important;
