@@ -20,6 +20,7 @@ import {DataContext} from "@/contextes/data-context";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import DepthOfBookForm from "@/components/depth-of-book-form";
 import userPermissionService from "@/services/user/user-permission-service";
+import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 
 
 const formSchema = Yup.object().shape({
@@ -71,7 +72,7 @@ class IndicatorBlock extends React.Component {
             formType: '',
             symbol: null,
             isOverrideComponent: true,
-            statistics: new Map<string, IIndicatorBlock>()
+            statistics: new Map<string, IIndicatorBlock>(),
         }
 
     }
@@ -207,6 +208,7 @@ class IndicatorBlock extends React.Component {
                                   setFieldValue,
                                   isValid,
                                   dirty,
+                                  values,
                                   errors
                               }) => {
                                 return (
@@ -224,11 +226,20 @@ class IndicatorBlock extends React.Component {
                                                     classNamePrefix="select__react"
                                                     isDisabled={isSubmitting}
                                                     options={Object.values(this.symbols).map((item) => ({
-                                                        value: item,
-                                                        label: item.symbol,
+                                                        value: item.symbol,
+                                                        label: (
+                                                            <div
+                                                                className={'d-flex justify-content-between align-items-center my-1'}>
+                                                                <div
+                                                                    className={'font-size-18'}>{item.security_name} {item.symbol}</div>
+                                                                <DoughnutChartPercentage
+                                                                    percentage={item.fill_out_percentage}
+                                                                />
+                                                            </div>
+                                                        ),
                                                     }))}
                                                     onChange={(selectedOption: any) => {
-                                                        setFieldValue('symbol', selectedOption.value.symbol);
+                                                        setFieldValue('symbol', selectedOption.value);
                                                     }}
                                                 />
                                                 <Field type="hidden" name="symbol" id="symbol"/>

@@ -52,4 +52,5 @@ export interface ISymbol {
     symbol_suffix: string;
     created_by: string;
     created_date_time: string;
+    fill_out_percentage: number;
 }

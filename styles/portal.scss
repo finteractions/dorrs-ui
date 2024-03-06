@@ -331,8 +331,8 @@ body {
       font-family: "Work Sans", sans-serif;
       width: 100%;
       //height: 310px;
-      background: #f8fbff;
-      border: 1px solid #718494;
+      background: var(--form-background-colour);
+      border: 1px solid var(--border-colour-3);
       border-radius: 6px;
       padding: 12px 16px;
       font-weight: 400;
@@ -416,8 +416,8 @@ body {
       > button {
         min-width: unset;
         margin-left: 10px;
-        border: 1px solid #718494;
-        color: #718494;
+        border: 1px solid var(--border-colour-4);
+        color: var(--border-colour-4);
       }
     }
 
@@ -480,7 +480,7 @@ body {
       background: var(--background-colour);
     }
 
-    .input__file {
+    .input__file, input[type="file"], {
       width: 100%;
       height: 35px;;
       border: 1px solid #718494;
@@ -770,6 +770,17 @@ body {
         border: 1px solid #718494;
         background-color: initial;
         box-shadow: initial !important;
+
+        .select__react__value-container {
+          .select__react__single-value {
+            div {
+              font-size: 14px;
+            }
+            canvas {
+              display: none!important;
+            }
+          }
+        }
       }
 
       .select__react__value-container {
@@ -785,7 +796,7 @@ body {
         color: var(--text-colour-4);
 
         .select__react__menu-list {
-          background-color: var(--form-background-colour--disable);
+          background-color: var(--form-background-colour);
 
           .select__react__option {
             word-break: break-word;
@@ -794,6 +805,7 @@ body {
           .select__react__option--is-focused,
           .select__react__option--is-selected {
             background-color: var(--background);
+            color: var(--text-colour);
           }
 
           .select__react__control--is-focused .select__react__option:checked {
@@ -3351,6 +3363,10 @@ body {
       display: flex;
     }
 
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+
     .justify-content-center {
       justify-content: center;
     }
@@ -4152,4 +4168,8 @@ html.dark {
 
 .theme-toggle-checkbox:checked + .theme-toggle-label .theme-toggle-button {
   transform: translateX(26px);
+}
+
+.font-size-18 {
+  font-size: 18px;
 }
