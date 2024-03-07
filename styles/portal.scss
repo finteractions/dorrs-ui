@@ -1599,7 +1599,7 @@ body {
           }
 
           &:hover, &.active {
-            color: var(--text-colour-1);
+            color: var(--text-colour-11);
             background-color: transparent;
 
             svg {
@@ -4118,7 +4118,6 @@ html.dark {
   }
 
   .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
-    //color: var(--background-colour);
     background-color: var(--background-colour-2);
     color: var(--background-colour-1);
   }

@@ -19,7 +19,7 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
             background: '#d4dadf'
         },
         dark: {
-            text: '#767676',
+            text: '#ececec',
             background: '#575757'
         }
     }

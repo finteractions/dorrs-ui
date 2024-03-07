@@ -8,7 +8,6 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {Condition} from "@/enums/condition";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
-import {TradingViewChart} from "@/components/chart/trading-view-chart";
 import filterService from "@/services/filter/filter";
 import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -17,8 +16,7 @@ import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
-import {TradingViewChartWrapper} from "@/components/chart/trading-view-chart-wrapper";
-import {AreaAndBarChart} from "@/components/chart/are-and-bar-chart";
+import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;

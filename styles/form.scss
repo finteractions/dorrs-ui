@@ -59,6 +59,10 @@ html.dark {
         color: var(--form-colour) !important;
         cursor: default;
         opacity: 1 !important;
+
+        &::placeholder{
+          color: var(--form-colour-placeholder)!important;
+        }
       }
 
       .content__search .search-filter {
@@ -134,7 +138,6 @@ html.dark {
           }
         }
       }
-
     }
   }
 }

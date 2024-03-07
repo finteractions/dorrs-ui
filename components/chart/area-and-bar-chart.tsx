@@ -10,10 +10,12 @@ const defaultColors = {
     light: {
         backgroundColor: '#8293a16e',
         borderColor: '#718494',
+        textColour: '#7E8299',
     },
     dark: {
         backgroundColor: '#767676a8',
         borderColor: '#898989',
+        textColour: '#ececec',
     },
 };
 
@@ -75,6 +77,9 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                                 grid: {
                                     display: false,
                                 },
+                                ticks: {
+                                    color: colours.textColour,
+                                },
                             },
                             'left-y-axis': {
                                 position: 'left',
@@ -94,11 +99,13 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                                 title: {
                                     display: true,
                                     text: 'Price',
+                                    color: colours.textColour
                                 },
                                 grid: {
                                     display: false,
                                 },
                                 ticks: {
+                                    color: colours.textColour,
                                     callback: (value: number | string) => {
                                         if (typeof value === 'number') {
                                             return value.toFixed(2)
@@ -106,7 +113,7 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                                         return value
                                     }
                                 },
-                                display: false,
+                                display: true,
                             }
                         },
                         plugins: {
