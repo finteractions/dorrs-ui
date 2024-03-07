@@ -17,7 +17,6 @@ import AreaChart from "@/components/chart/area-chart";
 import BestBidAndBestOfferForm from "@/components/best-bid-and-best-offer-form";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
-import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import DepthOfBookForm from "@/components/depth-of-book-form";
 import userPermissionService from "@/services/user/user-permission-service";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
@@ -44,10 +43,8 @@ interface IndicatorBlockState extends IState {
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
-const host = `${window.location.protocol}//${window.location.host}`;
-
 class IndicatorBlock extends React.Component {
-
+    host = `${window.location.protocol}//${window.location.host}`;
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
 
@@ -247,7 +244,7 @@ class IndicatorBlock extends React.Component {
                                                                         className={'content__bottom d-flex justify-content-between font-size-18'}>
                                                                         <div className={'view_block_main_title'}>
                                                                             <AssetImage alt=''
-                                                                                        src={item.company_profile?.logo ? `${host}${item.company_profile?.logo}` : ''}
+                                                                                        src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
                                                                                         width={75} height={75}/>
                                                                             {item.company_profile?.company_name || item.security_name} ({item.symbol})
                                                                         </div>
