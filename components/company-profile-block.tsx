@@ -147,7 +147,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             <div className="panel">
                                                 <div className="content__bottom d-flex justify-content-between">
                                                     <h2 className="view_block_main_title">
-                                                        {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                        {this.companyProfile.company_name} ({this.symbol.symbol})
                                                     </h2>
                                                     {!this.companyProfile.is_approved && (
                                                         <div

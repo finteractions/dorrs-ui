@@ -68,7 +68,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         super(props);
 
         const initialData = this.props.data || {} as ICompanyProfile;
-
         if (typeof initialData?.company_officers_and_contacts === 'string') {
             try {
                 const company_officers_and_contacts = JSON.parse(initialData.company_officers_and_contacts);
@@ -119,7 +118,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             logo: string;
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
-            company_name: initialData?.company_name || '',
+            company_name: initialData?.company_name || this.props.symbolData?.security_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
             street_address_2: initialData?.street_address_2 || '',

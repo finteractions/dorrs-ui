@@ -21,6 +21,8 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import DepthOfBookForm from "@/components/depth-of-book-form";
 import userPermissionService from "@/services/user/user-permission-service";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
+import AssetImage from "@/components/asset-image";
 
 
 const formSchema = Yup.object().shape({
@@ -35,11 +37,14 @@ interface IndicatorBlockState extends IState {
     formAction: string;
     formType: string;
     symbol: ISymbol | null;
+    companyProfile: ICompanyProfile | null;
     isOverrideComponent: boolean;
     statistics: Map<string, IIndicatorBlock>;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+
+const host = `${window.location.protocol}//${window.location.host}`;
 
 class IndicatorBlock extends React.Component {
 
@@ -69,6 +74,7 @@ class IndicatorBlock extends React.Component {
             isLoading: true,
             isOpenModal: false,
             formAction: 'add',
+            companyProfile: null,
             formType: '',
             symbol: null,
             isOverrideComponent: true,
@@ -140,7 +146,7 @@ class IndicatorBlock extends React.Component {
                 const data = res?.sort((a, b) => {
                     return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                 }) || [];
-                this.symbols = data.filter(s => !s.company_profile && getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus))
+                this.symbols = data.filter(s => s.is_approved)
 
             })
             .catch((errors: IError) => {
@@ -168,7 +174,7 @@ class IndicatorBlock extends React.Component {
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true});
+        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add'});
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -180,8 +186,15 @@ class IndicatorBlock extends React.Component {
     handleSubmit = async (values: ISymbol, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
+
         const symbol = this.symbols.find(s => s.symbol === values.symbol);
-        this.setState({isOpenModal: true, symbol: symbol, isOverrideComponent: false});
+        this.setState({
+            isOpenModal: true,
+            symbol: symbol,
+            companyProfile: symbol?.company_profile,
+            isOverrideComponent: false,
+            formAction: symbol?.company_profile ? 'edit' : 'add'
+        });
     };
 
     renderFormBasedOnType(formType: string) {
@@ -228,13 +241,21 @@ class IndicatorBlock extends React.Component {
                                                     options={Object.values(this.symbols).map((item) => ({
                                                         value: item.symbol,
                                                         label: (
-                                                            <div
-                                                                className={'d-flex justify-content-between align-items-center my-1'}>
-                                                                <div
-                                                                    className={'font-size-18'}>{item.security_name} {item.symbol}</div>
-                                                                <DoughnutChartPercentage
-                                                                    percentage={item.fill_out_percentage}
-                                                                />
+                                                            <div className={'flex-panel-box'}>
+                                                                <div className={'panel'}>
+                                                                    <div
+                                                                        className={'content__bottom d-flex justify-content-between font-size-18'}>
+                                                                        <div className={'view_block_main_title'}>
+                                                                            <AssetImage alt=''
+                                                                                        src={item.company_profile?.logo ? `${host}${item.company_profile?.logo}` : ''}
+                                                                                        width={75} height={75}/>
+                                                                            {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                                                                        </div>
+                                                                        <DoughnutChartPercentage
+                                                                            percentage={item.fill_out_percentage}
+                                                                        />
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         ),
                                                     }))}
@@ -259,7 +280,7 @@ class IndicatorBlock extends React.Component {
                     ) : (
                         <CompanyProfile
                             action={this.state.formAction}
-                            data={null}
+                            data={this.state.companyProfile}
                             symbolData={this.state.symbol}
                             onCallback={this.onCallback}
                             isAdmin={false}

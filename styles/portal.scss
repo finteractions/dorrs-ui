@@ -775,9 +775,18 @@ body {
           .select__react__single-value {
             div {
               font-size: 14px;
+              padding: 0;
+              margin: 0;
+              font-weight: normal;
+              color: var(--text-colour-9)
             }
-            canvas {
-              display: none!important;
+
+            .flex-panel-box .panel {
+              background-color: transparent;
+            }
+
+            canvas, img {
+              display: none !important;
             }
           }
         }
@@ -797,6 +806,11 @@ body {
 
         .select__react__menu-list {
           background-color: var(--form-background-colour);
+
+          .content__bottom {
+            padding: 10px 20px;
+            margin-bottom: 0;
+          }
 
           .select__react__option {
             word-break: break-word;
@@ -1188,8 +1202,8 @@ body {
       margin-bottom: 0
     }
 
-    .modal__content .input__text {
-      background: #f8fbff
+    .modal__content .input__text , input[type="file"]{
+      background: #f8fbff !important;;
     }
 
     .modal__content .modal-qr {
@@ -2071,6 +2085,7 @@ body {
         .membership__item__left {
           flex: 1;
           white-space: nowrap;
+          color: var(--text-colour-2)
         }
 
         .membership__item__right {
@@ -2377,7 +2392,7 @@ body {
         .select__react__menu {
           .select__react__menu-list {
             .select__react__option {
-              padding: 7px;
+              padding: 7px !important;
             }
           }
         }
@@ -4170,5 +4185,7 @@ html.dark {
 }
 
 .font-size-18 {
+  font-weight: 600;
+  color: var(--text-colour-2);
   font-size: 18px;
 }

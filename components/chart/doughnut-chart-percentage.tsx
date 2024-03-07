@@ -45,13 +45,10 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
             const ctx = canvasRef.current.getContext('2d');
             if (ctx) {
                 canvasRef.current.height = 75;
-                canvasRef.current.width = 200;
+                canvasRef.current.width = 75;
                 Chart.register(...registerables);
                 Chart.defaults.font.family = '"PT Serif", serif';
 
-                if (percentage === 0) {
-                    return;
-                }
 
                 const data = [percentage, 100 - percentage]
                 const backgroundColors = ['#3d7da2', colours[theme as 'light' | 'dark'].background]
@@ -123,9 +120,7 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
 
     return (
         <>
-            {percentage === 0 || !theme ? (
-                <NoDataBlock primaryText="No Chart available yet"/>
-            ) : (
+            {theme && (
                 <canvas ref={canvasRef}></canvas>
             )}
         </>
