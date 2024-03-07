@@ -18,6 +18,7 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
 import {TradingViewChartWrapper} from "@/components/chart/trading-view-chart-wrapper";
+import {AreaAndBarChart} from "@/components/chart/are-and-bar-chart";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -267,7 +268,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                 ) : (
                                     <>
                                         {this.charts.length ? (
-                                            <TradingViewChartWrapper data={this.charts}/>
+                                            <AreaAndBarChart data={this.charts}/>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

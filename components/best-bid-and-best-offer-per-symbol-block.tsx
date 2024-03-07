@@ -18,6 +18,7 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {QuoteCondition} from "@/enums/quote-condition";
 import NoDataBlock from "@/components/no-data-block";
 import {TradingViewChartWrapper} from "@/components/chart/trading-view-chart-wrapper";
+import {AreaAndBarChart} from "@/components/chart/are-and-bar-chart";
 
 
 interface BestBidAndBestOfferPerSymbolBlockProps {
@@ -311,7 +312,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                             </button>
                                         </div>
                                         {this.charts.length ? (
-                                            <TradingViewChartWrapper data={this.charts}/>
+                                            <AreaAndBarChart data={this.charts}/>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

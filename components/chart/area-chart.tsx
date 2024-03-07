@@ -50,7 +50,7 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
                                 fill: true,
                                 borderColor: colours.borderColor,
                                 tension: 0.5,
-                                borderWidth: 5,
+                                borderWidth: 4,
                                 backgroundColor: colours.backgroundColor,
                                 pointRadius: 0
                             },
