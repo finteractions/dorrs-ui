@@ -37,6 +37,10 @@ body {
       }
     }
 
+    .b-select-search .select__react__value-container .select__react__single-value {
+      color: var(--form-colour) !important;
+    }
+
   }
 }
 
@@ -44,7 +48,7 @@ body {
 html.dark {
   body {
     .portal, .backend {
-      .SingleDatePicker .SingleDatePickerInput .DateInput,
+      .SingleDatePicker .SingleDatePickerInput .DateInput .DateInput_input,
       .b-select-search .select__react__control.select__react__control,
       .content__filter .select__react .select__react__control,
       .react-tel-input input + .flag-dropdown,
@@ -60,8 +64,8 @@ html.dark {
         cursor: default;
         opacity: 1 !important;
 
-        &::placeholder{
-          color: var(--form-colour-placeholder)!important;
+        &::placeholder {
+          color: var(--form-colour-placeholder) !important;
         }
       }
 
@@ -138,6 +142,41 @@ html.dark {
           }
         }
       }
+
+      .DayPicker__withBorder, .DayPicker_focusRegion, .CalendarMonthGrid, .CalendarMonth {
+        background: var(--background-colour) !important;
+      }
+
+      .CalendarMonth_caption {
+        color: var(--form-colour) !important;
+      }
+
+      .DayPickerNavigation {
+        .DayPickerNavigation_button {
+          border: 1px solid var(--background-colour) !important;
+          box-sizing: border-box;
+          color: var(--text-colour-2);
+          background-color: transparent;
+        }
+      }
+    }
+
+    .CalendarDay__default {
+      background-color: var(--form-background-colour);
+      color: var(--text-colour-2);
+      border: 1px solid var(--border-colour-1);
+
+      &:hover {
+        background-color: var(--background-colour);
+        color: var(--text-colour-2);
+        border: 1px solid var(--background-colour) !important;
+      }
+    }
+
+    .CalendarDay__selected, .CalendarDay__selected:hover {
+      background-color: var(--background-colour) !important;
+      color: var(--text-colour-2) !important;
+      border: 1px solid var(--background-colour) !important;
     }
   }
 }

@@ -79,7 +79,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
         this.context = context;
 
         const favouriteSymbolList = JSON.parse(localStorage.getItem(PATH_FAVOURITE_LIST) || '[]');
-        const quoteModeView = localStorage.getItem(PATH_MODE_VIEW) || 'table';
+        const quoteModeView = localStorage.getItem(PATH_MODE_VIEW) || 'tile';
 
         this.state = {
             success: false,

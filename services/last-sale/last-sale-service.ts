@@ -1,6 +1,7 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 
 class LastSaleService extends BaseService {
 
@@ -12,6 +13,18 @@ class LastSaleService extends BaseService {
 
     public async getLastSaleReporting(): Promise<Array<ILastSale>> {
         return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async getLastSaleReportingHistory(symbol?: string | null, limit?: number | null): Promise<ILastSale[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+
+        if (limit) {
+            queryString += `${queryString ? '&' : '?'}limit=${limit}`;
+        }
+        return (await apiWebBackendService.get<IResponse<ILastSale[]>>(`${this.PATH}history/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 
     public async createLastSaleReporting(data: any): Promise<Array<ILastSale>> {

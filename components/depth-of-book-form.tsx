@@ -17,7 +17,7 @@ import {getOrderSideDescriptions, OrderSide} from "@/enums/order-side";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import ordersService from "@/services/orders/orders-service";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
-import LocatorageField from "@/components/locatorage-field";
+import InputWithLocalstorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -238,7 +238,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     placeholder="Type Origin"
                                                                     className="input__text"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    component={LocatorageField}
+                                                                    component={InputWithLocalstorageField}
                                                                 />
                                                             </div>
                                                         </div>
@@ -308,7 +308,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     className="input__text"
                                                                     placeholder="Type MPID"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    component={LocatorageField}
+                                                                    component={InputWithLocalstorageField}
                                                                 />
                                                             </div>
                                                         </div>

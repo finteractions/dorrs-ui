@@ -1,6 +1,7 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
+import {IOrder} from "@/interfaces/i-order";
 
 class BestBidAndBestOfferService extends BaseService {
 
@@ -14,6 +15,17 @@ class BestBidAndBestOfferService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<IBestBidAndBestOffer>>>(`${this.PATH}reporting/`, {}, this.getUserAccessToken())).data;
     }
 
+    public async getBestBidAndBestOfferHistory(symbol?: string | null, limit?: number | null): Promise<IBestBidAndBestOffer[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+
+        if (limit) {
+            queryString += `${queryString ? '&' : '?'}limit=${limit}`;
+        }
+        return (await apiWebBackendService.get<IResponse<IBestBidAndBestOffer[]>>(`${this.PATH}history/${queryString}`, {}, this.getUserAccessToken())).data;
+    }
 
     public async createBestBidAndBestOffer(data: any): Promise<Array<IBestBidAndBestOffer>> {
         return (await apiWebBackendService.post<IResponse<Array<IBestBidAndBestOffer>>>(`${this.PATH}reporting/`, data, {}, this.getUserAccessToken())).data

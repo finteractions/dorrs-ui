@@ -139,7 +139,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             columnHelper.accessor((row) => row.tick_indication, {
                 id: "tick_indication",
                 cell: (item) => formatterService.formatAndColorTickIndicationValueHTML(item.getValue()),
-                header: () => <span>Tick Indication</span>,
+                header: () => <span>Tick</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",
@@ -343,7 +343,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                             value={filterService.setValue('tick_indication', this.state.filterData)}
                                             onChange={(item) => this.handleFilterChange('tick_indication', item)}
                                             options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                            placeholder="Tick Indication"
+                                            placeholder="Tick"
                                         />
                                     </div>
                                     <div className="input__wrap">

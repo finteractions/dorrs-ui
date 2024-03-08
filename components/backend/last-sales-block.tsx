@@ -372,7 +372,7 @@ class LastSalesBlock extends React.Component<{}> {
                                                 value={filterService.setValue('tick_indication', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('tick_indication', item)}
                                                 options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                                placeholder="Tick Indication"
+                                                placeholder="Tick"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -479,7 +479,7 @@ class LastSalesBlock extends React.Component<{}> {
                                     className="box__wrap">{this.state.formData?.mpid || ''}</div>
                             </div>
                             <div className="view-form-box">
-                                <div className="box__title">Tick Indication</div>
+                                <div className="box__title">Tick</div>
                                 <div
                                     className="box__wrap">{this.state.formData?.tick_indication}</div>
                             </div>

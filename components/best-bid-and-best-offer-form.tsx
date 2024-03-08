@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {RefObject} from 'react';
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
@@ -20,8 +20,8 @@ import {
     QuoteCondition
 } from "@/enums/quote-condition";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
-import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
-import LocatorageField from "@/components/locatorage-field";
+import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
+import InputWithLocalstorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -107,9 +107,12 @@ interface BestBidAndBestOfferFormProps extends ICallback {
 class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
     state: BestBidAndBestOfferFormState;
+    formRef: RefObject<any>;
 
     constructor(props: BestBidAndBestOfferFormProps) {
         super(props);
+
+        this.formRef = React.createRef();
 
         const currentDateTime = new Date();
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
@@ -257,6 +260,28 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         this.setState({isLoading: false})
     }
 
+    fillForm = async (bestBidAndBestOffer: IBestBidAndBestOffer) => {
+        if (this.formRef?.current) {
+            await this.formRef.current.setFieldValue('symbol', bestBidAndBestOffer.symbol_name)
+                .then(async () => await this.formRef.current.setFieldTouched('symbol', true, true))
+
+            await this.formRef.current.setFieldValue('quote_condition', bestBidAndBestOffer.quote_condition.toLowerCase())
+                .then(async () => await this.formRef.current.setFieldTouched('quote_condition', true, true))
+
+            await this.formRef.current.setFieldValue('bid_quantity', bestBidAndBestOffer.bid_quantity ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('bid_quantity', true, true))
+
+            await this.formRef.current.setFieldValue('bid_price', bestBidAndBestOffer.bid_price ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('bid_price', true, true))
+
+            await this.formRef.current.setFieldValue('offer_quantity', bestBidAndBestOffer.offer_quantity ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('offer_quantity', true, true))
+
+            await this.formRef.current.setFieldValue('offer_price', bestBidAndBestOffer.offer_price ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('offer_price', true, true))
+        }
+    }
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -274,6 +299,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                         initialValues={this.state.formInitialValues as IBestBidAndBestOffer}
                                         validationSchema={formSchema}
                                         onSubmit={this.handleSubmit}
+                                        innerRef={this.formRef}
                                     >
                                         {({
                                               isSubmitting,
@@ -298,7 +324,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                 className="input__text"
                                                                 placeholder="Type Origin"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                component={LocatorageField}
+                                                                component={InputWithLocalstorageField}
                                                             />
                                                         </div>
                                                     </div>
@@ -371,7 +397,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Bid MPID"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         keyName={'mpid'}
-                                                                        component={LocatorageField}
+                                                                        component={InputWithLocalstorageField}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -470,7 +496,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Offer  MPID"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         keyName={'mpid'}
-                                                                        component={LocatorageField}
+                                                                        component={InputWithLocalstorageField}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -597,9 +623,10 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                             </div>
                             {this.isAdd() && (
                                 <div className={'column-block__item'}>
-                                    <ModalDepthOfBookHistoryBlock
+                                    <ModalBestBidAndBestOfferHistoryBlock
                                         pageLength={28}
                                         onCallback={this.onCallback}
+                                        onSelected={this.fillForm}
                                     />
                                 </div>
                             )}

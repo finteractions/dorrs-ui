@@ -122,7 +122,7 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
             columnHelper.accessor((row) => row.tick_indication, {
                 id: "tick_indication",
                 cell: (item) => item.getValue(),
-                header: () => <span>Tick Indication</span>,
+                header: () => <span>Tick</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",

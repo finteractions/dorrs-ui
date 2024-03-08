@@ -99,7 +99,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             columnHelper.accessor((row) => row.tick_indication, {
                 id: "tick_indication",
                 cell: (item) => formatterService.formatAndColorTickIndicationValueHTML(item.getValue()),
-                header: () => <span>Tick Indication</span>,
+                header: () => <span>Tick</span>,
             }),
             columnHelper.accessor((row) => row.uti, {
                 id: "uti",

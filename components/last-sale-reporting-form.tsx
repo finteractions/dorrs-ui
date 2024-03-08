@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {RefObject} from 'react';
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
@@ -16,8 +16,8 @@ import Select from "react-select";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
-import LocatorageField from "@/components/locatorage-field";
-import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
+import ModalLastSaleReportingHistoryBlock from "@/components/modal-last-sale-reporting-history-block";
+import InputWithLocalstorageField from "@/components/locatorage-field";
 
 
 const formSchema = Yup.object().shape({
@@ -53,9 +53,12 @@ interface LastSaleReportingProps extends ICallback {
 class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
     state: LastSaleReportingState;
+    formRef: RefObject<any>;
 
     constructor(props: LastSaleReportingProps) {
         super(props);
+
+        this.formRef = React.createRef();
 
         const currentDateTime = new Date();
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
@@ -165,6 +168,29 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         this.setState({isLoading: false})
     }
 
+    fillForm = async (lastSale: ILastSale) => {
+        if (this.formRef?.current) {
+            await this.formRef.current.setFieldValue('symbol', lastSale.symbol_name)
+                .then(async () => await this.formRef.current.setFieldTouched('symbol', true, true))
+
+            await this.formRef.current.setFieldValue('symbol_suffix', lastSale.symbol_suffix)
+                .then(async () => await this.formRef.current.setFieldTouched('symbol_suffix', true, true))
+
+            await this.formRef.current.setFieldValue('condition', lastSale.condition.toLowerCase())
+                .then(async () => await this.formRef.current.setFieldTouched('condition', true, true))
+
+            await this.formRef.current.setFieldValue('tick_indication', lastSale.tick_indication)
+                .then(async () => await this.formRef.current.setFieldTouched('tick_indication', true, true))
+
+            await this.formRef.current.setFieldValue('quantity', lastSale.quantity ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('quantity', true, true))
+
+            await this.formRef.current.setFieldValue('price', lastSale.price ?? '')
+                .then(async () => await this.formRef.current.setFieldTouched('price', true, true))
+
+        }
+    }
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -182,6 +208,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                         initialValues={this.state.formInitialValues as ILastSale}
                                         validationSchema={formSchema}
                                         onSubmit={this.handleSubmit}
+                                        innerRef={this.formRef}
                                     >
                                         {({
                                               isSubmitting,
@@ -206,7 +233,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 className="input__text"
                                                                 placeholder="Type Origin"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                component={LocatorageField}
+                                                                component={InputWithLocalstorageField}
                                                             />
                                                         </div>
                                                     </div>
@@ -291,7 +318,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 className="input__text"
                                                                 placeholder="Type MPID"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                component={LocatorageField}
+                                                                component={InputWithLocalstorageField}
                                                             />
                                                         </div>
                                                     </div>
@@ -453,9 +480,10 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
 
                             {this.isAdd() && (
                                 <div className={'column-block__item'}>
-                                    <ModalDepthOfBookHistoryBlock
+                                    <ModalLastSaleReportingHistoryBlock
                                         pageLength={20}
                                         onCallback={this.onCallback}
+                                        onSelected={this.fillForm}
                                     />
                                 </div>
                             )}
