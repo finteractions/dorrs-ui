@@ -1708,6 +1708,11 @@ body {
             font-size: 17px;
             font-weight: 600;
             overflow: hidden;
+
+            &.logo {
+              background: unset;
+              color: unset;
+            }
           }
 
           .loader-block {

@@ -1,5 +1,5 @@
-import React, {createRef, RefObject, useEffect} from "react";
-import {Formik, Form, Field, ErrorMessage, FormikProps} from "formik";
+import React from "react";
+import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import PhoneInputField from "@/components/phone-input-field";
 import AlertBlock from "@/components/alert-block";
@@ -10,7 +10,6 @@ import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {isNull} from "util";
 import UserImage from "@/components/user-image";
-import VerifyOtpForm from "@/components/verify-otp-form";
 import PhoneInput from "react-phone-input-2";
 import {IUserProfile} from "@/interfaces/i-user-profile";
 
@@ -66,7 +65,9 @@ interface ProfilePersonalDataFormState extends IState {
     // editImage: boolean;
     editMode: boolean;
     needOtpChecking: boolean;
-    formValues: ProfilePersonalDataFormFields
+    formValues: ProfilePersonalDataFormFields;
+    isSubmitting: boolean;
+    isEmailChanged: boolean;
 }
 
 class ProfilePersonalDataForm extends React.Component<{
@@ -99,6 +100,8 @@ class ProfilePersonalDataForm extends React.Component<{
             editMode: false,
             needOtpChecking: false,
             formValues: initialValues,
+            isSubmitting: false,
+            isEmailChanged: false
         };
 
         this.initialValues = this.context?.userProfile || initialValues;
@@ -128,9 +131,12 @@ class ProfilePersonalDataForm extends React.Component<{
         this.setState({selectedFile: selectedFile});
     };
 
-    submitForm = async (values: Record<string, any>) => {
-        this.setState({success: false, errorMessages: null, needOtpChecking: false});
+    submitForm = async (values: Record<string, any>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.setState({success: false, errorMessages: null, needOtpChecking: false, isSubmitting: true});
 
+        setSubmitting(true);
         const formData = new FormData();
 
         Object.keys(values).forEach((key) => {
@@ -147,9 +153,8 @@ class ProfilePersonalDataForm extends React.Component<{
                 this.setState({success: true,/* editImage: false,*/ editMode: false, selectedFile: null});
 
                 if (values.email !== this.initialValues.email) {
-                    this.props.onCallback(true)
+                    this.setState({isEmailChanged: true})
                 } else {
-                    // this.formRef.current?.resetForm({values});
                     this.context.getUserProfile();
                 }
 
@@ -157,33 +162,21 @@ class ProfilePersonalDataForm extends React.Component<{
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
-            // this.formRef.current?.setSubmitting(false);
+            this.setState({isSubmitting: false}, () => {
+                setTimeout(() => {
+                    this.setState({success: false, isEmailChanged: false});
+                }, 5000);
+            })
 
-            setTimeout(() => {
-                this.setState({success: false});
-            }, 3000);
         });
     };
 
-    handleSubmit = async (values: ProfilePersonalDataFormFields) => {
-
-        if (this.userProfile?.email !== values.email) {
-            this.setState({needOtpChecking: true, formValues: values});
-        } else {
-            await this.submitForm(values);
-        }
-
+    handleSubmit = async (values: ProfilePersonalDataFormFields, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        await this.submitForm(values, {setSubmitting});
     };
 
-    onCallbackOTP = async (values: any) => {
-        const {withdraw_token} = values;
-        const data = Object.assign(this.state.formValues, {otp_token: withdraw_token});
-        await this.submitForm(data)
-    };
-
-    handleBackOTP = () => {
-        this.setState({needOtpChecking: false});
-    }
 
     render() {
         return (
@@ -194,359 +187,331 @@ class ProfilePersonalDataForm extends React.Component<{
                     <>
                         <div className="profile__right-title">Profile</div>
                         <div className="profile__right-wrap-full">
-                            {this.state.needOtpChecking ? (
-                                <>
-                                    <VerifyOtpForm
-                                        initialValues={{otp_token: ''}}
-                                        isStep={false}
-                                        isPassword={true}
-                                        onCallback={this.onCallbackOTP}
-                                        onBack={false}
-                                    />
-
-                                    <div
-                                        className="mt-5 d-flex align-content-center justify-content-center login__bottom">
-                                        <i className="icon-chevron-left"/>
-                                        <button className="login__link" onClick={this.handleBackOTP}> Back</button>
-                                    </div>
-                                </>
+                            {this.errors.length ? (
+                                <AlertBlock type="error" messages={this.errors}/>
                             ) : (
                                 <>
-                                    {this.errors.length ? (
-                                        <AlertBlock type="error" messages={this.errors}/>
-                                    ) : (
+                                    {this.state.editMode ? (
                                         <>
-                                            {this.state.editMode ? (
-                                                <>
-                                                    <Formik
-                                                        initialValues={this.state.formValues.email ? this.state.formValues : this.initialValues}
-                                                        validationSchema={formSchema}
-                                                        onSubmit={this.handleSubmit}
-                                                        enableReinitialize={true}
-                                                    >
-                                                        {({isSubmitting, isValid, dirty, setFieldValue, errors}) => {
-                                                            return (
-                                                                <Form className={"profile__panel"}>
-                                                                    {/*{!this.state.editImage && this.context.userProfile?.user_image ? (*/}
-                                                                    {/*    <div className='profile__image__panel'>*/}
-                                                                    {/*        {this.context?.userProfileLoading ? (*/}
-                                                                    {/*            <LoaderBlock/>*/}
-                                                                    {/*        ) : (*/}
-                                                                    {/*            <>*/}
-                                                                    {/*                <UserImage alt={'Profile Image'}*/}
-                                                                    {/*                           src={this.context.userProfile?.user_image || ''}*/}
-                                                                    {/*                           height={'100%'} width={'100%'}/>*/}
-                                                                    {/*                {this.state.editMode && (*/}
-                                                                    {/*                    <div onClick={() => this.setState({editImage: true, selectedFile: null})} className='profile__image__change'>*/}
-                                                                    {/*                        <FontAwesomeIcon className="nav-icon" icon={faPencil}/>*/}
-                                                                    {/*                    </div>*/}
-                                                                    {/*                )}*/}
-                                                                    {/*            </>*/}
-                                                                    {/*        )}*/}
-                                                                    {/*    </div>*/}
-                                                                    {/*) : (*/}
-                                                                    <div className='profile__image__input'>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Profile
-                                                                                Image
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <input
-                                                                                    id="user_image_tmp"
-                                                                                    name="user_image_tmp"
-                                                                                    type="file"
-                                                                                    accept={'.' + allowedExt.join(',.')}
-                                                                                    className="input__file"
-                                                                                    disabled={isSubmitting}
-                                                                                    onChange={(event) => {
-                                                                                        setFieldValue('user_image_tmp', event.target?.files?.[0] || '');
-                                                                                        this.handleFileChange(event);
-                                                                                    }}
-                                                                                />
-                                                                                {errors.user_image_tmp && (
-                                                                                    <div
-                                                                                        className="error-message">{errors.user_image_tmp.toString()}</div>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
+                                            <Formik
+                                                initialValues={this.state.formValues.email ? this.state.formValues : this.initialValues}
+                                                validationSchema={formSchema}
+                                                onSubmit={this.handleSubmit}
+                                                enableReinitialize={true}
+                                            >
+                                                {({isSubmitting, isValid, dirty, setFieldValue, errors}) => {
+                                                    return (
+                                                        <Form className={"profile__panel"}>
+                                                            <div className='profile__image__input'>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">Profile
+                                                                        Image
                                                                     </div>
-                                                                    {/*)}*/}
-                                                                    <div className="profile__info__panel">
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">First
-                                                                                Name <i>*</i></div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="first_name"
-                                                                                    id="first_name"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="First Name"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="first_name"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Last
-                                                                                Name <i>*</i></div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="last_name"
-                                                                                    id="last_name"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="Last Name"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="last_name"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box full">
-                                                                            <div className="input__title">Email <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="email"
-                                                                                    id="email"
-                                                                                    type="email"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="Email"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="email"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Mobile
-                                                                                Number <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="mobile_number"
-                                                                                    id="mobile_number"
-                                                                                    disabled={isSubmitting}
-                                                                                    component={PhoneInputField}
-                                                                                    country="us"
-                                                                                />
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
+                                                                    <div className="input__wrap">
+                                                                        <input
+                                                                            id="user_image_tmp"
+                                                                            name="user_image_tmp"
+                                                                            type="file"
+                                                                            accept={'.' + allowedExt.join(',.')}
+                                                                            className="input__file"
+                                                                            disabled={this.state.isSubmitting}
+                                                                            onChange={(event) => {
+                                                                                setFieldValue('user_image_tmp', event.target?.files?.[0] || '');
+                                                                                this.handleFileChange(event);
+                                                                            }}
+                                                                        />
+                                                                        {errors.user_image_tmp && (
                                                                             <div
-                                                                                className="input__title">Country <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="country"
-                                                                                    id="country"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="Country"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="country"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">State <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="state"
-                                                                                    id="state"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="State"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="state"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">City <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="city"
-                                                                                    id="city"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="City"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="city"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Address <i>*</i>
-                                                                            </div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="address"
-                                                                                    id="address"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="Address"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="address"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Building /
-                                                                                Apartment <i>*</i></div>
-                                                                            <div className="input__wrap">
-                                                                                <Field
-                                                                                    name="house_number"
-                                                                                    id="house_number"
-                                                                                    type="text"
-                                                                                    className={`input__text`}
-                                                                                    placeholder="House Number"
-                                                                                    disabled={isSubmitting}
-                                                                                />
-                                                                                <ErrorMessage name="house_number"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="input__box buttons">
-                                                                            <button
-                                                                                className={`b-btn ripple ${(isSubmitting || !isValid || (!dirty && isNull(this.state?.selectedFile) && !this.state.formValues)) ? 'disable' : ''}`}
-                                                                                type="submit"
-                                                                                disabled={isSubmitting || !isValid || (!dirty && isNull(this.state?.selectedFile) && !this.state.formValues)}
-                                                                            >Save Info
-                                                                            </button>
-                                                                            <button type={"button"}
-                                                                                    className={'b-btn-border ripple'}
-                                                                                    onClick={() => this.setState({editMode: false})}>Cancel
-                                                                            </button>
-                                                                        </div>
-
+                                                                                className="error-message">{errors.user_image_tmp.toString()}</div>
+                                                                        )}
                                                                     </div>
-                                                                </Form>
-                                                            );
-                                                        }}
-                                                    </Formik>
-                                                </>
-                                            ) : (
-                                                <div className={"profile__panel"}>
-                                                    <div className='profile__image__panel'>
-                                                        {this.context?.userProfileLoading ? (
-                                                            <LoaderBlock/>
-                                                        ) : (
-                                                            <>
-                                                                <UserImage alt={'Profile Image'}
-                                                                           src={this.context.userProfile?.user_image || ''}
-                                                                           height={'100%'} width={'100%'}/>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                    <div className='profile__info__panel view__input__box'>
-                                                        <div className="input__box">
-                                                            <div className="input__title">First Name</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.first_name}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">Last Name</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.last_name}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box full">
-                                                            <div className="input__title">Email</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.email}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">Mobile Number</div>
-                                                            <div className="input__wrap">
-                                                                <PhoneInput
-                                                                    value={this.context.userProfile?.mobile_number || ''}
-                                                                    inputProps={{readOnly: true}}
-                                                                    disableDropdown
-                                                                    containerClass={'plain-tel-input'}/>
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">Country</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.country}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">State</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.state}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">City</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.city}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">Address</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.address}
-                                                            </div>
-                                                        </div>
-                                                        <div className="input__box">
-                                                            <div className="input__title">Building / Apartment</div>
-                                                            <div className="input__wrap">
-                                                                {this.context.userProfile?.house_number}
-                                                            </div>
-                                                        </div>
-                                                        {this.context.userProfile?.firm && (
-                                                            <div className="input__box">
-                                                                <div className="input__title">Firm</div>
-                                                                <div className="input__wrap">
-                                                                    {this.context.userProfile?.firm.name}
                                                                 </div>
                                                             </div>
-                                                        )}
+                                                            {/*)}*/}
+                                                            <div className="profile__info__panel">
+                                                                <div className="input__box">
+                                                                    <div className="input__title">First
+                                                                        Name <i>*</i></div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="first_name"
+                                                                            id="first_name"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="First Name"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="first_name"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">Last
+                                                                        Name <i>*</i></div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="last_name"
+                                                                            id="last_name"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="Last Name"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="last_name"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box full">
+                                                                    <div className="input__title">Email <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="email"
+                                                                            id="email"
+                                                                            type="email"
+                                                                            className={`input__text`}
+                                                                            placeholder="Email"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="email"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">Mobile
+                                                                        Number <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="mobile_number"
+                                                                            id="mobile_number"
+                                                                            disabled={this.state.isSubmitting}
+                                                                            component={PhoneInputField}
+                                                                            country="us"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div
+                                                                        className="input__title">Country <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="country"
+                                                                            id="country"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="Country"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="country"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">State <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="state"
+                                                                            id="state"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="State"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="state"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">City <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="city"
+                                                                            id="city"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="City"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="city"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div
+                                                                        className="input__title">Address <i>*</i>
+                                                                    </div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="address"
+                                                                            id="address"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="Address"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="address"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box">
+                                                                    <div className="input__title">Building /
+                                                                        Apartment <i>*</i></div>
+                                                                    <div className="input__wrap">
+                                                                        <Field
+                                                                            name="house_number"
+                                                                            id="house_number"
+                                                                            type="text"
+                                                                            className={`input__text`}
+                                                                            placeholder="House Number"
+                                                                            disabled={this.state.isSubmitting}
+                                                                        />
+                                                                        <ErrorMessage name="house_number"
+                                                                                      component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="input__box buttons">
+                                                                    <button
+                                                                        className={`b-btn ripple ${(this.state.isSubmitting || !isValid || (!dirty && isNull(this.state?.selectedFile) && !this.state.formValues)) ? 'disable' : ''}`}
+                                                                        type="submit"
+                                                                        disabled={this.state.isSubmitting || !isValid || (!dirty && isNull(this.state?.selectedFile) && !this.state.formValues)}
+                                                                    >Save Info
+                                                                    </button>
+                                                                    <button type={"button"}
+                                                                            className={`b-btn-border ripple ${this.state.isSubmitting ? 'disable' : ''}`}
+                                                                            disabled={this.state.isSubmitting}
+                                                                            onClick={() => this.setState({editMode: false})}>Cancel
+                                                                    </button>
+                                                                </div>
 
-                                                        <div className="input__box buttons">
-                                                            <button type="button"
-                                                                    onClick={() => this.setState({editMode: true})}
-                                                                    className={'b-btn ripple'}>Edit
-                                                            </button>
-                                                        </div>
-
-
+                                                            </div>
+                                                        </Form>
+                                                    );
+                                                }}
+                                            </Formik>
+                                        </>
+                                    ) : (
+                                        <div className={"profile__panel"}>
+                                            <div className='profile__image__panel'>
+                                                {this.context?.userProfileLoading ? (
+                                                    <LoaderBlock/>
+                                                ) : (
+                                                    <>
+                                                        <UserImage alt={'Profile Image'}
+                                                                   src={this.context.userProfile?.user_image || ''}
+                                                                   height={'100%'} width={'100%'}/>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className='profile__info__panel view__input__box'>
+                                                <div className="input__box">
+                                                    <div className="input__title">First Name</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.first_name}
                                                     </div>
-
                                                 </div>
-                                            )}
+                                                <div className="input__box">
+                                                    <div className="input__title">Last Name</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.last_name}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box full">
+                                                    <div className="input__title">Email</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.email}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">Mobile Number</div>
+                                                    <div className="input__wrap">
+                                                        <PhoneInput
+                                                            value={this.context.userProfile?.mobile_number || ''}
+                                                            inputProps={{readOnly: true}}
+                                                            disableDropdown
+                                                            containerClass={'plain-tel-input'}/>
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">Country</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.country}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">State</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.state}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">City</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.city}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">Address</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.address}
+                                                    </div>
+                                                </div>
+                                                <div className="input__box">
+                                                    <div className="input__title">Building / Apartment</div>
+                                                    <div className="input__wrap">
+                                                        {this.context.userProfile?.house_number}
+                                                    </div>
+                                                </div>
+                                                {this.context.userProfile?.firm && (
+                                                    <div className="input__box">
+                                                        <div className="input__title">Firm</div>
+                                                        <div className="input__wrap">
+                                                            {this.context.userProfile?.firm.name}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="input__box buttons">
+                                                    <button type="button"
+                                                            onClick={() => this.setState({
+                                                                editMode: true,
+                                                                success: false
+                                                            })}
+                                                            className={'b-btn ripple'}>Edit
+                                                    </button>
+                                                </div>
 
 
-                                            {this.state.errorMessages && (
-                                                <AlertBlock type="error"
-                                                            messages={this.state.errorMessages}/>
-                                            )}
-                                            {this.state.success && (
+                                            </div>
+
+                                        </div>
+                                    )}
+
+
+                                    {this.state.errorMessages && (
+                                        <AlertBlock type="error"
+                                                    messages={this.state.errorMessages}/>
+                                    )}
+                                    {this.state.success && (
+                                        <>
+                                            <AlertBlock type="success"
+                                                        messages={['Personal data successfully updated']}/>
+
+                                            {this.state.isEmailChanged && (
                                                 <AlertBlock type="success"
-                                                            messages={['Personal data successfully updated']}/>
+                                                            messages={[`To change the Email follow the instructions was sent to ${this.context.userProfile?.email}`]}/>
                                             )}
-
                                         </>
                                     )}
 

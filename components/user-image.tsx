@@ -11,6 +11,7 @@ interface UserImageProps {
 function UserImage({alt, src, width, ...props}: UserImageProps) {
     const [imageAlt, setImageAlt] = React.useState(alt);
     const [imageSrc, setImageSrc] = React.useState(src);
+    const host = `${window.location.protocol}//${window.location.host}`;
 
     React.useEffect(() => {
         setImageAlt(alt);
@@ -21,7 +22,7 @@ function UserImage({alt, src, width, ...props}: UserImageProps) {
 
         <div style={{ ...props, width:width, minWidth: width,position: 'relative', overflow: "hidden", borderRadius: "50%"}}>
             <Image
-                src={imageSrc || '/img/avatar_gray.png'}
+                src={`${host}${imageSrc}` || '/img/avatar_gray.png'}
                 alt={imageAlt}
                 layout="fill"
                 objectFit="cover"

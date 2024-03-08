@@ -19,9 +19,9 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import {DataContext} from "@/contextes/data-context";
 import DepthOfBookForm from "@/components/depth-of-book-form";
 import userPermissionService from "@/services/user/user-permission-service";
-import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import AssetImage from "@/components/asset-image";
+import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 
 
 const formSchema = Yup.object().shape({
