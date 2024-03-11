@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Chart, registerables} from 'chart.js/auto';
-import NoDataBlock from "@/components/no-data-block";
 import 'chartjs-plugin-datalabels';
 import {getGlobalConfig} from "@/utils/global-config";
 import formatterService from "@/services/formatter/formatter-service";

@@ -100,20 +100,25 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
     };
 
     useEffect(() => {
-        const resizeHandler = () => {
-            // setTimeout(() => {
+        const handleResize = () => {
+            if (chartRef.current) {
+                chartRef.current.destroy();
+            }
+            setTimeout(() => {
                 chart();
-            // }, 350);
+            }, 350);
         };
 
-        window.addEventListener('resize', resizeHandler);
-        window.addEventListener('themeToggle', resizeHandler);
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('themeToggle', handleResize);
+        window.addEventListener('isPortalShowSidebarMd', handleResize);
 
-        resizeHandler();
+        handleResize();
 
         return () => {
-            window.removeEventListener('resize', resizeHandler);
-            window.removeEventListener('themeToggle', resizeHandler);
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('themeToggle', handleResize);
+            window.removeEventListener('isPortalShowSidebarMd', handleResize);
 
             if (chartRef.current) {
                 chartRef.current.destroy();

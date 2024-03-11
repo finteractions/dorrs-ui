@@ -1203,7 +1203,7 @@ body {
       margin-bottom: 0
     }
 
-    .modal__content .input__text , input[type="file"]{
+    .modal__content .input__text, input[type="file"] {
       background: #f8fbff !important;;
     }
 
@@ -2690,27 +2690,6 @@ body {
     }
 
     @media(max-width: 767px) {
-      //.content__title {
-      //  font-size: 18px
-      //}
-      //.content__top .border-btn {
-      //  padding: 0 10px
-      //}
-      //.content__top.xs-d-block {
-      //  display: block;
-      //  text-align: center
-      //}
-      //.content__top.xs-d-block .content__filter {
-      //  //display: block;
-      //  margin: 25px 0 0
-      //}
-      //.content__top.xs-d-block .content__filter .input {
-      //  width: 100%;
-      //  margin: 0 0 20px
-      //}
-      //.content__top.xs-d-block .content__filter .content__filter-clear {
-      //  width: 100%
-      //}
       .row {
         margin-top: -12px
       }
@@ -2747,7 +2726,11 @@ body {
             padding: 20px 20px;
 
             .table {
-              margin: -20px -20px 0px -20px;
+              margin: 0 -20px 0 -20px;
+            }
+
+            .content__search .search-filter {
+              max-width: unset;
             }
           }
         }
@@ -2773,7 +2756,6 @@ body {
               justify-content: flex-start;
               align-content: flex-start;
               flex-wrap: wrap;
-              //filter: drop-shadow(0 4px 16px rgba(15, 23, 42, .04));
               border-bottom: 4px solid var(--border-colour-1);
 
               &:last-child {
@@ -2781,69 +2763,45 @@ body {
               }
 
               td {
-                flex: 0 0 50%;
-                max-width: 50%;
+                &[data-label=""]:before {
+                  --label-width: 100%;
+                  background-color: red;
+                }
+
+                flex: 0 0 100%;
+                max-width: 100%;
                 display: flex;
                 height: initial;
                 padding: 15px 20px !important;
                 word-break: break-word;
+                position: relative;
+                padding-left: 20px;
+              }
+
+              td[data-label]:before {
+                content: attr(data-label);
+                font-weight: 600;
+                left: 0;
+                display: flex;
+                width: var(--label-width, 50%);
+                padding-right: 10px;
+                box-sizing: border-box;
+                align-items: center;
+              }
+
+              td:not([data-label]) {
+                --label-width: 100%;
+                justify-content: center;
+
+                > .admin-table-actions {
+                  column-gap: 20px;
+                }
               }
             }
           }
         }
       }
-
-
-      //.table {
-      //  -webkit-box-shadow: none;
-      //  box-shadow: none;
-      //  background: 0 0;
-      //}
-      //.table table {
-      //  display: block
-      //}
-      //.table table thead {
-      //  display: none
-      //}
-      //.table table tbody {
-      //  display: block
-      //}
-      //.table table tbody tr {
-      //
-      //  display: flex;
-      //  -webkit-box-pack: start;
-      //  -ms-flex-pack: start;
-      //  justify-content: flex-start;
-      //  -ms-flex-line-pack: start;
-      //  align-content: flex-start;
-      //  -ms-flex-wrap: wrap;
-      //  flex-wrap: wrap;
-      //  -webkit-filter: drop-shadow(0 4px 16px rgba(15, 23, 42, .04));
-      //  filter: drop-shadow(0 4px 16px rgba(15, 23, 42, .04));
-      //  background: var(--background-colour);
-      //  border-radius: 12px;
-      //}
-      //.table table tbody tr:not(:last-child) {
-      //  margin: 0 0 24px
-      //}
-      //.table table tbody tr td {
-      //  width: 50%;
-      //  display: block
-      //}
-      //.table table tbody tr td:before {
-      //  content: attr(aria-label);
-      //  font-weight: 400;
-      //  font-size: 14px;
-      //  line-height: 24px;
-      //  color: var(--text-colour-9);
-      //  display: block;
-      //  margin: 0 0 12px
-      //}
     }
-
-    //.bank .content__top {
-    //  margin: 0 0 48px
-    //}
 
     .bank-empty {
       text-align: center

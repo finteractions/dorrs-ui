@@ -187,6 +187,22 @@ const Table = ({
         return row && [FormStatus.DELETED].includes(row['status']?.toLowerCase());
     };
 
+    const dataLabel = (cell: any) => {
+        const header = (cell.column?.columnDef?.header as any);
+        const children = header?.().props?.children;
+
+        let result: string | undefined;
+
+        if (typeof children === 'string') {
+            result = children;
+        } else if (Array.isArray(children)) {
+            const filteredStrings = children.filter((child: any) => typeof child === 'string');
+            result = filteredStrings.join('/');
+        }
+
+        return result;
+    }
+
     const [currentPage, setCurrentPage] = React.useState(0);
 
     React.useEffect(() => {
@@ -290,15 +306,17 @@ const Table = ({
                                                 rowProps?.onCallback?.(row.original);
                                             }}
                                         >
-                                            {row.getVisibleCells().map((cell, index, array) => (
-                                                <td colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
-                                                    key={cell.id}>
-                                                    {flexRender(
-                                                        cell.column.columnDef.cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </td>
-                                            ))}
+                                            {row.getVisibleCells().map((cell, index, array) => {
+                                                return (
+                                                    <td data-label={dataLabel(cell)} colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
+                                                        key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column.columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </td>
+                                                )
+                                            })}
                                             {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps ? (
                                                 <td>
                                                     <div className='admin-table-actions'>

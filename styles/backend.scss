@@ -2943,50 +2943,77 @@
     .assets__item-price {
       margin: 0 0 12px
     }
+
+    .content__search, .search-filter {
+      max-width: unset;
+      width: 100%;
+    }
+
     .table {
       -webkit-box-shadow: none;
       box-shadow: none;
-      background: 0 0
-    }
-    .table table {
-      display: block
-    }
-    .table table thead {
-      display: none
-    }
-    .table table tbody {
-      display: block
-    }
-    .table table tbody tr {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-pack: start;
-      -ms-flex-pack: start;
-      justify-content: flex-start;
-      -ms-flex-line-pack: start;
-      align-content: flex-start;
-      -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-      -webkit-filter: drop-shadow(0 4px 16px rgba(15, 23, 42, .04));
-      filter: drop-shadow(0 4px 16px rgba(15, 23, 42, .04));
-      background: #fff
-    }
-    .table table tbody tr:not(:last-child) {
-      margin: 0 0 24px
-    }
-    .table table tbody tr td {
-      width: 50%;
-      display: block
-    }
-    .table table tbody tr td:before {
-      content: attr(aria-label);
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 24px;
-      color: #828c97;
-      display: block;
-      margin: 0 0 12px
+      background: 0 0;
+
+      table {
+        display: block;
+
+        thead {
+          display: none;
+        }
+
+        tbody {
+          display: block;
+
+          tr {
+            display: flex;
+            justify-content: flex-start;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            filter: drop-shadow(0 4px 16px rgba(15, 23, 42, 0.04));
+            background: #fff;
+
+            &:not(:last-child) {
+              margin: 0 0 24px;
+            }
+
+            td {
+              &[data-label=""]:before {
+                --label-width: 100%;
+                background-color: red;
+              }
+
+              flex: 0 0 100%;
+              max-width: 100%;
+              display: flex;
+              height: initial;
+              padding: 15px 20px !important;
+              word-break: break-word;
+              position: relative;
+              padding-left: 20px;
+            }
+
+            td[data-label]:before {
+              content: attr(data-label);
+              font-weight: 600;
+              left: 0;
+              display: flex;
+              width: var(--label-width, 50%);
+              padding-right: 10px;
+              box-sizing: border-box;
+              align-items: center;
+            }
+
+            td:not([data-label]) {
+              --label-width: 100%;
+              justify-content: center;
+
+              > .admin-table-actions {
+                column-gap: 20px;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -4296,7 +4323,7 @@
   }
 
   .d-flex-1 {
-    flex: 1!important;
+    flex: 1 !important;
   }
 
   .d-inline-flex {

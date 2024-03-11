@@ -80,7 +80,7 @@ const DoughnutChart: React.FC<ChartProps> = ({labels, data, backgroundColors, ti
             </div>
             <div className={'w-100 chart'}>
                 {data.every(value => value === 0) ? (
-                        <NoDataBlock primaryText="No Chart available yet"/>
+                    <NoDataBlock primaryText="No Chart available yet"/>
                 ) : (
                     <canvas ref={canvasRef}></canvas>
                 )}
