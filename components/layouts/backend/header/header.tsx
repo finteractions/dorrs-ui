@@ -32,7 +32,7 @@ export default function Header(props: HeaderProps) {
           <FontAwesomeIcon icon={faBars} />
         </Button>
 
-        <div className="header-nav ms-auto">
+        <div className="header-navbar d-flex align-items-center ms-auto">
           <HeaderProfileNav />
         </div>
       </Container>

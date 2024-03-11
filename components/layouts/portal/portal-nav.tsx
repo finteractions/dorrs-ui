@@ -33,8 +33,6 @@ const PortalNav = () => {
     const authUserContext = useContext(AuthUserContext);
     const authAdminContext = useContext(AuthAdminContext);
     const dataContext = useContext(DataContext)
-    const host = `${window.location.protocol}//${window.location.host}`;
-
     const handleLogout = (): void => {
         userService.logout()
             .finally(() => {
@@ -127,18 +125,6 @@ const PortalNav = () => {
                     </Dropdown.Menu>
                 </Dropdown>
             </Nav>
-            {/*<div className="b-mobile">*/}
-            {/*    <div className={`menu-icon ${navActive ? 'active' : ''}`}*/}
-            {/*         onClick={() => setNavActive(!navActive)}>*/}
-            {/*        <div className="menu-icon__wrapper">*/}
-            {/*            <span className="b-menu__icon">*/}
-            {/*                <i className="b-menu__line b-menu__line_1"></i>*/}
-            {/*                <i className="b-menu__line b-menu__line_2"></i>*/}
-            {/*                <i className="b-menu__line b-menu__line_3"></i>*/}
-            {/*            </span>*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
         </>
     );
 };

@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import {Button} from 'react-bootstrap'
 import SidebarNav from "@/components/layouts/backend/sidebar/sidebar-nav";
 import Image from "next/image";
+import Link from "next/link";
 
 
 export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
@@ -33,8 +34,11 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
             })}
             id="sidebar"
         >
-            <div className="sidebar-brand d-none d-md-flex align-items-center justify-content-center">
-                <Image src="/img/logo-small.png" width={34.25} height={40} alt="Logo" priority/>
+            <div className="sidebar-brand d-flex align-items-center justify-content-center">
+                <Link href={'/backend/dashboard'}>
+                    <Image src="/img/logo-small.png" width={34.25} height={40} alt="Logo" priority/>
+                </Link>
+
             </div>
 
             <div className="sidebar-nav flex-fill">
