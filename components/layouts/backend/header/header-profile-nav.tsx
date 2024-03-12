@@ -41,7 +41,7 @@ export default function HeaderProfileNav() {
     const authUserContext = useContext(AuthUserContext);
     const authAdminContext = useContext(AuthAdminContext);
     const dataContext = useContext(DataContext)
-    console.log(dataContext.userProfile)
+    
     const handleLogout = (): void => {
         userService.logout()
             .finally(() => {

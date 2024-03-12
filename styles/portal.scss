@@ -906,7 +906,7 @@ body {
     }
 
     .b-checkbox input[type=checkbox]:checked + label span {
-      background: url(../public/img/check.svg) center no-repeat var(--background-colour);
+      background: url(../public/img/check.svg) center no-repeat var(--background-checkbox);
       border-color: var(--text-colour-1)
     }
 

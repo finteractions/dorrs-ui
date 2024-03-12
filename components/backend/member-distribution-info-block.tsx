@@ -13,6 +13,7 @@ import NumericInputField from "@/components/numeric-input-field";
 import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
 import {IInvoice} from "@/interfaces/i-invoice";
+import {getPaymentSourceName} from "@/enums/payment-source";
 
 
 const formSchemaPayment = Yup.object().shape({
@@ -71,44 +72,15 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
         this.formRef = React.createRef();
 
         columns = [
-            columnHelper.accessor((row) => ({
-                name: row.user_name,
-                email: row.user_id
-            }), {
-                id: "user",
-                cell: (item) => <div>
-                    <span>{item.getValue().name}</span><br/>
-                    <span className="text-ellipsis">{item.getValue().email}</span>
-                </div>,
-                header: () => <span>Name <br/>Email</span>,
-            }),
-            columnHelper.accessor((row) => row.reference_number, {
-                id: "reference_number",
-                cell: (item) => item.getValue(),
-                header: () => <span>Reference Number</span>,
-            }),
-            columnHelper.accessor((row) => row.firm_name, {
-                id: "firm_name",
-                cell: (item) => item.getValue(),
-                header: () => <span>Firm</span>,
+            columnHelper.accessor((row) => row.source, {
+                id: "source",
+                cell: (item) => getPaymentSourceName(item.getValue()),
+                header: () => <span>Source</span>,
             }),
             columnHelper.accessor((row) => row.amount, {
                 id: "amount",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Amount</span>,
-            }),
-            columnHelper.accessor((row) => ({
-                status: row.status,
-                statusName: row.status_name
-            }), {
-                id: "status",
-                cell: (item) =>
-                    <div className='status-panel'>
-                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
-                            {item.getValue().statusName}
-                        </div>
-                    </div>,
-                header: () => <span>Status</span>,
             }),
             columnHelper.accessor((row) => row.updated_at, {
                 id: "updated_at",
@@ -169,7 +141,10 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                         const invoice = data[0];
                         const memberDistribution = this.state?.memberDistribution;
                         if (memberDistribution) memberDistribution.status = invoice.status
-                        if (typeof invoice !== "undefined" && memberDistribution) this.setState({memberDistribution: this.state?.memberDistribution})
+                        if (typeof invoice !== "undefined" && memberDistribution) this.setState({
+                            memberDistribution: this.state?.memberDistribution,
+                            data: invoice.payments
+                        })
                         this.paymentForm();
                     })
                     .catch((errors: IError) => {
@@ -304,7 +279,7 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                     </div>
                 </div>
 
-                <div className={`content__bottom mb-24`}>
+                <div className={`content__bottom ${this.state.data.length > 0 ? 'mb-24' : ''}`}>
                     <div className={'view_panel flex-1 mx-0 row-gap-25'}>
                         <div className={'view_block'}>
                             <div className={'view_block_title bold'}>Due Amount</div>
@@ -320,19 +295,20 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                     </div>
                 </div>
 
-                {this.state.isPayment ? (
+                {this.state.isPayment && (
                     <>
                         {this.getPaymentForm()}
                     </>
-                ) : (
+                )}
+                {this.state.data.length > 0 && (
                     <>
-                        <div className={'content__top d-none'}>
+                        <div className={'content__top'}>
                             <div className={'content__title'}>
-                                Payment Contents
+                                Payments
                             </div>
                         </div>
 
-                        <div className="content__bottom d-none">
+                        <div className="content__bottom">
                             <div className="input">
                                 <div
                                     className={`input__wrap`}>

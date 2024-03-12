@@ -10,6 +10,7 @@ import AlertBlock from "@/components/alert-block";
 import NoDataBlock from "@/components/no-data-block";
 import StripeACHForm from "@/components/payment/stripe-ach-form";
 import {IStripeACHInfo} from "@/interfaces/i-stripe-ach-info";
+import {PaymentSource} from "@/enums/payment-source";
 
 interface PaymentMethodStripeACHBlockState extends IState, IModalState {
     isLoading: boolean;
@@ -168,7 +169,7 @@ class PaymentMethodStripeACHBlock extends React.Component<PaymentMethodStripeACH
                         cardInfo: defaultCard ?? null,
                         cardInfoStored: defaultCard ?? null
                     }, () => {
-                        this.props.onCallback({defaultType: this.state.isForm ? 'us_bank_account' : ''})
+                        this.props.onCallback({defaultType: this.state.isForm ? PaymentSource.us_bank_account : ''})
                         resolve(true);
                     })
                 } else {

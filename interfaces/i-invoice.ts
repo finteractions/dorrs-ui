@@ -1,10 +1,11 @@
 export interface IInvoice {
-    id:number;
+    id: number;
     total_value: number;
     date: string;
     status: string;
     status_name?: string;
     services: Array<IInvoiceService>,
+    payments: Array<IInvoicePayment>,
     user_id?: string
     user_name?: string
     firm_name?: string
@@ -27,4 +28,10 @@ export interface IInvoiceService {
     customer_type: string;
     customer_type_name: string;
     date: string;
+}
+
+export interface IInvoicePayment {
+    source: string;
+    amount: number;
+    updated_at: string;
 }

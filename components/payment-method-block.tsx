@@ -4,6 +4,7 @@ import PaymentMethodStripeACHBlock from "@/components/payment-method-stripe-ach-
 import LoaderBlock from "@/components/loader-block";
 import {IDataContext} from "@/interfaces/i-data-context";
 import PaymentMethodWireBlock from "@/components/payment-method-wire-block";
+import {PaymentSource} from "@/enums/payment-source";
 
 interface PaymentMethodBlockState extends IState {
     isForm: boolean;
@@ -70,11 +71,11 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                 })
             }
 
-            if (values?.type === 'card') {
+            if (values?.type === PaymentSource.card) {
                 this.setState({isForm: false, isCreditDebitCardForm: true})
             }
 
-            if (values?.type === 'us_bank_account') {
+            if (values?.type === PaymentSource.us_bank_account) {
                 this.setState({isForm: false, isACHForm: true})
             }
 
@@ -117,7 +118,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
         this.setState({
             isForm: true,
             isEdit: true,
-            activeForm: 'us_bank_account',
+            activeForm: PaymentSource.us_bank_account,
             isCreditDebitCardForm: false,
             isACHForm: false,
             amount: undefined
@@ -130,7 +131,7 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
             isEdit: false,
             isCreditDebitCardForm: false,
             isACHForm: false,
-            activeForm: 'wire',
+            activeForm: PaymentSource.wire,
             amount: this.state.amountStored,
             reInit: this.state.isDashboard,
         }, () => {
@@ -158,8 +159,8 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
     }
 
     render() {
-        const shouldRenderCreditDebitCardBlock = this.state.isACHForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'card'].includes(this.state.activeForm);
-        const shouldRenderACHBlock = this.state.isCreditDebitCardForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === 'wire') || !['wire', 'us_bank_account'].includes(this.state.activeForm);
+        const shouldRenderCreditDebitCardBlock = this.state.isACHForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === PaymentSource.wire) || ![PaymentSource.wire, PaymentSource.card].includes(this.state.activeForm as PaymentSource);
+        const shouldRenderACHBlock = this.state.isCreditDebitCardForm || (this.state.isDashboard && !this.state.isCreditDebitCardForm && !this.state.isACHForm && this.state.activeForm === PaymentSource.wire) || ![PaymentSource.wire, PaymentSource.us_bank_account].includes(this.state.activeForm as PaymentSource);
 
         return (
             <>
@@ -202,32 +203,32 @@ class PaymentMethodBlock extends React.Component<PaymentMethodBlockProps, Paymen
                             <ul className={`nav nav-tabs ${this.state.isForm || this.state.amount ? '' : 'd-none'}`}
                                 id="tabs">
                                 <li className="nav-item">
-                                    <a className={`nav-link ${this.state.activeForm === 'us_bank_account' ? 'active' : ''}`}
+                                    <a className={`nav-link ${this.state.activeForm === PaymentSource.us_bank_account ? 'active' : ''}`}
                                        id="home-tab"
                                        data-bs-toggle="tab"
                                        href="#form"
-                                       onClick={() => this.setActiveForm('us_bank_account')}
+                                       onClick={() => this.setActiveForm(PaymentSource.us_bank_account)}
                                     >
                                         Bank Account (ACH)
                                     </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className={`nav-link ${this.state.activeForm === 'card' ? 'active' : ''}`}
+                                    <a className={`nav-link ${this.state.activeForm === PaymentSource.card ? 'active' : ''}`}
                                        id="profile-tab"
                                        data-bs-toggle="tab"
                                        href="#form"
-                                       onClick={() => this.setActiveForm('card')}>
+                                       onClick={() => this.setActiveForm(PaymentSource.card)}>
                                         Credit or Debit Card
                                     </a>
                                 </li>
 
                                 {this.state.isDashboard && !this.state.isEdit && (
                                     <li className="nav-item">
-                                        <a className={`nav-link ${this.state.activeForm === 'wire' ? 'active' : ''}`}
+                                        <a className={`nav-link ${this.state.activeForm === PaymentSource.wire ? 'active' : ''}`}
                                            id="home-tab"
                                            data-bs-toggle="tab"
                                            href="#form"
-                                           onClick={() => this.setActiveForm('wire')}
+                                           onClick={() => this.setActiveForm(PaymentSource.wire)}
                                         >
                                             WIRE
                                         </a>

@@ -3,7 +3,7 @@ import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import NoDataBlock from "@/components/no-data-block";
-import {IInvoice, IInvoiceService} from "@/interfaces/i-invoice";
+import {IInvoice, IInvoicePayment, IInvoiceService} from "@/interfaces/i-invoice";
 import filterService from "@/services/filter/filter";
 import {
     getApprovedInvoiceStatus,
@@ -17,13 +17,12 @@ import NumericInputField from "@/components/numeric-input-field";
 import adminService from "@/services/admin/admin-service";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 import AlertBlock from "@/components/alert-block";
-import bankService from "@/services/bank/bbo-service";
-import {IBank} from "@/interfaces/i-bank";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import stripeService from "@/services/stripe/stripe-service";
 import feesService from "@/services/fee/reports-service";
 import PaymentMethodBlock from "@/components/payment-method-block";
+import {getPaymentSourceName} from "@/enums/payment-source";
 
 
 const formSchemaPayment = Yup.object().shape({
@@ -43,7 +42,8 @@ interface InvoiceInfoBlockState extends IState {
     errors: string[];
     errorMessages: string[];
     invoice: IInvoice | null;
-    data: Array<IInvoiceService>;
+    dataPaymentContent: Array<IInvoiceService>;
+    dataPayments: Array<IInvoicePayment>;
     dataFull: Array<IInvoiceService>;
     filterData: any;
     isPayment: boolean;
@@ -55,8 +55,11 @@ interface InvoiceInfoBlockProps extends ICallback {
     data: IInvoice | null;
 }
 
-const columnHelper = createColumnHelper<any>();
-let columns: any[] = [];
+const columnPaymentContentsHelper = createColumnHelper<any>();
+let paymentContentsColumns: any[] = [];
+
+const columnPaymentsHelper = createColumnHelper<any>();
+let paymentsColumns: any[] = [];
 
 let isAdmin = false;
 
@@ -89,7 +92,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
             errors: [],
             errorMessages: [],
             invoice: this.props.data,
-            data: [],
+            dataPaymentContent: [],
+            dataPayments: [],
             dataFull: [],
             filterData: [],
             isPayment: false,
@@ -98,8 +102,8 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
 
         this.formRef = React.createRef();
 
-        columns = [
-            columnHelper.accessor((row) => ({
+        paymentContentsColumns = [
+            columnPaymentContentsHelper.accessor((row) => ({
                 name: row.name,
                 customer_type: row.customer_type,
                 customer_type_name: row.customer_type_name,
@@ -108,25 +112,43 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                 cell: (item) => <>{item.getValue().name} | {item.getValue().customer_type_name}</>,
                 header: () => <span>Source</span>,
             }),
-            columnHelper.accessor((row) => row.date, {
+            columnPaymentContentsHelper.accessor((row) => row.date, {
                 id: "date",
                 cell: (item) => item.getValue(),
                 header: () => <span>Action Date</span>,
             }),
-            columnHelper.accessor((row) => row.accrual_value, {
+            columnPaymentContentsHelper.accessor((row) => row.accrual_value, {
                 id: "accrual_value",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Accrual </span>,
             }),
-            columnHelper.accessor((row) => row.number, {
+            columnPaymentContentsHelper.accessor((row) => row.number, {
                 id: "number",
                 cell: (item) => item.getValue(),
                 header: () => <span>Number</span>,
             }),
-            columnHelper.accessor((row) => row.value, {
+            columnPaymentContentsHelper.accessor((row) => row.value, {
                 id: "value",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 2),
                 header: () => <span>Amount </span>,
+            }),
+        ];
+
+        paymentsColumns = [
+            columnPaymentsHelper.accessor((row) => row.source, {
+                id: "source",
+                cell: (item) => getPaymentSourceName(item.getValue()),
+                header: () => <span>Source</span>,
+            }),
+            columnPaymentsHelper.accessor((row) => row.amount, {
+                id: "amount",
+                cell: (item) => formatterService.numberFormat(item.getValue(), 2),
+                header: () => <span>Amount</span>,
+            }),
+            columnPaymentsHelper.accessor((row) => row.updated_at, {
+                id: "updated_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Updated Date</span>,
             }),
         ];
 
@@ -202,13 +224,18 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
 
 
     async componentDidMount() {
-        this.setState({dataFull: this.props.data?.services || [], data: this.props.data?.services || []}, () => {
-            this.filterData();
-        });
+        this.setState({
+                dataFull: this.props.data?.services || [],
+                dataPaymentContent: this.props.data?.services || [],
+                dataPayments: this.props?.data?.payments || [],
+            },
+            () => {
+                this.filterData();
+            });
     }
 
     filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
+        this.setState({dataPaymentContent: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
     handleSubmit = async (values: Record<string, string | number>, {setSubmitting}: {
@@ -229,7 +256,10 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                             s.customer_type = getCustomerTypeName(s.customer_type as CustomerType)
                         });
                         const invoice = data[0];
-                        if (typeof invoice !== "undefined") this.setState({invoice: invoice})
+                        if (typeof invoice !== "undefined") this.setState({
+                            invoice: invoice,
+                            dataPayments: invoice.payments
+                        })
                         this.paymentForm();
                     })
                     .catch((errors: IError) => {
@@ -369,7 +399,7 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                     <div
                         className="content__title">Invoice: {this.state.invoice?.date}
                     </div>
-                 
+
                     {!isAdmin ? (
                         <>
                             {this.state.invoice?.status.toLowerCase() === InvoiceStatus.PAYMENT_DUE && (
@@ -449,13 +479,13 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                                     </div>
                                 </div>
 
-                                <div className="content__bottom">
+                                <div className={`content__bottom ${this.state.dataPayments.length > 0 ? 'mb-24' : ''}`}>
                                     <div className="input">
                                         <div
                                             className={`input__wrap`}>
-                                            {this.state.data.length ? (
-                                                <Table columns={columns}
-                                                       data={this.state.data}
+                                            {this.state.dataPaymentContent.length ? (
+                                                <Table columns={paymentContentsColumns}
+                                                       data={this.state.dataPaymentContent}
                                                        searchPanel={false}
                                                        block={this}
                                                        editBtn={false}
@@ -468,6 +498,38 @@ class InvoiceInfoBlock extends React.Component<InvoiceInfoBlockProps, InvoiceInf
                                         </div>
                                     </div>
                                 </div>
+
+
+                                {this.state.dataPayments.length > 0 && (
+                                    <>
+                                        <div className={'content__top'}>
+                                            <div className={'content__title'}>
+                                                Payments
+                                            </div>
+                                        </div>
+
+                                        <div className="content__bottom">
+                                            <div className="input">
+                                                <div
+                                                    className={`input__wrap`}>
+                                                    {this.state.dataPayments.length ? (
+                                                        <Table columns={paymentsColumns}
+                                                               data={this.state.dataPayments}
+                                                               searchPanel={false}
+                                                               block={this}
+                                                               editBtn={false}
+                                                               viewBtn={false}
+                                                               deleteBtn={false}
+                                                        />
+                                                    ) : (
+                                                        <NoDataBlock/>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
                             </>
                         )}
 
