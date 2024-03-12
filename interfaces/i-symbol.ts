@@ -17,9 +17,15 @@ export interface ISymbol {
     security_name: string;
     security_type: string;
     fifth_character_identifier: string;
-    security_type_2: string;
-    blockchain: string;
-    smart_contract_type: string;
+    digital_asset_category: string;
+    issuer_name: string;
+    issuer_type: string;
+    legal_claim_entity: string;
+    is_pegged: string | null;
+    reference_asset: string;
+    backing_assets: string;
+    market_dynamics_description: string;
+
     status: string;
     created_at: string;
     updated_at: string;
