@@ -8,6 +8,7 @@ body {
     select.b-select:disabled,
     input.input__text:disabled,
     input[type="file"]:disabled,
+    textarea,
     .disable .StripeElement {
       border: none !important;
       background: #FFF !important;
@@ -27,7 +28,7 @@ body {
       cursor: default;
     }
 
-    .b-checkbox input[type=checkbox]:disabled {
+    .b-checkbox input[type=checkbox]:disabled , .b-radio input[type=radio]{
       + label span {
         cursor: default;
       }
@@ -58,6 +59,7 @@ html.dark {
       select.b-select,
       input.input__text,
       input[type="file"],
+      textarea,
       .StripeElement {
         border: var(--border) !important;
         background: var(--form-background-colour) !important;
@@ -92,13 +94,13 @@ html.dark {
         cursor: default;
       }
 
-      .b-checkbox input[type=checkbox] {
+      .b-checkbox input[type=checkbox], .b-radio input[type=radio] {
         + label span {
           cursor: default;
         }
 
         + label i:not(.label-normal) {
-          color: #75808a;
+          color: var(--text-colour-5);;
           cursor: default;
         }
       }

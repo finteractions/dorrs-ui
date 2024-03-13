@@ -25,7 +25,18 @@ export interface ISymbol {
     reference_asset: string;
     backing_assets: string;
     market_dynamics_description: string;
-
+    rights_type: string;
+    enforceability_type: string;
+    is_redeemable: string;
+    redemption_asset_type: string;
+    redemption_conditions: string;
+    issuer_obligation_status: string;
+    original_system_of_record_description: string;
+    reconciliation_requirements: string;
+    is_digital_native_status: string;
+    user_holder_type: string;
+    intended_end_user: string;
+    custodian_entity: string;
     status: string;
     created_at: string;
     updated_at: string;

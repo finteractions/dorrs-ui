@@ -327,7 +327,7 @@
     font-size: 14px;
     line-height: 16px;
     text-align: left;
-    color: #1e2c3c;
+    color: #718494;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     outline: 0;
@@ -826,8 +826,8 @@
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    width: 22px;
-    height: 22px;
+    width: 16px;
+    height: 16px;
     -ms-flex-negative: 0;
     flex-shrink: 0;
     border: 1px solid #a6a8c4;
@@ -835,6 +835,7 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     margin-right: 15px;
+    margin-top: 3px;
     position: relative;
     cursor: pointer
   }
@@ -847,7 +848,7 @@
     -webkit-transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    background: #f67e53;
+    background: #1f8ceb;
     border-radius: 100%;
     width: 10px;
     height: 10px;
@@ -868,7 +869,7 @@
   }
 
   .b-radio input[type=radio]:checked + label span {
-    border-color: #f67e53
+    border-color: #1f8ceb
   }
 
   .b-radio input[type=radio]:checked + label span:before {
@@ -876,14 +877,14 @@
     visibility: visible
   }
 
-  .b-radio:hover input[type=radio] + label span {
-    border-color: #f67e53
-  }
-
-  .b-radio:hover input[type=radio] + label span:before {
-    visibility: visible;
-    opacity: .5
-  }
+  //.b-radio:hover input[type=radio] + label span {
+  //  border-color: #f67e53
+  //}
+  //
+  //.b-radio:hover input[type=radio] + label span:before {
+  //  visibility: visible;
+  //  opacity: .5
+  //}
 
   .fancybox-enabled {
     padding: 0 17px 0 0;
