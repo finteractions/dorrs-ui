@@ -1631,7 +1631,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         as={'textarea'}
                                                                         rows="5"
                                                                         className="input__textarea"
-                                                                        placeholder=" Enter Description"
+                                                                        placeholder=" Enter text"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         maxLength={100}
                                                                     />

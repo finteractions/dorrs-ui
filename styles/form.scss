@@ -8,7 +8,7 @@ body {
     select.b-select:disabled,
     input.input__text:disabled,
     input[type="file"]:disabled,
-    textarea,
+    textarea:disabled,
     .disable .StripeElement {
       border: none !important;
       background: #FFF !important;
