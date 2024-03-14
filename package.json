@@ -34,6 +34,7 @@
     "eslint-config-next": "13.3.4",
     "formik": "^2.2.9",
     "jsonwebtoken": "^9.0.0",
+    "libphonenumber-js": "^1.10.58",
     "lightweight-charts": "^4.1.0",
     "moment": "^2.29.4",
     "multicoin-address-validator": "^0.5.12",

@@ -122,7 +122,7 @@ class RegistrationPersonalInformationForm extends React.Component<{
                 validationSchema={formSchema}
                 onSubmit={this.handleSubmit}
             >
-                {({isSubmitting, isValid, values, setFieldValue}) => {
+                {({isSubmitting, isValid, values, setFieldValue, errors}) => {
                     useEffect(() => {
                         Object.entries(initialValues).forEach(([key, value]) => {
                             setFieldValue(key, value, true);
@@ -202,6 +202,7 @@ class RegistrationPersonalInformationForm extends React.Component<{
                                                                   className="error-message"/>
                                                 </div>
                                             </div>
+                                           
                                             <div className="input">
                                                 <div className="input__wrap">
                                                     <Field
