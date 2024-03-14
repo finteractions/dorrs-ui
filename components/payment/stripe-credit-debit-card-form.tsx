@@ -295,11 +295,13 @@ const StripeCreditDebitCardForm = (props: StripeCreditDebitFormProps) => {
                                                 disabled={isFormSubmit}
                                             >
                                                 <option value="">Select a Country</option>
-                                                {Object.keys(countries).map((countryCode: string) => (
-                                                    <option key={countryCode} value={countryCode}>
-                                                        {countries[countryCode as keyof typeof countries]?.name}
-                                                    </option>
-                                                ))}
+                                                {Object.keys(countries)
+                                                    .sort((a, b) => countries[a as keyof typeof countries]?.name.localeCompare(countries[b as keyof typeof countries]?.name))
+                                                    .map((countryCode: string) => (
+                                                        <option key={countryCode} value={countryCode}>
+                                                            {countries[countryCode as keyof typeof countries]?.name}
+                                                        </option>
+                                                    ))}
                                             </Field>
                                         </div>
                                     </div>

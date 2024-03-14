@@ -15,7 +15,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import {CustomerType, getCustomerTypeDescription, getCustomerTypeName} from "@/enums/customer-type";
 import Link from "next/link";
 import downloadFile from "@/services/download-file/download-file";
-import {PARTICIPANT_AGREEMENT, SUBSCRIBER_AGREEMENT} from "@/constants/settings";
+import {PARTICIPANT_AGREEMENT} from "@/constants/settings";
 
 const selectedCountry = 'US';
 
@@ -261,7 +261,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
 
                                                 {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
                                                     <>
-                                                        <div className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
+                                                        <div
+                                                            className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
                                                             <>
                                                                 Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
                                                             </>
@@ -394,10 +395,7 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     className="input__text"
                                                     placeholder="Type a Company Name"
                                                     onBlur={() => {
-
                                                         this.handleCompanySearch(values, setFieldValue);
-
-
                                                     }}
                                                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                                         this.handleResetSearchedCompany(event.target.value, values, setFieldValue)
@@ -579,13 +577,16 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                     as="select"
                                                     className="b-select"
                                                     disabled={isSubmitting || this.isShow()}
+                                                    onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
                                                 >
                                                     <option value="">Select a Country</option>
-                                                    {Object.keys(countries).map((countryCode: string) => (
-                                                        <option key={countryCode} value={countryCode}>
-                                                            {countries[countryCode as keyof typeof countries]?.name}
-                                                        </option>
-                                                    ))}
+                                                    {Object.keys(countries)
+                                                        .sort((a, b) => countries[a as keyof typeof countries]?.name.localeCompare(countries[b as keyof typeof countries]?.name))
+                                                        .map((countryCode: string) => (
+                                                            <option key={countryCode} value={countryCode}>
+                                                                {countries[countryCode as keyof typeof countries]?.name}
+                                                            </option>
+                                                        ))}
                                                 </Field>
                                                 <ErrorMessage name="country" component="div"
                                                               className="error-message"/>

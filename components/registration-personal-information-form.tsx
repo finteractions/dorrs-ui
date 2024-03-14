@@ -202,7 +202,7 @@ class RegistrationPersonalInformationForm extends React.Component<{
                                                                   className="error-message"/>
                                                 </div>
                                             </div>
-                                           
+
                                             <div className="input">
                                                 <div className="input__wrap">
                                                     <Field
