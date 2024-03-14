@@ -69,11 +69,6 @@ class AssetsBlock extends React.Component<{}> {
         const host = `${window.location.protocol}//${window.location.host}`;
 
         columns = [
-            columnHelper.accessor((row) => row.cusip, {
-                id: "cusip",
-                cell: (item) => item.getValue(),
-                header: () => <span>CUSIP</span>,
-            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol,
                 company_profile: row.company_profile,
@@ -99,6 +94,16 @@ class AssetsBlock extends React.Component<{}> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.security_name, {
+                id: "security_name",
+                cell: (item) => item.getValue(),
+                header: () => <span>Security Name </span>,
+            }),
+            columnHelper.accessor((row) => row.cusip, {
+                id: "cusip",
+                cell: (item) => item.getValue(),
+                header: () => <span>CUSIP</span>,
+            }),
             columnHelper.accessor((row) => row.symbol_suffix, {
                 id: "symbol_suffix",
                 cell: (item) => <span className={'truncate-text'} title={item.getValue()}>{item.getValue()}</span>,
@@ -108,11 +113,6 @@ class AssetsBlock extends React.Component<{}> {
                 id: "reason_for_entry",
                 cell: (item) => item.getValue(),
                 header: () => <span>Reason for Entry</span>,
-            }),
-            columnHelper.accessor((row) => row.security_name, {
-                id: "security_name",
-                cell: (item) => item.getValue(),
-                header: () => <span>Security Name </span>,
             }),
             columnHelper.accessor((row) => row.dsin, {
                 id: "dsin",
@@ -124,57 +124,16 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Primary ATS </span>,
             }),
-            columnHelper.accessor((row) => row.transfer_agent, {
-                id: "transfer_agent",
-                cell: (item) => item.getValue(),
-                header: () => <span>Transfer Agent </span>,
-            }),
-            // columnHelper.accessor((row) => row.custodian, {
-            //     id: "custodian",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Custodian </span>,
-            // }),
             columnHelper.accessor((row) => row.market_sector, {
                 id: "market_sector",
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
-            // columnHelper.accessor((row) => row.lot_size, {
-            //     id: "lot_size",
-            //     cell: (item) => formatterService.numberFormat(item.getValue()),
-            //     header: () => <span>Lot Size </span>,
-            // }),
-            // columnHelper.accessor((row) => row.fractional_lot_size, {
-            //     id: "fractional_lot_size",
-            //     cell: (item) => formatterService.numberFormat(item.getValue()),
-            //     header: () => <span>Fractional Lot Size </span>,
-            // }),
-            // columnHelper.accessor((row) => row.mvp, {
-            //     id: "mvp",
-            //     cell: (item) => formatterService.numberFormat(item.getValue()),
-            //     header: () => <span>MPV </span>,
-            // }),
-
-            // columnHelper.accessor((row) => row.security_type, {
-            //     id: "security_type",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Security Type </span>,
-            // }),
-            // columnHelper.accessor((row) => row.security_type_2, {
-            //     id: "security_type2",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Security Type 2 </span>,
-            // }),
-            // columnHelper.accessor((row) => row.blockchain, {
-            //     id: "blockchain",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Blockchain </span>,
-            // }),
-            // columnHelper.accessor((row) => row.smart_contract_type, {
-            //     id: "smart_contract_type",
-            //     cell: (item) => item.getValue(),
-            //     header: () => <span>Smart Contract type </span>,
-            // }),
+            columnHelper.accessor((row) => row.digital_asset_category, {
+                id: "digital_asset_category",
+                cell: (item) => item.getValue(),
+                header: () => <span>Digital Asset Category </span>,
+            }),
             columnHelper.accessor((row) => ({
                 comment_status: row.reason_change_status || row.reason_delete_status,
                 comment: row.reason_change || row.reason_delete,
@@ -192,11 +151,6 @@ class AssetsBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.created_at, {
-                id: "created_at",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created Date</span>,
-            }),
             columnHelper.accessor((row) => row.company_profile_status, {
                 id: "company_profile_status",
                 cell: (item) =>
@@ -205,6 +159,11 @@ class AssetsBlock extends React.Component<{}> {
                     </div>
                 ,
                 header: () => <span>Company Profile Status</span>,
+            }),
+            columnHelper.accessor((row) => row.created_at, {
+                id: "created_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Created Date</span>,
             }),
         ];
     }
@@ -372,36 +331,13 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('reason_for_entry', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('reason_for_entry', item)}
-                                                options={filterService.buildOptions('reason_for_entry', this.state.dataFull)}
-                                                placeholder="Reason for Entry"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('security_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('security_name', item)}
-                                                options={filterService.buildOptions('security_name', this.state.dataFull)}
-                                                placeholder="Security Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
                                                 value={filterService.setValue('symbol', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('symbol', item)}
                                                 options={filterService.buildOptions('symbol', this.state.dataFull)}
                                                 placeholder="Symbol"
                                             />
                                         </div>
+                                       
                                         <div className="input__wrap">
                                             <Select
                                                 className="select__react"
@@ -420,6 +356,20 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
+                                                value={filterService.setValue('reason_for_entry', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('reason_for_entry', item)}
+                                                options={filterService.buildOptions('reason_for_entry', this.state.dataFull)}
+                                                placeholder="Reason for Entry"
+                                            />
+                                        </div>
+
+
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
                                                 value={filterService.setValue('dsin', this.state.filterData)}
                                                 onChange={(item) => this.handleFilterChange('dsin', item)}
                                                 options={filterService.buildOptions('dsin', this.state.dataFull)}
@@ -432,10 +382,10 @@ class AssetsBlock extends React.Component<{}> {
                                                 classNamePrefix="select__react"
                                                 isClearable={true}
                                                 isSearchable={true}
-                                                value={filterService.setValue('transfer_agent', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('transfer_agent', item)}
-                                                options={filterService.buildOptions('transfer_agent', this.state.dataFull)}
-                                                placeholder="Transfer Agent"
+                                                value={filterService.setValue('ats', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('ats', item)}
+                                                options={filterService.buildOptions('ats', this.state.dataFull)}
+                                                placeholder="ATS"
                                             />
                                         </div>
                                         <div className="input__wrap">
@@ -448,6 +398,18 @@ class AssetsBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('market_sector', item)}
                                                 options={filterService.buildOptions('market_sector', this.state.dataFull)}
                                                 placeholder="Market Sector"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('digital_asset_category', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('digital_asset_category', item)}
+                                                options={filterService.buildOptions('digital_asset_category', this.state.dataFull)}
+                                                placeholder="Digital Asset Category"
                                             />
                                         </div>
                                         <div className="input__wrap">

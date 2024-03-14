@@ -100,13 +100,6 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
 
         columns = [
-            columnHelper.accessor((row) => row.cusip, {
-                id: "cusip",
-                cell: (item) =>
-                    <span className='blue-text'>{item.getValue()}</span>
-                ,
-                header: () => <span>CUSIP</span>,
-            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol,
                 company_profile: row.company_profile,
@@ -143,10 +136,15 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                             </div>
                         )}
                     </>
-
-
                 ,
                 header: () => <span>Symbol</span>,
+            }),
+            columnHelper.accessor((row) => row.cusip, {
+                id: "cusip",
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>CUSIP</span>,
             }),
             columnHelper.accessor((row) => row.symbol_suffix, {
                 id: "symbol_suffix",
@@ -175,15 +173,15 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
-            columnHelper.accessor((row) => row.mvp, {
-                id: "mvp",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>MPV </span>,
-            }),
             columnHelper.accessor((row) => row.security_type, {
                 id: "security_type",
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Type </span>,
+            }),
+            columnHelper.accessor((row) => row.digital_asset_category, {
+                id: "digital_asset_category",
+                cell: (item) => item.getValue(),
+                header: () => <span>Digital Asset Category </span>,
             }),
             columnHelper.accessor((row) => ({
                 comment_status: row.reason_change_status || row.reason_delete_status,
@@ -423,10 +421,10 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                             classNamePrefix="select__react"
                                             isClearable={true}
                                             isSearchable={true}
-                                            value={filterService.setValue('transfer_agent', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('transfer_agent', item)}
-                                            options={filterService.buildOptions('transfer_agent', this.state.dataFull)}
-                                            placeholder="Transfer Agent"
+                                            value={filterService.setValue('ats', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('ats', item)}
+                                            options={filterService.buildOptions('ats', this.state.dataFull)}
+                                            placeholder="ATS"
                                         />
                                     </div>
                                     <div className="input__wrap">
@@ -439,6 +437,18 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                             onChange={(item) => this.handleFilterChange('market_sector', item)}
                                             options={filterService.buildOptions('market_sector', this.state.dataFull)}
                                             placeholder="Market Sector"
+                                        />
+                                    </div>
+                                    <div className="input__wrap">
+                                        <Select
+                                            className="select__react"
+                                            classNamePrefix="select__react"
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            value={filterService.setValue('digital_asset_category', this.state.filterData)}
+                                            onChange={(item) => this.handleFilterChange('digital_asset_category', item)}
+                                            options={filterService.buildOptions('digital_asset_category', this.state.dataFull)}
+                                            placeholder="Digital Asset Category"
                                         />
                                     </div>
                                     <div className="input__wrap">
