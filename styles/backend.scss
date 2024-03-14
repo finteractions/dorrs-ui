@@ -4594,11 +4594,70 @@
     column-gap: 25px;
 
     .statistics {
-      flex: 1;
-      justify-content: center;
-      //box-shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      display: flex;
+      flex-grow: 1;
+      flex-wrap: wrap;
+      justify-content: space-between;
       box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.08);
       padding: 30px;
+
+      > div:nth-of-type(2) {
+        display: flex;
+        align-items: center;
+      }
+
+      button {
+        border-width: 1px;
+        border-style: solid;
+
+        &.bg-light-blue {
+          background-color: #e5f1ff;
+          color: #003e62;
+          border-color: #003e62;
+
+          &:hover {
+            background-color: #003e62;
+            border-color: #003e62;
+            color: #FFFFFF;
+          }
+        }
+
+        &.bg-light-green {
+          background-color: #e8fff0;
+          color: #005343;
+          border-color: #005343;
+
+          &:hover {
+            background-color: #005343;
+            border-color: #005343;
+            color: #FFFFFF;
+          }
+        }
+
+        &.bg-light-yellow {
+          background-color: #fff8ea;
+          color: #a97209;
+          border-color: #a97209;
+
+          &:hover {
+            background-color: #a97209;
+            border-color: #a97209;
+            color: #FFFFFF;
+          }
+        }
+
+        &.bg-light-red {
+          background-color: #ffe3e1;
+          color: #590000;
+          border-color: #590000;
+
+          &:hover {
+            background-color: #590000;
+            border-color: #590000;
+            color: #FFFFFF;
+          }
+        }
+      }
     }
   }
 

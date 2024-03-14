@@ -22,6 +22,7 @@ import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 interface MemberDistributionBlockState {
     isOpenModal: boolean;
+    isStatisticsOpenModal: boolean;
     isLoading: boolean;
     isDataLoading: boolean;
     memberDistributionStatisticsData: any[];
@@ -37,6 +38,7 @@ interface MemberDistributionBlockState {
     formAction: string;
     defaultDate: string;
     selectedDate: string;
+    statistics: IChartStatistics | null;
 }
 
 const columnmemberDistributionViewDataHelper = createColumnHelper<any>();
@@ -63,6 +65,7 @@ class MemberDistributionBlock extends React.Component<{}> {
 
         this.state = {
             isOpenModal: false,
+            isStatisticsOpenModal: false,
             isLoading: true,
             isDataLoading: true,
             memberDistributionStatisticsData: [],
@@ -77,7 +80,8 @@ class MemberDistributionBlock extends React.Component<{}> {
             formData: null,
             formAction: 'view',
             defaultDate: '',
-            selectedDate: ''
+            selectedDate: '',
+            statistics: null
         }
 
         memberDistributionsDataColumns = [
@@ -202,7 +206,10 @@ class MemberDistributionBlock extends React.Component<{}> {
                     data.forEach(s => {
                         s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
                     });
-                    this.setState({memberDistributionHistoryDataFull: data, memberDistributionHistoryData: data}, () => {
+                    this.setState({
+                        memberDistributionHistoryDataFull: data,
+                        memberDistributionHistoryData: data
+                    }, () => {
                         this.filterMemberDistributionHistoryData();
                     });
                 })
@@ -239,10 +246,6 @@ class MemberDistributionBlock extends React.Component<{}> {
         this.setState({memberDistributionHistoryData: filterService.filterData(this.state.memberDistributionHistoryDataFilter, this.state.memberDistributionHistoryDataFull)});
     }
 
-    closeModal(): void {
-        this.setState({isOpenPerTariffModal: false, isOpenModal: false, formData: null});
-    }
-
     getClassName(name: string) {
         const statuses: any = {
             'total_forecast': 'bg-light-blue',
@@ -260,7 +263,6 @@ class MemberDistributionBlock extends React.Component<{}> {
             'total_approved': 'Total Approved',
             'total_payment_due': 'Total Payment Due',
             'total_commission': 'DORRS Commission',
-
         }
 
         return titles[name.toLowerCase()] || ''
@@ -268,6 +270,14 @@ class MemberDistributionBlock extends React.Component<{}> {
 
     openModal = (mode: string, data?: IMemberDistributionPerTariff) => {
         this.setState({formAction: mode, formData: data || null, isOpenModal: true})
+    }
+
+    openStatisticsModal(statistics: IChartStatistics): void {
+        this.setState({isStatisticsOpenModal: true, statistics: statistics});
+    }
+
+    closeModal(): void {
+        this.setState({isOpenModal: false, isStatisticsOpenModal: false, formData: null});
     }
 
     onCallback = async (values: any) => {
@@ -290,14 +300,20 @@ class MemberDistributionBlock extends React.Component<{}> {
 
     handleMemberDistributionViewDataFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            memberDistributionViewDataFilter: {...this.state.memberDistributionViewDataFilter, [prop_name]: item?.value || ''}
+            memberDistributionViewDataFilter: {
+                ...this.state.memberDistributionViewDataFilter,
+                [prop_name]: item?.value || ''
+            }
         }), () => {
             this.filterMemberDistributionViewData();
         });
     }
 
     handleMemberDistributionViewDataResetButtonClick = () => {
-        this.setState({memberDistributionViewData: this.state.memberDistributionViewDataFull, memberDistributionViewDataFilter: []});
+        this.setState({
+            memberDistributionViewData: this.state.memberDistributionViewDataFull,
+            memberDistributionViewDataFilter: []
+        });
     }
 
     handleMemberDistributionHistoryDataFilterChange = (prop_name: string, item: any): void => {
@@ -312,7 +328,10 @@ class MemberDistributionBlock extends React.Component<{}> {
     }
 
     handleMemberDistributionHistoryDataResetButtonClick = () => {
-        this.setState({memberDistributionHistoryData: this.state.memberDistributionHistoryDataFull, memberDistributionHistoryDataFilter: []});
+        this.setState({
+            memberDistributionHistoryData: this.state.memberDistributionHistoryDataFull,
+            memberDistributionHistoryDataFilter: []
+        });
     }
 
 
@@ -347,14 +366,23 @@ class MemberDistributionBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-
                                     <div className="view_panel statistics__panel flex-1 mx-0 mb-4">
-                                        {this.state.memberDistributionStatisticsData.map(item => {
+                                        {this.state.memberDistributionStatisticsData.map((item: IChartStatistics) => {
                                             return (
                                                 <div key={item.key}
                                                      className={` statistics flex-25 dashboard__chart ${this.getClassName(item.key)}`}>
-                                                    <div className='bold'>{this.getStatisticsTitle(item.key)}</div>
-                                                    <div>${formatterService.numberFormat(item.value, 2)}</div>
+                                                    <div>
+                                                        <div className='bold'>{this.getStatisticsTitle(item.key)}</div>
+                                                        <div>${formatterService.numberFormat(Number(item.value), 2)}</div>
+                                                    </div>
+                                                    {(item.percentage || item.count) && (
+                                                        <div>
+                                                            <button
+                                                                onClick={() => this.openStatisticsModal(item)}
+                                                                className={`admin-table-btn ripple ${this.getClassName(item.key)}`}><FontAwesomeIcon
+                                                                className="nav-icon" icon={faEye}/></button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )
                                         })}
@@ -493,6 +521,35 @@ class MemberDistributionBlock extends React.Component<{}> {
                 >
 
                     <MemberDistributionInfoBlock data={this.state.formData} onCallback={this.onCallback}/>
+                </Modal>
+
+                <Modal isOpen={this.state.isStatisticsOpenModal}
+                       onClose={() => this.closeModal()}
+                       title={`View ${this.getStatisticsTitle(this.state.statistics?.key || '')}`}
+                       className={''}
+                >
+
+                    <div className="view_panel flex-1 mx-0 row-gap-25">
+                        {this.state.statistics?.value && (
+                            <div className="view_block">
+                                <div className="view_block_title bold">Amount</div>
+                                <div>{formatterService.numberFormat(Number(this.state.statistics?.value), 2)}</div>
+                            </div>
+                        )}
+                        {this.state.statistics?.count && (
+                            <div className="view_block">
+                                <div className="view_block_title bold">User count:</div>
+                                <div>{formatterService.numberFormat(Number(this.state.statistics?.count), 0)}</div>
+                            </div>
+                        )}
+                        {this.state.statistics?.percentage && (
+                            <div className="view_block">
+                                <div className="view_block_title bold">DORRS Fee Commission::</div>
+                                <div>{formatterService.numberFormat(Number(this.state.statistics?.percentage), 0)}%</div>
+                            </div>
+                        )}
+
+                    </div>
                 </Modal>
 
             </>
