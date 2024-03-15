@@ -18,6 +18,7 @@ import moment from "moment";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalLastSaleReportingHistoryBlock from "@/components/modal-last-sale-reporting-history-block";
 import InputWithLocalstorageField from "@/components/locatorage-field";
+import InputMPIDField from "@/components/mpid-field";
 
 
 const formSchema = Yup.object().shape({
@@ -188,6 +189,9 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             await this.formRef.current.setFieldValue('price', lastSale.price ?? '')
                 .then(async () => await this.formRef.current.setFieldTouched('price', true, true))
 
+            await this.formRef.current.setFieldValue('mpid', lastSale.mpid)
+                .then(async () => await this.formRef.current.setFieldTouched('mpid', true, true))
+
         }
     }
 
@@ -318,7 +322,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 className="input__text"
                                                                 placeholder="Type MPID"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                component={InputWithLocalstorageField}
+                                                                component={InputMPIDField}
                                                             />
                                                         </div>
                                                     </div>

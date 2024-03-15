@@ -3972,6 +3972,11 @@
       font-size: 14px;
       line-height: 1;
 
+      &.full-width {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+
       .box__title {
         font-weight: 400;
         color: #75808a;
@@ -4363,6 +4368,10 @@
 
   .react-tel-input .flag-dropdown {
     border: 1px solid #718494;
+  }
+
+  .plain-tel-input .flag-dropdown {
+    border: unset;
   }
 
   .d-flex {

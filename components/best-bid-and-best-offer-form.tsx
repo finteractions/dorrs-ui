@@ -22,6 +22,7 @@ import {
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
 import InputWithLocalstorageField from "@/components/locatorage-field";
+import InputMPIDField from "@/components/mpid-field";
 
 
 const formSchema = Yup.object().shape({
@@ -279,6 +280,12 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
 
             await this.formRef.current.setFieldValue('offer_price', bestBidAndBestOffer.offer_price ?? '')
                 .then(async () => await this.formRef.current.setFieldTouched('offer_price', true, true))
+
+            await this.formRef.current.setFieldValue('bid_mpid', bestBidAndBestOffer.bid_mpid)
+                .then(async () => await this.formRef.current.setFieldTouched('bid_mpid', true, true))
+
+            await this.formRef.current.setFieldValue('offer_mpid', bestBidAndBestOffer.offer_mpid)
+                .then(async () => await this.formRef.current.setFieldTouched('offer_mpid', true, true))
         }
     }
 
@@ -313,6 +320,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                           }) => {
                                             return (
                                                 <Form className={`quote_condition_${values.quote_condition} w-100`}>
+                                                    {JSON.stringify(errors)}
                                                     <div className="input">
                                                         <div className="input__title">Origin <i>*</i></div>
                                                         <div
@@ -397,7 +405,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Bid MPID"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         keyName={'mpid'}
-                                                                        component={InputWithLocalstorageField}
+                                                                        component={InputMPIDField}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -496,7 +504,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Offer  MPID"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         keyName={'mpid'}
-                                                                        component={InputWithLocalstorageField}
+                                                                        component={InputMPIDField}
                                                                     />
                                                                 </div>
                                                             </div>

@@ -1,6 +1,10 @@
 export interface IFirm {
     id: number;
     name: string;
+    mpid: string;
+    address: string;
+    email: string;
+    phone: string;
     updated_at: string;
     approved_by: string;
     created_at: string;

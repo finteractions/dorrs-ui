@@ -1,0 +1,3 @@
+interface IMPIDSearch extends ICompanySearch {
+
+}

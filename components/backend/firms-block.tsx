@@ -65,6 +65,11 @@ class FirmsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Name</span>,
             }),
+            columnHelper.accessor((row) => row.mpid, {
+                id: "mpid",
+                cell: (item) => item.getValue(),
+                header: () => <span>MPID</span>,
+            }),
             columnHelper.accessor((row) => row.is_member, {
                 id: "is_member",
                 cell: (item) => <FontAwesomeIcon className="nav-icon"
@@ -261,6 +266,18 @@ class FirmsBlock extends React.Component<{}> {
                                                 onChange={(item) => this.handleFilterChange('name', item)}
                                                 options={filterService.buildOptions('name', this.state.dataFull)}
                                                 placeholder="Name"
+                                            />
+                                        </div>
+                                        <div className="input__wrap">
+                                            <Select
+                                                className="select__react"
+                                                classNamePrefix="select__react"
+                                                isClearable={true}
+                                                isSearchable={true}
+                                                value={filterService.setValue('mpid', this.state.filterData)}
+                                                onChange={(item) => this.handleFilterChange('mpid', item)}
+                                                options={filterService.buildOptions('mpid', this.state.dataFull)}
+                                                placeholder="MPID"
                                             />
                                         </div>
                                         <div className="input__wrap">

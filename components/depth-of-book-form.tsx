@@ -18,6 +18,7 @@ import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import ordersService from "@/services/orders/orders-service";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
 import InputWithLocalstorageField from "@/components/locatorage-field";
+import InputMPIDField from "@/components/mpid-field";
 
 
 const formSchema = Yup.object().shape({
@@ -111,6 +112,9 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
 
             await this.formRef.current.setFieldValue('side', order.side.toLowerCase() === 'b' ? 's' : 'b')
                 .then(async () => await this.formRef.current.setFieldTouched('side', true, true))
+
+            await this.formRef.current.setFieldValue('mpid', order.mpid)
+                .then(async () => await this.formRef.current.setFieldTouched('mpid', true, true))
         }
     }
 
@@ -308,7 +312,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     className="input__text"
                                                                     placeholder="Type MPID"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    component={InputWithLocalstorageField}
+                                                                    component={InputMPIDField}
                                                                 />
                                                             </div>
                                                         </div>

@@ -38,7 +38,7 @@ const formSchema = Yup.object().shape({
         }),
     company_name: Yup.string().min(3).max(50).required('Required').label('Legal Company Name'),
     email: Yup.string().email("Invalid email").label('Email Address').required("Required"),
-    mobile_number: FormValidator.phoneNumberField,
+    mobile_number: Yup.string(),
     address1: Yup.string().min(3).max(50).required('Required').label('Address 1'),
     address2: Yup.string().min(3).max(50).label('Address 2'),
     city: Yup.string().min(3).max(50).required('Required').label('City'),

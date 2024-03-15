@@ -32,6 +32,13 @@ class FormService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ICompanySearch>>>(`/search/firm/`, params, this.getUserAccessToken())).data;
     }
 
+    public async searchMPID(mpid: string): Promise<Array<IMPIDSearch>> {
+        const params = {
+            mpid: mpid
+        }
+        return (await apiWebBackendService.get<IResponse<Array<ICompanySearch>>>(`/search/mpid/`, params, this.getUserAccessToken())).data;
+    }
+
 
 }
 

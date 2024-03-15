@@ -10,10 +10,17 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import adminIconService from "@/services/admin/admin-icon-service";
 import {IBankTemplate} from "@/interfaces/i-bank-template";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
+import FormValidator from "@/services/form-validator/form-validator";
+import PhoneInputField from "@/components/phone-input-field";
+import PhoneInput from "react-phone-input-2";
 
 
 const formSchema = Yup.object().shape({
     name: Yup.string().min(3).required('Required').label('Name'),
+    mpid: Yup.string().min(3).required('Required').max(12).label('MPID'),
+    address: Yup.string().required('Required').label('Address'),
+    email: Yup.string().required('Required').email("Invalid email").label('Email Address'),
+    phone: FormValidator.phoneNumberField,
     is_member: Yup.boolean().label('DORRS Member'),
     is_ats: Yup.boolean().label('ATS'),
 });
@@ -45,11 +52,19 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
 
         const initialValues: {
             name: string;
+            mpid: string;
+            address: string;
+            email: string;
+            phone: string;
             is_member: boolean;
             is_ats: boolean;
             bank: any
         } = {
             name: initialData?.name || this.props.firmData?.name || '',
+            mpid: initialData?.mpid || this.props.firmData?.mpid || '',
+            address: initialData?.address || this.props.firmData?.address || '',
+            email: initialData?.email || this.props.firmData?.email || '',
+            phone: initialData?.phone || this.props.firmData?.phone || '',
             is_member: initialData?.is_member || false,
             is_ats: initialData?.is_ats || false,
             bank: initialData?.bank ? initialData?.bank[0] : this.props.bankData?.columnValues || null
@@ -109,6 +124,11 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
         this.setState({isMember: isMember});
     };
 
+    handleMPID = (e: React.ChangeEvent<HTMLSelectElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        const value = e.target.value.trim().toUpperCase();
+        setFieldValue("mpid", value);
+    };
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -128,6 +148,7 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                         return (
                                             <Form id="firm-form">
+
                                                 <div className="input">
                                                     <div className="input__title">Name <i>*</i></div>
                                                     <div
@@ -142,6 +163,75 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                                         />
                                                         <ErrorMessage name="company_name" component="div"
                                                                       className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">MPID <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="mpid"
+                                                            id="mpid"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type MPID"
+                                                            onChange={(e: any) => this.handleMPID(e, setFieldValue)}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="mpid" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <h5 className="mb-24">Contact Information:</h5>
+
+                                                <div className="input">
+                                                    <div className="input__title">Address <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="address"
+                                                            id="address"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Address"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="address" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Email <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="email"
+                                                            id="email"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Email"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="email" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input mb-24">
+                                                    <div className="input__title">Phone <i>*</i>
+                                                    </div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="phone"
+                                                            id="phone"
+                                                            component={PhoneInputField}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            country="us"
+                                                        />
                                                     </div>
                                                 </div>
 
@@ -282,7 +372,12 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                             )}
                         </div>
                         <div className="form-panel">
-                            <div className='view-form user-view-form'>
+                            <div className='view-form user-view-form '>
+                                <div className="view-form-box">
+                                    <div className="box__title">Name</div>
+                                    <div
+                                        className="box__wrap">{this.props.firmData?.name}</div>
+                                </div>
                                 <div className="view-form-box">
                                     <div className="box__title">DORRS Member</div>
                                     <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
@@ -293,6 +388,30 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                     <div className="box__title">ATS</div>
                                     <div className="box__wrap"><FontAwesomeIcon className="nav-icon"
                                                                                 icon={adminIconService.iconBoolean(this.props.firmData?.is_ats || false)}/> {this.props.firmData?.is_ats ? 'Yes' : 'No'}
+                                    </div>
+                                </div>
+                                <h5 className={'w-100 my-0'}>Contact Information </h5>
+                                <div className="view-form-box">
+                                    <div className="box__title">Address</div>
+                                    <div className="box__wrap">{this.props.firmData?.address || '-'}</div>
+                                </div>
+                                <div className="view-form-box">
+                                    <div className="box__title">Email</div>
+                                    <div className="box__wrap">{this.props.firmData?.email || '-'}</div>
+                                </div>
+                                <div className="view-form-box">
+                                    <div className="box__title">Phone</div>
+                                    <div className="box__wrap">
+                                        {this.props.firmData?.phone ? (
+                                            <PhoneInput
+                                                value={this.props.firmData?.phone || ''}
+                                                inputProps={{readOnly: true}}
+                                                disableDropdown
+                                                containerClass={'plain-tel-input'}/>
+                                        ) : (
+                                            <>-</>
+                                        )}
+
                                     </div>
                                 </div>
 

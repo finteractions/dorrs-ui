@@ -7,12 +7,14 @@ import "react-phone-input-2/lib/style.css";
 class PhoneInputField extends React.Component<{ field: any, form: any, disabled: boolean, height?: number }> {
 
     handleInput = async (value: any, form: any, field: any) => {
+
         if (value && !value.startsWith("+")) {
             value = "+" + value;
         }
         const isValid = isValidPhoneNumber(value)
+
         await form.setFieldValue(field.name, value);
-        if (!isValid) await form.setFieldError(field.name, form.errors[field.name] ?? "Invalid Phone Number");
+        if (!isValid) await form.setFieldError(field.name, "Invalid Phone Number");
     }
 
     handleBlur = async (event: React.FocusEvent<HTMLInputElement>, form: any, field: any) => {
