@@ -22,6 +22,7 @@ import {
     faEdit
 } from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 
 interface DepthOfBookHistoryBlockState extends IState, IModalState {
@@ -33,6 +34,7 @@ interface DepthOfBookHistoryBlockState extends IState, IModalState {
     data: IOrder[];
     dataFull: IOrder[];
     filterData: any;
+    mpid: string | null;
 }
 
 interface DepthOfBookHistoryBlockProps extends ICallback {
@@ -87,6 +89,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             data: [],
             dataFull: [],
             filterData: [],
+            mpid: null
         }
 
         columns = [
@@ -108,7 +111,14 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>MPID </span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -306,6 +316,10 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         })
     }
 
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
+    }
+
     render() {
         return (
 
@@ -456,6 +470,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                                 />
                             </Modal>
 
+                            <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
 
                         </>
                     )}

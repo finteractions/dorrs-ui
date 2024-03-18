@@ -17,6 +17,7 @@ import {QuoteCondition} from "@/enums/quote-condition";
 import {IOrder} from "@/interfaces/i-order";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -32,6 +33,7 @@ interface OrdersBlockState {
     dataFull: IOrder[];
     filterData: any;
     showSymbolForm: boolean;
+    mpid: string | null;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -55,6 +57,7 @@ class OrdersBlock extends React.Component<{}> {
             dataFull: [],
             filterData: [],
             showSymbolForm: true,
+            mpid: null
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -111,7 +114,14 @@ class OrdersBlock extends React.Component<{}> {
             }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>MPID </span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -260,6 +270,10 @@ class OrdersBlock extends React.Component<{}> {
         adminService.downloadOrders(this.state.filterData).then((res) => {
             downloadFile.XLSX('orders', res);
         })
+    }
+
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
     }
 
     render() {
@@ -545,6 +559,8 @@ class OrdersBlock extends React.Component<{}> {
                         </div>
                     </div>
                 </Modal>
+
+                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
 
             </>
         )

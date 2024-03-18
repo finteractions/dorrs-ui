@@ -11,7 +11,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
 
-interface ModalBestBidAndBestOffeHisrtoryBlockState extends IState {
+interface ModalBestBidAndBestOfferHistoryBlockState extends IState {
     isLoading: boolean;
     data: IBestBidAndBestOffer[];
     dataFull: IBestBidAndBestOffer[];
@@ -29,9 +29,9 @@ let columns: any[] = [];
 let rowProps: ITableRowProps;
 const pageLength = 20;
 
-class ModalBestBidAndBestOfferHistoryBlock extends React.Component<ModalBestBidAndBestOfferHistoryBlockProps, ModalBestBidAndBestOffeHisrtoryBlockState> {
+class ModalBestBidAndBestOfferHistoryBlock extends React.Component<ModalBestBidAndBestOfferHistoryBlockProps, ModalBestBidAndBestOfferHistoryBlockState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
-    state: ModalBestBidAndBestOffeHisrtoryBlockState;
+    state: ModalBestBidAndBestOfferHistoryBlockState;
 
     constructor(props: ModalBestBidAndBestOfferHistoryBlockProps) {
         super(props);

@@ -17,6 +17,7 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
 import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -31,6 +32,7 @@ interface LastSaleReportingPerSymbolState extends IState {
     data: ILastSale[];
     dataFull: ILastSale[];
     filterData: any;
+    mpid: string | null;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -57,6 +59,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             data: [],
             dataFull: [],
             filterData: [],
+            mpid: null
         }
 
 
@@ -73,7 +76,14 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>MPID</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -214,6 +224,10 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
         lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.state.filterData).then((res) => {
             downloadFile.XLSX('last_sale_reporting', res);
         })
+    }
+
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
     }
 
     render() {
@@ -382,6 +396,8 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                 />
                             </div>
                         </div>
+
+                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value: any) => this.handleMPID(value)}/>
                     </>
                 )}
             </>

@@ -320,7 +320,6 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                           }) => {
                                             return (
                                                 <Form className={`quote_condition_${values.quote_condition} w-100`}>
-                                                    {JSON.stringify(errors)}
                                                     <div className="input">
                                                         <div className="input__title">Origin <i>*</i></div>
                                                         <div

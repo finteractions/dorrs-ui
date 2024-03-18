@@ -16,6 +16,7 @@ import DepthOfBookForm from "@/components/depth-of-book-form";
 import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {IDepthOrder} from "@/interfaces/i-depth-order";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 
 interface DepthOfBookBlockState extends IState, IModalState {
@@ -27,6 +28,7 @@ interface DepthOfBookBlockState extends IState, IModalState {
     data: IDepthOrder[];
     dataFull: IDepthOrder[];
     filterData: any;
+    mpid: string | null;
 }
 
 interface DepthOfBookBlockProps extends ICallback {
@@ -69,6 +71,7 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
             data: [],
             dataFull: [],
             filterData: [],
+            mpid: null
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -96,7 +99,14 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
             }),
             columnHelper.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Bid MPID </span>,
             }),
             columnHelper.accessor((row) => row.bid_quantity, {
@@ -116,7 +126,14 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
             }),
             columnHelper.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Offer MPID </span>,
             }),
             columnHelper.accessor((row) => row.offer_quantity, {
@@ -242,6 +259,11 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
         })
     }
 
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
+    }
+
+
     render() {
         return (
 
@@ -338,6 +360,8 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                                     onCancel={this.onCancel}
                                 />
                             </Modal>
+
+                            <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
 
                         </>
                     )}

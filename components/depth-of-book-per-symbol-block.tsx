@@ -18,6 +18,7 @@ import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import userPermissionService from "@/services/user/user-permission-service";
 import {IOrder} from "@/interfaces/i-order";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 
 interface DepthOfBookPerSymbolProps {
@@ -36,6 +37,7 @@ interface DepthOfBookPerSymbolState extends IState {
     dataDepthByPriceFull: IDepthByOrder[];
     filterDataDepthByPrice: any;
     type: string;
+    mpid: string | null;
 }
 
 const columnHelperByOrder = createColumnHelper<any>();
@@ -76,7 +78,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             dataDepthByPrice: [],
             dataDepthByPriceFull: [],
             filterDataDepthByPrice: [],
-            type: 'by_order'
+            type: 'by_order',
+            mpid: null
         }
 
         this.orderAccess = userPermissionService.getAccessRulesByKey(
@@ -88,7 +91,14 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         columnsByOrder = [
             columnHelperByOrder.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
-                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Bid MPID </span>,
             }),
             columnHelperByOrder.accessor((row) => row.bid_quantity, {
@@ -113,7 +123,14 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             }),
             columnHelperByOrder.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
-                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Offer MPID </span>,
             }),
             columnHelperByOrder.accessor((row) => row.offer_quantity, {
@@ -312,6 +329,10 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         this.depthOfBookHistoryBlockRef.current?.openModal(mode, data);
     }
 
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
+    }
+
     render() {
         return (
             <>
@@ -405,6 +426,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                                 symbol={this.props.symbol}
                                 onCallback={this.onCallback}/>
                         )}
+
+                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
                     </>
                 )}
 

@@ -17,6 +17,7 @@ import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 
 interface LastSaleReportingBlockState extends IState, IModalState {
@@ -28,6 +29,7 @@ interface LastSaleReportingBlockState extends IState, IModalState {
     data: ILastSale[];
     dataFull: ILastSale[];
     filterData: any;
+    mpid: string | null;
 }
 
 interface LastSaleReportingBlockProps extends ICallback {
@@ -70,6 +72,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             data: [],
             dataFull: [],
             filterData: [],
+            mpid: null
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -113,7 +116,14 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>MPID</span>,
             }),
             columnHelper.accessor((row) => row.quantity, {
@@ -205,7 +215,6 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
         this.setState({isOpenModal: false})
     }
 
-
     modalTitle = (mode: string) => {
         if (mode === 'view') {
             return 'View Sale Report'
@@ -248,6 +257,10 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
         lastSaleService.downloadLastSales(this.state.filterData).then((res) => {
             downloadFile.XLSX('last_sale_reporting', res);
         })
+    }
+
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
     }
 
     render() {
@@ -404,7 +417,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                 />
                             </Modal>
 
-
+                            <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
                         </>
                     )}
                 </div>

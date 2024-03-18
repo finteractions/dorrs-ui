@@ -17,6 +17,7 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {QuoteCondition} from "@/enums/quote-condition";
 import NoDataBlock from "@/components/no-data-block";
 import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 
 interface BestBidAndBestOfferPerSymbolBlockProps {
@@ -32,6 +33,7 @@ interface BestBidAndBestOfferPerSymbolBlockState extends IState {
     dataFull: IBestBidAndBestOffer[];
     filterData: any;
     chart: string;
+    mpid: string | null;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -58,7 +60,8 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             data: [],
             dataFull: [],
             filterData: [],
-            chart: 'b'
+            chart: 'b',
+            mpid: null
         }
 
 
@@ -75,7 +78,14 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             }),
             columnHelper.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Bid MPID </span>,
             }),
             columnHelper.accessor((row) => row.bid_quantity, {
@@ -100,7 +110,14 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             }),
             columnHelper.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Offer MPID </span>,
             }),
             columnHelper.accessor((row) => row.offer_quantity, {
@@ -243,6 +260,10 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
         this.setState({isLoadingChart: true, chart: chart}, () => {
             this.getBBOChart();
         });
+    }
+
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
     }
 
     render() {
@@ -415,6 +436,8 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
 
                             </div>
                         </div>
+
+                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
                     </>
                 )}
             </>

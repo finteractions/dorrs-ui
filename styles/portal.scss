@@ -3339,6 +3339,10 @@ body {
       border: 1px solid #718494;
     }
 
+    .plain-tel-input .flag-dropdown {
+      border: unset;
+    }
+
     .d-flex {
       display: flex;
     }

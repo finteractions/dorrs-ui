@@ -118,7 +118,7 @@ class InputMPIDField extends React.Component<InputMPIDFieldProps, InputMPIDField
                 />
 
                 <div className="input__wrap__search_company">
-                    {this.state.availableMPID.map((item: ICompanySearch) => (
+                    {this.state.availableMPID.map((item: IMPIDSearch) => (
                         <button
                             disabled={this.state.availableMPIDLoading || disabled}
                             className="b-btn ripple search_company_item"

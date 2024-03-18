@@ -15,6 +15,7 @@ import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import {getBidQuoteCondition, getOfferQuoteCondition, QuoteCondition} from "@/enums/quote-condition";
+import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -30,6 +31,7 @@ interface BestBidAndBestOfferBlockState {
     dataFull: IBestBidAndBestOffer[];
     filterData: any;
     showSymbolForm: boolean;
+    mpid: string | null;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -53,6 +55,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
             dataFull: [],
             filterData: [],
             showSymbolForm: true,
+            mpid: null
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -103,7 +106,14 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
             }),
             columnHelper.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Bid MPID </span>,
             }),
             columnHelper.accessor((row) => row.bid_quantity, {
@@ -129,7 +139,14 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
             }),
             columnHelper.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
-                cell: (item) => item.getValue(),
+                cell: (item) =>
+                    <div className={'cursor-pointer link'}
+                         onClick={() => {
+                             this.handleMPID(item.getValue());
+                         }}
+                    >
+                        {item.getValue()}
+                    </div>,
                 header: () => <span>Offer MPID </span>,
             }),
             columnHelper.accessor((row) => row.offer_quantity, {
@@ -264,6 +281,11 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
             downloadFile.XLSX('bbo', res);
         })
     }
+
+    handleMPID = (mpid: string | null) => {
+        this.setState({mpid: mpid})
+    }
+
 
     render() {
         return (
@@ -531,6 +553,8 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                         </div>
                     </div>
                 </Modal>
+
+                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
 
             </>
         )
