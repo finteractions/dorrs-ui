@@ -154,7 +154,8 @@ const formatterService = {
     getDecimalPlaceholder,
     formatAndColorNumberValueHTML,
     formatAndColorNumberBlockHTML,
-    formatAndColorTickIndicationValueHTML
+    formatAndColorTickIndicationValueHTML,
+    toPlainString
 }
 
 export default formatterService;

@@ -53,8 +53,8 @@ const formSchema = Yup.object().shape({
             if (value === null || value === undefined) {
                 return true;
             }
-            const valueAsString = value.toString();
-            return /^0\.0*1$/.test(valueAsString);
+
+            return /^0\.0*1$/.test(formatterService.toPlainString(value.toString()));
         })
         .label('Fractional Lot Size'),
     mvp: Yup.number()
