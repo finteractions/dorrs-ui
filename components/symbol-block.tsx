@@ -8,7 +8,6 @@ import symbolService from "@/services/symbol/symbol-service";
 import Table from "@/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
 import Link from "next/link";
-import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import CompanyProfile from "@/components/company-profile-form";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
@@ -173,8 +172,8 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
-            columnHelper.accessor((row) => row.security_type, {
-                id: "security_type",
+            columnHelper.accessor((row) => row.security_category, {
+                id: "security_category",
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Type </span>,
             }),

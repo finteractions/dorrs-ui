@@ -129,6 +129,11 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
+            columnHelper.accessor((row) => row.security_category, {
+                id: "security_category",
+                cell: (item) => item.getValue(),
+                header: () => <span>Security Type </span>,
+            }),
             columnHelper.accessor((row) => row.digital_asset_category, {
                 id: "digital_asset_category",
                 cell: (item) => item.getValue(),
@@ -337,7 +342,7 @@ class AssetsBlock extends React.Component<{}> {
                                                 placeholder="Symbol"
                                             />
                                         </div>
-                                       
+
                                         <div className="input__wrap">
                                             <Select
                                                 className="select__react"

@@ -2,7 +2,6 @@ import React from 'react';
 import {Formik, Form, Field, ErrorMessage} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
-import FormValidator from "@/services/form-validator/form-validator";
 import PhoneInputField from "@/components/phone-input-field";
 import {countries} from "countries-list";
 import {UsaStates} from 'usa-states';
