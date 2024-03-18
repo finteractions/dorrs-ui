@@ -10,4 +10,5 @@ export enum MarketSector {
     INFORMATION_TECHNOLOGY = 'Information Technology',
     COMMUNICATION_SERVICES = 'Communication Services',
     REAL_ESTATE = 'Real Estate',
+    FINANCIAL_ASSET_CRYPTO = 'Financial Asset (Crypto)'
 }
