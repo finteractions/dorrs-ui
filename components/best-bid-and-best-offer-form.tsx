@@ -26,7 +26,7 @@ import InputMPIDField from "@/components/mpid-field";
 
 
 const formSchema = Yup.object().shape({
-    origin: Yup.string().min(3).max(4).required('Required'),
+    origin: Yup.string().min(8).max(4).required('Required'),
     symbol: Yup.string().required('Required'),
     quote_condition: Yup.string().required('Required'),
 

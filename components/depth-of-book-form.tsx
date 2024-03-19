@@ -23,7 +23,7 @@ import InputMPIDField from "@/components/mpid-field";
 
 const formSchema = Yup.object().shape({
     action: Yup.string().required('Required'),
-    origin: Yup.string().min(3).max(4).required('Required'),
+    origin: Yup.string().min(3).max(8).required('Required'),
     symbol: Yup.string().required('Required'),
     quote_condition: Yup.string().required('Required'),
     mpid: Yup.string().min(3).max(12).required('Required').label('MPID'),
@@ -110,11 +110,14 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
             await this.formRef.current.setFieldValue('price', order.price)
                 .then(async () => await this.formRef.current.setFieldTouched('price', true, true))
 
-            await this.formRef.current.setFieldValue('side', order.side.toLowerCase() === 'b' ? 's' : 'b')
+            await this.formRef.current.setFieldValue('side', order.side.toLowerCase())
                 .then(async () => await this.formRef.current.setFieldTouched('side', true, true))
 
             await this.formRef.current.setFieldValue('mpid', order.mpid)
                 .then(async () => await this.formRef.current.setFieldTouched('mpid', true, true))
+
+            await this.formRef.current.setFieldValue('origin', order.mpid)
+                .then(async () => await this.formRef.current.setFieldTouched('origin', true, true))
         }
     }
 
@@ -242,7 +245,6 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     placeholder="Type Origin"
                                                                     className="input__text"
                                                                     disabled={isSubmitting || this.isShow()}
-                                                                    component={InputWithLocalstorageField}
                                                                 />
                                                             </div>
                                                         </div>

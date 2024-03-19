@@ -299,7 +299,7 @@ const Table = ({
                                     )}
                                     </thead>
                                     <tbody>
-                                    {rows.map((row) => (
+                                    {rows.map((row, idx) => (
                                         <tr key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
                                             className={rowProps?.className}
                                             onClick={() => {
@@ -307,9 +307,13 @@ const Table = ({
                                             }}
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => {
+                                                const cellStyle = rowProps?.row?.[idx]?.cell?.[index].style;
                                                 return (
-                                                    <td data-label={dataLabel(cell)} colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
-                                                        key={cell.id}>
+                                                    <td data-label={dataLabel(cell)}
+                                                        colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
+                                                        key={cell.id}
+                                                        style={cellStyle ? { ...cellStyle } : {}}
+                                                    >
                                                         {flexRender(
                                                             cell.column.columnDef.cell,
                                                             cell.getContext()

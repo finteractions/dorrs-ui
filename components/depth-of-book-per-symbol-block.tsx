@@ -19,7 +19,8 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import userPermissionService from "@/services/user/user-permission-service";
 import {IOrder} from "@/interfaces/i-order";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
-
+import tableColorizationService from "@/services/colorization/table-colorization-service";
+import {RGB} from "@/interfaces/i-rgb"
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -31,6 +32,7 @@ interface DepthOfBookPerSymbolState extends IState {
     isDataLoading: boolean;
     errors: string[];
     dataDepthByOrder: IDepthByOrder[];
+    byOrderRowProps: ITableRowProps;
     dataDepthByOrderFull: IDepthByOrder[];
     filterDataDepthByOrder: any;
     dataDepthByPrice: IDepthByOrder[];
@@ -46,6 +48,18 @@ let columnsByOrder: any[] = [];
 const columnHelperByPrice = createColumnHelper<any>();
 let columnsByPrice: any[] = [];
 
+const pageLength = Number(10)
+
+const defaultColors = {
+    light: {
+        bid: new RGB(244, 250, 248),
+        ask: new RGB(250, 247, 248),
+    },
+    dark: {
+        bid: new RGB(28, 31, 30),
+        ask: new RGB(35, 28, 30),
+    },
+};
 
 class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProps> {
 
@@ -79,7 +93,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             dataDepthByPriceFull: [],
             filterDataDepthByPrice: [],
             type: 'by_order',
-            mpid: null
+            mpid: null,
+            byOrderRowProps: {}
         }
 
         this.orderAccess = userPermissionService.getAccessRulesByKey(
@@ -190,9 +205,15 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     }
 
     componentDidMount() {
+        window.addEventListener('themeToggle', this.handleTheme);
+
         this.setState({isLoading: true, isDataLoading: true});
         this.getSymbols()
             .then(() => this.getData())
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('themeToggle', this.handleTheme);
     }
 
     filterDataDepthByOrder = () => {
@@ -246,12 +267,26 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                     });
                 })
                 .finally(() => {
-                    this.setState({isDataLoading: false})
+                    this.setState({isDataLoading: false}, () => {
+                        this.handleTheme();
+                    })
                     resolve(true);
                 });
         })
-
     }
+
+    handleTheme = () => {
+        const colours = this.isDarkTheme() ? defaultColors.dark : defaultColors.light
+
+        const rowProps: ITableRowProps = {}
+        console.log(colours)
+        rowProps.row = this.isDarkTheme() ? undefined : tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours)
+        this.setState({byOrderRowProps: rowProps})
+    }
+
+    isDarkTheme = () => {
+        return document.documentElement.classList.contains('dark');
+    };
 
     getDepthByPrice = () => {
         return new Promise((resolve) => {
@@ -307,6 +342,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             case 'by_order':
                 return (
                     <Table columns={columnsByOrder}
+                           pageLength={pageLength}
+                           rowProps={this.state.byOrderRowProps}
                            data={this.state.dataDepthByOrder}
                            block={this}
                     />
@@ -314,6 +351,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             case 'by_price':
                 return (
                     <Table columns={columnsByPrice}
+                           pageLength={pageLength}
                            data={this.state.dataDepthByPrice}
                            block={this}
                     />
@@ -427,7 +465,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                                 onCallback={this.onCallback}/>
                         )}
 
-                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
+                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value: any) => this.handleMPID(value)}/>
                     </>
                 )}
 
