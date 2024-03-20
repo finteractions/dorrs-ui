@@ -21,7 +21,6 @@ import {
 } from "@/enums/quote-condition";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
-import InputWithLocalstorageField from "@/components/locatorage-field";
 import InputMPIDField from "@/components/mpid-field";
 
 
@@ -286,6 +285,9 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
 
             await this.formRef.current.setFieldValue('offer_mpid', bestBidAndBestOffer.offer_mpid)
                 .then(async () => await this.formRef.current.setFieldTouched('offer_mpid', true, true))
+
+            await this.formRef.current.setFieldValue('origin', bestBidAndBestOffer.origin)
+                .then(async () => await this.formRef.current.setFieldTouched('origin', true, true))
         }
     }
 
@@ -331,7 +333,6 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                 className="input__text"
                                                                 placeholder="Type Origin"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                component={InputWithLocalstorageField}
                                                             />
                                                         </div>
                                                     </div>

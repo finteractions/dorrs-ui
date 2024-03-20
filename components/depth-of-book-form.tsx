@@ -17,7 +17,6 @@ import {getOrderSideDescriptions, OrderSide} from "@/enums/order-side";
 import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import ordersService from "@/services/orders/orders-service";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
-import InputWithLocalstorageField from "@/components/locatorage-field";
 import InputMPIDField from "@/components/mpid-field";
 
 
@@ -116,7 +115,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
             await this.formRef.current.setFieldValue('mpid', order.mpid)
                 .then(async () => await this.formRef.current.setFieldTouched('mpid', true, true))
 
-            await this.formRef.current.setFieldValue('origin', order.mpid)
+            await this.formRef.current.setFieldValue('origin', order.origin)
                 .then(async () => await this.formRef.current.setFieldTouched('origin', true, true))
         }
     }

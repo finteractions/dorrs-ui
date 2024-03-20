@@ -59,6 +59,11 @@ class ModalLastSaleReportingHistoryBlock extends React.Component<ModalLastSaleRe
                 cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
             }),
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",
                 cell: (item) => item.getValue(),

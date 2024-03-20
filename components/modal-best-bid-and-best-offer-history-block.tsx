@@ -59,6 +59,11 @@ class ModalBestBidAndBestOfferHistoryBlock extends React.Component<ModalBestBidA
                 cell: (item) => item.getValue(),
                 header: () => <span>QC </span>,
             }),
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
                 cell: (item) => item.getValue(),

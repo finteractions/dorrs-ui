@@ -54,7 +54,7 @@ function depthOfBookByOrder(data: Array<IDepthByOrder>,
         if (askPrice === null) {
             askRGB = {}
         }
-        console.log(bidPrice, bidRGB)
+
         for (let i = 0; i < 5; i++) {
             cells.push({index: i, style: bidRGB});
         }
