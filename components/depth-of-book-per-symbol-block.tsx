@@ -52,11 +52,11 @@ const pageLength = Number(10)
 
 const defaultColors = {
     light: {
-        bid: new RGB(244, 250, 248),
+        bid: new RGB(241, 241, 241),
         ask: new RGB(250, 247, 248),
     },
     dark: {
-        bid: new RGB(28, 31, 30),
+        bid: new RGB(37, 36, 50),
         ask: new RGB(35, 28, 30),
     },
 };
@@ -277,10 +277,9 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
     handleTheme = () => {
         const colours = this.isDarkTheme() ? defaultColors.dark : defaultColors.light
-
         const rowProps: ITableRowProps = {}
-        console.log(colours)
-        rowProps.row = this.isDarkTheme() ? undefined : tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours)
+        const isDark = this.isDarkTheme();
+        // rowProps.row = tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours, isDark, pageLength)
         this.setState({byOrderRowProps: rowProps})
     }
 

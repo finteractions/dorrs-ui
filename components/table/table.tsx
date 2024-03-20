@@ -300,14 +300,15 @@ const Table = ({
                                     </thead>
                                     <tbody>
                                     {rows.map((row, idx) => (
-                                        <tr key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
+                                        <tr id={row.id} key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
                                             className={rowProps?.className}
                                             onClick={() => {
                                                 rowProps?.onCallback?.(row.original);
                                             }}
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => {
-                                                const cellStyle = rowProps?.row?.[idx]?.cell?.[index].style;
+                                                const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index].style || {};
+
                                                 return (
                                                     <td data-label={dataLabel(cell)}
                                                         colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}

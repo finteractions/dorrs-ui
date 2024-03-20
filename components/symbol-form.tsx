@@ -77,7 +77,6 @@ const formSchema = Yup.object().shape({
     security_type: Yup.string().label('Security Type')
         .when('security_category', {
             is: (v: string) => {
-                console.log(v)
                 return v === SecurityCategory.DIGITAL_ASSET
             },
             then: (schema) => schema.required('Required')

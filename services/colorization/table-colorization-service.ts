@@ -1,62 +1,80 @@
 import {IDepthByOrder} from "@/interfaces/i-depth-by-order";
-import {IRGB} from "@/interfaces/i-rgb";
+import {IRGB, RGB} from "@/interfaces/i-rgb";
 
 
-function depthOfBookByOrder(data: Array<IDepthByOrder>, colours: { bid: IRGB, ask: IRGB }): Array<ITableRow> {
-    const reversedData = data.reverse();
+function depthOfBookByOrder(data: Array<IDepthByOrder>,
+                            colours: {
+                                bid: IRGB,
+                                ask: IRGB
+                            },
+                            isDark: boolean,
+                            limit: number): Array<ITableRow> {
+    const reversedData = [...data.slice(0, limit)].reverse();
+
+    const rgb = {
+        bid: new RGB(colours.bid.red, colours.bid.green, colours.bid.blue),
+        ask: new RGB(colours.ask.red, colours.ask.green, colours.ask.blue),
+    }
+
+
     const rows: Array<ITableRow> = [];
     let prevBidPrice = "";
     let prevAskPrice = "";
-    const colourPalette = { ...colours }
 
-    // reversedData.forEach((order: IDepthByOrder, index: number) => {
-    //     const cells: Array<ITableCell> = [];
-    //     const bidPrice = order.bid_price;
-    //     const askPrice = order.offer_price;
-    //     let bidStyle = colourPalette.bid;
-    //     let askStyle = colourPalette.ask;
-    //
-    //     let bidRGB = {}
-    //
-    //     if (bidPrice !== prevBidPrice && bidPrice !== null) {
-    //         bidStyle.red -= 3
-    //         bidStyle.blue -= 3
-    //
-    //         bidRGB = bidStyle.toStyleString();
-    //     }
-    //
-    //     if (bidPrice === null) {
-    //         bidRGB = bidStyle.toStyleString()
-    //     }
-    //
-    //     let askRGB = {}
-    //
-    //     if (askPrice !== prevAskPrice && askPrice !== null) {
-    //         askStyle.green -= 3
-    //         askStyle.blue -= 3
-    //
-    //         askRGB = askStyle.toStyleString();
-    //     }
-    //
-    //     if (bidPrice === null) {
-    //         askRGB = askStyle.toStyleString()
-    //     }
-    //
-    //     for (let i = 0; i < 5; i++) {
-    //         cells.push({index: i + 1, style: bidRGB});
-    //     }
-    //
-    //     for (let i = 5; i < 10; i++) {
-    //         cells.push({index: i + 1, style: askRGB});
-    //     }
-    //
-    //     rows.push({index, cell: cells});
-    //
-    //     prevBidPrice = bidPrice;
-    //     prevAskPrice = askPrice;
-    // });
+    reversedData.forEach((order: IDepthByOrder, index: number) => {
+        const cells: Array<ITableCell> = [];
+        const bidPrice = order.bid_price;
+        const askPrice = order.offer_price;
+        let bidStyle = rgb.bid;
+        let askStyle = rgb.ask;
+
+        let bidRGB = {}
+        let askRGB = {}
+        // isDark = false
+        if (bidPrice !== prevBidPrice && bidPrice !== null && prevBidPrice !== '') {
+            bidStyle.red -= isDark ? 3 : 15;
+            bidStyle.green -= isDark? 0 : 8;
+            bidStyle.blue -= isDark ? 3 : 8;
+        }
+
+        if (askPrice !== prevAskPrice && askPrice !== null && prevAskPrice !== '') {
+            // askStyle.red -= isDark ? 3 : 15;
+            askStyle.green -= isDark ? 3 : 8;
+            askStyle.blue -= isDark ? 3 : 8;
+        }
+
+        bidRGB = bidStyle.toStyleString();
+        askRGB = askStyle.toStyleString();
+
+
+        if (bidPrice === null) {
+            bidRGB = {}
+        }
+
+        if (askPrice === null) {
+            askRGB = {}
+        }
+        console.log(bidPrice, bidRGB)
+        for (let i = 0; i < 5; i++) {
+            cells.push({index: i, style: bidRGB});
+        }
+
+        for (let i = 5; i < 10; i++) {
+            cells.push({index: i, style: askRGB});
+        }
+
+        rows.push({index, cell: cells});
+
+        prevBidPrice = bidPrice;
+        prevAskPrice = askPrice;
+    });
+
     return rows.reverse();
 }
+
+function isDarkTheme() {
+    return document.documentElement.classList.contains('dark');
+};
 
 
 const tableColorizationService = {

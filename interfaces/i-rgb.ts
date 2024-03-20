@@ -21,7 +21,7 @@ export class RGB implements IRGB {
         if (this.red === 0 && this.green === 0 && this.blue === 0) {
             return {};
         } else {
-            return {backgroundColor: `rgb(${this.red}, ${this.green}, ${this.blue}`}
+            return {backgroundColor: `rgb(${this.red}, ${this.green}, ${this.blue}, 0.39`}
         }
     }
 
