@@ -307,7 +307,7 @@ const Table = ({
                                             }}
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => {
-                                                const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index].style || {};
+                                                const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index]?.style || {};
 
                                                 return (
                                                     <td data-label={dataLabel(cell)}

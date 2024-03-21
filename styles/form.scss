@@ -73,6 +73,23 @@ html.dark {
         }
       }
 
+      .modal__content {
+        .SingleDatePicker .SingleDatePickerInput .DateInput .DateInput_input,
+        .b-select-search .select__react__control.select__react__control,
+        .content__filter .select__react .select__react__control,
+        .react-tel-input input + .flag-dropdown,
+        .SingleDatePickerInput,
+        input.DateInput_input,
+        select.b-select,
+        input.input__text,
+        input[type="file"],
+        textarea,
+        .StripeElement {
+          background: var(--form-background-colour-2) !important;
+
+        }
+      }
+
       .content__search .search-filter {
         border: var(--border) !important;
         background-color: var(--form-background-colour) !important;

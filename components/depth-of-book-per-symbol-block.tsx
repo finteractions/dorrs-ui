@@ -49,15 +49,16 @@ const columnHelperByPrice = createColumnHelper<any>();
 let columnsByPrice: any[] = [];
 
 const pageLength = Number(10)
+const colorizeLimit = Number(10)
 
 const defaultColors = {
     light: {
-        bid: new RGB(241, 241, 241),
-        ask: new RGB(249, 242, 244),
+        bid: new RGB(200, 211, 187),
+        ask: new RGB(213, 195, 195),
     },
     dark: {
-        bid: new RGB(37, 36, 50),
-        ask: new RGB(35, 28, 30),
+        bid: new RGB(60, 84, 76),
+        ask: new RGB(80, 59, 59),
     },
 };
 
@@ -279,10 +280,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         const colours = this.isDarkTheme() ? defaultColors.dark : defaultColors.light
         const rowProps: ITableRowProps = {}
         const isDark = this.isDarkTheme();
-        if (!isDark) {
-            rowProps.row = tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours, isDark, pageLength)
-        }
-
+        rowProps.row = tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours, colorizeLimit)
 
         this.setState({byOrderRowProps: rowProps})
     }

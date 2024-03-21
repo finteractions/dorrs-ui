@@ -3,7 +3,7 @@ export interface IRGB {
     green: number;
     blue: number;
 
-    toStyleString: () => {}
+    toStyleString: (percentage: number) => {}
 }
 
 export class RGB implements IRGB {
@@ -17,11 +17,11 @@ export class RGB implements IRGB {
         this.blue = _blue;
     }
 
-    toStyleString = () => {
+    toStyleString = (percentage: number) => {
         if (this.red === 0 && this.green === 0 && this.blue === 0) {
             return {};
         } else {
-            return {backgroundColor: `rgb(${this.red}, ${this.green}, ${this.blue}, 0.39`}
+            return {backgroundColor: `rgb(${this.red}, ${this.green}, ${this.blue}, ${percentage}`}
         }
     }
 
