@@ -62,7 +62,20 @@ const formSchema = Yup.object().shape({
 
             return /^0\.0*1$/.test(formatterService.toPlainString(value.toString()));
         })
+        .test('max-decimal-places', 'Maximum of 18 decimal places allowed.', function (value) {
+            if (value === null || value === undefined) {
+                return true;
+            }
+
+            const [, decimal] = formatterService.toPlainString(value.toString()).split('.');
+
+            if (decimal) {
+                return decimal.length <= 18;
+            }
+            return true;
+        })
         .label('Fractional Lot Size'),
+
     mvp: Yup.number()
         .typeError('Invalid MVP')
         .test('is-fractional', 'Invalid MVP. Example: .01, 05, .10 and etc.', function (value) {
@@ -228,8 +241,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             custodian: initialData?.custodian || '',
             market_sector: initialData?.market_sector || '',
             lot_size: (initialData?.lot_size || '').toString(),
-            fractional_lot_size: (initialData?.fractional_lot_size || '').toString(),
-            mvp: (initialData?.mvp || '').toString(),
+            fractional_lot_size: formatterService.toPlainString(initialData?.fractional_lot_size?.toString()),
+            mvp: formatterService.toPlainString(initialData?.mvp?.toString()),
             security_name: initialData?.security_name || '',
             security_category: initialData?.security_category || '',
             security_type: initialData?.security_type || '',

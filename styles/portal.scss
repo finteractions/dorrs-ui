@@ -4158,3 +4158,8 @@ html.dark {
   color: var(--text-colour-2);
   font-size: 18px;
 }
+
+
+.input .input__title i, .input__box .input__title i, .error-message {
+  color: var(--error-colour)
+}

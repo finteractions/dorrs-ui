@@ -28,7 +28,7 @@ body {
       cursor: default;
     }
 
-    .b-checkbox input[type=checkbox]:disabled , .b-radio input[type=radio]{
+    .b-checkbox input[type=checkbox]:disabled, .b-radio input[type=radio] {
       + label span {
         cursor: default;
       }

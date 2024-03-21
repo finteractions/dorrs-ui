@@ -57,12 +57,17 @@ function getDecimalPlaceholder(decimalScale: number): string {
 }
 
 function toPlainString(num: string) {
-    return ('' + +num).replace(/(-?)(\d*)\.?(\d*)e([+-]\d+)/,
-        function (a, b, c, d, e) {
-            return e < 0
-                ? b + '0.' + Array(1 - e - c.length).join('0') + c + d
-                : b + c + d + Array(e - d.length + 1).join('0');
-        });
+    if (num) {
+        return ('' + +num).replace(/(-?)(\d*)\.?(\d*)e([+-]\d+)/,
+            function (a, b, c, d, e) {
+                return e < 0
+                    ? b + '0.' + Array(1 - e - c.length).join('0') + c + d
+                    : b + c + d + Array(e - d.length + 1).join('0');
+            });
+    } else {
+        return '';
+    }
+
 }
 
 function formatAndColorNumberValueHTML(input: string | number) {
