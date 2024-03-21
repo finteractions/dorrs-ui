@@ -806,7 +806,7 @@ body {
         color: var(--text-colour-4);
 
         .select__react__menu-list {
-          background-color: var(--form-background-colour);
+          background-color: var(--background);
 
           .content__bottom {
             padding: 10px 20px;
@@ -819,12 +819,12 @@ body {
 
           .select__react__option--is-focused,
           .select__react__option--is-selected {
-            background-color: var(--background);
+            background-color: var(--background-colour);
             color: var(--text-colour);
           }
 
           .select__react__control--is-focused .select__react__option:checked {
-            background-color: var(--background);
+            background-color: var(--form-background-colour-2);
           }
 
         }
