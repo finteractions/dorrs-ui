@@ -2764,11 +2764,6 @@ body {
               }
 
               td {
-                &[data-label=""]:before {
-                  --label-width: 100%;
-                  background-color: red;
-                }
-
                 flex: 0 0 100%;
                 max-width: 100%;
                 display: flex;
@@ -2776,7 +2771,6 @@ body {
                 padding: 15px 20px !important;
                 word-break: break-word;
                 position: relative;
-                padding-left: 20px;
               }
 
               td[data-label]:before {
@@ -2797,6 +2791,10 @@ body {
                 > .admin-table-actions {
                   column-gap: 20px;
                 }
+              }
+
+              td.colorize:empty, td.colorize:has(div:empty) {
+                display: none;
               }
             }
           }

@@ -1,23 +1,29 @@
 import {IDepthByOrder} from "@/interfaces/i-depth-by-order";
 import {IRGB, RGB} from "@/interfaces/i-rgb";
 
-function depthOfBookByOrder(data: Array<IDepthByOrder>,
-                            colours: {
-                                bid: IRGB,
-                                ask: IRGB
-                            },
-                            limit: number): Array<ITableRow> {
+async function depthOfBookByOrder(data: Array<IDepthByOrder>,
+                                  colours: {
+                                      bid: IRGB,
+                                      ask: IRGB
+                                  },
+                                  dataLength: number,
+                                  showCount: number,
+                                  cellCount: number,
+                                  colorizeCount: number,
+                                  isReverseAskColours: boolean
+): Promise<Array<ITableRow>> {
 
     const bidPricesMap = new Map<string, number>();
     const askPricesMap = new Map<string, number>();
-    const rows: Array<ITableRow> = [];
-    let prevBidPrice = "";
-    let prevAskPrice = "";
+    let rows: Array<ITableRow> = [];
+    let prevBidPrice: string | null = "";
+    let prevAskPrice: string | null = "";
     let prevBidRGB = {};
     let prevAskRGB = {};
     let bidIdx = 0;
     let askIdx = 0;
-    const limitedData = [...data.slice(0, limit)];
+
+    const limitedData = [...data.slice(0, dataLength)];
     const rgb = {
         bid: new RGB(colours.bid.red, colours.bid.green, colours.bid.blue),
         ask: new RGB(colours.ask.red, colours.ask.green, colours.ask.blue),
@@ -25,20 +31,22 @@ function depthOfBookByOrder(data: Array<IDepthByOrder>,
 
     limitedData.forEach((s) => {
         const bidPrice = s.bid_price;
-        if (bidPrice !== null) {
+        if (bidPrice !== null && bidPricesMap.size < showCount) {
             bidPricesMap.set(bidPrice.toString(), (bidPricesMap.get(bidPrice.toString()) ?? 0) + 1);
         }
 
         const askPrice = s.offer_price;
-        if (askPrice !== null) {
+        if (askPrice !== null && askPricesMap.size < showCount) {
             askPricesMap.set(askPrice.toString(), (askPricesMap.get(askPrice.toString()) ?? 0) + 1);
         }
     });
+
 
     const bidPricesMapSize = bidPricesMap.size
     const askPricesMapSize = askPricesMap.size
 
     limitedData.forEach((order: IDepthByOrder, index: number) => {
+        const idx = index % showCount
         const cells: Array<ITableCell> = [];
         const bidPrice = order.bid_price;
         const askPrice = order.offer_price;
@@ -49,22 +57,18 @@ function depthOfBookByOrder(data: Array<IDepthByOrder>,
         let askRGB = {}
 
         if (bidPrice !== null) {
-            const idx = (((bidPricesMapSize === 1 && sumValues(bidPricesMap) > 1) ? sumValues(bidPricesMap) : bidPricesMapSize) - bidIdx) / 10;
-
+            const idx = Math.abs((((bidPricesMapSize === 1 && sumValues(bidPricesMap) > 1) ? sumValues(bidPricesMap) : bidPricesMapSize) - (bidIdx % showCount)) / showCount);
             bidRGB = bidStyle.toStyleString(idx);
             if (bidPrice === prevBidPrice && prevBidRGB && !(bidPricesMapSize === 1 && sumValues(bidPricesMap) > 1)) {
                 bidRGB = prevBidRGB;
             } else {
                 bidIdx += 1
             }
-        } else {
-            bidIdx = index;
         }
 
 
         if (askPrice !== null) {
-            const idx = (((askPricesMapSize === 1 && sumValues(askPricesMap) > 1) ? sumValues(askPricesMap) : askPricesMapSize) - askIdx) / 10;
-
+            const idx = Math.abs((((askPricesMapSize === 1 && sumValues(askPricesMap) > 1) ? sumValues(askPricesMap) : askPricesMapSize) - (askIdx % showCount)) / showCount);
             askRGB = askStyle.toStyleString(idx);
 
             if (askPrice === prevAskPrice && prevAskRGB && !(askPricesMapSize === 1 && sumValues(askPricesMap) > 1)) {
@@ -72,17 +76,16 @@ function depthOfBookByOrder(data: Array<IDepthByOrder>,
             } else {
                 askIdx += 1;
             }
-        } else {
-            askIdx = index;
         }
 
-        for (let i = 0; i < 5; i++) {
-            cells.push({index: i, style: bidRGB});
+        for (let i = 0; i < cellCount / 2; i++) {
+            cells.push({index: i, style: bidRGB, className: 'colorize'});
         }
 
-        for (let i = 5; i < 10; i++) {
-            cells.push({index: i, style: askRGB});
+        for (let i = cellCount / 2; i < cellCount; i++) {
+            cells.push({index: i, style: askRGB, className: 'colorize'});
         }
+
 
         rows.push({index, cell: cells});
 
@@ -91,6 +94,38 @@ function depthOfBookByOrder(data: Array<IDepthByOrder>,
         prevBidRGB = bidRGB;
         prevAskRGB = askRGB;
     });
+
+    if (isReverseAskColours) {
+        const rowsBid = [...rows.slice(0, sumValues(bidPricesMap))]
+        const rowsAsk = [...rows.slice(sumValues(askPricesMap), rows.length)].reverse()
+        rows = [...rowsBid, ...rowsAsk];
+    }
+
+    const rowsBid = [...rows.slice(0, sumValues(bidPricesMap))]
+    const styledRowsBid = rowsBid.map((row, idx) => {
+        const cells = row.cell.map((cell) => {
+            if (idx >= colorizeCount) {
+                return { ...cell, style: {  } };
+            }
+            return cell;
+        });
+
+        return { ...row, cell: cells };
+    });
+    const rowsAsk = [...rows.slice(sumValues(askPricesMap), rows.length)]
+    
+    const styledRowsAsk = rowsAsk.map((row, idx) => {
+        const cells = row.cell.map((cell) => {
+            if (idx >= colorizeCount) {
+                return { ...cell, style: {} };
+            }
+            return cell;
+        });
+
+        return { ...row, cell: cells };
+    });
+
+    rows = [...styledRowsBid, ...styledRowsAsk];
 
     return rows;
 }

@@ -40,6 +40,8 @@ interface DepthOfBookPerSymbolState extends IState {
     filterDataDepthByPrice: any;
     type: string;
     mpid: string | null;
+    pageLengthByOrder: number
+    pageLengthByPrice: number
 }
 
 const columnHelperByOrder = createColumnHelper<any>();
@@ -95,7 +97,9 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             filterDataDepthByPrice: [],
             type: 'by_order',
             mpid: null,
-            byOrderRowProps: {}
+            byOrderRowProps: {},
+            pageLengthByOrder: pageLength,
+            pageLengthByPrice: pageLength
         }
 
         this.orderAccess = userPermissionService.getAccessRulesByKey(
@@ -107,14 +111,19 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         columnsByOrder = [
             columnHelperByOrder.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
-                cell: (item) =>
-                    <div className={'cursor-pointer link'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue());
-                         }}
-                    >
-                        {item.getValue()}
-                    </div>,
+                cell: (item) => {
+                    const value = item.getValue();
+
+                    return (
+                        <div className={'cursor-pointer link'}
+                             onClick={() => {
+                                 this.handleMPID(value);
+                             }}
+                        >
+                            {value}
+                        </div>
+                    )
+                },
                 header: () => <span>Bid MPID </span>,
             }),
             columnHelperByOrder.accessor((row) => row.bid_quantity, {
@@ -207,6 +216,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
     componentDidMount() {
         window.addEventListener('themeToggle', this.handleTheme);
+        window.addEventListener('resize', this.handleTheme);
 
         this.setState({isLoading: true, isDataLoading: true});
         this.getSymbols()
@@ -215,6 +225,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
     componentWillUnmount() {
         window.removeEventListener('themeToggle', this.handleTheme);
+        window.removeEventListener('resize', this.handleTheme);
     }
 
     filterDataDepthByOrder = () => {
@@ -258,7 +269,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                         s.offer_quote_condition = QuoteCondition[s.offer_quote_condition as keyof typeof QuoteCondition] || ''
                     })
 
-                    this.setState({dataDepthByOrderFull: dataDepthByOrder, dataDepthByOrder: dataDepthByOrder}, () => {
+                    this.setState({dataDepthByOrderFull: dataDepthByOrder}, () => {
                         this.filterDataDepthByOrder();
                     });
                 })
@@ -277,12 +288,58 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     }
 
     handleTheme = () => {
+
         const colours = this.isDarkTheme() ? defaultColors.dark : defaultColors.light
         const rowProps: ITableRowProps = {}
-        const isDark = this.isDarkTheme();
-        rowProps.row = tableColorizationService.depthOfBookByOrder(this.state.dataDepthByOrder, colours, colorizeLimit)
+        let bid: IDepthByOrder[] = [];
+        let ask: IDepthByOrder[] = [];
+        let data: IDepthByOrder[] = [];
+        let count: number = 0;
+        let askReverseColour = false;
 
-        this.setState({byOrderRowProps: rowProps})
+        const dataFull = this.state.dataDepthByOrderFull.map(item => {
+            return {...item};
+        });
+
+        if (window.innerWidth < 768) {
+            dataFull.forEach(item => {
+                const bidItem = {...item}
+                const askItem = {...item}
+
+                if (bidItem && bidItem.bid_quantity && parseFloat(bidItem.bid_quantity) > 0.0) {
+                    bidItem.offer_mpid = null;
+                    bidItem.offer_quantity = null;
+                    bidItem.offer_price = null;
+                    bidItem.offer_quote_condition = null;
+                    bidItem.offer_updated_at = null;
+                    bid.push(bidItem);
+                }
+                if (askItem && askItem.offer_quantity && parseFloat(askItem.offer_quantity) > 0.0) {
+                    askItem.bid_mpid = null;
+                    askItem.bid_quantity = null;
+                    askItem.bid_price = null;
+                    askItem.bid_quote_condition = null;
+                    askItem.bid_updated_at = null;
+                    ask.push(askItem);
+                }
+            });
+
+            bid = [...bid.slice(0, pageLength)]
+            ask = [...ask.slice(0, pageLength).reverse()]
+            data = [...bid, ...ask];
+            count = data.length
+
+            askReverseColour = true;
+        } else {
+            data = dataFull
+            count = pageLength
+            askReverseColour = false;
+        }
+
+        this.setState({dataDepthByOrder: data, pageLengthByOrder: count}, async () => {
+            rowProps.row = await tableColorizationService.depthOfBookByOrder(data, colours, count, pageLength, columnsByOrder.length, colorizeLimit, askReverseColour)
+            this.setState({byOrderRowProps: rowProps})
+        })
     }
 
     isDarkTheme = () => {
@@ -343,7 +400,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             case 'by_order':
                 return (
                     <Table columns={columnsByOrder}
-                           pageLength={pageLength}
+                           pageLength={this.state.pageLengthByOrder}
                            rowProps={this.state.byOrderRowProps}
                            data={this.state.dataDepthByOrder}
                            block={this}
@@ -352,7 +409,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             case 'by_price':
                 return (
                     <Table columns={columnsByPrice}
-                           pageLength={pageLength}
+                           pageLength={this.state.pageLengthByPrice}
                            data={this.state.dataDepthByPrice}
                            block={this}
                     />

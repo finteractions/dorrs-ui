@@ -308,12 +308,14 @@ const Table = ({
                                         >
                                             {row.getVisibleCells().map((cell, index, array) => {
                                                 const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index]?.style || {};
+                                                const cellClassName = rowProps?.row?.[row?.id as any]?.cell?.[index]?.className || '';
 
                                                 return (
                                                     <td data-label={dataLabel(cell)}
                                                         colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
                                                         key={cell.id}
                                                         style={cellStyle ? { ...cellStyle } : {}}
+                                                        className={cellClassName ? cellClassName : ''}
                                                     >
                                                         {flexRender(
                                                             cell.column.columnDef.cell,

@@ -1,12 +1,12 @@
 export interface IDepthByOrder {
-    bid_mpid: string;
-    bid_size: string;
-    bid_price: string;
-    bid_quote_condition: string;
-    bid_updated_at: string;
-    offer_mpid: string;
-    offer_size: string;
-    offer_price: string;
-    offer_quote_condition: string;
-    offer_updated_at: string;
+    bid_mpid: string | null;
+    bid_quantity: string | null;
+    bid_price: string | null;
+    bid_quote_condition: string | null;
+    bid_updated_at: string | null;
+    offer_mpid: string | null;
+    offer_quantity: string | null;
+    offer_price: string | null;
+    offer_quote_condition: string | null;
+    offer_updated_at: string | null;
 }
