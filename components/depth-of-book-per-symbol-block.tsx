@@ -126,6 +126,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 },
                 header: () => <span>Bid MPID </span>,
             }),
+            columnHelperByOrder.accessor((row) => row.bid_origin, {
+                id: "bid_origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Bid Origin </span>,
+            }),
             columnHelperByOrder.accessor((row) => row.bid_quantity, {
                 id: "bid_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue()),
@@ -157,6 +162,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                         {item.getValue()}
                     </div>,
                 header: () => <span>Offer MPID </span>,
+            }),
+            columnHelperByOrder.accessor((row) => row.offer_origin, {
+                id: "offer_origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Offer Origin </span>,
             }),
             columnHelperByOrder.accessor((row) => row.offer_quantity, {
                 id: "offer_quantity",
@@ -307,6 +317,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 const askItem = {...item}
 
                 if (bidItem && bidItem.bid_quantity && parseFloat(bidItem.bid_quantity) > 0.0) {
+                    bidItem.offer_origin = null;
                     bidItem.offer_mpid = null;
                     bidItem.offer_quantity = null;
                     bidItem.offer_price = null;
@@ -315,6 +326,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                     bid.push(bidItem);
                 }
                 if (askItem && askItem.offer_quantity && parseFloat(askItem.offer_quantity) > 0.0) {
+                    askItem.bid_origin = null;
                     askItem.bid_mpid = null;
                     askItem.bid_quantity = null;
                     askItem.bid_price = null;
