@@ -109,6 +109,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
 
         columnsByOrder = [
+            columnHelperByOrder.accessor((row) => row.bid_origin, {
+                id: "bid_origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Bid Origin </span>,
+            }),
             columnHelperByOrder.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",
                 cell: (item) => {
@@ -125,11 +130,6 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                     )
                 },
                 header: () => <span>Bid MPID </span>,
-            }),
-            columnHelperByOrder.accessor((row) => row.bid_origin, {
-                id: "bid_origin",
-                cell: (item) => item.getValue(),
-                header: () => <span>Bid Origin </span>,
             }),
             columnHelperByOrder.accessor((row) => row.bid_quantity, {
                 id: "bid_quantity",
@@ -151,6 +151,11 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Bid Updated Date</span>,
             }),
+            columnHelperByOrder.accessor((row) => row.offer_origin, {
+                id: "offer_origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Offer Origin </span>,
+            }),
             columnHelperByOrder.accessor((row) => row.offer_mpid, {
                 id: "offer_mpid",
                 cell: (item) =>
@@ -162,11 +167,6 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                         {item.getValue()}
                     </div>,
                 header: () => <span>Offer MPID </span>,
-            }),
-            columnHelperByOrder.accessor((row) => row.offer_origin, {
-                id: "offer_origin",
-                cell: (item) => item.getValue(),
-                header: () => <span>Offer Origin </span>,
             }),
             columnHelperByOrder.accessor((row) => row.offer_quantity, {
                 id: "offer_quantity",
