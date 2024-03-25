@@ -24,6 +24,7 @@ async function depthOfBookByOrder(data: Array<IDepthByOrder>,
     let askIdx = 0;
 
     const limitedData = [...data.slice(0, dataLength)];
+
     const rgb = {
         bid: new RGB(colours.bid.red, colours.bid.green, colours.bid.blue),
         ask: new RGB(colours.ask.red, colours.ask.green, colours.ask.blue),
@@ -47,7 +48,7 @@ async function depthOfBookByOrder(data: Array<IDepthByOrder>,
 
     limitedData.forEach((order: IDepthByOrder, index: number) => {
         const idx = index % showCount
-        const cells: Array<ITableCell> = [];
+        let cells: Array<ITableCell> = [];
         const bidPrice = order.bid_price;
         const askPrice = order.offer_price;
         let bidStyle = rgb.bid;
@@ -79,12 +80,14 @@ async function depthOfBookByOrder(data: Array<IDepthByOrder>,
         }
 
         for (let i = 0; i < cellCount / 2; i++) {
-            cells.push({index: i, style: bidRGB, className: 'colorize'});
+            cells.push({index: i, style: bidRGB});
         }
 
         for (let i = cellCount / 2; i < cellCount; i++) {
-            cells.push({index: i, style: askRGB, className: 'colorize'});
+            cells.push({index: i, style: askRGB});
         }
+
+        cells = cells.map(cell => ({...cell, className: 'colorize'}));
 
 
         rows.push({index, cell: cells});
@@ -96,36 +99,11 @@ async function depthOfBookByOrder(data: Array<IDepthByOrder>,
     });
 
     if (isReverseAskColours) {
-        const rowsBid = [...rows.slice(0, sumValues(bidPricesMap))]
-        const rowsAsk = [...rows.slice(sumValues(askPricesMap), rows.length)].reverse()
+        const bidLength = sumValues(bidPricesMap);
+        const rowsBid = rows.slice(0, bidLength);
+        const rowsAsk = rows.slice(bidLength).reverse();
         rows = [...rowsBid, ...rowsAsk];
     }
-
-    const rowsBid = [...rows.slice(0, sumValues(bidPricesMap))]
-    const styledRowsBid = rowsBid.map((row, idx) => {
-        const cells = row.cell.map((cell) => {
-            if (idx >= colorizeCount) {
-                return { ...cell, style: {  } };
-            }
-            return cell;
-        });
-
-        return { ...row, cell: cells };
-    });
-    const rowsAsk = [...rows.slice(sumValues(askPricesMap), rows.length)]
-    
-    const styledRowsAsk = rowsAsk.map((row, idx) => {
-        const cells = row.cell.map((cell) => {
-            if (idx >= colorizeCount) {
-                return { ...cell, style: {} };
-            }
-            return cell;
-        });
-
-        return { ...row, cell: cells };
-    });
-
-    rows = [...styledRowsBid, ...styledRowsAsk];
 
     return rows;
 }

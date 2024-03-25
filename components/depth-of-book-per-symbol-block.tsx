@@ -337,7 +337,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         }
 
         this.setState({dataDepthByOrder: data, pageLengthByOrder: count}, async () => {
-            rowProps.row = await tableColorizationService.depthOfBookByOrder(data, colours, count, pageLength, columnsByOrder.length, colorizeLimit, askReverseColour)
+            const props = await tableColorizationService.depthOfBookByOrder(data, colours, count, pageLength, columnsByOrder.length, colorizeLimit, askReverseColour)
+            rowProps.row = props
             this.setState({byOrderRowProps: rowProps})
         })
     }
