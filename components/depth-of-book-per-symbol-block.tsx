@@ -555,7 +555,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                             </div>
 
 
-                            <div className={'content__bottom'}>
+                            <div className={'content__bottom pt-0'}>
                                 {this.state.isDataLoading ? (
                                     <LoaderBlock/>
                                 ) : (
