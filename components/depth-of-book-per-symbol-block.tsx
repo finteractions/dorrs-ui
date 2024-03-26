@@ -506,7 +506,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
-                                   
+
                                 </div>
                             </div>
                         )}

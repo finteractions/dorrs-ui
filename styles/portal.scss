@@ -551,7 +551,7 @@ body {
       }
 
       .input__btns:not(:first-child) {
-        margin-top: 24px;
+        margin-top: 7px;
       }
     }
 
@@ -4099,13 +4099,6 @@ body {
 
     .filter-menu {
       position: relative;
-      //display: flex;
-      //flex-wrap: wrap;
-
-      > button {
-        background: var(--filter-button-background);
-        color: var(--filter-button-colour);
-      }
 
       > ul {
         display: flex;

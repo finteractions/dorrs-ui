@@ -511,6 +511,10 @@
         box-shadow: unset;
       }
     }
+
+    .input__btns:not(:first-child) {
+      margin-top: 7px;
+    }
   }
 
   .input__wrap.active .show-password {
