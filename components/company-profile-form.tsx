@@ -17,6 +17,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
+import Select from "react-select";
+import AssetImage from "@/components/asset-image";
+import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import {ReportPeriod} from "@/enums/report-period";
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
@@ -551,18 +555,26 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             <Field
                                                                 name="sic_industry_classification"
                                                                 id="sic_industry_classification"
-                                                                as="select"
-                                                                className="b-select"
+                                                                as={Select}
+                                                                className="b-select-search"
+                                                                placeholder="Select SIC Industry Classification"
+                                                                classNamePrefix="select__react"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                            >
-                                                                <option value="">Select SIC Industry Classification
-                                                                </option>
-                                                                {Object.values(SicIndustryClassification).map((sic) => (
-                                                                    <option key={sic} value={sic}>
-                                                                        {sic}
-                                                                    </option>
-                                                                ))}
-                                                            </Field>
+                                                                options={Object.values(SicIndustryClassification).map((item) => ({
+                                                                    value: item,
+                                                                    label: item,
+                                                                }))}
+                                                                onChange={(selectedOption: any) => {
+                                                                    setFieldValue('sic_industry_classification', selectedOption.value);
+                                                                }}
+                                                                value={
+                                                                    Object.values(SicIndustryClassification).filter(i => i === values.sic_industry_classification).map((item) => ({
+                                                                        value: item,
+                                                                        label: item,
+                                                                    }))?.[0] || null
+                                                                }
+                                                            />
+
                                                             <ErrorMessage name="sic_industry_classification"
                                                                           component="div"
                                                                           className="error-message"/>

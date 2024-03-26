@@ -442,6 +442,6 @@ export enum SicIndustryClassification {
     "8888_OFFICE_OF_INTERNATIONAL_CORP_FIN" = "8888 Office of International Corp Fin FOREIGN GOVERNMENTS",
     "8900_OFFICE_OF_TRADE_&_SERVICES" = "8900 Office of Trade & Services SERVICES-SERVICES, NEC",
     "9721_OFFICE_OF_INTERNATIONAL_CORP_FIN" = "9721 Office of International Corp Fin INTERNATIONAL AFFAIRS",
-    "9995_OFFICE_OF_REAL_ESTATE_&_CONSTRUCTION" = "9995 Office of Real Estate & Construction NON-OPERATING ESTABLISHMENTS",
-
+    "523160 _NFT_MARKETPLACES_AND_EXCHANGES" = "523160 NFT Marketplaces and Exchanges",
+    "541511 _BLOCKCHAIN_DEVELOPERS_AND_PROGRAMMERS" = "541511 Blockchain Developers and Programmers",
 }
