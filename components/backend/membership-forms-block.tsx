@@ -5,9 +5,6 @@ import NoDataBlock from "@/components/no-data-block";
 import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
 import Modal from "@/components/modal";
 import MembershipForm from "@/components/membership-form";
 import formatterService from "@/services/formatter/formatter-service";
@@ -15,6 +12,7 @@ import formatterService from "@/services/formatter/formatter-service";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface MembershipFormsBlockState {
     loading: boolean;
@@ -23,8 +21,6 @@ interface MembershipFormsBlockState {
     formAction: string;
     data: IMembership[];
     errors: string[];
-    dataFull: IMembership[];
-    filterData: any;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -45,8 +41,6 @@ class MembershipFormsBlock extends React.Component<{}> {
             formAction: 'view',
             data: [],
             errors: [],
-            dataFull: [],
-            filterData: []
         }
 
         columns = [
@@ -79,6 +73,12 @@ class MembershipFormsBlock extends React.Component<{}> {
                 header: () => <span>Created Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'user_name', placeholder: 'Name'},
+            {key: 'user_id', placeholder: 'Email'},
+            {key: 'status', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
@@ -102,9 +102,7 @@ class MembershipFormsBlock extends React.Component<{}> {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
                 });
 
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
 
@@ -139,22 +137,6 @@ class MembershipFormsBlock extends React.Component<{}> {
         this.getForms();
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
     render() {
         return (
 
@@ -172,51 +154,6 @@ class MembershipFormsBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_name', item)}
-                                                options={filterService.buildOptions('user_name', this.state.dataFull)}
-                                                placeholder="Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_id', item)}
-                                                options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                                placeholder="Email"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('status', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('status', item)}
-                                                options={filterService.buildOptions('status', this.state.dataFull)}
-                                                placeholder="Status"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
                                     {this.state.data.length ? (
                                         <Table
                                             columns={columns}
@@ -225,6 +162,7 @@ class MembershipFormsBlock extends React.Component<{}> {
                                             searchPanel={true}
                                             block={this}
                                             viewBtn={true}
+                                            filters={tableFilters}
                                         />
                                     ) : (
                                         <>

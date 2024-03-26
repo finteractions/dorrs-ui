@@ -1,5 +1,6 @@
 import moment from "moment/moment";
-import {faRefresh} from "@fortawesome/free-solid-svg-icons";
+import {} from "@fortawesome/free-solid-svg-icons";
+import {faFilterCircleXmark} from "@fortawesome/free-solid-svg-icons/faFilterCircleXmark";
 
 function buildOptions(prop_name: string, data: any[]){
     return Array.from(new Set(data.map(item => getObjectValue(prop_name, item))))
@@ -44,7 +45,7 @@ function filterData(filter_data: any, data: any){
 }
 
 function getFilterResetIcon() {
-    return faRefresh
+    return faFilterCircleXmark
 }
 
 const filterService = {

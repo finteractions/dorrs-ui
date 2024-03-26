@@ -17,6 +17,7 @@ import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface InvoiceBlockState {
     loading: boolean;
@@ -26,8 +27,6 @@ interface InvoiceBlockState {
     data: IInvoice[];
     errors: string[];
     modalTitle: string;
-    dataFull: IInvoice[];
-    filterData: any;
     showSymbolForm: boolean;
 }
 
@@ -49,8 +48,6 @@ class InvoiceBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: [],
             showSymbolForm: true,
         }
 
@@ -116,6 +113,17 @@ class InvoiceBlock extends React.Component<{}> {
                 header: () => <span>Updated Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'invoice_id', placeholder: 'Invoice ID'},
+            {key: 'user_name', placeholder: 'Name'},
+            {key: 'user_id', placeholder: 'Email'},
+            {key: 'reference_number', placeholder: 'Reference Number'},
+            {key: 'firm_name', placeholder: 'Firm'},
+            {key: 'customer_type', placeholder: 'Customer'},
+            {key: 'date', placeholder: 'Date'},
+            {key: 'status_name', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
@@ -137,9 +145,7 @@ class InvoiceBlock extends React.Component<{}> {
                     s.customer_type = getCustomerTypeName(s.customer_type as CustomerType)
                     s.invoice_id = s.invoice_id.toString()
                 });
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -182,24 +188,6 @@ class InvoiceBlock extends React.Component<{}> {
         this.getInvoices();
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
-
     onCallback = async (values: any, step: boolean) => {
         this.getInvoices();
     };
@@ -217,114 +205,6 @@ class InvoiceBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('invoice_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('invoice_id', item)}
-                                                options={filterService.buildOptions('invoice_id', this.state.dataFull)}
-                                                placeholder="Invoice ID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_name', item)}
-                                                options={filterService.buildOptions('user_name', this.state.dataFull)}
-                                                placeholder="Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_id', item)}
-                                                options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                                placeholder="Email"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('reference_number', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('reference_number', item)}
-                                                options={filterService.buildOptions('reference_number', this.state.dataFull)}
-                                                placeholder="Reference Number"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('firm_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('firm_name', item)}
-                                                options={filterService.buildOptions('firm_name', this.state.dataFull)}
-                                                placeholder="Firm"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('customer_type', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('customer_type', item)}
-                                                options={filterService.buildOptions('customer_type', this.state.dataFull)}
-                                                placeholder="Customer"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('date', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('date', item)}
-                                                options={filterService.buildOptions('date', this.state.dataFull)}
-                                                placeholder="Date"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('status_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('status_name', item)}
-                                                options={filterService.buildOptions('status_name', this.state.dataFull)}
-                                                placeholder="Status"
-                                            />
-                                        </div>
-
-
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
-
                                     {this.state.data.length ? (
                                         <Table columns={columns}
                                                pageLength={pageLength}
@@ -334,6 +214,7 @@ class InvoiceBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={false}
                                                deleteBtn={false}
+                                               filters={tableFilters}
                                         />
                                     ) : (
                                         <>

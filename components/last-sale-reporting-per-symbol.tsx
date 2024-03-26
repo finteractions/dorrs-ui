@@ -9,8 +9,6 @@ import {Condition} from "@/enums/condition";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
 import filterService from "@/services/filter/filter";
-import Select from "react-select";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import symbolService from "@/services/symbol/symbol-service";
 import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
@@ -30,13 +28,12 @@ interface LastSaleReportingPerSymbolState extends IState {
     isLoadingChart: boolean;
     errors: string[];
     data: ILastSale[];
-    dataFull: ILastSale[];
-    filterData: any;
     mpid: string | null;
 }
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {
 
@@ -44,6 +41,8 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     charts: Array<ITradingView> = new Array<ITradingView>();
     state: LastSaleReportingPerSymbolState;
     isDashboard: boolean;
+
+    tableRef: React.RefObject<any> = React.createRef();
 
     constructor(props: LastSaleReportingPerSymbolProps) {
         super(props);
@@ -57,8 +56,6 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isLoadingChart: true,
             errors: [],
             data: [],
-            dataFull: [],
-            filterData: [],
             mpid: null
         }
 
@@ -117,6 +114,15 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'origin', placeholder: 'Origin'},
+            {key: 'condition', placeholder: 'Condition'},
+            {key: 'mpid', placeholder: 'MPID'},
+            {key: 'tick_indication', placeholder: 'Tick'},
+            {key: 'uti', placeholder: 'UTI'},
+            {key: 'date', placeholder: 'Date'},
+        ]
     }
 
     componentDidMount() {
@@ -142,10 +148,6 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                 });
         });
 
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
     getSymbols = () => {
@@ -180,9 +182,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                         s.condition = Condition[s.condition as keyof typeof Condition] || ''
                     })
 
-                    this.setState({dataFull: data, data: data}, () => {
-                        this.filterData();
-                    });
+                    this.setState({data: data});
                 })
                 .catch((errors: IError) => {
 
@@ -202,28 +202,21 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
         this.getLastSaleReporting();
     };
 
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
     downloadLastSaleReportingCSV = () => {
-        lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.state.filterData).then((res) => {
-            downloadFile.CSV('last_sale_reporting', res);
-        })
+        if (this.tableRef.current) {
+            lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.CSV('last_sale_reporting', res);
+            })
+        }
+
     }
 
     downloadLastSaleReportingXLSX = () => {
-        lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.state.filterData).then((res) => {
-            downloadFile.XLSX('last_sale_reporting', res);
-        })
+        if (this.tableRef.current) {
+            lastSaleService.downloadLastSalesBySymbol(this.props.symbol, this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.XLSX('last_sale_reporting', res);
+            })
+        }
     }
 
     handleMPID = (mpid: string | null) => {
@@ -306,93 +299,14 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                     </div>
                                 )}
 
-                                <div className="content__filter mb-3">
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('origin', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('origin', item)}
-                                            options={filterService.buildOptions('origin', this.state.dataFull)}
-                                            placeholder="Origin"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('condition', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('condition', item)}
-                                            options={filterService.buildOptions('condition', this.state.dataFull)}
-                                            placeholder="Condition"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('mpid', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('mpid', item)}
-                                            options={filterService.buildOptions('mpid', this.state.dataFull)}
-                                            placeholder="MPID"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('tick_indication', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('tick_indication', item)}
-                                            options={filterService.buildOptions('tick_indication', this.state.dataFull)}
-                                            placeholder="Tick Indication"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('uti', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('uti', item)}
-                                            options={filterService.buildOptions('uti', this.state.dataFull)}
-                                            placeholder="UTI"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('date', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('date', item)}
-                                            options={filterService.buildOptions('date', this.state.dataFull)}
-                                            placeholder="Date"
-                                        />
-                                    </div>
-                                    <button
-                                        className="content__filter-clear ripple"
-                                        onClick={this.handleResetButtonClick}>
-                                        <FontAwesomeIcon className="nav-icon"
-                                                         icon={filterService.getFilterResetIcon()}/>
-                                    </button>
-                                </div>
-
                                 <Table columns={columns}
                                        data={this.state.data}
                                        searchPanel={true}
                                        block={this}
                                        editBtn={false}
                                        viewBtn={false}
+                                       filters={tableFilters}
+                                       ref={this.tableRef}
                                 />
                             </div>
                         </div>

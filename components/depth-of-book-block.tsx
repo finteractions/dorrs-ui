@@ -45,7 +45,7 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-
+let tableFilters: Array<ITableFilter> = []
 
 class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBookBlockState> {
 
@@ -152,6 +152,12 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                 header: () => <span>Offer Updated Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'symbol_name', placeholder: 'Symbol'},
+            {key: 'bid_mpid', placeholder: 'Bid MPID'},
+            {key: 'offer_mpid', placeholder: 'Offer MPID'},
+        ]
     }
 
     navigate = (symbol: string) => {
@@ -291,57 +297,12 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                     ) : (
                         <>
                             <div className="content__bottom">
-                                <div className="content__filter mb-3">
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('symbol_name', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('symbol_name', item)}
-                                            options={filterService.buildOptions('symbol_name', this.state.dataFull)}
-                                            placeholder="Symbol"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('bid_mpid', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('bid_mpid', item)}
-                                            options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
-                                            placeholder="Bid MPID"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('offer_mpid', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('offer_mpid', item)}
-                                            options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
-                                            placeholder="Offer MPID"
-                                        />
-                                    </div>
-
-                                    <button
-                                        className="content__filter-clear ripple"
-                                        onClick={this.handleResetButtonClick}>
-                                        <FontAwesomeIcon className="nav-icon"
-                                                         icon={filterService.getFilterResetIcon()}/>
-                                    </button>
-                                </div>
-
                                 {this.state.data.length ? (
                                     <Table columns={columns}
                                            data={this.state.data}
                                            searchPanel={true}
                                            access={this.props.access}
+                                           filters={tableFilters}
                                     />
                                 ) : (
                                     <NoDataBlock/>

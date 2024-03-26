@@ -18,6 +18,7 @@ import adminIconService from "@/services/admin/admin-icon-service";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface FirmsBlockState {
     loading: boolean;
@@ -28,8 +29,6 @@ interface FirmsBlockState {
     data: IFirm[];
     errors: string[];
     modalTitle: string;
-    dataFull: IFirm[];
-    filterData: any;
     showSymbolForm: boolean;
 }
 
@@ -54,8 +53,6 @@ class FirmsBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: [],
             showSymbolForm: true,
         }
 
@@ -97,6 +94,14 @@ class FirmsBlock extends React.Component<{}> {
                 header: () => <span>Created Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'name', placeholder: 'Name'},
+            {key: 'mpid', placeholder: 'MPID'},
+            {key: 'is_member_text', placeholder: 'DORRS Member'},
+            {key: 'is_ats_text', placeholder: 'ATS'},
+            {key: 'status', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
@@ -125,9 +130,7 @@ class FirmsBlock extends React.Component<{}> {
                         s.is_member_text = s.is_member ? 'Yes' : 'No'
                         s.is_ats_text = s.is_ats ? 'Yes' : 'No'
                     });
-                    this.setState({dataFull: data, data: data}, () => {
-                        this.filterData();
-                    });
+                    this.setState({data: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -212,24 +215,6 @@ class FirmsBlock extends React.Component<{}> {
 
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
-
     onCallback = async (values: any, step: boolean) => {
         this.closeModal();
         await this.getFirms();
@@ -255,76 +240,6 @@ class FirmsBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('name', item)}
-                                                options={filterService.buildOptions('name', this.state.dataFull)}
-                                                placeholder="Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('mpid', item)}
-                                                options={filterService.buildOptions('mpid', this.state.dataFull)}
-                                                placeholder="MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('is_member_text', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('is_member_text', item)}
-                                                options={filterService.buildOptions('is_member_text', this.state.dataFull)}
-                                                placeholder="DORRS Member"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('is_ats_text', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('is_ats_text', item)}
-                                                options={filterService.buildOptions('is_ats_text', this.state.dataFull)}
-                                                placeholder="ATS"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('status', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('status', item)}
-                                                options={filterService.buildOptions('status', this.state.dataFull)}
-                                                placeholder="Status"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
-
                                     {this.state.data.length ? (
                                         <Table columns={columns}
                                                pageLength={pageLength}
@@ -334,6 +249,7 @@ class FirmsBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={true}
                                                deleteBtn={true}
+                                               filters={tableFilters}
                                         />
                                     ) : (
                                         <>

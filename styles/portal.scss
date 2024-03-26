@@ -1892,6 +1892,7 @@ body {
       column-gap: 15px;
       row-gap: 15px;
       flex-wrap: wrap;
+      justify-content: flex-end;
 
       .input__wrap {
         flex: 1;
@@ -2059,7 +2060,7 @@ body {
           padding: 20px 20px;
 
           .table {
-            margin: -20px -20px 0px -20px;
+            margin: 0px -20px 0px -20px;
 
             tr {
               td:first-child, th:first-child {
@@ -3470,24 +3471,30 @@ body {
       margin-bottom: 48px;
     }
 
-    .content__search {
-      display: flex;
-      justify-content: flex-end;
+    //.content__search {
+    //  display: flex;
+    //  justify-content: flex-end;
 
-      .search-filter {
-        max-width: 250px;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 7px;
-        font-weight: 400;
-        color: #333333;
-        border: 1px solid #dbdbdb;
-        height: 35px;
-        font-size: 13px;
-        margin-bottom: 24px;
-        background-color: transparent;
+    .search-filter {
+      max-width: 250px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px;
+      font-weight: 400;
+      color: #333333;
+      border: 1px solid #dbdbdb;
+      height: 35px;
+      font-size: 13px;
+      //margin-bottom: 24px;
+      background-color: transparent;
+      border-radius: 6px;
+
+      @media (max-width: 768px) {
+        max-width: 100%;
       }
     }
+
+    //}
 
     .last-sale-reporting {
 

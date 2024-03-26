@@ -10,19 +10,11 @@ import filterService from "@/services/filter/filter";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
-import {DataContext} from "@/contextes/data-context";
-import {IDataContext} from "@/interfaces/i-data-context";
-import UserPermissionService from "@/services/user/user-permission-service";
 import {countries} from "countries-list";
 import formatterService from "@/services/formatter/formatter-service";
-import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
-import {IFees} from "@/interfaces/i-fees";
 import adminService from "@/services/admin/admin-service";
-import feesService from "@/services/fee/reports-service";
 import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
-import {ISymbol} from "@/interfaces/i-symbol";
-import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 
 interface CompanyProfilesBlockState extends IState {
     isLoading: boolean;
@@ -51,7 +43,7 @@ interface CompanyProfilesBlockProps extends ICallback {
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-
+let tableFilters: Array<ITableFilter> = []
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, CompanyProfilesBlockState> {
@@ -151,6 +143,11 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             }),
         ];
 
+        tableFilters = [
+            {key: 'company_name', placeholder: 'Company Name'},
+            {key: 'sic_industry_classification', placeholder: 'SIC Industry Classification'}
+        ]
+
         if (this.state.isAdmin) {
             columns.push(
                 columnHelper.accessor((row) => row.company_profile_status, {
@@ -163,7 +160,13 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                     header: () => <span>Company Profile Status</span>,
                 })
             )
+
+            tableFilters.push(
+                {key: 'company_profile_status', placeholder: 'Company Profile Status'},
+            )
         }
+
+
     }
 
     componentDidMount() {
@@ -251,52 +254,6 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                     ) : (
                         <>
                             <div className="content__bottom">
-                                <div className="content__filter mb-3">
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('company_name', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('company_name', item)}
-                                            options={filterService.buildOptions('company_name', this.state.dataFull)}
-                                            placeholder="Company Name"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('sic_industry_classification', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('sic_industry_classification', item)}
-                                            options={filterService.buildOptions('sic_industry_classification', this.state.dataFull)}
-                                            placeholder="SIC Industry Classification"
-                                        />
-                                    </div>
-                                    {this.state.isAdmin && (
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('company_profile_status', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('company_profile_status', item)}
-                                                options={filterService.buildOptions('company_profile_status', this.state.dataFull)}
-                                                placeholder="Company Profile Status"
-                                            />
-                                        </div>
-                                    )}
-                                    <button
-                                        className="content__filter-clear ripple"
-                                        onClick={this.handleResetButtonClick}>
-                                        <FontAwesomeIcon className="nav-icon"
-                                                         icon={filterService.getFilterResetIcon()}/>
-                                    </button>
-                                </div>
                                 {this.state.data.length ? (
                                     <Table columns={columns}
                                            pageLength={this.state.isAdmin ? pageLength : undefined}
@@ -305,6 +262,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                            block={this}
                                            viewBtn={this.state.isAdmin}
                                            editBtn={this.state.isAdmin}
+                                           filters={tableFilters}
                                     />
                                 ) : (
                                     <NoDataBlock/>

@@ -6,7 +6,6 @@ import {IChartStatistics} from "@/interfaces/i-chart-statistics";
 import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
-import filterService from "@/services/filter/filter";
 import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import Modal from "@/components/modal";
@@ -15,8 +14,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import MemberDistributionInfoBlock from "@/components/backend/member-distribution-info-block";
 import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
-import {faEye, faStar} from "@fortawesome/free-solid-svg-icons";
-import Select from "react-select";
+import {faEye} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 
@@ -27,11 +25,7 @@ interface MemberDistributionBlockState {
     isDataLoading: boolean;
     memberDistributionStatisticsData: any[];
     memberDistributionViewData: IMemberDistribution[];
-    memberDistributionViewDataFull: IMemberDistribution[];
-    memberDistributionViewDataFilter: any;
     memberDistributionHistoryData: IMemberDistributionHistory[];
-    memberDistributionHistoryDataFull: IMemberDistributionHistory[];
-    memberDistributionHistoryDataFilter: any;
     isMemberDistributionHistory: boolean;
     formData: IMemberDistribution | null;
     errors: string[];
@@ -43,9 +37,11 @@ interface MemberDistributionBlockState {
 
 const columnmemberDistributionViewDataHelper = createColumnHelper<any>();
 let memberDistributionsDataColumns: any[] = [];
+let memberDistributionsDataFilters: Array<ITableFilter> = []
 
 const columnmemberDistributionHistoryDataHelper = createColumnHelper<any>();
 let memberDistributionsHistoryColumns: any[] = [];
+let memberDistributionsHistoryFilters: Array<ITableFilter> = []
 
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
@@ -70,11 +66,7 @@ class MemberDistributionBlock extends React.Component<{}> {
             isDataLoading: true,
             memberDistributionStatisticsData: [],
             memberDistributionViewData: [],
-            memberDistributionViewDataFull: [],
-            memberDistributionViewDataFilter: [],
             memberDistributionHistoryData: [],
-            memberDistributionHistoryDataFull: [],
-            memberDistributionHistoryDataFilter: [],
             isMemberDistributionHistory: false,
             errors: [],
             formData: null,
@@ -141,6 +133,16 @@ class MemberDistributionBlock extends React.Component<{}> {
             }),
         ];
 
+        memberDistributionsDataFilters = [
+            {key: 'firm_name', placeholder: 'Firm'},
+            {key: 'status_name', placeholder: 'Status'},
+        ];
+
+        memberDistributionsHistoryFilters = [
+            {key: 'date_formatted', placeholder: 'Date'},
+            {key: 'status_name', placeholder: 'Status'},
+        ];
+
         this.dates = [];
     }
 
@@ -185,9 +187,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                     data.forEach(s => {
                         s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
                     });
-                    this.setState({memberDistributionViewDataFull: data, memberDistributionViewData: data}, () => {
-                        this.filterMemberDistributionViewData();
-                    });
+                    this.setState({memberDistributionViewData: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -206,12 +206,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                     data.forEach(s => {
                         s.status_name = getInvoiceStatusNames(s.status as InvoiceStatus)
                     });
-                    this.setState({
-                        memberDistributionHistoryDataFull: data,
-                        memberDistributionHistoryData: data
-                    }, () => {
-                        this.filterMemberDistributionHistoryData();
-                    });
+                    this.setState({memberDistributionHistoryData: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -236,14 +231,6 @@ class MemberDistributionBlock extends React.Component<{}> {
                     resolve(true);
                 })
         })
-    }
-
-    filterMemberDistributionViewData = () => {
-        this.setState({memberDistributionViewData: filterService.filterData(this.state.memberDistributionViewDataFilter, this.state.memberDistributionViewDataFull)});
-    }
-
-    filterMemberDistributionHistoryData = () => {
-        this.setState({memberDistributionHistoryData: filterService.filterData(this.state.memberDistributionHistoryDataFilter, this.state.memberDistributionHistoryDataFull)});
     }
 
     getClassName(name: string) {
@@ -298,43 +285,6 @@ class MemberDistributionBlock extends React.Component<{}> {
         })
     }
 
-    handleMemberDistributionViewDataFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            memberDistributionViewDataFilter: {
-                ...this.state.memberDistributionViewDataFilter,
-                [prop_name]: item?.value || ''
-            }
-        }), () => {
-            this.filterMemberDistributionViewData();
-        });
-    }
-
-    handleMemberDistributionViewDataResetButtonClick = () => {
-        this.setState({
-            memberDistributionViewData: this.state.memberDistributionViewDataFull,
-            memberDistributionViewDataFilter: []
-        });
-    }
-
-    handleMemberDistributionHistoryDataFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            memberDistributionHistoryDataFilter: {
-                ...this.state.memberDistributionHistoryDataFilter,
-                [prop_name]: item?.value || ''
-            }
-        }), () => {
-            this.filterMemberDistributionHistoryData();
-        });
-    }
-
-    handleMemberDistributionHistoryDataResetButtonClick = () => {
-        this.setState({
-            memberDistributionHistoryData: this.state.memberDistributionHistoryDataFull,
-            memberDistributionHistoryDataFilter: []
-        });
-    }
-
-
     render() {
         return (
 
@@ -379,8 +329,9 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                         <div>
                                                             <button
                                                                 onClick={() => this.openStatisticsModal(item)}
-                                                                className={`admin-table-btn ripple ${this.getClassName(item.key)}`}><FontAwesomeIcon
-                                                                className="nav-icon" icon={faEye}/></button>
+                                                                className={`admin-table-btn ripple ${this.getClassName(item.key)}`}>
+                                                                <FontAwesomeIcon
+                                                                    className="nav-icon" icon={faEye}/></button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -390,41 +341,6 @@ class MemberDistributionBlock extends React.Component<{}> {
 
 
                                     <div className="dashboard__transaction__panel">
-                                        <div className="content__filter mb-3">
-                                            <div className="input__wrap">
-                                                <Select
-                                                    className="select__react"
-                                                    classNamePrefix="select__react"
-                                                    isClearable={true}
-                                                    isSearchable={true}
-                                                    value={filterService.setValue('firm_name', this.state.memberDistributionViewDataFilter)}
-                                                    onChange={(item) => this.handleMemberDistributionViewDataFilterChange('firm_name', item)}
-                                                    options={filterService.buildOptions('firm_name', this.state.memberDistributionViewDataFull)}
-                                                    placeholder="Firm"
-                                                />
-                                            </div>
-                                            <div className="input__wrap">
-                                                <Select
-                                                    className="select__react"
-                                                    classNamePrefix="select__react"
-                                                    isClearable={true}
-                                                    isSearchable={true}
-                                                    value={filterService.setValue('status_name', this.state.memberDistributionViewDataFilter)}
-                                                    onChange={(item) => this.handleMemberDistributionViewDataFilterChange('status_name', item)}
-                                                    options={filterService.buildOptions('status_name', this.state.memberDistributionViewDataFull)}
-                                                    placeholder="Status"
-                                                />
-                                            </div>
-
-
-                                            <button
-                                                className="content__filter-clear ripple"
-                                                onClick={this.handleMemberDistributionViewDataResetButtonClick}>
-                                                <FontAwesomeIcon className="nav-icon"
-                                                                 icon={filterService.getFilterResetIcon()}/>
-                                            </button>
-                                        </div>
-
                                         {this.state.memberDistributionViewData.length ? (
                                             <Table
                                                 columns={memberDistributionsDataColumns}
@@ -433,7 +349,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                 searchPanel={false}
                                                 block={this}
                                                 viewBtn={true}
-                                                filter={false}
+                                                filters={memberDistributionsDataFilters}
                                             />
                                         ) : (
                                             <div className={'mt-24'}>
@@ -448,41 +364,6 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                 Invoices
                                             </div>
                                             <div className="dashboard__transaction__panel">
-                                                <div className="content__filter mb-3">
-                                                    <div className="input__wrap">
-                                                        <Select
-                                                            className="select__react"
-                                                            classNamePrefix="select__react"
-                                                            isClearable={true}
-                                                            isSearchable={true}
-                                                            value={filterService.setValue('date_formatted', this.state.memberDistributionHistoryDataFilter)}
-                                                            onChange={(item) => this.handleMemberDistributionHistoryDataFilterChange('date_formatted', item)}
-                                                            options={filterService.buildOptions('date_formatted', this.state.memberDistributionHistoryDataFull)}
-                                                            placeholder="Date"
-                                                        />
-                                                    </div>
-                                                    <div className="input__wrap">
-                                                        <Select
-                                                            className="select__react"
-                                                            classNamePrefix="select__react"
-                                                            isClearable={true}
-                                                            isSearchable={true}
-                                                            value={filterService.setValue('status_name', this.state.memberDistributionHistoryDataFilter)}
-                                                            onChange={(item) => this.handleMemberDistributionHistoryDataFilterChange('status_name', item)}
-                                                            options={filterService.buildOptions('status_name', this.state.memberDistributionHistoryDataFull)}
-                                                            placeholder="Status"
-                                                        />
-                                                    </div>
-
-
-                                                    <button
-                                                        className="content__filter-clear ripple"
-                                                        onClick={this.handleMemberDistributionHistoryDataResetButtonClick}>
-                                                        <FontAwesomeIcon className="nav-icon"
-                                                                         icon={filterService.getFilterResetIcon()}/>
-                                                    </button>
-                                                </div>
-
                                                 {this.state.memberDistributionHistoryData.length ? (
                                                     <Table
                                                         columns={memberDistributionsHistoryColumns}
@@ -492,7 +373,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                                                         block={this}
                                                         viewBtn={false}
                                                         customBtnProps={this.customBtns}
-                                                        filter={false}
+                                                        filters={memberDistributionsHistoryFilters}
                                                     />
                                                 ) : (
                                                     <div className={'mt-24'}>

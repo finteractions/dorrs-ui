@@ -53,22 +53,11 @@ class ReportLastSaleTotalsByAlternativeTradingSystem extends React.Component<Rep
             report: props.report
         }
 
-        const host = `${window.location.protocol}//${window.location.host}`;
-
         columns = [
-            columnHelper.accessor((row) => ({
-                symbol: row.symbol,
-                image: row.image?.logo
-            }), {
+            columnHelper.accessor((row) => row.symbol, {
                 id: "symbol",
                 cell: (item) =>
-                    <div className={`table-image`}>
-                        <div className="table-image-container">
-                            <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                        width={28} height={28}/>
-                        </div>
-                        {item.getValue().symbol}
-                    </div>
+                    <span>{item.getValue()}</span>
                 ,
                 header: () => <span>Symbol</span>,
             }),
@@ -138,7 +127,6 @@ class ReportLastSaleTotalsByAlternativeTradingSystem extends React.Component<Rep
                     {data.length ? (
                         <Table columns={columns}
                                data={data}
-                               searchPanel={true}
                                block={this}
                                editBtn={false}
                                viewBtn={false}

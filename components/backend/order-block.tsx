@@ -5,11 +5,8 @@ import NoDataBlock from "@/components/no-data-block";
 import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
@@ -21,6 +18,7 @@ import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface OrdersBlockState {
     loading: boolean;
@@ -30,8 +28,6 @@ interface OrdersBlockState {
     data: IOrder[];
     errors: string[];
     modalTitle: string;
-    dataFull: IOrder[];
-    filterData: any;
     showSymbolForm: boolean;
     mpid: string | null;
 }
@@ -42,6 +38,8 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class OrdersBlock extends React.Component<{}> {
     state: OrdersBlockState;
     getAssetsInterval!: NodeJS.Timer;
+
+    tableRef: React.RefObject<any> = React.createRef();
 
     constructor(props: {}) {
         super(props);
@@ -54,8 +52,6 @@ class OrdersBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: [],
             showSymbolForm: true,
             mpid: null
         }
@@ -163,6 +159,20 @@ class OrdersBlock extends React.Component<{}> {
                 header: () => <span>Created Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'user_name', placeholder: 'Name'},
+            {key: 'user_id', placeholder: 'Email'},
+            {key: 'firm_name', placeholder: 'Firm'},
+            {key: 'symbol_name', placeholder: 'Symbol'},
+            {key: 'origin', placeholder: 'Origin'},
+            {key: 'quote_condition', placeholder: 'Quote Condition'},
+            {key: 'side', placeholder: 'Side'},
+            {key: 'mpid', placeholder: 'MPID'},
+            {key: 'ref_id', placeholder: 'RefID'},
+            {key: 'uti', placeholder: 'UTI'},
+            {key: 'status_name', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
@@ -190,9 +200,7 @@ class OrdersBlock extends React.Component<{}> {
                         s.status_name = getOrderStatusNames(s.status as OrderStatus);
                     })
 
-                    this.setState({dataFull: data, data: data}, () => {
-                        this.filterData();
-                    });
+                    this.setState({data: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -237,39 +245,25 @@ class OrdersBlock extends React.Component<{}> {
         this.getOrders();
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
-
     onCallback = async (values: any, step: boolean) => {
         this.getOrders();
         this.closeModal();
     };
 
     downloadOrdersCSV = () => {
-        adminService.downloadOrders(this.state.filterData).then((res) => {
-            downloadFile.CSV('orders', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadOrders(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.CSV('orders', res);
+            })
+        }
     }
 
     downloadOrdersXLSX = () => {
-        adminService.downloadOrders(this.state.filterData).then((res) => {
-            downloadFile.XLSX('orders', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadOrders(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.XLSX('orders', res);
+            })
+        }
     }
 
     handleMPID = (mpid: string | null) => {
@@ -305,148 +299,6 @@ class OrdersBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_name', item)}
-                                                options={filterService.buildOptions('user_name', this.state.dataFull)}
-                                                placeholder="Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_id', item)}
-                                                options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                                placeholder="Email"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('firm_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('firm_name', item)}
-                                                options={filterService.buildOptions('firm_name', this.state.dataFull)}
-                                                placeholder="Firm"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('symbol_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('symbol_name', item)}
-                                                options={filterService.buildOptions('symbol_name', this.state.dataFull)}
-                                                placeholder="Symbol"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('origin', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('origin', item)}
-                                                options={filterService.buildOptions('origin', this.state.dataFull)}
-                                                placeholder="Origin"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('quote_condition', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('quote_condition', item)}
-                                                options={filterService.buildOptions('quote_condition', this.state.dataFull)}
-                                                placeholder="Quote Condition"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('side', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('side', item)}
-                                                options={filterService.buildOptions('side', this.state.dataFull)}
-                                                placeholder="Side"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('mpid', item)}
-                                                options={filterService.buildOptions('mpid', this.state.dataFull)}
-                                                placeholder="MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('ref_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('ref_id', item)}
-                                                options={filterService.buildOptions('ref_id', this.state.dataFull)}
-                                                placeholder="RefID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('uti', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('uti', item)}
-                                                options={filterService.buildOptions('uti', this.state.dataFull)}
-                                                placeholder="UTI"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('status_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('status_name', item)}
-                                                options={filterService.buildOptions('status_name', this.state.dataFull)}
-                                                placeholder="Status"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
-
                                     {this.state.data.length ? (
                                         <Table columns={columns}
                                                pageLength={pageLength}
@@ -456,6 +308,8 @@ class OrdersBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={false}
                                                deleteBtn={false}
+                                               filters={tableFilters}
+                                               ref={this.tableRef}
                                         />
                                     ) : (
                                         <>

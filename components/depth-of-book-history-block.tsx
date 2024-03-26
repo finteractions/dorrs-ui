@@ -32,8 +32,6 @@ interface DepthOfBookHistoryBlockState extends IState, IModalState {
     modalTitle: string;
     errors: string[];
     data: IOrder[];
-    dataFull: IOrder[];
-    filterData: any;
     mpid: string | null;
 }
 
@@ -52,7 +50,7 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-
+let tableFilters: Array<ITableFilter> = []
 
 class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockProps, DepthOfBookHistoryBlockState> {
 
@@ -62,6 +60,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
+
+    tableRef: React.RefObject<any> = React.createRef();
 
     customBtns: Array<ICustomButtonProps> = this.props.access.edit ? [
         {
@@ -87,8 +87,6 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             errors: [],
             formData: null,
             data: [],
-            dataFull: [],
-            filterData: [],
             mpid: null
         }
 
@@ -160,6 +158,16 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                 header: () => <span>Updated Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'origin', placeholder: 'Origin'},
+            {key: 'quote_condition', placeholder: 'Quote Condition'},
+            {key: 'side', placeholder: 'Side'},
+            {key: 'mpid', placeholder: 'MPID'},
+            {key: 'ref_id', placeholder: 'RefID'},
+            {key: 'uti', placeholder: 'UTI'},
+            {key: 'status_name', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
@@ -195,9 +203,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                     s.status_name = getOrderStatusNames(s.status as OrderStatus);
                 })
 
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
 
@@ -207,9 +213,6 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             });
     }
 
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
     openModal = (mode: string, data?: IOrder) => {
         this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
     }
@@ -255,47 +258,30 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         this.closeModal();
     };
 
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
     downloadBBOCSV = () => {
-        this.setSymbol()
-            .then(() => {
-                ordersService.downloadOrders(this.state.filterData).then((res) => {
-                    downloadFile.CSV('orders', res);
-                })
+        if (this.tableRef.current) {
+            const data = {
+                symbol_name: this.props.symbol
+            }
+            const filters = this.tableRef.current.getColumnFilters()
+            const body = Object.assign(data, filters)
+            ordersService.downloadOrders(body).then((res) => {
+                downloadFile.CSV('orders', res);
             })
+        }
     }
 
     downloadBBOXLSX = () => {
-        this.setSymbol()
-            .then(() => {
-                ordersService.downloadOrders(this.state.filterData).then((res) => {
-                    downloadFile.XLSX('orders', res);
-                })
-            })
-
-    }
-
-    setSymbol = () => {
-        return new Promise(resolve => {
-            if (this.props.symbol) {
-                this.setState(({
-                    filterData: {...this.state.filterData, 'symbol_name': this.props.symbol}
-                }), () => resolve(true));
-            } else {
-                resolve(true)
+        if (this.tableRef.current) {
+            const data = {
+                symbol_name: this.props.symbol
             }
-        })
+            const filters = this.tableRef.current.getColumnFilters()
+            const body = Object.assign(data, filters)
+            ordersService.downloadOrders(body).then((res) => {
+                downloadFile.XLSX('orders', res);
+            })
+        }
     }
 
     addOrder = (data: IOrder) => {
@@ -347,98 +333,6 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                     ) : (
                         <>
                             <div className="content__bottom">
-                                <div className="content__filter mb-3">
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('origin', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('origin', item)}
-                                            options={filterService.buildOptions('origin', this.state.dataFull)}
-                                            placeholder="Origin"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('quote_condition', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('quote_condition', item)}
-                                            options={filterService.buildOptions('quote_condition', this.state.dataFull)}
-                                            placeholder="Quote Condition"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('side', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('side', item)}
-                                            options={filterService.buildOptions('side', this.state.dataFull)}
-                                            placeholder="Side"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('mpid', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('mpid', item)}
-                                            options={filterService.buildOptions('mpid', this.state.dataFull)}
-                                            placeholder="MPID"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('ref_id', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('ref_id', item)}
-                                            options={filterService.buildOptions('ref_id', this.state.dataFull)}
-                                            placeholder="RefID"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('uti', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('uti', item)}
-                                            options={filterService.buildOptions('uti', this.state.dataFull)}
-                                            placeholder="UTI"
-                                        />
-                                    </div>
-                                    <div className="input__wrap">
-                                        <Select
-                                            className="select__react"
-                                            classNamePrefix="select__react"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            value={filterService.setValue('status_name', this.state.filterData)}
-                                            onChange={(item) => this.handleFilterChange('status_name', item)}
-                                            options={filterService.buildOptions('status_name', this.state.dataFull)}
-                                            placeholder="Status"
-                                        />
-                                    </div>
-                                    <button
-                                        className="content__filter-clear ripple"
-                                        onClick={this.handleResetButtonClick}>
-                                        <FontAwesomeIcon className="nav-icon"
-                                                         icon={filterService.getFilterResetIcon()}/>
-                                    </button>
-                                </div>
 
                                 {this.state.data.length ? (
                                     <Table columns={columns}
@@ -450,6 +344,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                                            deleteBtn={true}
                                            customBtnProps={this.customBtns}
                                            access={this.props.access}
+                                           filters={tableFilters}
+                                           ref={this.tableRef}
                                     />
                                 ) : (
                                     <NoDataBlock/>
@@ -470,7 +366,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                                 />
                             </Modal>
 
-                            <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
+                            <ModalMPIDInfoBlock mpid={this.state.mpid}
+                                                onCallback={(value: any) => this.handleMPID(value)}/>
 
                         </>
                     )}

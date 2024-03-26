@@ -5,11 +5,8 @@ import NoDataBlock from "@/components/no-data-block";
 import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
 import {IFirm} from "@/interfaces/i-firm";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import downloadFile from "@/services/download-file/download-file";
@@ -19,6 +16,7 @@ import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface BestBidAndBestOfferBlockState {
     loading: boolean;
@@ -28,8 +26,6 @@ interface BestBidAndBestOfferBlockState {
     data: IBestBidAndBestOffer[];
     errors: string[];
     modalTitle: string;
-    dataFull: IBestBidAndBestOffer[];
-    filterData: any;
     showSymbolForm: boolean;
     mpid: string | null;
 }
@@ -40,6 +36,8 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class BestBidAndBestOfferBlock extends React.Component<{}> {
     state: BestBidAndBestOfferBlockState;
     getAssetsInterval!: NodeJS.Timer;
+
+    tableRef: React.RefObject<any> = React.createRef();
 
     constructor(props: {}) {
         super(props);
@@ -52,8 +50,6 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: [],
             showSymbolForm: true,
             mpid: null
         }
@@ -176,6 +172,18 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'user_name', placeholder: 'Name'},
+            {key: 'user_id', placeholder: 'Email'},
+            {key: 'firm_name', placeholder: 'Firm'},
+            {key: 'symbol_name', placeholder: 'Symbol'},
+            {key: 'origin', placeholder: 'Origin'},
+            {key: 'quote_condition', placeholder: 'Quote Condition'},
+            {key: 'bid_mpid', placeholder: 'Bid MPID'},
+            {key: 'offer_mpid', placeholder: 'Offer MPID'},
+            {key: 'uti', placeholder: 'UTI'},
+        ]
     }
 
     componentDidMount() {
@@ -201,9 +209,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                         s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
                     })
 
-                    this.setState({dataFull: data, data: data}, () => {
-                        this.filterData();
-                    });
+                    this.setState({data: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -247,39 +253,25 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
         this.getBBO();
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
-
     onCallback = async (values: any, step: boolean) => {
         this.getBBO();
         this.closeModal();
     };
 
     downloadBBOCSV = () => {
-        adminService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
-            downloadFile.CSV('bbo', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadBestBidAndBestOffer(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.CSV('bbo', res);
+            })
+        }
     }
 
     downloadBBOXLSX = () => {
-        adminService.downloadBestBidAndBestOffer(this.state.filterData).then((res) => {
-            downloadFile.XLSX('bbo', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadBestBidAndBestOffer(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.XLSX('bbo', res);
+            })
+        }
     }
 
     handleMPID = (mpid: string | null) => {
@@ -316,124 +308,6 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_name', item)}
-                                                options={filterService.buildOptions('user_name', this.state.dataFull)}
-                                                placeholder="Name"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('user_id', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('user_id', item)}
-                                                options={filterService.buildOptions('user_id', this.state.dataFull)}
-                                                placeholder="Email"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('firm_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('firm_name', item)}
-                                                options={filterService.buildOptions('firm_name', this.state.dataFull)}
-                                                placeholder="Firm"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('symbol_name', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('symbol_name', item)}
-                                                options={filterService.buildOptions('symbol_name', this.state.dataFull)}
-                                                placeholder="Symbol"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('origin', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('origin', item)}
-                                                options={filterService.buildOptions('origin', this.state.dataFull)}
-                                                placeholder="Origin"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('quote_condition', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('quote_condition', item)}
-                                                options={filterService.buildOptions('quote_condition', this.state.dataFull)}
-                                                placeholder="Quote Condition"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('bid_mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('bid_mpid', item)}
-                                                options={filterService.buildOptions('bid_mpid', this.state.dataFull)}
-                                                placeholder="Bid MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('offer_mpid', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('offer_mpid', item)}
-                                                options={filterService.buildOptions('offer_mpid', this.state.dataFull)}
-                                                placeholder="Offer MPID"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('uti', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('uti', item)}
-                                                options={filterService.buildOptions('uti', this.state.dataFull)}
-                                                placeholder="UTI"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
-
                                     {this.state.data.length ? (
                                         <Table columns={columns}
                                                pageLength={pageLength}
@@ -443,6 +317,8 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={false}
                                                deleteBtn={false}
+                                               filters={tableFilters}
+                                               ref={this.tableRef}
                                         />
                                     ) : (
                                         <>
@@ -554,7 +430,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                     </div>
                 </Modal>
 
-                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
+                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value: any) => this.handleMPID(value)}/>
 
             </>
         )

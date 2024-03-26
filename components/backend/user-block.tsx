@@ -11,7 +11,6 @@ import {IUser} from "@/interfaces/i-user";
 import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import adminIconService from "@/services/admin/admin-icon-service";
-import UserBalancesBlock from "@/components/backend/user-balances-block";
 import UserImage from "@/components/user-image";
 import Link from "next/link";
 import NoDataBlock from "@/components/no-data-block";

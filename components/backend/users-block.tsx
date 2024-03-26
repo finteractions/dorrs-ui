@@ -6,21 +6,16 @@ import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-// import Modal from "@/components/modal";
 import {faComment} from "@fortawesome/free-solid-svg-icons";
-// import UserForm from "@/components/backend/user-form";
 import {IUserDetail} from "@/interfaces/i-user-detail";
 import adminIconService from "@/services/admin/admin-icon-service";
 import UserImage from "@/components/user-image";
 import {NextRouter, withRouter} from 'next/router';
-import Select from "react-select";
-import filterService from "@/services/filter/filter";
-import moment from "moment/moment";
 import formatterService from "@/services/formatter/formatter-service";
-import DateRangePicker from "@/components/date-range-picker";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface UsersBlockState {
     loading: boolean;
@@ -30,8 +25,6 @@ interface UsersBlockState {
     data: IUserDetail[];
     errors: string[];
     modalTitle: string;
-    dataFull: IUserDetail[];
-    filterData: any;
 }
 
 interface UsersBlockProps {
@@ -43,7 +36,6 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class UsersBlock extends React.Component<UsersBlockProps> {
     state: UsersBlockState;
-    dateRangePickerRef: any = React.createRef<typeof DateRangePicker>();
     getUsersInterval!: NodeJS.Timer;
 
     constructor(props: UsersBlockProps) {
@@ -57,8 +49,6 @@ class UsersBlock extends React.Component<UsersBlockProps> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: []
         }
 
         columns = [
@@ -126,6 +116,17 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                 header: () => <span>Created Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'name', placeholder: 'Name'},
+            {key: 'user_id.email', placeholder: 'Email'},
+            {key: 'email_verified_text', placeholder: 'Email Verified'},
+            {key: 'active_text', placeholder: 'Active'},
+            {key: 'user_id.account_type', placeholder: 'Account Type'},
+            {key: 'user_id.user_type', placeholder: 'User Type'},
+            {key: 'status', placeholder: 'Status'},
+            {key: 'created_at', placeholder: 'Created Date', type: 'datePickerRange'},
+        ]
     }
 
     componentDidMount() {
@@ -152,10 +153,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                     s.email_verified_text = s.user_id.email_verified ? 'Yes' : 'No'
                     s.comment_status = !!s.comment
                 })
-
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -175,32 +173,6 @@ class UsersBlock extends React.Component<UsersBlockProps> {
 
     openModal = (mode: string, data?: IUserDetail) => {
         this.props.router.push(`/backend/user-management/?user=${encodeURIComponent(data?.user_id.email || '')}`);
-        // this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
-    }
-
-    handleResetButtonClick = () => {
-        this.dateRangePickerRef.current.onReset();
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-    handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
     }
 
     render() {
@@ -212,113 +184,10 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                         <div className="content__title">User Management</div>
                     </div>
 
-
                     {this.state.loading ? (
                         <LoaderBlock/>
                     ) : (
                         <>
-                            <div className="content__filter mb-3">
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('name', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('name', item)}
-                                        options={filterService.buildOptions('name', this.state.dataFull)}
-                                        placeholder="Name"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('user_id.email', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('user_id.email', item)}
-                                        options={filterService.buildOptions('user_id.email', this.state.dataFull)}
-                                        placeholder="Email"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('email_verified_text', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('email_verified_text', item)}
-                                        options={filterService.buildOptions('email_verified_text', this.state.dataFull)}
-                                        placeholder="Email Verified"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('active_text', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('active_text', item)}
-                                        options={filterService.buildOptions('active_text', this.state.dataFull)}
-                                        placeholder="Active"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('user_id.account_type', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('user_id.account_type', item)}
-                                        options={filterService.buildOptions('user_id.account_type', this.state.dataFull)}
-                                        placeholder="Account Type"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('user_id.user_type', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('user_id.user_type', item)}
-                                        options={filterService.buildOptions('user_id.user_type', this.state.dataFull)}
-                                        placeholder="User Type"
-                                    />
-                                </div>
-                                <div className="input__wrap">
-                                    <Select
-                                        className="select__react"
-                                        classNamePrefix="select__react"
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        value={filterService.setValue('status', this.state.filterData)}
-                                        onChange={(item) => this.handleFilterChange('status', item)}
-                                        options={filterService.buildOptions('status', this.state.dataFull)}
-                                        placeholder="Status"
-                                    />
-                                </div>
-                                <div className="date__range__wrap">
-                                    <DateRangePicker
-                                        onChange={(startDate, endDate) => {
-                                            this.handleFilterDateChange('created_at', startDate, endDate)
-                                        }}
-                                        onReset={() => {
-                                        }}
-                                        ref={this.dateRangePickerRef}
-                                    />
-                                </div>
-                                <button
-                                    className="content__filter-clear ripple"
-                                    onClick={this.handleResetButtonClick}>
-                                    <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
-                                </button>
-                            </div>
-
                             {this.state.data.length ? (
                                 <>
                                     <Table
@@ -328,6 +197,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                                         searchPanel={true}
                                         block={this}
                                         viewBtn={true}
+                                        filters={tableFilters}
                                     />
                                 </>
 
@@ -344,11 +214,6 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                     )}
 
                 </div>
-
-                {/*<Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>*/}
-                {/*    <UserForm action={this.state.formAction} data={this.state.formData}*/}
-                {/*              onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>*/}
-                {/*</Modal>*/}
             </>
         )
     }

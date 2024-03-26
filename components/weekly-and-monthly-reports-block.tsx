@@ -21,7 +21,6 @@ import {
 import {
     IReportNumberOfSymbolAdditionsAndDeletions
 } from "@/interfaces/i-report-number-of-symbol-additions-and-deletions";
-import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import downloadFile from "@/services/download-file/download-file";
 
 interface WeeklyAndMonthlyReportsBlockState extends IState {

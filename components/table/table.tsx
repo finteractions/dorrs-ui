@@ -6,7 +6,7 @@ import {
     getSortedRowModel,
     getPaginationRowModel,
 } from "@tanstack/react-table";
-import React from "react";
+import React, {ForwardedRef, forwardRef} from "react";
 import Pagination from "@/components/table/pagination";
 import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -14,61 +14,12 @@ import {faEdit, faEye, faTrashCan, faClose} from "@fortawesome/free-solid-svg-ic
 import {FormStatus} from "@/enums/form-status";
 import {OrderStatus} from "@/enums/order-status";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
+import Select from "react-select";
+import filterService from "@/services/filter/filter";
+import DateRangePicker from "@/components/date-range-picker";
+import moment from 'moment';
 
-const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
-    searchValue = searchValue?.trim();
-
-    Object.keys(columnFilters).forEach((key: string) => {
-        if (columnFilters[key] === "") {
-            delete columnFilters[key];
-        }
-    });
-
-    if (searchValue.length > 0 || Object.keys(columnFilters).length > 0) {
-        data = data.filter((rowData) => {
-            const columnKeys = Object.keys(columnFilters);
-            const rowKeys = Object.keys(rowData);
-
-            if (columnKeys.length > 0) {
-                return columnKeys.every((column) => {
-
-                    return rowKeys.some((key: string) => {
-                        let value =
-                            typeof rowData[key] === "object" ? rowData[key]?.[column] ?? undefined : rowData[column];
-                        value = (typeof value === 'undefined' || value === null ? '' : value).toString();
-                        return value === columnFilters[column] && (searchValue === "" || value.toString().toLowerCase().includes(searchValue.toLowerCase()));
-                    });
-                });
-            } else {
-                return rowKeys.some((key: string) => {
-                    const value = typeof rowData[key] === "object" ? rowData[key] === null ? [] : Object.values(rowData[key]).map(item => (item === null ? "" : item)) : [rowData[key]].map(item => (item === null ? "" : item));
-                    return searchValue === "" || value.some((val: any) => val.toString().toLowerCase().includes(searchValue.toLowerCase()));
-                });
-            }
-
-        });
-        return data
-    } else {
-        return data;
-    }
-};
-
-const Table = ({
-                   columns,
-                   columns_for_search,
-                   data,
-                   pageLength,
-                   rowProps,
-                   searchPanel,
-                   block,
-                   editBtn,
-                   viewBtn,
-                   deleteBtn,
-                   customBtnProps,
-                   filter,
-                   access,
-                   className,
-               }: {
+interface ITableProps {
     columns: any[];
     columns_for_search?: any[];
     data: any;
@@ -82,13 +33,100 @@ const Table = ({
     customBtnProps?: Array<ICustomButtonProps>,
     filter?: boolean
     access?: any,
-    className?: string
-}) => {
+    className?: string,
+    filters?: ITableFilter[];
+}
+
+interface TableRef {
+    getColumnFilters?: () => { [key: string]: string };
+}
+
+
+const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
+    searchValue = searchValue?.trim();
+    Object.keys(columnFilters).forEach((key: string) => {
+        if (columnFilters[key] === "") {
+            delete columnFilters[key];
+        }
+    });
+
+    if (searchValue.length > 0 || Object.keys(columnFilters).length > 0) {
+        data = data.filter((rowData) => {
+            const columnKeys = Object.keys(columnFilters);
+            const rowKeys = Object.keys(rowData);
+
+            if (columnKeys.length > 0) {
+                return columnKeys.every((columnKey) => {
+                    const [rowKey, nestedKey] = columnKey.split('.');
+                    const value =
+                        typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
+                    const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
+
+                    const startDate = (columnFilters[columnKey] as any).startDate
+                    const endDate = (columnFilters[columnKey] as any).endDate
+
+                    if (startDate && endDate) {
+                        const date = moment(rowData[rowKey]);
+                        return !((startDate && date.isBefore(startDate, 'date')) || (endDate && date.isAfter(endDate, 'date')));
+                    }
+
+                    return valueString === columnFilters[columnKey] && (searchValue === "" || valueString.toLowerCase().includes(searchValue.toLowerCase()));
+                });
+            } else {
+                return rowKeys.some((rowKey) => {
+                    const value = typeof rowData[rowKey] === "object" ?
+                        (rowData[rowKey]?.startDate && rowData[rowKey]?.endDate) ?
+                            (moment(rowData[rowKey].startDate).isSameOrBefore(columnFilters[rowKey]) &&
+                                moment(rowData[rowKey].endDate).isSameOrAfter(columnFilters[rowKey])) :
+                            [] :
+                        [rowData[rowKey]].map(item => (item === null ? "" : item));
+
+                    if (Array.isArray(value)) {
+                        return searchValue === "" || value.some((val: any) => val.toString().toLowerCase().includes(searchValue.toLowerCase()));
+                    }
+
+                    return false;
+                });
+            }
+        });
+        return data;
+    } else {
+        return data;
+    }
+};
+
+
+const Table = forwardRef<TableRef, ITableProps>(({
+                                                     columns,
+                                                     columns_for_search,
+                                                     data,
+                                                     pageLength,
+                                                     rowProps,
+                                                     searchPanel,
+                                                     block,
+                                                     editBtn,
+                                                     viewBtn,
+                                                     deleteBtn,
+                                                     customBtnProps,
+                                                     filter,
+                                                     access,
+                                                     className,
+                                                     filters
+                                                 }: ITableProps,
+                                                 ref: ForwardedRef<TableRef>) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [searchValue, setSearchValue] = React.useState("");
     const [originalData, setOriginalData] = React.useState(data);
     const [filteredData, setFilteredData] = React.useState(originalData);
     const [columnFilters, setColumnFilters] = React.useState<{ [key: string]: string }>({});
+    const [selectedDateRange, setSelectedDateRange] = React.useState<[Date | null, Date | null]>([null, null]);
+    const [datePickers, setDatePickers] = React.useState<{ [key: string]: any | null }>({});
+    const dateRangePickerRef = React.useRef<any>(null);
+
+    React.useImperativeHandle(ref, () => ({
+        getColumnFilters: () => columnFilters,
+    }));
+
 
     const table = useReactTable({
         columns: columns,
@@ -111,7 +149,10 @@ const Table = ({
 
     const resetFilters = () => {
         setColumnFilters({});
+        setSelectedDateRange([null, null]);
         setFilteredData(filterData(originalData, searchValue, columnFilters));
+
+        dateRangePickerRef.current?.onReset();
     };
 
     const renderFilter = (column: any) => {
@@ -152,6 +193,51 @@ const Table = ({
             </>
         );
     };
+    const renderFilterSelect = (filterKey: string, placeholder: string) => {
+        const selectOptionsSet = new Set();
+        originalData.forEach((dataItem: any) => {
+            const value = dataItem[filterKey];
+            if (value !== undefined && value !== null && value !== '') {
+                selectOptionsSet.add(value);
+            }
+        });
+
+        const selectOptions = filterService.buildOptions(filterKey, originalData)
+        const value = columnFilters[filterKey] ?? '';
+
+        return (
+            <Select
+                key={filterKey}
+                className="select__react"
+                classNamePrefix="select__react"
+                isClearable={true}
+                isSearchable={true}
+                value={value ? {value, label: value} : null}
+                onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption?.value ?? '')}
+                placeholder={placeholder}
+                options={selectOptions}
+            />
+        );
+    };
+
+    const renderFilterDateRange = (filterKey: string, placeholder: string) => {
+        return (
+            <DateRangePicker
+                key={filterKey}
+                ref={dateRangePickerRef}
+                onChange={(startDate, endDate) => {
+                    if (startDate && endDate) {
+                        setSelectedDateRange([startDate, endDate]);
+                        handleFilterChange(filterKey, {startDate, endDate});
+                    }
+
+                }}
+                onReset={() => {
+
+                }}
+            />
+        );
+    };
 
     const normalizeOption = (value: string) => {
         switch (value) {
@@ -171,6 +257,7 @@ const Table = ({
             ...prevFilters,
             [columnId]: value,
         }));
+
         setFilteredData(filterData(originalData, searchValue, columnFilters));
     };
 
@@ -216,6 +303,7 @@ const Table = ({
         table.setPageIndex(currentPage);
     }, [filteredData, currentPage, table]);
 
+
     return (
 
         <>
@@ -224,15 +312,44 @@ const Table = ({
                 ) :
                 (
                     <>
-                        {searchPanel && (
-                            <div className="content__search">
-                                <input
-                                    type="text"
-                                    className='search-filter'
-                                    value={searchValue}
-                                    onChange={handleSearchChange}
-                                    placeholder="Search"
-                                />
+
+
+                        {(filters || searchPanel) && (
+                            <div className="content__filter mb-3">
+                                {searchPanel && (
+                                    <input
+                                        type="text"
+                                        className='search-filter'
+                                        value={searchValue}
+                                        onChange={handleSearchChange}
+                                        placeholder="Search"
+                                    />
+                                )}
+                                {filters && (
+                                    <>
+                                        {filters?.map((filter) => (
+                                            <>
+                                                {filter?.type === 'datePickerRange' ? (
+                                                    <div key={filter.key} className="input__wrap">
+                                                        {renderFilterDateRange(filter.key, filter.placeholder)}
+                                                    </div>
+                                                ) : (
+                                                    <div key={filter.key} className="input__wrap">
+                                                        {renderFilterSelect(filter.key, filter.placeholder)}
+                                                    </div>
+                                                )}
+
+                                            </>
+                                        ))}
+                                        <button className="content__filter-clear ripple"
+                                                onClick={resetFilters}
+                                        >
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
+                                        </button>
+                                    </>
+                                )}
+
                             </div>
                         )}
 
@@ -300,7 +417,8 @@ const Table = ({
                                     </thead>
                                     <tbody>
                                     {rows.map((row, idx) => (
-                                        <tr id={row.id} key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
+                                        <tr id={row.id}
+                                            key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
                                             className={rowProps?.className}
                                             onClick={() => {
                                                 rowProps?.onCallback?.(row.original);
@@ -314,7 +432,7 @@ const Table = ({
                                                     <td data-label={dataLabel(cell)}
                                                         colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
                                                         key={cell.id}
-                                                        style={cellStyle ? { ...cellStyle } : {}}
+                                                        style={cellStyle ? {...cellStyle} : {}}
                                                         className={cellClassName ? cellClassName : ''}
                                                     >
                                                         {flexRender(
@@ -386,6 +504,8 @@ const Table = ({
             }
         </>
     );
-};
+});
+
+Table.displayName = "Table";
 
 export default Table;

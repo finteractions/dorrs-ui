@@ -27,7 +27,7 @@ function UserImage({alt, src, width, ...props}: UserImageProps) {
                 layout="fill"
                 objectFit="cover"
                 onError={(err) => {
-                    console.log(err)
+                    // console.log(err)
                     setImageSrc('/img/avatar_gray.png')
                 }}
             />

@@ -9,9 +9,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
 import AssetImage from "@/components/asset-image";
-
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
 import SymbolForm from "@/components/symbol-form";
 import CompanyProfile from "@/components/company-profile-form";
 import {ISymbol} from "@/interfaces/i-symbol";
@@ -21,6 +18,7 @@ import {faComment} from "@fortawesome/free-solid-svg-icons";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface AssetsBlockState {
     loading: boolean;
@@ -33,8 +31,6 @@ interface AssetsBlockState {
     data: ISymbol[];
     errors: string[];
     modalTitle: string;
-    dataFull: ISymbol[];
-    filterData: any;
     showSymbolForm: boolean;
 }
 
@@ -43,9 +39,9 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class AssetsBlock extends React.Component<{}> {
     state: AssetsBlockState;
-    // dateRangePickerRef1: any = React.createRef<typeof DateRangePicker>();
-    // dateRangePickerRef2: any = React.createRef<typeof DateRangePicker>();
     getAssetsInterval!: NodeJS.Timer;
+
+    tableRef: React.RefObject<any> = React.createRef();
 
     constructor(props: {}) {
         super(props);
@@ -61,8 +57,6 @@ class AssetsBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            dataFull: [],
-            filterData: [],
             showSymbolForm: true
         }
 
@@ -171,6 +165,18 @@ class AssetsBlock extends React.Component<{}> {
                 header: () => <span>Created Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'symbol', placeholder: 'Symbol'},
+            {key: 'cusip', placeholder: 'CUSIP'},
+            // {key: 'reason_for_entry', placeholder: 'Reason for Entry'},
+            {key: 'dsin', placeholder: 'DSIN'},
+            {key: 'primary_ats', placeholder: 'ATS'},
+            {key: 'market_sector', placeholder: 'Market Sector'},
+            {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
+            {key: 'status', placeholder: 'Status'},
+            {key: 'company_profile_status', placeholder: 'Company Profile Status'},
+        ]
     }
 
     componentDidMount() {
@@ -201,9 +207,7 @@ class AssetsBlock extends React.Component<{}> {
                     s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-'
                 })
 
-                this.setState({dataFull: data, data: data}, () => {
-                    this.filterData();
-                });
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -267,33 +271,20 @@ class AssetsBlock extends React.Component<{}> {
         this.getAssets();
     }
 
-    handleResetButtonClick = () => {
-        this.setState({data: this.state.dataFull, filterData: []});
-    }
-
-
-    handleFilterChange = (prop_name: string, item: any): void => {
-        this.setState(({
-            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
-        }), () => {
-            this.filterData();
-        });
-    }
-
-    filterData = () => {
-        this.setState({data: filterService.filterData(this.state.filterData, this.state.dataFull)});
-    }
-
     downloadSymbolsCSV = () => {
-        adminService.downloadSymbols(this.state.filterData).then((res) => {
-            downloadFile.CSV('symbols', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.CSV('symbols', res);
+            })
+        }
     }
 
     downloadSymbolsXLSX = () => {
-        adminService.downloadSymbols(this.state.filterData).then((res) => {
-            downloadFile.XLSX('symbols', res);
-        })
+        if (this.tableRef.current) {
+            adminService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
+                downloadFile.XLSX('symbols', res);
+            })
+        }
     }
 
     render() {
@@ -329,127 +320,6 @@ class AssetsBlock extends React.Component<{}> {
                                 <LoaderBlock/>
                             ) : (
                                 <>
-                                    <div className="content__filter mb-3">
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('symbol', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('symbol', item)}
-                                                options={filterService.buildOptions('symbol', this.state.dataFull)}
-                                                placeholder="Symbol"
-                                            />
-                                        </div>
-
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('cusip', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('cusip', item)}
-                                                options={filterService.buildOptions('cusip', this.state.dataFull)}
-                                                placeholder="CUSIP"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('reason_for_entry', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('reason_for_entry', item)}
-                                                options={filterService.buildOptions('reason_for_entry', this.state.dataFull)}
-                                                placeholder="Reason for Entry"
-                                            />
-                                        </div>
-
-
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('dsin', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('dsin', item)}
-                                                options={filterService.buildOptions('dsin', this.state.dataFull)}
-                                                placeholder="DSIN"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('ats', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('ats', item)}
-                                                options={filterService.buildOptions('ats', this.state.dataFull)}
-                                                placeholder="ATS"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('market_sector', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('market_sector', item)}
-                                                options={filterService.buildOptions('market_sector', this.state.dataFull)}
-                                                placeholder="Market Sector"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('digital_asset_category', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('digital_asset_category', item)}
-                                                options={filterService.buildOptions('digital_asset_category', this.state.dataFull)}
-                                                placeholder="Digital Asset Category"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('status', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('status', item)}
-                                                options={filterService.buildOptions('status', this.state.dataFull)}
-                                                placeholder="Status"
-                                            />
-                                        </div>
-                                        <div className="input__wrap">
-                                            <Select
-                                                className="select__react"
-                                                classNamePrefix="select__react"
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                value={filterService.setValue('company_profile_status', this.state.filterData)}
-                                                onChange={(item) => this.handleFilterChange('company_profile_status', item)}
-                                                options={filterService.buildOptions('company_profile_status', this.state.dataFull)}
-                                                placeholder="Company Profile Status"
-                                            />
-                                        </div>
-                                        <button
-                                            className="content__filter-clear ripple"
-                                            onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
-                                    </div>
-
-
                                     {this.state.data.length ? (
                                         <Table columns={columns}
                                                pageLength={pageLength}
@@ -459,6 +329,8 @@ class AssetsBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={false}
                                                deleteBtn={true}
+                                               filters={tableFilters}
+                                               ref={this.tableRef}
                                         />
                                     ) : (
                                         <>

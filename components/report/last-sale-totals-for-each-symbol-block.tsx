@@ -125,7 +125,6 @@ class ReportLastSaleTotalsForEachSymbol extends React.Component<ReportLastSaleTo
                         {this.state.data.length ? (
                             <Table columns={columns}
                                    data={this.state.data}
-                                   searchPanel={true}
                                    block={this}
                                    editBtn={false}
                                    viewBtn={true}
