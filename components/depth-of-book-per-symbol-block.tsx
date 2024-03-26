@@ -21,6 +21,18 @@ import {IOrder} from "@/interfaces/i-order";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import tableColorizationService from "@/services/colorization/table-colorization-service";
 import {RGB} from "@/interfaces/i-rgb"
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {
+    faBars,
+    faClose, faSortAlphaDesc, faSortAlphaDownAlt, faSortAlphaUp,
+    faSortAlphaUpAlt, faSortAmountAsc, faSortAmountDown,
+    faSortDesc,
+    faSortDown,
+    faSortNumericDesc, faSortNumericDownAlt
+} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
+import {faSort} from "@fortawesome/free-solid-svg-icons/faSort";
+import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -41,7 +53,8 @@ interface DepthOfBookPerSymbolState extends IState {
     type: string;
     mpid: string | null;
     pageLengthByOrder: number
-    pageLengthByPrice: number
+    pageLengthByPrice: number;
+    isToggle: boolean;
 }
 
 const columnHelperByOrder = createColumnHelper<any>();
@@ -99,7 +112,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             mpid: null,
             byOrderRowProps: {},
             pageLengthByOrder: pageLength,
-            pageLengthByPrice: pageLength
+            pageLengthByPrice: pageLength,
+            isToggle: false
         }
 
         this.orderAccess = userPermissionService.getAccessRulesByKey(
@@ -227,6 +241,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     componentDidMount() {
         window.addEventListener('themeToggle', this.handleTheme);
         window.addEventListener('resize', this.handleTheme);
+        window.addEventListener('click', this.handleClickOutside);
 
         this.setState({isLoading: true, isDataLoading: true});
         this.getSymbols()
@@ -236,7 +251,15 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     componentWillUnmount() {
         window.removeEventListener('themeToggle', this.handleTheme);
         window.removeEventListener('resize', this.handleTheme);
+        window.removeEventListener('click', this.handleClickOutside);
     }
+
+    handleClickOutside = (event:any) => {
+        const menu = document.querySelector('.filter-menu');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({ isToggle: false });
+        }
+    };
 
     filterDataDepthByOrder = () => {
         this.setState({dataDepthByOrder: filterService.filterData(this.state.filterDataDepthByOrder, this.state.dataDepthByOrderFull)});
@@ -391,7 +414,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
 
     setType = (type: string) => {
-        this.setState({isDataLoading: true, type: type}, async () => {
+        this.setState({isDataLoading: true, type: type, isToggle: false}, async () => {
             await this.getData();
         });
     }
@@ -441,6 +464,10 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         this.setState({mpid: mpid})
     }
 
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
     render() {
         return (
             <>
@@ -479,15 +506,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                                             <>{this.props.symbol}</>
                                         )}
                                     </h2>
-                                    {this.orderAccess.create && (
-                                        <div
-                                            className="content__title_btns content__filter download-buttons justify-content-end">
-                                            <button className="b-btn ripple"
-                                                    disabled={this.state.isLoading}
-                                                    onClick={() => this.openModal('new')}>Add Order
-                                            </button>
-                                        </div>
-                                    )}
+                                   
                                 </div>
                             </div>
                         )}
@@ -498,19 +517,40 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                             <div className="content__top">
                                 <div className="content__title">Depth of Book Snapshot</div>
                                 <div
-                                    className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                    <button
-                                        className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                        disabled={this.state.isLoading || this.state.isDataLoading}
-                                        onClick={() => this.setType('by_order')}>
-                                        <span>By Order</span>
-                                    </button>
-                                    <button
-                                        className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
-                                        disabled={this.state.isLoading || this.state.isDataLoading}
-                                        onClick={() => this.setType('by_price')}>
-                                        <span>By Price</span>
-                                    </button>
+                                    className="content__title_btns content__filter download-buttons justify-content-end mb-24 ">
+                                    <div className="filter-menu">
+                                        <Button
+                                            variant="link"
+                                            className="d-md-none admin-table-btn ripple"
+                                            type="button"
+                                            onClick={this.toggleMenu}
+                                        >
+                                            {this.state.isToggle ? (
+                                                <FontAwesomeIcon icon={faSortAmountAsc}/>
+                                            ) : (
+                                                <FontAwesomeIcon icon={faSortAmountDesc}/>
+                                            )}
+                                        </Button>
+
+                                        <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.type === 'by_order' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isDataLoading}
+                                                    onClick={() => this.setType('by_order')}>
+                                                    <span>By Order</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.type === 'by_price' ? 'active' : ''} ${this.state.isDataLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isDataLoading}
+                                                    onClick={() => this.setType('by_price')}>
+                                                    <span>By Price</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
 

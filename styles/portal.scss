@@ -4097,6 +4097,59 @@ body {
       overflow: hidden;
     }
 
+    .filter-menu {
+      position: relative;
+      //display: flex;
+      //flex-wrap: wrap;
+
+      > button {
+        background: var(--filter-button-background);
+        color: var(--filter-button-colour);
+      }
+
+      > ul {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 5px;
+        row-gap: 5px;
+        flex: 1;
+
+
+        @media(max-width: 768px) {
+          flex-direction: column;
+          position: absolute;
+          inset: 35px 0 auto auto;
+          z-index: 100;
+          padding: 5px;
+          box-shadow: var(--box-shadow-dropdown);
+          border-radius: 12px;
+          border: initial;
+          background: var(--background-colour-3);
+          color: var(--text-colour-7);
+          display: none;
+
+          &.open {
+            display: flex;
+          }
+
+          > li {
+            > .border-grey-btn {
+              background-color: unset;
+              border: unset;
+
+              &.active {
+                background: var(--background-colour);
+                border-radius: 12px;
+              }
+            }
+          }
+        }
+
+        @media(min-width: 768px) {
+          position: unset;
+        }
+      }
+    }
 
   }
 }

@@ -15,6 +15,10 @@ import {QuoteCondition} from "@/enums/quote-condition";
 import NoDataBlock from "@/components/no-data-block";
 import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import {Button} from "react-bootstrap";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
+import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 
 
 interface BestBidAndBestOfferPerSymbolBlockProps {
@@ -29,6 +33,7 @@ interface BestBidAndBestOfferPerSymbolBlockState extends IState {
     data: IBestBidAndBestOffer[];
     chart: string;
     mpid: string | null;
+    isToggle: boolean;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -57,7 +62,8 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             errors: [],
             data: [],
             chart: 'b',
-            mpid: null
+            mpid: null,
+            isToggle: false
         }
 
 
@@ -153,12 +159,24 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
     }
 
     componentDidMount() {
+        window.addEventListener('click', this.handleClickOutside);
         this.setState({isLoading: true});
         this.getSymbols()
             .then(() => this.getBBOChart())
             .then(() => this.getBBO())
             .finally(() => this.setState({isLoading: false}))
     }
+
+    componentWillUnmount() {
+        window.removeEventListener('click', this.handleClickOutside);
+    }
+
+    handleClickOutside = (event:any) => {
+        const menu = document.querySelector('.filter-menu');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({ isToggle: false });
+        }
+    };
 
     getBBOChart = () => {
         return new Promise((resolve) => {
@@ -247,7 +265,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
     }
 
     getChart = (chart: string) => {
-        this.setState({isLoadingChart: true, chart: chart}, () => {
+        this.setState({isLoadingChart: true, chart: chart, isToggle: false}, () => {
             this.getBBOChart();
         });
     }
@@ -255,6 +273,10 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
     handleMPID = (mpid: string | null) => {
         this.setState({mpid: mpid})
     }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
 
     render() {
         return (
@@ -309,16 +331,38 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                     <>
                                         <div
                                             className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                            <button
-                                                className={`border-grey-btn ripple d-flex ${this.state.chart === 'b' ? 'active' : ''}`}
-                                                onClick={() => this.getChart('b')}>
-                                                <span>Bid</span>
-                                            </button>
-                                            <button
-                                                className={`border-grey-btn ripple d-flex ${this.state.chart === 'a' ? 'active' : ''}`}
-                                                onClick={() => this.getChart('a')}>
-                                                <span>Offer</span>
-                                            </button>
+                                            <div className="filter-menu">
+                                                <Button
+                                                    variant="link"
+                                                    className="d-md-none admin-table-btn ripple"
+                                                    type="button"
+                                                    onClick={this.toggleMenu}
+                                                >
+                                                    {this.state.isToggle ? (
+                                                        <FontAwesomeIcon icon={faSortAmountAsc}/>
+                                                    ) : (
+                                                        <FontAwesomeIcon icon={faSortAmountDesc}/>
+                                                    )}
+                                                </Button>
+
+                                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                                    <li>
+                                                        <button
+                                                            className={`border-grey-btn ripple d-flex ${this.state.chart === 'b' ? 'active' : ''}`}
+                                                            onClick={() => this.getChart('b')}>
+                                                            <span>Bid</span>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button
+                                                            className={`border-grey-btn ripple d-flex ${this.state.chart === 'a' ? 'active' : ''}`}
+                                                            onClick={() => this.getChart('a')}>
+                                                            <span>Offer</span>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+
+                                            </div>
                                         </div>
                                         {this.charts.length ? (
                                             <AreaAndBarChart data={this.charts}/>

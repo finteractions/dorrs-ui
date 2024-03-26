@@ -5,7 +5,7 @@ html.light {
   --background-colour-1: #E9F4FD;
   --background-colour-2: #f3f6fa;
   --background-colour-3: #fff;
-  --box-shadow: 0 2px 45px rgb(110 115 157 / 12%);
+  --box-shadow: 0 2px 15px rgb(110 115 157 / 12%);
   --modal-overlay: rgba(32, 31, 31, .64);
   --text-colour-1: #1f8ceb;
   --text-colour-2: #1e2d3b;
@@ -29,8 +29,10 @@ html.light {
   --colour-gray: #8e949d;
   --colour-green: #15b698;
   --colour-red: #f62423;
-  --box-shadow-dropdown: 0 2px 45px rgb(110 115 157 / 50%);
+  --box-shadow-dropdown: 0 2px 15px rgb(110 115 157 / 50%);
   --background-checkbox: #1f8ceb;
   --form-background-colour-2: inherit;
   --error-colour: #CB3D34;
+  --filter-button-background: #F6F9FC;
+  --filter-button-colour: #1f8ceb;
 }
