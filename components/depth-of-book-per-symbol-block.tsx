@@ -23,15 +23,9 @@ import tableColorizationService from "@/services/colorization/table-colorization
 import {RGB} from "@/interfaces/i-rgb"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faBars,
-    faClose, faSortAlphaDesc, faSortAlphaDownAlt, faSortAlphaUp,
-    faSortAlphaUpAlt, faSortAmountAsc, faSortAmountDown,
-    faSortDesc,
-    faSortDown,
-    faSortNumericDesc, faSortNumericDownAlt
+    faSortAmountAsc,
 } from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
-import {faSort} from "@fortawesome/free-solid-svg-icons/faSort";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 
 interface DepthOfBookPerSymbolProps {
@@ -56,6 +50,8 @@ interface DepthOfBookPerSymbolState extends IState {
     pageLengthByPrice: number;
     isToggle: boolean;
 }
+
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 const columnHelperByOrder = createColumnHelper<any>();
 let columnsByOrder: any[] = [];
@@ -82,6 +78,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     companyProfile: ICompanyProfile | null;
     state: DepthOfBookPerSymbolState;
     isDashboard: boolean;
+    getOrdersInterval!: NodeJS.Timer;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -246,18 +243,30 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         this.setState({isLoading: true, isDataLoading: true});
         this.getSymbols()
             .then(() => this.getData())
+
+        this.startAutoUpdate();
     }
 
     componentWillUnmount() {
         window.removeEventListener('themeToggle', this.handleTheme);
         window.removeEventListener('resize', this.handleTheme);
         window.removeEventListener('click', this.handleClickOutside);
+
+        this.stopAutoUpdate();
     }
 
-    handleClickOutside = (event:any) => {
+    startAutoUpdate = () => {
+        this.getOrdersInterval = setInterval(this.getData, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval);
+    }
+
+    handleClickOutside = (event: any) => {
         const menu = document.querySelector('.filter-menu');
         if (menu && !menu.contains(event.target)) {
-            this.setState({ isToggle: false });
+            this.setState({isToggle: false});
         }
     };
 
