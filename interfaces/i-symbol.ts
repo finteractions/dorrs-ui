@@ -15,9 +15,7 @@ export interface ISymbol {
     lot_size: number;
     fractional_lot_size: number;
     mvp: number;
-    security_category: string;
     security_name: string;
-    security_type: string;
     fifth_character_identifier: string;
     digital_asset_category: string;
     instrument_type: string;
