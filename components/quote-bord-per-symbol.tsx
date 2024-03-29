@@ -242,7 +242,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Bid Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size || 0)) : '-'}
                                         </div>
                                     </div>
                                     <div>
@@ -254,7 +254,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Offer Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size || 0)) : '-'}
                                         </div>
                                     </div>
                                     <div>
@@ -290,7 +290,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.quantity) || 0, Number(this.state.lastSale?.fractional_lot_size))}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.quantity) || 0, Number(this.state.lastSale?.fractional_lot_size || 0))}</div>
                                     </div>
                                     <div>
                                         <div>Price:</div>
@@ -299,7 +299,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Total Volume on current date:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.total_volume) || 0, Number(this.state.lastSale?.fractional_lot_size))}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.total_volume) || 0, Number(this.state.lastSale?.fractional_lot_size || 0))}</div>
                                     </div>
                                 </div>
                             </div>
