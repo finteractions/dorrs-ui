@@ -11,4 +11,5 @@ export interface IDepthByOrder {
     offer_price: string | null;
     offer_quote_condition: string | null;
     offer_updated_at: string | null;
+    fractional_lot_size: string;
 }

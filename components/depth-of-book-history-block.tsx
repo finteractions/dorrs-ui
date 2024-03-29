@@ -7,8 +7,6 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import formatterService from "@/services/formatter/formatter-service";
-import filterService from "@/services/filter/filter";
-import Select from "react-select";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
 import {QuoteCondition} from "@/enums/quote-condition";
@@ -23,6 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 
 interface DepthOfBookHistoryBlockState extends IState, IModalState {
@@ -47,6 +46,7 @@ interface DepthOfBookHistoryBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -119,14 +119,18 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                     </div>,
                 header: () => <span>MPID </span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Size </span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price </span>,
             }),
             columnHelper.accessor((row) => row.ref_id, {

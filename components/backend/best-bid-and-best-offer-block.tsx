@@ -13,6 +13,7 @@ import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import {getBidQuoteCondition, getOfferQuoteCondition, QuoteCondition} from "@/enums/quote-condition";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -32,6 +33,7 @@ interface BestBidAndBestOfferBlockState {
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 
 class BestBidAndBestOfferBlock extends React.Component<{}> {
     state: BestBidAndBestOfferBlockState;
@@ -112,14 +114,17 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Bid MPID </span>,
             }),
-            columnHelper.accessor((row) => row.bid_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Bid Qty </span>,
             }),
             columnHelper.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelper.accessor((row) => ({
@@ -145,14 +150,17 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Offer MPID </span>,
             }),
-            columnHelper.accessor((row) => row.offer_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Offer Qty </span>,
             }),
-            columnHelper.accessor((row) => row.offer_price, {
+            columnHelper.accessor((row) => row.bid_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
             columnHelper.accessor((row) => ({
@@ -380,12 +388,12 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Qty</div>
                                         <div
-                                            className="box__wrap">{this.state.formData?.bid_quantity ? formatterService.numberFormat(parseFloat(this.state.formData.bid_quantity)) : ''}</div>
+                                            className="box__wrap">{this.state.formData?.bid_quantity ? formatterService.numberFormat(parseFloat(this.state.formData.bid_quantity), Number(this.state.formData.fractional_lot_size)) : ''}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Price</div>
                                         <div
-                                            className="box__wrap">{this.state.formData?.bid_price ? formatterService.numberFormat(parseFloat(this.state.formData.bid_price)) : ''}</div>
+                                            className="box__wrap">{this.state.formData?.bid_price ? formatterService.numberFormat(parseFloat(this.state.formData.bid_price), decimalPlaces) : ''}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Date</div>
@@ -401,11 +409,23 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                             )}
 
                             {getOfferQuoteCondition().includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
+
                                 <>
+                                    <br/>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer MPID</div>
                                         <div
                                             className="box__wrap">{this.state.formData?.offer_mpid}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Offer Qty</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.offer_quantity ? formatterService.numberFormat(parseFloat(this.state.formData.offer_quantity), Number(this.state.formData.fractional_lot_size)) : ''}</div>
+                                    </div>
+                                    <div className="view-form-box">
+                                        <div className="box__title">Offer Price</div>
+                                        <div
+                                            className="box__wrap">{this.state.formData?.offer_price ? formatterService.numberFormat(parseFloat(this.state.formData.offer_price), decimalPlaces) : ''}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer Date</div>
@@ -419,7 +439,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                     </div>
                                 </>
                             )}
-
+                            <br/>
                             <div className="view-form-box">
                                 <div className="box__title">Universal Transaction ID (UTI)</div>
                                 <div

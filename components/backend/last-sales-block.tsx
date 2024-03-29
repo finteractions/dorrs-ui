@@ -13,6 +13,7 @@ import {Condition} from "@/enums/condition";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -31,6 +32,7 @@ interface LastSalesBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class LastSalesBlock extends React.Component<{}> {
@@ -117,14 +119,17 @@ class LastSalesBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>MPID</span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Quantity</span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price</span>,
             }),
             columnHelper.accessor((row) => ({
@@ -188,7 +193,7 @@ class LastSalesBlock extends React.Component<{}> {
                     s.condition = Condition[s.condition as keyof typeof Condition] || ''
                 })
 
-                this.setState({ data: data});
+                this.setState({data: data});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -370,12 +375,12 @@ class LastSalesBlock extends React.Component<{}> {
                             <div className="view-form-box">
                                 <div className="box__title">Quantity</div>
                                 <div
-                                    className="box__wrap">{this.state.formData?.quantity ? formatterService.numberFormat(parseFloat(this.state.formData.quantity)) : ''}</div>
+                                    className="box__wrap">{this.state.formData?.quantity ? formatterService.numberFormat(parseFloat(this.state.formData.quantity), converterService.getDecimals(Number(this.state.formData.fractional_lot_size))) : ''}</div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Price</div>
                                 <div
-                                    className="box__wrap">{this.state.formData?.price ? formatterService.numberFormat(parseFloat(this.state.formData.price)) : ''}</div>
+                                    className="box__wrap">{this.state.formData?.price ? formatterService.numberFormat(parseFloat(this.state.formData.price), decimalPlaces) : ''}</div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Date</div>
@@ -396,7 +401,7 @@ class LastSalesBlock extends React.Component<{}> {
                     </div>
                 </Modal>
 
-                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
+                <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value: any) => this.handleMPID(value)}/>
 
             </>
         )

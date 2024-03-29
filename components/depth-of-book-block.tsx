@@ -9,14 +9,13 @@ import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
-import Select from "react-select";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AssetImage from "@/components/asset-image";
 import DepthOfBookForm from "@/components/depth-of-book-form";
 import {IOrder} from "@/interfaces/i-order";
 import ordersService from "@/services/orders/orders-service";
 import {IDepthOrder} from "@/interfaces/i-depth-order";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 
 interface DepthOfBookBlockState extends IState, IModalState {
@@ -42,6 +41,7 @@ interface DepthOfBookBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -109,14 +109,17 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                     </div>,
                 header: () => <span>Bid MPID </span>,
             }),
-            columnHelper.accessor((row) => row.bid_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Bid Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Bid Size</span>,
             }),
             columnHelper.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelper.accessor((row) => row.bid_updated_at, {
@@ -136,14 +139,17 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                     </div>,
                 header: () => <span>Offer MPID </span>,
             }),
-            columnHelper.accessor((row) => row.offer_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Offer Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Offer Size</span>,
             }),
             columnHelper.accessor((row) => row.offer_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
             columnHelper.accessor((row) => row.offer_updated_at, {

@@ -12,10 +12,10 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import formatterService from "@/services/formatter/formatter-service";
 import LastSaleReportingForm from "@/components/last-sale-reporting-form";
 import {Condition} from "@/enums/condition";
-import filterService from "@/services/filter/filter";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 
 interface LastSaleReportingBlockState extends IState, IModalState {
@@ -39,6 +39,7 @@ interface LastSaleReportingBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -122,14 +123,17 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                     </div>,
                 header: () => <span>MPID</span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Quantity</span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price</span>,
             }),
             columnHelper.accessor((row) => row.date, {

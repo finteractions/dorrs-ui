@@ -22,10 +22,11 @@ import {
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
 import InputMPIDField from "@/components/mpid-field";
+import converterService from "@/services/converter/converter-service";
 
 
 const formSchema = Yup.object().shape({
-    origin: Yup.string().min(8).max(4).required('Required'),
+    origin: Yup.string().min(3).max(8).required('Required'),
     symbol: Yup.string().required('Required'),
     quote_condition: Yup.string().required('Required'),
 
@@ -93,6 +94,7 @@ const formSchema = Yup.object().shape({
 interface BestBidAndBestOfferFormState extends IState {
     formInitialValues: {};
     isLoadingForm: boolean;
+    isLoadingHistory: boolean;
     isLoading: boolean;
     focusedInputBidDate: any;
     focusedInputOfferDate: any;
@@ -103,6 +105,8 @@ interface BestBidAndBestOfferFormProps extends ICallback {
     data: IBestBidAndBestOffer | null;
     onCancel?: () => void;
 }
+
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -158,6 +162,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             success: false,
             formInitialValues: initialValues,
             isLoadingForm: true,
+            isLoadingHistory: true,
             isLoading: true,
             focusedInputBidDate: null,
             focusedInputOfferDate: null,
@@ -177,13 +182,16 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                !this.isAdd() ? this.setState({
-                    isLoadingForm: false,
-                    isLoading: false
-                }) : this.setState({isLoadingForm: false});
+                !this.isAdd()
+                    ?
+                    this.setState({isLoadingForm: false, isLoadingHistory: false, isLoading: false})
+                    :
+                    this.setState({isLoadingForm: false}, () => this.setLoading());
             });
+    }
 
-
+    setLoading = () => {
+        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)})
     }
 
     handleSubmit = async (values: IBestBidAndBestOffer, {setSubmitting}: {
@@ -257,7 +265,9 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
     };
 
     onCallback = () => {
-        this.setState({isLoading: false})
+        this.setState({isLoadingHistory: false}, () => {
+            this.setLoading();
+        })
     }
 
     fillForm = async (bestBidAndBestOffer: IBestBidAndBestOffer) => {
@@ -320,6 +330,8 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                               touched,
                                               setTouched
                                           }) => {
+                                            const symbol = this.symbols.find(s => s.symbol === values.symbol);
+
                                             return (
                                                 <Form className={`quote_condition_${values.quote_condition} w-100`}>
                                                     <div className="input">
@@ -422,7 +434,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Bid Qty"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         component={NumericInputField}
-                                                                        decimalScale={2}
+                                                                        decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                                     />
                                                                     <ErrorMessage name="bid_quantity" component="div"
                                                                                   className="error-message"/>
@@ -440,7 +452,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Bid Price"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         component={NumericInputField}
-                                                                        decimalScale={2}
+                                                                        decimalScale={decimalPlaces}
                                                                     />
                                                                     <ErrorMessage name="bid_price" component="div"
                                                                                   className="error-message"/>
@@ -520,7 +532,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Offer Qty"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         component={NumericInputField}
-                                                                        decimalScale={2}
+                                                                        decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                                     />
                                                                     <ErrorMessage name="offer_quantity" component="div"
                                                                                   className="error-message"/>
@@ -538,7 +550,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         placeholder="Type Offer Price"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                         component={NumericInputField}
-                                                                        decimalScale={2}
+                                                                        decimalScale={decimalPlaces}
                                                                     />
                                                                     <ErrorMessage name="offer_price" component="div"
                                                                                   className="error-message"/>

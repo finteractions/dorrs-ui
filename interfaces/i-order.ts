@@ -16,6 +16,7 @@ export interface IOrder {
     uti: string;
     ref_id: string;
     status: string;
+    fractional_lot_size: string;
     status_name?: string;
     created_at: string;
     updated_at: string;

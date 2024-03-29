@@ -5,4 +5,5 @@ export interface IDepthByPrice {
     offer_count: string;
     offer_quantity: string;
     offer_price: string;
+    fractional_lot_size: string;
 }

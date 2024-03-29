@@ -19,6 +19,7 @@ import {Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
+import converterService from "@/services/converter/converter-service";
 
 
 interface BestBidAndBestOfferPerSymbolBlockProps {
@@ -39,6 +40,7 @@ interface BestBidAndBestOfferPerSymbolBlockState extends IState {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 
 class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOfferPerSymbolBlockProps> {
 
@@ -90,14 +92,17 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                     </div>,
                 header: () => <span>Bid MPID </span>,
             }),
-            columnHelper.accessor((row) => row.bid_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Bid Qty </span>,
             }),
             columnHelper.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelper.accessor((row) => row.bid_date, {
@@ -122,14 +127,17 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                     </div>,
                 header: () => <span>Offer MPID </span>,
             }),
-            columnHelper.accessor((row) => row.offer_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Offer Qty </span>,
             }),
-            columnHelper.accessor((row) => row.offer_price, {
+            columnHelper.accessor((row) => row.bid_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
             columnHelper.accessor((row) => row.offer_date, {

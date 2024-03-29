@@ -18,6 +18,7 @@ import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import ordersService from "@/services/orders/orders-service";
 import ModalDepthOfBookHistoryBlock from "@/components/modal-depth-of-book-history-block";
 import InputMPIDField from "@/components/mpid-field";
+import converterService from "@/services/converter/converter-service";
 
 
 const formSchema = Yup.object().shape({
@@ -38,6 +39,7 @@ const formSchema = Yup.object().shape({
 interface DepthOfBookState extends IState {
     formInitialValues: {};
     isLoadingForm: boolean;
+    isLoadingHistory: boolean;
     isLoading: boolean;
     focusedInputDate: any;
     focusedInputOffer: any;
@@ -49,6 +51,8 @@ interface DepthOfBookProps extends ICallback {
     onCancel?: () => void;
     symbol?: string;
 }
+
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -92,6 +96,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
             success: false,
             formInitialValues: initialValues,
             isLoadingForm: true,
+            isLoadingHistory: true,
             isLoading: true,
             focusedInputDate: null,
             focusedInputOffer: null,
@@ -131,11 +136,16 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                !this.isAdd() ? this.setState({
-                    isLoadingForm: false,
-                    isLoading: false
-                }) : this.setState({isLoadingForm: false});
+                !this.isAdd()
+                    ?
+                    this.setState({isLoadingForm: false, isLoadingHistory: false, isLoading: false})
+                    :
+                    this.setState({isLoadingForm: false}, () => this.setLoading());
             });
+    }
+
+    setLoading = () => {
+        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)})
     }
 
     handleSubmit = async (values: IOrder, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
@@ -188,7 +198,9 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
     }
 
     onCallback = () => {
-        this.setState({isLoading: false})
+        this.setState({isLoadingHistory: false}, () => {
+            this.setLoading();
+        })
     }
 
 
@@ -221,6 +233,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                   dirty,
                                                   errors
                                               }) => {
+                                                const symbol = this.symbols.find(s => s.symbol === values.symbol);
+
                                                 return (
                                                     <Form className={`w-100`}>
                                                         {values.status && (
@@ -353,7 +367,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     placeholder="Type Size"
                                                                     disabled={isSubmitting || this.isShow()}
                                                                     component={NumericInputField}
-                                                                    decimalScale={2}
+                                                                    decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                                 />
                                                                 <ErrorMessage name="quantity" component="div"
                                                                               className="error-message"/>
@@ -371,7 +385,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     placeholder="Type Price"
                                                                     disabled={isSubmitting || this.isShow()}
                                                                     component={NumericInputField}
-                                                                    decimalScale={2}
+                                                                    decimalScale={decimalPlaces}
                                                                 />
                                                                 <ErrorMessage name="price" component="div"
                                                                               className="error-message"/>

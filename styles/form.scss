@@ -9,7 +9,8 @@ body {
     input.input__text:disabled,
     input[type="file"]:disabled,
     textarea:disabled,
-    .disable .StripeElement {
+    .disable .StripeElement,
+    .SingleDatePicker .SingleDatePickerInput .DateInput .DateInput_input:disabled{
       border: none !important;
       background: #FFF !important;
       color: #1E2D3B !important;

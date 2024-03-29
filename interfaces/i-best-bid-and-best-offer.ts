@@ -17,6 +17,7 @@ export interface IBestBidAndBestOffer {
     offer_date: string;
     offer_time: string;
     uti: string;
+    fractional_lot_size: string;
     created_at: string;
     updated_at: string;
     user_name?: string;

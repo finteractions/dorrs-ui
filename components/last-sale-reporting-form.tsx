@@ -18,6 +18,7 @@ import moment from "moment";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalLastSaleReportingHistoryBlock from "@/components/modal-last-sale-reporting-history-block";
 import InputMPIDField from "@/components/mpid-field";
+import converterService from "@/services/converter/converter-service";
 
 
 const formSchema = Yup.object().shape({
@@ -40,6 +41,7 @@ const formSchema = Yup.object().shape({
 interface LastSaleReportingState extends IState {
     formInitialValues: {};
     isLoadingForm: boolean;
+    isLoadingHistory: boolean;
     isLoading: boolean;
     focusedInput: any;
 }
@@ -49,6 +51,8 @@ interface LastSaleReportingProps extends ICallback {
     data: ILastSale | null;
     onCancel?: () => void;
 }
+
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 
 class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -99,6 +103,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             success: false,
             formInitialValues: initialValues,
             isLoadingForm: true,
+            isLoadingHistory: true,
             isLoading: true,
             focusedInput: null,
         };
@@ -116,11 +121,16 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                !this.isAdd() ? this.setState({
-                    isLoadingForm: false,
-                    isLoading: false
-                }) : this.setState({isLoadingForm: false});
+                !this.isAdd()
+                    ?
+                    this.setState({isLoadingForm: false, isLoadingHistory: false, isLoading: false})
+                    :
+                    this.setState({isLoadingForm: false}, () => this.setLoading());
             });
+    }
+
+    setLoading = () => {
+        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)})
     }
 
     handleSymbolSuffix(value: any, values: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
@@ -165,7 +175,9 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
     }
 
     onCallback = () => {
-        this.setState({isLoading: false})
+        this.setState({isLoadingHistory: false}, () => {
+            this.setLoading();
+        })
     }
 
     fillForm = async (lastSale: ILastSale) => {
@@ -226,6 +238,8 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                               touched,
                                               setTouched
                                           }) => {
+                                            const symbol = this.symbols.find(s => s.symbol === values.symbol);
+
                                             return (
                                                 <Form className={'w-100'}>
                                                     <div className="input">
@@ -339,7 +353,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 placeholder="Type Quantity"
                                                                 disabled={isSubmitting || this.isShow()}
                                                                 component={NumericInputField}
-                                                                decimalScale={2}
+                                                                decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                             />
                                                             <ErrorMessage name="quantity" component="div"
                                                                           className="error-message"/>
@@ -357,7 +371,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 placeholder="Type Price"
                                                                 disabled={isSubmitting || this.isShow()}
                                                                 component={NumericInputField}
-                                                                decimalScale={2}
+                                                                decimalScale={decimalPlaces}
                                                             />
                                                             <ErrorMessage name="price" component="div"
                                                                           className="error-message"/>

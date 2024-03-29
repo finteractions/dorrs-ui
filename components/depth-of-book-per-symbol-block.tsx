@@ -27,6 +27,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
+import converterService from "@/services/converter/converter-service";
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -41,8 +42,8 @@ interface DepthOfBookPerSymbolState extends IState {
     byOrderRowProps: ITableRowProps;
     dataDepthByOrderFull: IDepthByOrder[];
     filterDataDepthByOrder: any;
-    dataDepthByPrice: IDepthByOrder[];
-    dataDepthByPriceFull: IDepthByOrder[];
+    dataDepthByPrice: IDepthByPrice[];
+    dataDepthByPriceFull: IDepthByPrice[];
     filterDataDepthByPrice: any;
     type: string;
     mpid: string | null;
@@ -52,6 +53,7 @@ interface DepthOfBookPerSymbolState extends IState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 
 const columnHelperByOrder = createColumnHelper<any>();
 let columnsByOrder: any[] = [];
@@ -142,14 +144,17 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 },
                 header: () => <span>Bid MPID </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.bid_quantity, {
+            columnHelperByOrder.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Bid Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Bid Size</span>,
             }),
             columnHelperByOrder.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelperByOrder.accessor((row) => row.bid_quote_condition, {
@@ -179,14 +184,17 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                     </div>,
                 header: () => <span>Offer MPID </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.offer_quantity, {
+            columnHelperByOrder.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Offer Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Offer Size</span>,
             }),
             columnHelperByOrder.accessor((row) => row.offer_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
             columnHelperByOrder.accessor((row) => row.offer_quote_condition, {
@@ -207,25 +215,31 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 cell: (item) => formatterService.numberFormat(item.getValue(), 0),
                 header: () => <span>Bid Count </span>,
             }),
-            columnHelperByPrice.accessor((row) => row.bid_quantity, {
+            columnHelperByOrder.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Bid Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Bid Size</span>,
             }),
             columnHelperByPrice.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelperByPrice.accessor((row) => row.offer_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
-            columnHelperByPrice.accessor((row) => row.offer_quantity, {
+            columnHelperByOrder.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
-                header: () => <span>Offer Size </span>,
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
+                header: () => <span>Offer Size</span>,
             }),
             columnHelperByPrice.accessor((row) => row.offer_count, {
                 id: "offer_count",

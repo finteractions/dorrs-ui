@@ -15,6 +15,7 @@ export interface ILastSale {
     time: string;
     date: string;
     uti: string;
+    fractional_lot_size: string;
     created_at: string;
     updated_at: string;
     user_name?: string;

@@ -12,6 +12,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
+import converterService from "@/services/converter/converter-service";
 
 interface ModalDepthOfBookHistoryBlockState extends IState {
     isLoading: boolean;
@@ -30,6 +31,7 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let rowProps: ITableRowProps;
 const pageLength = 20;
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHistoryBlockProps, ModalDepthOfBookHistoryBlockState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -72,14 +74,17 @@ class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHisto
                     className={`${item.getValue().toString().toLowerCase()}-order-side`}>{item.getValue()}</span>,
                 header: () => <span>Side </span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Size </span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price </span>,
             }),
             columnHelper.accessor((row) => row.updated_at, {

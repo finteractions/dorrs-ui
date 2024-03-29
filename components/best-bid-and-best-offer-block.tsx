@@ -10,12 +10,12 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import formatterService from "@/services/formatter/formatter-service";
-import filterService from "@/services/filter/filter";
 import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import BestBidAndBestOfferForm from "@/components/best-bid-and-best-offer-form";
 import {QuoteCondition} from "@/enums/quote-condition";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 
 interface BestBidAndBestOfferBlockState extends IState, IModalState {
@@ -39,7 +39,7 @@ interface BestBidAndBestOfferBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
-
+const decimalPlaces = Number(process.env.PRICE_DECIMALS)
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
@@ -116,14 +116,17 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
                     </div>,
                 header: () => <span>Bid MPID </span>,
             }),
-            columnHelper.accessor((row) => row.bid_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.bid_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "bid_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Bid Qty </span>,
             }),
             columnHelper.accessor((row) => row.bid_price, {
                 id: "bid_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid Price </span>,
             }),
             columnHelper.accessor((row) => row.bid_date, {
@@ -148,14 +151,17 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
                     </div>,
                 header: () => <span>Offer MPID </span>,
             }),
-            columnHelper.accessor((row) => row.offer_quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.offer_quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "offer_quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Offer Qty </span>,
             }),
-            columnHelper.accessor((row) => row.offer_price, {
+            columnHelper.accessor((row) => row.bid_price, {
                 id: "offer_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
             }),
             columnHelper.accessor((row) => row.offer_date, {

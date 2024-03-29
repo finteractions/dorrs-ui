@@ -8,7 +8,6 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {Condition} from "@/enums/condition";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
-import filterService from "@/services/filter/filter";
 import symbolService from "@/services/symbol/symbol-service";
 import downloadFile from "@/services/download-file/download-file";
 import {ISymbol} from "@/interfaces/i-symbol";
@@ -16,6 +15,7 @@ import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
 import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
+import converterService from "@/services/converter/converter-service";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -34,6 +34,8 @@ interface LastSaleReportingPerSymbolState extends IState {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+
 
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {
 
@@ -83,14 +85,17 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                     </div>,
                 header: () => <span>MPID</span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Quantity</span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price</span>,
             }),
             columnHelper.accessor((row) => row.date, {

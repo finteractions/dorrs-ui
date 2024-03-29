@@ -10,6 +10,7 @@ import NoDataBlock from "@/components/no-data-block";
 import lastSaleService from "@/services/last-sale/last-sale-service";
 import {ILastSale} from "@/interfaces/i-last-sale";
 import {Condition} from "@/enums/condition";
+import converterService from "@/services/converter/converter-service";
 
 interface ModalLastSaleReportingHistoryBlockState extends IState {
     isLoading: boolean;
@@ -28,6 +29,7 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let rowProps: ITableRowProps;
 const pageLength = 20;
+const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
 
 class ModalLastSaleReportingHistoryBlock extends React.Component<ModalLastSaleReportingHistoryBlockProps, ModalLastSaleReportingHistoryBlockState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -69,14 +71,17 @@ class ModalLastSaleReportingHistoryBlock extends React.Component<ModalLastSaleRe
                 cell: (item) => item.getValue(),
                 header: () => <span>MPID</span>,
             }),
-            columnHelper.accessor((row) => row.quantity, {
+            columnHelper.accessor((row) => ({
+                quantity: row.quantity,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
                 id: "quantity",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Quantity</span>,
             }),
             columnHelper.accessor((row) => row.price, {
                 id: "price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Price</span>,
             }),
             columnHelper.accessor((row) => row.tick_indication, {
