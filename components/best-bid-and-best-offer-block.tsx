@@ -39,7 +39,7 @@ interface BestBidAndBestOfferBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
-const decimalPlaces = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []

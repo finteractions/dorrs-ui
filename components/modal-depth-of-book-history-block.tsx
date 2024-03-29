@@ -31,7 +31,7 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let rowProps: ITableRowProps;
 const pageLength = 20;
-const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHistoryBlockProps, ModalDepthOfBookHistoryBlockState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();

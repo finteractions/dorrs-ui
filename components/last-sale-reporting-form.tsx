@@ -52,7 +52,7 @@ interface LastSaleReportingProps extends ICallback {
     onCancel?: () => void;
 }
 
-const decimalPlaces = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();

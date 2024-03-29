@@ -52,7 +52,7 @@ interface DepthOfBookProps extends ICallback {
     symbol?: string;
 }
 
-const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();

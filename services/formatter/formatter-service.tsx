@@ -122,7 +122,7 @@ function formatAndColorTickIndicationValueHTML(tickIndication: string) {
     );
 }
 
-function formatAndColorNumberBlockHTML(input: string | number, percentageSign = true) {
+function formatAndColorNumberBlockHTML(input: string | number, percentageSign = true, decimals=2) {
     let formattedNumber = '';
     let icon: any = '';
     let className = '';
@@ -132,7 +132,7 @@ function formatAndColorNumberBlockHTML(input: string | number, percentageSign = 
     const isNegative = numberValue < 0;
 
     if (isPositive) {
-        formattedNumber = formatterService.numberFormat(numberValue);
+        formattedNumber = formatterService.numberFormat(numberValue, decimals);
         icon = <FontAwesomeIcon className="nav-icon" icon={faArrowUp}/>
         className = 'up bg-up';
     } else if (isNegative) {

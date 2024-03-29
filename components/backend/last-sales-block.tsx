@@ -32,7 +32,7 @@ interface LastSalesBlockState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
-const decimalPlaces = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class LastSalesBlock extends React.Component<{}> {

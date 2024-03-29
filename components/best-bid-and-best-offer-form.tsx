@@ -106,7 +106,7 @@ interface BestBidAndBestOfferFormProps extends ICallback {
     onCancel?: () => void;
 }
 
-const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();

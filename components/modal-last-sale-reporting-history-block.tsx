@@ -29,7 +29,7 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let rowProps: ITableRowProps;
 const pageLength = 20;
-const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class ModalLastSaleReportingHistoryBlock extends React.Component<ModalLastSaleReportingHistoryBlockProps, ModalLastSaleReportingHistoryBlockState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();

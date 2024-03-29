@@ -34,7 +34,7 @@ interface LastSaleReportingPerSymbolState extends IState {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
-const decimalPlaces  = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {

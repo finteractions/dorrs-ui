@@ -53,7 +53,7 @@ interface DepthOfBookPerSymbolState extends IState {
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
-const decimalPlaces = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 const columnHelperByOrder = createColumnHelper<any>();
 let columnsByOrder: any[] = [];

@@ -33,7 +33,7 @@ interface BestBidAndBestOfferBlockState {
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
-const decimalPlaces = Number(process.env.PRICE_DECIMALS)
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class BestBidAndBestOfferBlock extends React.Component<{}> {
     state: BestBidAndBestOfferBlockState;

@@ -42,6 +42,7 @@ interface QuoteBoardBlockProps extends ICallback {
 
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -127,7 +128,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
             }),
             columnHelper.accessor((row) => row.last_price, {
                 id: "last_price",
-                cell: (item) => formatterService.numberFormat(item.getValue()),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Last Price </span>,
             }),
             columnHelper.accessor((row) => row.price_changed, {

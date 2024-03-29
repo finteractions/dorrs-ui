@@ -29,6 +29,7 @@ interface QuoteBoardPerSymbolState extends IState {
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps> {
 
@@ -241,25 +242,25 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Bid Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_quantity)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size)) : '-'}
                                         </div>
                                     </div>
                                     <div>
                                         <div>Bid Price:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_price ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_price)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.bid_price ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.bid_price), decimalPlaces) : '-'}
                                         </div>
                                     </div>
                                     <div>
                                         <div>Offer Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_quantity)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_quantity ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_quantity), Number(this.state.bestBidAndBestOffer?.fractional_lot_size)) : '-'}
                                         </div>
                                     </div>
                                     <div>
                                         <div>Offer Price:</div>
                                         <div
-                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_price ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_price)) : '-'}
+                                            className={'padding-left-60'}>{this.state.bestBidAndBestOffer?.offer_price ? formatterService.numberFormat(Number(this.state.bestBidAndBestOffer.offer_price), decimalPlaces) : '-'}
                                         </div>
                                     </div>
                                 </div>
@@ -289,16 +290,16 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.quantity) || 0)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.quantity) || 0, Number(this.state.lastSale?.fractional_lot_size))}</div>
                                     </div>
                                     <div>
                                         <div>Price:</div>
-                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.price_formatted || 0, false)}</div>
+                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.price_formatted || 0, false, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Total Volume on current date:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.total_volume) || 0)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.total_volume) || 0, Number(this.state.lastSale?.fractional_lot_size))}</div>
                                     </div>
                                 </div>
                             </div>
