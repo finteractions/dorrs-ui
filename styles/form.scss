@@ -12,10 +12,14 @@ body {
     .disable .StripeElement,
     .SingleDatePicker .SingleDatePickerInput .DateInput .DateInput_input:disabled{
       border: none !important;
-      background: #FFF !important;
-      color: #1E2D3B !important;
+
       cursor: default;
       opacity: 1 !important;
+      color: #1E2D3B !important;
+
+      &:not(.no-bg) {
+        background: #FFF !important;
+      }
     }
 
     .input__wrap.disable, .input.disable {

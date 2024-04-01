@@ -10,7 +10,7 @@ const CompanyProfile: NextPageWithLayout = () => {
     const router = useRouter();
 
     const onCallback = (symbol: string) => {
-        router.push(`/symbols/${symbol}`)
+        router.push(`/company-profile/${symbol}`)
     }
 
     return (

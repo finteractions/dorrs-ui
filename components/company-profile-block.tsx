@@ -104,7 +104,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
     handleBack = () => {
         const router = useRouter();
-        router.push('/symbols');
+        router.push('/company-profile');
     }
 
 

@@ -19,7 +19,6 @@ function numberFormat(
     if (number === undefined || number === null) {
         return '';
     }
-    console.log(number, maximumFractionDigits)
 
     const roundedNumber = numberDown(number, maximumFractionDigits);
 
