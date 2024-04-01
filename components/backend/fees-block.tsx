@@ -159,7 +159,8 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         </>
                     )
                 },
-                header: () => <span>Nonprofessional</span>,
+                header: () =>
+                    <span>Nonprofessional {!isAdmin && this.context?.userProfile?.customer_type === 'nonprofessional' ? '(Active)' : ''}</span>,
             }),
             columnHelper.accessor((row) => ({
                 id: row.professional_id,
@@ -199,7 +200,8 @@ class FeesBlock extends React.Component<FeesBlockProps, FeesBlockState> {
                         </>
                     )
                 },
-                header: () => <span>Professional</span>,
+                header: () =>
+                    <span>Professional {!isAdmin && this.context?.userProfile?.customer_type === 'professional' ? '(Active)' : ''}</span>,
             }),
         ];
     }
