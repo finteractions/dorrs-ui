@@ -11,10 +11,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AssetImage from "@/components/asset-image";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
 import statisticsService from "@/services/statistics/statistics-service";
-import {faPlus, faMinus, faThLarge, faList, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faMinus, faThLarge, faList, faEye, faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {getGlobalConfig} from "@/utils/global-config";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
+import {Button} from "react-bootstrap";
 
 
 interface QuoteBoardBlockState extends IState {
@@ -29,6 +31,7 @@ interface QuoteBoardBlockState extends IState {
     filterDataWatchList: any;
     quoteModeView: string;
     favouriteSymbolList: Array<string>;
+    isToggle: boolean;
 }
 
 interface QuoteBoardBlockProps extends ICallback {
@@ -94,7 +97,8 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
             dataWatchListFull: [],
             filterDataWatchList: [],
             favouriteSymbolList: favouriteSymbolList,
-            quoteModeView: quoteModeView
+            quoteModeView: quoteModeView,
+            isToggle: false
         }
 
 
@@ -152,11 +156,20 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
         this.setState({isLoading: true});
         this.getMarketStatistics();
         this.startAutoUpdate();
+        window.addEventListener('click', this.handleClickOutside);
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
+        window.removeEventListener('click', this.handleClickOutside);
     }
+
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
 
     startAutoUpdate = () => {
         this.getBBOInterval = setInterval(this.getMarketStatistics, Number(fetchIntervalSec) * 1000);
@@ -254,7 +267,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     }
 
     setModeView = (mode: string) => {
-        this.setState({quoteModeView: mode}, async () => {
+        this.setState({quoteModeView: mode, isToggle: false}, async () => {
             await this.updateModeView()
         });
     }
@@ -265,6 +278,10 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
             resolve(true);
         })
     }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
 
     getViewRender = () => {
         switch (this.state.quoteModeView) {
@@ -403,7 +420,6 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
 
                                         <div>
                                             <div>
-                                                <div></div>
                                                 <div onClick={() => this.navigate(item.symbol_name)}
                                                      className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
                                                     className="nav-icon" icon={faEye}/>
@@ -463,19 +479,52 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                     <div className="content__top">
                         <div className="content__title">Quote Board</div>
                         <div
-                            className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                            <button
-                                className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'table' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
-                                disabled={this.state.isLoading}
-                                onClick={() => this.setModeView('table')}>
-                                <span><FontAwesomeIcon className="nav-icon" icon={faList}/></span>
-                            </button>
-                            <button
-                                className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'tile' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
-                                disabled={this.state.isLoading}
-                                onClick={() => this.setModeView('tile')}>
-                                <span><FontAwesomeIcon className="nav-icon" icon={faThLarge}/></span>
-                            </button>
+                            className="content__title_btns content__filter download-buttons justify-content-end">
+                            <div className="filter-menu">
+                                <Button
+                                    variant="link"
+                                    className="d-md-none admin-table-btn ripple"
+                                    type="button"
+                                    onClick={this.toggleMenu}
+                                >
+                                    {this.state.isToggle ? (
+                                        <FontAwesomeIcon icon={faSortAmountAsc}/>
+                                    ) : (
+                                        <FontAwesomeIcon icon={faSortAmountDesc}/>
+                                    )}
+                                </Button>
+
+                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                    <li>
+                                        <button
+                                            className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'table' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.setModeView('table')}>
+                                            <span>
+                                                {this.state.isToggle ? (
+                                                    <>Table</>
+                                                ) : (
+                                                    <FontAwesomeIcon className="nav-icon" icon={faList}/>
+                                                )}
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'tile' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.setModeView('tile')}>
+                                            <span>{this.state.isToggle ? (
+                                                <>Tile</>
+                                            ) : (
+                                                <FontAwesomeIcon className="nav-icon" icon={faThLarge}/>
+                                            )}
+                                            </span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
                         </div>
                     </div>
                 </div>

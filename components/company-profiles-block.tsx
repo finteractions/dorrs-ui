@@ -13,6 +13,9 @@ import formatterService from "@/services/formatter/formatter-service";
 import adminService from "@/services/admin/admin-service";
 import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faFilter} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
 
 interface CompanyProfilesBlockState extends IState {
     isLoading: boolean;
@@ -27,6 +30,8 @@ interface CompanyProfilesBlockState extends IState {
     isOpenCompanyModal: boolean;
     formCompanyData: ICompanyProfile | null;
     formCompanyAction: string;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 interface CompanyProfilesBlockProps extends ICallback {
@@ -65,6 +70,8 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             isOpenCompanyModal: false,
             formCompanyData: null,
             formCompanyAction: 'add',
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -172,6 +179,12 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         this.getCompanyProfiles();
     }
 
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
+
     getCompanyProfiles = () => {
         const request: Promise<Array<ICompanyProfile>> = this.props.isAdmin ? adminService.getCompanyProfile() : symbolService.getCompanyProfile();
 
@@ -245,6 +258,16 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Company Profile</div>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
+                        </div>
                     </div>
 
                     {this.state.isLoading ? (
@@ -261,6 +284,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                            viewBtn={this.state.isAdmin}
                                            editBtn={this.state.isAdmin}
                                            filters={tableFilters}
+                                           filtersClassName={this.state.filtersClassName}
                                     />
                                 ) : (
                                     <NoDataBlock/>

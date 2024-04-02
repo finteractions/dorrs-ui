@@ -16,6 +16,9 @@ import ordersService from "@/services/orders/orders-service";
 import {IDepthOrder} from "@/interfaces/i-depth-order";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
+import {Button} from "react-bootstrap";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
 
 
 interface DepthOfBookBlockState extends IState, IModalState {
@@ -28,6 +31,8 @@ interface DepthOfBookBlockState extends IState, IModalState {
     dataFull: IDepthOrder[];
     filterData: any;
     mpid: string | null;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 interface DepthOfBookBlockProps extends ICallback {
@@ -71,7 +76,9 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
             data: [],
             dataFull: [],
             filterData: [],
-            mpid: null
+            mpid: null,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -180,6 +187,12 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
         this.stopAutoUpdate();
     }
 
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
+
     startAutoUpdate = () => {
         this.getOrdersInterval = setInterval(this.getOrders, Number(fetchIntervalSec) * 1000);
     }
@@ -283,12 +296,32 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Depth of Book</div>
-                        <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
+
                             {this.props.access.create && (
-                                <button className="b-btn ripple"
-                                        disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('new')}>Add Order
-                                </button>
+                                <>
+                                    <button className="d-none d-md-block b-btn ripple"
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.openModal('new')}>Add Order
+                                    </button>
+                                    <Button
+                                        variant="link"
+                                        className="d-md-none admin-table-btn ripple"
+                                        type="button"
+                                        onClick={() => this.openModal('new')}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus}/>
+                                    </Button>
+                                </>
+
                             )}
                         </div>
 
@@ -309,6 +342,7 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                                            searchPanel={true}
                                            access={this.props.access}
                                            filters={tableFilters}
+                                           filtersClassName={this.state.filtersClassName}
                                     />
                                 ) : (
                                     <NoDataBlock/>
@@ -328,7 +362,8 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                                 />
                             </Modal>
 
-                            <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value:any) => this.handleMPID(value)}/>
+                            <ModalMPIDInfoBlock mpid={this.state.mpid}
+                                                onCallback={(value: any) => this.handleMPID(value)}/>
 
                         </>
                     )}

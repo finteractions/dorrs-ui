@@ -5,7 +5,7 @@ import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 class WeeklyAndMonthlyReportsPortalBlock extends React.Component {
     render() {
         return (
-            <WeeklyAndMonthlyReportsBlock {...this.props} />
+            <WeeklyAndMonthlyReportsBlock  {...this.props} />
         );
     }
 }

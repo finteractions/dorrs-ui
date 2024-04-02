@@ -17,11 +17,12 @@ import {getOrderStatusNames, OrderStatus} from "@/enums/order-status";
 import {OrderSide} from "@/enums/order-side";
 import {
     faCheckDouble,
-    faEdit
+    faEdit, faFileExport, faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
+import {Button} from "react-bootstrap";
 
 
 interface DepthOfBookHistoryBlockState extends IState, IModalState {
@@ -32,6 +33,9 @@ interface DepthOfBookHistoryBlockState extends IState, IModalState {
     errors: string[];
     data: IOrder[];
     mpid: string | null;
+    isToggle: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 interface DepthOfBookHistoryBlockProps extends ICallback {
@@ -87,7 +91,10 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             errors: [],
             formData: null,
             data: [],
-            mpid: null
+            mpid: null,
+            isToggle: false,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         columns = [
@@ -178,11 +185,30 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
         this.setState({isLoading: true});
         this.getOrders();
         this.startAutoUpdate();
+        window.addEventListener('click', this.handleClickOutside);
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
+        window.removeEventListener('click', this.handleClickOutside);
     }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-order-history');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
 
     startAutoUpdate = () => {
         this.getOrdersInterval = setInterval(this.getOrders, Number(fetchIntervalSec) * 1000);
@@ -258,7 +284,6 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
 
     onCancel = async () => {
         this.getOrders();
-
         this.closeModal();
     };
 
@@ -317,17 +342,41 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">History</div>
-                        <div className="content__title_btns content__filter download-buttons justify-content-end в-тщт">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadBBOCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadBBOXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <div className="filter-menu filter-menu-order-history">
+                                <Button
+                                    variant="link"
+                                    className="d-md-none admin-table-btn ripple"
+                                    type="button"
+                                    onClick={this.toggleMenu}
+                                >
+                                    <FontAwesomeIcon icon={faFileExport}/>
+                                </Button>
+                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadBBOCSV}>
+                                            <span className="file-item__download"></span>
+                                            <span>CSV</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadBBOXLSX}>
+                                            <span className="file-item__download"></span>
+                                            <span>XLSX</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
                         </div>
 
                     </div>
@@ -349,6 +398,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                                            customBtnProps={this.customBtns}
                                            access={this.props.access}
                                            filters={tableFilters}
+                                           filtersClassName={this.state.filtersClassName}
                                            ref={this.tableRef}
                                     />
                                 ) : (

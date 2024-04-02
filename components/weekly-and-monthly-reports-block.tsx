@@ -22,6 +22,14 @@ import {
     IReportNumberOfSymbolAdditionsAndDeletions
 } from "@/interfaces/i-report-number-of-symbol-additions-and-deletions";
 import downloadFile from "@/services/download-file/download-file";
+import {faFileExport, faFilter} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
+import {IInvoice} from "@/interfaces/i-invoice";
+
+
+interface WeeklyAndMonthlyReportsBlockProps {
+    isAdmin?: boolean;
+}
 
 interface WeeklyAndMonthlyReportsBlockState extends IState {
     isLoading: boolean;
@@ -29,6 +37,9 @@ interface WeeklyAndMonthlyReportsBlockState extends IState {
     report: string;
     data: Array<any>;
     reportProps: IWeeklyMonthlyReport | null;
+    isToggle: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 const formSchema = Yup.object().shape({
@@ -47,8 +58,10 @@ const initialValues = {
     monthly_date: ''
 }
 
+let isAdmin = false;
 
-class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyReportsBlockState> {
+
+class WeeklyAndMonthlyReportsBlock extends React.Component<WeeklyAndMonthlyReportsBlockProps, WeeklyAndMonthlyReportsBlockState> {
 
     state: WeeklyAndMonthlyReportsBlockState;
 
@@ -57,7 +70,7 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
 
     formRef: RefObject<FormikProps<IWeeklyMonthlyReport>>;
 
-    constructor(props: {}) {
+    constructor(props: WeeklyAndMonthlyReportsBlockProps) {
         super(props);
 
         this.state = {
@@ -66,8 +79,13 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
             isReportLoading: false,
             report: '',
             data: [],
-            reportProps: null
+            reportProps: null,
+            isToggle: false,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         };
+
+        isAdmin = props.isAdmin ?? false;
 
         this.weeklyDates = [];
         this.monthlyDates = [];
@@ -101,7 +119,29 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
 
     componentDidMount() {
         this.getReportDates();
+        window.addEventListener('click', this.handleClickOutside);
     }
+
+    componentWillUnmount() {
+        window.removeEventListener('click', this.handleClickOutside);
+    }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
 
     getReportDates() {
         reportsService.getDates().then((res: IReportDate) => {
@@ -168,22 +208,67 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Weekly and Monthly Reports</div>
-                        <div
-                            className={`content__title_btns content__filter download-buttons justify-content-end`}>
-                            <button
-                                className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
-                                disabled={this.state.isReportLoading || !this.state.reportProps?.date}
-                                onClick={this.downloadReportCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button
-                                className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
-                                disabled={this.state.isReportLoading || !this.state.reportProps?.date}
-                                onClick={this.downloadReportXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            {!isAdmin ? (
+                                <>
+                                    <div className="filter-menu">
+                                        <Button
+                                            variant="link"
+                                            className="d-md-none admin-table-btn ripple"
+                                            type="button"
+                                            onClick={this.toggleMenu}
+                                        >
+                                            <FontAwesomeIcon icon={faFileExport}/>
+                                        </Button>
+                                        <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                                    disabled={this.state.isReportLoading || !this.state.reportProps?.date}
+                                                    onClick={this.downloadReportCSV}>
+                                                    <span className="file-item__download"></span>
+                                                    <span>CSV</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                                    disabled={this.state.isReportLoading || !this.state.reportProps?.date}
+                                                    onClick={this.downloadReportXLSX}>
+                                                    <span className="file-item__download"></span>
+                                                    <span>XLSX</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <Button
+                                        variant="link"
+                                        className="d-md-none admin-table-btn ripple"
+                                        type="button"
+                                        onClick={() => this.handleShowFilters()}
+                                    >
+                                        <FontAwesomeIcon icon={faFilter}/>
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                        disabled={this.state.isReportLoading || !this.state.reportProps?.date}
+                                        onClick={this.downloadReportCSV}>
+                                        <span className="file-item__download"></span>
+                                        <span>CSV</span>
+                                    </button>
+                                    <button
+                                        className={`border-grey-btn ripple d-flex ${this.state.isReportLoading || !this.state.reportProps?.date ? 'disable' : ''}`}
+                                        disabled={this.state.isReportLoading || !this.state.reportProps?.date}
+                                        onClick={this.downloadReportXLSX}>
+                                        <span className="file-item__download"></span>
+                                        <span>XLSX</span>
+                                    </button>
+                                </>
+                            )}
+
                         </div>
                     </div>
                     {this.state.isLoading ? (
@@ -201,7 +286,7 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<{}, WeeklyAndMonthlyR
                                 {({isSubmitting, isValid, dirty, setFieldValue, setFieldTouched, values, errors}) => {
                                     return (
                                         <>
-                                            <Form className={'content__filter mb-3'}>
+                                            <Form className={`content__filter mb-3 ${this.state.filtersClassName}`}>
 
                                                 <div
                                                     className={`input__wrap ${(isSubmitting || this.state.isReportLoading) ? 'disable' : ''}`}>

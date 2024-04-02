@@ -14,9 +14,12 @@ import {getInvoiceStatusNames, InvoiceStatus} from "@/enums/invoice-status";
 import InvoiceInfoBlock from "@/components/invoice-info-block";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 import feesService from "@/services/fee/reports-service";
+import {faFilter} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+let tableFilters: Array<ITableFilter> = []
 
 interface InvoiceBlockState {
     loading: boolean;
@@ -29,6 +32,8 @@ interface InvoiceBlockState {
     dataFull: IInvoice[];
     filterData: any;
     showSymbolForm: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 class InvoiceBlock extends React.Component<{}> {
@@ -48,6 +53,8 @@ class InvoiceBlock extends React.Component<{}> {
             dataFull: [],
             filterData: [],
             showSymbolForm: true,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         columns = [
@@ -85,12 +92,23 @@ class InvoiceBlock extends React.Component<{}> {
                 header: () => <span>Updated Date</span>,
             }),
         ];
+
+        tableFilters = [
+            {key: 'date', placeholder: 'Date'},
+            {key: 'status_name', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
         this.setState({loading: true});
         this.getInvoices();
     }
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
 
     getInvoices = () => {
         feesService.getInvoices()
@@ -167,6 +185,16 @@ class InvoiceBlock extends React.Component<{}> {
                 <div className="panel">
                     <div className="content__top">
                         <div className="content__title">Invoices</div>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
+                        </div>
                     </div>
 
                     {this.state.loading ? (
@@ -178,41 +206,6 @@ class InvoiceBlock extends React.Component<{}> {
                             ) : (
                                 <>
                                     <div className="content__bottom">
-                                        <div className="content__filter mb-3">
-                                            <div className="input__wrap">
-                                                <Select
-                                                    className="select__react"
-                                                    classNamePrefix="select__react"
-                                                    isClearable={true}
-                                                    isSearchable={true}
-                                                    value={filterService.setValue('date', this.state.filterData)}
-                                                    onChange={(item) => this.handleFilterChange('date', item)}
-                                                    options={filterService.buildOptions('date', this.state.dataFull)}
-                                                    placeholder="Date"
-                                                />
-                                            </div>
-                                            <div className="input__wrap">
-                                                <Select
-                                                    className="select__react"
-                                                    classNamePrefix="select__react"
-                                                    isClearable={true}
-                                                    isSearchable={true}
-                                                    value={filterService.setValue('status_name', this.state.filterData)}
-                                                    onChange={(item) => this.handleFilterChange('status_name', item)}
-                                                    options={filterService.buildOptions('status_name', this.state.dataFull)}
-                                                    placeholder="Status"
-                                                />
-                                            </div>
-
-                                            <button
-                                                className="content__filter-clear ripple"
-                                                onClick={this.handleResetButtonClick}>
-                                                <FontAwesomeIcon className="nav-icon"
-                                                                 icon={filterService.getFilterResetIcon()}/>
-                                            </button>
-                                        </div>
-
-
                                         {this.state.data.length ? (
                                             <Table columns={columns}
                                                    data={this.state.data}
@@ -220,6 +213,8 @@ class InvoiceBlock extends React.Component<{}> {
                                                    block={this}
                                                    viewBtn={true}
                                                    editBtn={false}
+                                                   filters={tableFilters}
+                                                   filtersClassName={this.state.filtersClassName}
                                                    deleteBtn={false}
                                             />
                                         ) : (

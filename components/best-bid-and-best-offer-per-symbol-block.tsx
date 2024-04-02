@@ -17,7 +17,7 @@ import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import {Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
+import {faFileExport, faFilter, faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import converterService from "@/services/converter/converter-service";
 
@@ -34,7 +34,10 @@ interface BestBidAndBestOfferPerSymbolBlockState extends IState {
     data: IBestBidAndBestOffer[];
     chart: string;
     mpid: string | null;
+    isToggleBidOffer: boolean;
     isToggle: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -65,7 +68,10 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             data: [],
             chart: 'b',
             mpid: null,
-            isToggle: false
+            isToggleBidOffer: false,
+            isToggle: false,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
 
@@ -179,11 +185,21 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
         window.removeEventListener('click', this.handleClickOutside);
     }
 
-    handleClickOutside = (event:any) => {
-        const menu = document.querySelector('.filter-menu');
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-best-bid-and-best-offer');
         if (menu && !menu.contains(event.target)) {
-            this.setState({ isToggle: false });
+            this.setState({isToggleBidOffer: false});
         }
+    };
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
     };
 
     getBBOChart = () => {
@@ -273,7 +289,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
     }
 
     getChart = (chart: string) => {
-        this.setState({isLoadingChart: true, chart: chart, isToggle: false}, () => {
+        this.setState({isLoadingChart: true, chart: chart, isToggleBidOffer: false}, () => {
             this.getBBOChart();
         });
     }
@@ -282,8 +298,8 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
         this.setState({mpid: mpid})
     }
 
-    toggleMenu = () => {
-        this.setState({isToggle: !this.state.isToggle})
+    toggleBidOfferMenu = () => {
+        this.setState({isToggleBidOffer: !this.state.isToggleBidOffer})
     };
 
     render() {
@@ -339,21 +355,21 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                     <>
                                         <div
                                             className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                            <div className="filter-menu">
+                                            <div className="filter-menu filter-menu-best-bid-and-best-offer">
                                                 <Button
                                                     variant="link"
                                                     className="d-md-none admin-table-btn ripple"
                                                     type="button"
-                                                    onClick={this.toggleMenu}
+                                                    onClick={this.toggleBidOfferMenu}
                                                 >
-                                                    {this.state.isToggle ? (
+                                                    {this.state.isToggleBidOffer ? (
                                                         <FontAwesomeIcon icon={faSortAmountAsc}/>
                                                     ) : (
                                                         <FontAwesomeIcon icon={faSortAmountDesc}/>
                                                     )}
                                                 </Button>
 
-                                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                                <ul className={`${this.state.isToggleBidOffer ? 'open' : ''}`}>
                                                     <li>
                                                         <button
                                                             className={`border-grey-btn ripple d-flex ${this.state.chart === 'b' ? 'active' : ''}`}
@@ -386,16 +402,40 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                 {!this.isDashboard && (
                                     <div
                                         className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                        <button className="border-grey-btn ripple d-flex"
-                                                onClick={this.downloadBBOCSV}>
-                                            <span className="file-item__download"></span>
-                                            <span>CSV</span>
-                                        </button>
-                                        <button className="border-grey-btn ripple d-flex"
-                                                onClick={this.downloadBBOXLSX}>
-                                            <span className="file-item__download"></span>
-                                            <span>XLSX</span>
-                                        </button>
+                                        <div className="filter-menu filter-menu-best-bid-and-best-offer">
+                                            <Button
+                                                variant="link"
+                                                className="d-md-none admin-table-btn ripple"
+                                                type="button"
+                                                onClick={this.toggleMenu}
+                                            >
+                                                <FontAwesomeIcon icon={faFileExport}/>
+                                            </Button>
+                                            <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                                <li>
+                                                    <button className="border-grey-btn ripple d-flex"
+                                                            onClick={this.downloadBBOCSV}>
+                                                        <span className="file-item__download"></span>
+                                                        <span>CSV</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button className="border-grey-btn ripple d-flex"
+                                                            onClick={this.downloadBBOXLSX}>
+                                                        <span className="file-item__download"></span>
+                                                        <span>XLSX</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <Button
+                                            variant="link"
+                                            className="d-md-none admin-table-btn ripple"
+                                            type="button"
+                                            onClick={() => this.handleShowFilters()}
+                                        >
+                                            <FontAwesomeIcon icon={faFilter}/>
+                                        </Button>
                                     </div>
                                 )}
 
@@ -407,6 +447,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                        editBtn={false}
                                        viewBtn={false}
                                        filters={tableFilters}
+                                       filtersClassName={this.state.filtersClassName}
                                        ref={this.tableRef}
                                 />
 

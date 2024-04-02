@@ -17,7 +17,17 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import UserPermissionService from "@/services/user/user-permission-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import downloadFile from "@/services/download-file/download-file";
-import {faComment} from "@fortawesome/free-solid-svg-icons";
+import {
+    faComment,
+    faFileExport,
+    faFilter,
+    faList,
+    faPlus,
+    faSortAmountAsc,
+    faThLarge
+} from "@fortawesome/free-solid-svg-icons";
+import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
+import {Button} from "react-bootstrap";
 
 
 interface SymbolBlockState extends IState, IModalState {
@@ -36,6 +46,9 @@ interface SymbolBlockState extends IState, IModalState {
         delete: boolean
     };
     data: ISymbol[];
+    isToggle: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 interface SymbolBlockProps extends ICallback {
@@ -88,6 +101,9 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             formCompanyAction: 'add',
             companyProfileAccess: companyProfileAccess,
             data: [],
+            isToggle: false,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -218,14 +234,20 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         this.setState({isLoading: true});
         this.getSymbols();
         // this.startAutoUpdate();
-    }
-
-    navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+        window.addEventListener('click', this.handleClickOutside);
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
+        window.removeEventListener('click', this.handleClickOutside);
+    }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    navigate = (symbol: string) => {
+        this.props.onCallback(symbol);
     }
 
     startAutoUpdate = () => {
@@ -327,6 +349,19 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         }
     }
 
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
+
     render() {
         return (
 
@@ -335,22 +370,59 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     <div className="content__top">
                         <div className="content__title">Symbols</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadSymbolsCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadSymbolsXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
+                            <div className="filter-menu">
+                                <Button
+                                    variant="link"
+                                    className="d-md-none admin-table-btn ripple"
+                                    type="button"
+                                    onClick={this.toggleMenu}
+                                >
+                                    <FontAwesomeIcon icon={faFileExport}/>
+                                </Button>
 
+                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadSymbolsCSV}>
+                                            <span className="file-item__download"></span>
+                                            <span>CSV</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadSymbolsXLSX}>
+                                            <span className="file-item__download"></span>
+                                            <span>XLSX</span>
+                                        </button>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
                             {this.props.access.create && (
-                                <button className="b-btn ripple"
-                                        disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('add')}>Add Symbol
-                                </button>
+                                <>
+                                    <button className="d-none d-md-block b-btn ripple"
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.openModal('add')}>Add Symbol
+                                    </button>
+                                    <Button
+                                        variant="link"
+                                        className="d-md-none admin-table-btn ripple"
+                                        type="button"
+                                        onClick={() => this.openModal('add')}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus}/>
+                                    </Button>
+                                </>
+
                             )}
 
                             {isDashboard && (
@@ -375,6 +447,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                            viewBtn={true}
                                            deleteBtn={true}
                                            filters={tableFilters}
+                                           filtersClassName={this.state.filtersClassName}
                                            access={this.props.access}
                                            ref={this.tableRef}
                                     />

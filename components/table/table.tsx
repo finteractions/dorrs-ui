@@ -35,6 +35,7 @@ interface ITableProps {
     access?: any,
     className?: string,
     filters?: ITableFilter[];
+    filtersClassName?: string;
 }
 
 interface TableRef {
@@ -111,7 +112,8 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                      filter,
                                                      access,
                                                      className,
-                                                     filters
+                                                     filters,
+                                                     filtersClassName
                                                  }: ITableProps,
                                                  ref: ForwardedRef<TableRef>) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -276,6 +278,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
     const dataLabel = (cell: any) => {
         const header = (cell.column?.columnDef?.header as any);
+
         const children = header?.().props?.children;
 
         let result: string | undefined;
@@ -283,7 +286,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
         if (typeof children === 'string') {
             result = children;
         } else if (Array.isArray(children)) {
-            const filteredStrings = children.filter((child: any) => typeof child === 'string');
+            const filteredStrings = children.filter((child: any) => typeof child === 'string' && child.trim() !== '');
             result = filteredStrings.join('/');
         }
 
@@ -315,7 +318,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
 
                         {(filters || searchPanel) && (
-                            <div className="content__filter mb-3">
+                            <div className={`content__filter table-content-filter mb-3 ${filtersClassName}`}>
                                 {searchPanel && (
                                     <input
                                         type="text"
@@ -327,26 +330,32 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                 )}
                                 {filters && (
                                     <>
-                                        {filters?.map((filter) => (
+                                        {filters?.map((filter, index) => (
                                             <>
-                                                {filter?.type === 'datePickerRange' ? (
-                                                    <div key={filter.key} className="input__wrap">
-                                                        {renderFilterDateRange(filter.key, filter.placeholder)}
-                                                    </div>
-                                                ) : (
-                                                    <div key={filter.key} className="input__wrap">
-                                                        {renderFilterSelect(filter.key, filter.placeholder)}
-                                                    </div>
-                                                )}
+                                                <div key={filter.key} className="input__wrap">
+                                                    {filter?.type === 'datePickerRange' ? (
+                                                        <>
+                                                            {renderFilterDateRange(filter.key, filter.placeholder)}
+                                                        </>
 
+
+                                                    ) : (
+                                                        <>
+                                                            {renderFilterSelect(filter.key, filter.placeholder)}
+                                                        </>
+                                                    )}
+                                                    {index === filters.length - 1 && (
+
+                                                        <button className="content__filter-clear ripple"
+                                                                onClick={resetFilters}>
+                                                            <FontAwesomeIcon className="nav-icon"
+                                                                             icon={filterService.getFilterResetIcon()}/>
+                                                        </button>
+
+                                                    )}
+                                                </div>
                                             </>
                                         ))}
-                                        <button className="content__filter-clear ripple"
-                                                onClick={resetFilters}
-                                        >
-                                            <FontAwesomeIcon className="nav-icon"
-                                                             icon={filterService.getFilterResetIcon()}/>
-                                        </button>
                                     </>
                                 )}
 

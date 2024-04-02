@@ -16,6 +16,9 @@ import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
+import {Button} from "react-bootstrap";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faFileExport, faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
 
 
 interface LastSaleReportingBlockState extends IState, IModalState {
@@ -26,6 +29,9 @@ interface LastSaleReportingBlockState extends IState, IModalState {
     errors: string[];
     data: ILastSale[];
     mpid: string | null;
+    isToggle: boolean;
+    isFilterShow: boolean;
+    filtersClassName: string;
 }
 
 interface LastSaleReportingBlockProps extends ICallback {
@@ -69,7 +75,10 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             errors: [],
             formData: null,
             data: [],
-            mpid: null
+            mpid: null,
+            isToggle: false,
+            isFilterShow: false,
+            filtersClassName: 'd-none d-md-flex'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -177,11 +186,30 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
         this.setState({isLoading: true});
         this.getLastSaleReporting();
         this.startAutoUpdate();
+        window.addEventListener('click', this.handleClickOutside);
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
+        window.removeEventListener('click', this.handleClickOutside);
     }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-last-sale');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
+
+    handleShowFilters = () => {
+        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        })
+    };
 
     startAutoUpdate = () => {
         this.getLastSaleReportingInterval = setInterval(this.getLastSaleReporting, Number(fetchIntervalSec) * 1000);
@@ -269,21 +297,58 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                     <div className="content__top">
                         <div className="content__title">Last Sale Reporting</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingCSV}>
-                                <span className="file-item__download"></span>
-                                <span>CSV</span>
-                            </button>
-                            <button className="border-grey-btn ripple d-flex"
-                                    onClick={this.downloadLastSaleReportingXLSX}>
-                                <span className="file-item__download"></span>
-                                <span>XLSX</span>
-                            </button>
+                            <div className="filter-menu filter-menu-last-sale">
+                                <Button
+                                    variant="link"
+                                    className="d-md-none admin-table-btn ripple"
+                                    type="button"
+                                    onClick={this.toggleMenu}
+                                >
+                                    <FontAwesomeIcon icon={faFileExport}/>
+                                </Button>
+                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadLastSaleReportingCSV}>
+                                            <span className="file-item__download"></span>
+                                            <span>CSV</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="border-grey-btn ripple d-flex"
+                                                onClick={this.downloadLastSaleReportingXLSX}>
+                                            <span className="file-item__download"></span>
+                                            <span>XLSX</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <Button
+                                variant="link"
+                                className="d-md-none admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.handleShowFilters()}
+                            >
+                                <FontAwesomeIcon icon={faFilter}/>
+                            </Button>
+
                             {this.props.access.create && (
-                                <button className="b-btn ripple"
-                                        disabled={this.state.isLoading}
-                                        onClick={() => this.openModal('add')}>Add Sale Report
-                                </button>
+                                <>
+                                    <button className="d-none d-md-block b-btn ripple"
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.openModal('add')}>Add Sale Report
+                                    </button>
+                                    <Button
+                                        variant="link"
+                                        className="d-md-none admin-table-btn ripple"
+                                        type="button"
+                                        onClick={() => this.openModal('add')}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus}/>
+                                    </Button>
+                                </>
+
                             )}
                         </div>
 
@@ -304,6 +369,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                                            editBtn={true}
                                            viewBtn={true}
                                            filters={tableFilters}
+                                           filtersClassName={this.state.filtersClassName}
                                            access={this.props.access}
                                            ref={this.tableRef}
                                     />

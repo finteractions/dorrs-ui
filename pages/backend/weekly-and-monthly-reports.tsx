@@ -9,7 +9,7 @@ const WeeklyAndMonthlyReports: NextPageWithLayout = () => {
     return (
         <>
             <div className="flex-panel-box">
-                <WeeklyAndMonthlyReportsBlock/>
+                <WeeklyAndMonthlyReportsBlock isAdmin={true}/>
             </div>
         </>
     )

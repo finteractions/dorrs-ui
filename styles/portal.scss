@@ -1894,8 +1894,22 @@ body {
       flex-wrap: wrap;
       justify-content: flex-end;
 
+      &.table-content-filter {
+        margin-bottom: 40px !important;
+      }
+
       .input__wrap {
         flex: 1;
+
+        &:last-child {
+          display: flex;
+          gap: 5px;
+          justify-content: space-between;
+
+          > div:nth-of-type(1) {
+            width: 100%;
+          }
+        }
       }
 
     }
@@ -2429,7 +2443,7 @@ body {
       }
 
       .content__filter-clear {
-        width: 35px;
+        width: 37px;
         height: 35px;
       }
     }
@@ -2728,7 +2742,7 @@ body {
             padding: 20px 20px;
 
             .table {
-              margin: 0 -20px 0 -20px;
+              margin: -20px -20px 0 -20px;
             }
 
             .content__search .search-filter {
@@ -2762,6 +2776,10 @@ body {
 
               &:last-child {
                 border-bottom: initial;
+              }
+
+              &:first-child {
+                //border-top: 4px solid var(--border-colour-1);
               }
 
               td {
@@ -4213,4 +4231,12 @@ html.dark {
 
 .input .input__title i, .input__box .input__title i, .error-message {
   color: var(--error-colour)
+}
+
+.p-0-10 {
+  padding: 0 10px !important;
+}
+
+.min-width-unset {
+  min-width: unset;
 }
