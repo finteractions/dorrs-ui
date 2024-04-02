@@ -2963,7 +2963,11 @@ body {
       font-size: 16px;
       line-height: 100%;
       color: var(--text-colour-6);
-      margin: 0 0 32px
+      margin: 0 0 32px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      display: flex;
+      align-items: center;
     }
 
     .profile__right-wrap-full {
@@ -2994,6 +2998,7 @@ body {
               border-bottom: 1px solid #ddd;
               padding-bottom: 5px;
               min-height: 25px;
+              margin-top: auto;
             }
           }
 
@@ -3015,6 +3020,11 @@ body {
               button {
                 flex: 1;
               }
+            }
+
+            &:not(.buttons) {
+              display: flex;
+              flex-direction: column;
             }
           }
         }
@@ -4241,4 +4251,13 @@ html.dark {
 
 .min-width-unset {
   min-width: unset;
+}
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.dsin-view {
+  margin: 0px !important;;
+  font-size: 20px!important;
 }

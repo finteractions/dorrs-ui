@@ -12,10 +12,24 @@ import {UsaStates} from "usa-states";
 import {UnderpinningAssetValue} from "@/enums/underpinning-asset-value";
 import {RedeemabilityType} from "@/enums/redeemability-type";
 import formatterService from "@/services/formatter/formatter-service";
+import {Button} from "react-bootstrap";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEdit, faPlus} from "@fortawesome/free-solid-svg-icons";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import SymbolForm from "@/components/symbol-form";
+import {DataContext} from "@/contextes/data-context";
+import UserPermissionService from "@/services/user/user-permission-service";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 
-interface SymbolInfoProps {
+interface SymbolInfoProps extends ICallback {
     symbol: string;
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 interface SymbolInfoState extends IState, IModalState {
@@ -27,6 +41,16 @@ interface SymbolInfoState extends IState, IModalState {
         abbreviation: string;
         name: string;
     }[],
+    companyProfileAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    },
+    modalTitle: string;
+    formAction: string;
+    symbol: ISymbol | null;
+    formCompanyData: ICompanyProfile | null;
 }
 
 class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
@@ -36,11 +60,20 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
     companyProfile: ICompanyProfile | null;
     symbol: ISymbol | null;
 
-    constructor(props: SymbolInfoProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    constructor(props: SymbolInfoProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
+
+        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
+            'CompanyProfileBlock',
+            this.context.userProfile.access
+        );
 
         this.companyProfile = null;
         this.symbol = null;
@@ -52,6 +85,11 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
             isOpenCompanyModal: false,
             formCompanyAction: 'add',
             usaStates: usaStatesList,
+            companyProfileAccess: companyProfileAccess,
+            modalTitle: '',
+            formAction: 'edit',
+            symbol: null,
+            formCompanyData: null,
         }
     }
 
@@ -63,9 +101,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+                const data = res || [];
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -95,6 +131,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                 const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
                 this.symbol = symbol || null;
                 this.companyProfile = symbol?.company_profile || null;
+                this.setState({symbol: this.symbol})
             })
             .catch((errors: IError) => {
 
@@ -109,11 +146,23 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
     }
 
 
-    openCompanyModal = (mode: string) => {
+    openModal = (mode: string) => {
+        this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
+        this.cancelCompanyForm();
+    }
+
+    openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
         this.setState({
             isOpenCompanyModal: true,
+            formCompanyData: data || null,
             formCompanyAction: mode,
+            modalTitle: this.modalTitle(mode)
         })
+        this.closeModal();
+    }
+
+    closeModal(): void {
+        this.setState({isOpenModal: false})
     }
 
     cancelCompanyForm(): void {
@@ -128,9 +177,26 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
         }
     }
 
+    modalTitle = (mode: string) => {
+        if (mode === 'delete') {
+            return 'Do you want to delete this symbol?';
+        } else if (mode === 'view') {
+            return 'View Symbol'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Symbol`;
+        }
+    }
+
     onCallback = async (values: any, step: boolean) => {
-        this.getSymbols();
+        this.closeModal();
         this.cancelCompanyForm()
+
+        if (values?.symbol && values.symbol !== this.props.symbol) {
+            this.props.onCallback(values.symbol);
+        } else {
+            this.getSymbols();
+        }
+
     };
 
     render() {
@@ -140,354 +206,254 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        {this.symbol ? (
-                            <>
-                                <div className="flex-panel-box">
+                        <div className="flex-panel-box">
+                            <div className={'profile__right'}>
+                                {this.symbol ? (
+                                    <>
+                                        <div className={'profile__right-title'}>
+                                            <div>{this.symbol.security_name} ({this.symbol.symbol})</div>
+                                            <div className={'justify-content-end'}>
+                                                {this.props.access.create && (
+                                                    <>
+                                                        <button className="d-none d-md-block b-btn ripple"
+                                                                disabled={this.state.isLoading}
+                                                                onClick={() => this.openModal('edit')}>Edit
+                                                        </button>
+                                                        <Button
+                                                            variant="link"
+                                                            className="d-md-none admin-table-btn ripple"
+                                                            type="button"
+                                                            onClick={() => this.openModal('edit')}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit}/>
+                                                        </Button>
+                                                    </>
 
-                                    <div className="panel">
-                                        <div className="content__bottom d-flex justify-content-between">
-                                            <h2 className="view_block_main_title">
-                                                {this.symbol.security_name} ({this.symbol.symbol})
-                                            </h2>
-                                        </div>
-                                    </div>
+                                                )}
 
-                                    <div id={'reason_for_entry'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Reason for Entry</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.reason_for_entry || 'not filled'}</div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div id={'security_name'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Security Name</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.security_name || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'symbol'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Symbol</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.symbol || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id="cusip" className="panel">
-                                        <div className="content__top">
-                                            <div className="content__title">CUSIP</div>
-                                        </div>
-                                        <div className="content__bottom">
-                                            <div className="view_panel">
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title mt-0">Does it have
-                                                                cusip number?
+                                        <div className={'profile__right-wrap-full'}>
+                                            <div className={'profile__panel'}>
+                                                <div className={'profile__info__panel view__input__box'}>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Reason for Entry</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.reason_for_entry || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Security Name</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.security_name || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Symbol</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.symbol || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Does it have cusip number?</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.is_cusip ? 'Yes' : 'No' || 'not filled'}</div>
+                                                    </div>
+                                                    {this.symbol?.is_cusip && this.symbol.is_cusip && (
+                                                        <div className={'input__box'}>
+                                                            <div className={'input__title'}>CUSIP Number
                                                             </div>
                                                             <div
-                                                                className="">{this.symbol.is_cusip ? 'Yes' : 'No' || 'not filled'}</div>
+                                                                className={'input__wrap'}>{this.symbol.cusip || 'not filled'}</div>
                                                         </div>
-                                                        {this.symbol?.is_cusip && this.symbol.is_cusip && (
-                                                            <div className="ver">
-                                                                <div className="view_block_sub_title">CUSIP Number
-                                                                </div>
-                                                                <div
-                                                                    className="">{this.symbol.cusip || 'not filled'}</div>
-                                                            </div>
-                                                        )}
-
+                                                    )}
+                                                    <div className={'input__box px-0 mx-0'}>
+                                                        <div className={'input__title'}>Digital Security Identifier
+                                                            Number - DSIN
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}><input name="dsin"
+                                                                                             id="dsin"
+                                                                                             type="text"
+                                                                                             className="input__text dsin no-bg dsin-view"
+                                                                                             disabled
+                                                                                             value={this.symbol.dsin}/>
+                                                        </div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Primary ATS
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.primary_ats || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Transfer Agent
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.transfer_agent || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Custodian
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.custodian || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Custodian
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.custodian || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Market Sector
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.market_sector || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Lot Size
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.lot_size ? formatterService.toPlainString(this.symbol.lot_size.toString()) : 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Fractional Lot Size
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.fractional_lot_size ? formatterService.toPlainString(this.symbol.fractional_lot_size.toString()) : 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Minimum Price Variation
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.mvp ? formatterService.toPlainString(this.symbol.mvp.toString()) : 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Fifth Character Identifiers
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.fifth_character_identifier || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Digital Asset
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.digital_asset_category || 'not filled'} {this.symbol.instrument_type ? ` / ${this.symbol.instrument_type}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Issuer Name
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.issuer_name || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Issuer Type
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.issuer_type || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Underpinning Asset Value
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.underpinning_asset_value || 'not filled'} {(this.symbol.underpinning_asset_value === UnderpinningAssetValue.PEGGED && this.symbol.reference_asset) ? ` / ${this.symbol.reference_asset || 'not filled'}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Rights Type
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.rights_type || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Enforceability
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.enforceability_type || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Fungibility Type
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.fungibility_type || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Redeemability Type
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.redeemability_type || 'not filled'} {(this.symbol.redeemability_type === RedeemabilityType.REDEEMABLE && this.symbol.redemption_asset_type) ? ` / ${this.symbol.redemption_asset_type || 'not filled'}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Nature of record
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.nature_of_record || 'not filled'}</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div id={'dsin'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Digital Security Identifier Number -
-                                                DSIN
-                                            </div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div className="input">
-                                                <div className="input__wrap">
-                                                    <input name="dsin"
-                                                           id="dsin"
-                                                           type="text"
-                                                           className="input__text dsin no-bg"
-                                                           disabled
-                                                           value={this.symbol.dsin}/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'primary_ats'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Primary ATS</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.primary_ats || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'transfer_agent'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Transfer Agent</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.transfer_agent || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'custodian'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Custodian</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.custodian || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'custodian'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Custodian</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.custodian || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'market_sector'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Market Sector</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.market_sector || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'lot_size'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Lot Size</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol?.lot_size ? formatterService.toPlainString(this.symbol.lot_size.toString()) : 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'fractional_lot_size'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Fractional Lot Size</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol?.fractional_lot_size ? formatterService.toPlainString(this.symbol.fractional_lot_size.toString()) : 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'mvp'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Minimum Price Variation</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol?.mvp ? formatterService.toPlainString(this.symbol.mvp.toString()) : 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'fifth_character_identifier'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Fifth Character Identifiers</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.fifth_character_identifier || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id="digital_asset" className="panel">
-                                        <div className="content__top">
-                                            <div className="content__title">Digital Asset</div>
-                                        </div>
-                                        <div className="content__bottom">
-                                            <div className="view_panel">
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title mt-0">Category
-                                                            </div>
-                                                            <div
-                                                                className="">{this.symbol.digital_asset_category || 'not filled'}</div>
-                                                        </div>
-                                                        <div className="ver">
-                                                            <div className="view_block_sub_title">Instrument
-                                                                Type
-                                                            </div>
-                                                            <div
-                                                                className="">{this.symbol.instrument_type || 'not filled'}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'issuer_name'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Issuer Name</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.issuer_name || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'issuer_type'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Issuer Type</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.issuer_type || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id="underpinning_asset_value" className="panel">
-                                        <div className="content__top">
-                                            <div className="content__title">Underpinning Asset Value</div>
-                                        </div>
-                                        <div className="content__bottom">
-                                            <div className="view_panel">
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="ver">
-                                                            <div
-                                                                className="">{this.symbol.underpinning_asset_value || 'not filled'}</div>
-                                                        </div>
-                                                        {this.symbol.underpinning_asset_value === UnderpinningAssetValue.PEGGED && (
-                                                            <div className="ver">
-                                                                <div className="view_block_sub_title">Reference
-                                                                    Asset
-                                                                </div>
-                                                                <div
-                                                                    className="">{this.symbol.reference_asset || 'not filled'}</div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'rights_type'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Rights Type</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.rights_type || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'rights_type'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Enforceability</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.enforceability_type || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'fungibility_type'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Fungibility Type</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.fungibility_type || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id="underpinning_asset_value" className="panel">
-                                        <div className="content__top">
-                                            <div className="content__title">Redeemability Type</div>
-                                        </div>
-                                        <div className="content__bottom">
-                                            <div className="view_panel">
-                                                <div className="view_block">
-                                                    <div className="view_block_body">
-                                                        <div className="ver">
-                                                            <div
-                                                                className="">{this.symbol.redeemability_type || 'not filled'}</div>
-                                                        </div>
-                                                        {this.symbol.underpinning_asset_value === RedeemabilityType.REDEEMABLE && (
-                                                            <div className="ver">
-                                                                <div
-                                                                    className="view_block_sub_title">Redemption
-                                                                    Asset Type
-                                                                </div>
-                                                                <div
-                                                                    className="">{this.symbol.redemption_asset_type || 'not filled'}</div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id={'nature_of_record'} className={'panel'}>
-                                        <div className={'content__top'}>
-                                            <div className={'content__title'}>Nature of record</div>
-                                        </div>
-                                        <div className={'content__bottom'}>
-                                            <div>
-                                                <div>{this.symbol.nature_of_record || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <div className={'content__bottom'}>
-                                <NoDataBlock/>
+                                    </>
+                                ) : (
+                                    <NoDataBlock/>
+                                )}
                             </div>
-                        )}
+                        </div>
+
+                        <Modal isOpen={this.state.isOpenModal}
+                               onClose={() => this.closeModal()}
+                               title={this.state.modalTitle}
+                        >
+                            {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
+                                <div className="modal__navigate">
+                                    {(this.state.companyProfileAccess.create ||
+                                        this.state.companyProfileAccess.edit ||
+                                        this.state.companyProfileAccess.view) && (
+                                        <div className="modal__navigate__title">Company Profile:</div>
+                                    )}
+
+                                    {(this.state.companyProfileAccess.create ||
+                                        this.state.companyProfileAccess.edit ||
+                                        this.state.companyProfileAccess.view) && (
+                                        <>
+                                            {this.state.symbol?.company_profile ? (
+                                                <>
+                                                    <div
+                                                        className={`table__status table__status-${this.state.symbol?.company_profile?.status.toLowerCase()}`}>{this.state.symbol?.company_profile?.status}</div>
+                                                    {this.state.companyProfileAccess.view && (
+                                                        <button className={'border-btn ripple'}
+                                                                onClick={() => this.openCompanyModal('view', this.state.symbol?.company_profile)}>
+                                                            View
+                                                        </button>
+                                                    )}
+                                                    {this.state.companyProfileAccess.edit && (
+                                                        <button className={'border-btn ripple'}
+                                                                onClick={() => this.openCompanyModal('edit', this.state.symbol?.company_profile)}>
+                                                            Edit
+                                                        </button>
+                                                    )}
+
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {this.state.companyProfileAccess.create && (
+                                                        <button className={'border-btn ripple'}
+                                                                onClick={() => this.openCompanyModal('add')}>
+                                                            Add
+                                                        </button>
+                                                    )}
+
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+
+                                </div>
+                            )}
+
+                            <SymbolForm
+                                isAdmin={false}
+                                action={this.state.formAction}
+                                data={this.state.symbol}
+                                onCallback={this.onCallback}
+                            />
+                        </Modal>
 
 
                         <Modal isOpen={this.state.isOpenCompanyModal}
@@ -495,9 +461,18 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                onClose={() => this.cancelCompanyForm()}
                                title={this.modalCompanyTitle(this.state.formCompanyAction)}
                         >
+                            <div className="modal__navigate">
+                                <button className={'border-btn ripple'} onClick={() => this.setState({
+                                    isOpenModal: true,
+                                    isOpenCompanyModal: false
+                                })}>
+                                    Back to Symbol
+                                </button>
+                            </div>
+
                             <CompanyProfile action={this.state.formCompanyAction}
-                                            data={this.companyProfile}
-                                            symbolData={this.symbol}
+                                            data={this.state.formCompanyData}
+                                            symbolData={this.state.symbol}
                                             onCallback={this.onCallback}
                                             isAdmin={false}/>
 
@@ -513,4 +488,5 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
 }
 
-export default SymbolInfoBlock;
+// export default SymbolInfoBlock;
+export default portalAccessWrapper(SymbolInfoBlock, 'SymbolBlock');

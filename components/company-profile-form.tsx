@@ -18,9 +18,7 @@ import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid
 import Link from "next/link";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import Select from "react-select";
-import AssetImage from "@/components/asset-image";
-import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
-import {ReportPeriod} from "@/enums/report-period";
+
 
 const allowedFileSizeMB = 1
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
@@ -903,15 +901,19 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                         {this.props.data ? (
                             <div>
                                 <div className='approve-form'>
-                                    {getApprovedFormStatus().includes(this.props?.data.status.toLowerCase() as FormStatus) && (
+                                    {this.props.isAdmin && (
+                                        <>
+                                            {getApprovedFormStatus().includes(this.props?.data.status.toLowerCase() as FormStatus) && (
 
-                                        <div
-                                            className={`approve-form-text w-100`}>
-                                            <>
-                                                Status: {this.props?.data.status} by {this.props?.data.approved_by || ''} at {formatterService.dateTimeFormat(this.props?.data.approved_date_time || '')}
-                                            </>
-                                        </div>
+                                                <div
+                                                    className={`approve-form-text w-100`}>
+                                                    <>
+                                                        Status: {this.props?.data.status} by {this.props?.data.approved_by || ''} at {formatterService.dateTimeFormat(this.props?.data.approved_date_time || '')}
+                                                    </>
+                                                </div>
 
+                                            )}
+                                        </>
                                     )}
                                 </div>
                                 <h2 className={'view_block_main_title'}>

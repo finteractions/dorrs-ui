@@ -331,30 +331,28 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                 {filters && (
                                     <>
                                         {filters?.map((filter, index) => (
-                                            <>
-                                                <div key={filter.key} className="input__wrap">
-                                                    {filter?.type === 'datePickerRange' ? (
-                                                        <>
-                                                            {renderFilterDateRange(filter.key, filter.placeholder)}
-                                                        </>
+                                            <div key={filter.key} className="input__wrap">
+                                                {filter?.type === 'datePickerRange' ? (
+                                                    <>
+                                                        {renderFilterDateRange(filter.key, filter.placeholder)}
+                                                    </>
 
 
-                                                    ) : (
-                                                        <>
-                                                            {renderFilterSelect(filter.key, filter.placeholder)}
-                                                        </>
-                                                    )}
-                                                    {index === filters.length - 1 && (
+                                                ) : (
+                                                    <>
+                                                        {renderFilterSelect(filter.key, filter.placeholder)}
+                                                    </>
+                                                )}
+                                                {index === filters.length - 1 && (
 
-                                                        <button className="content__filter-clear ripple"
-                                                                onClick={resetFilters}>
-                                                            <FontAwesomeIcon className="nav-icon"
-                                                                             icon={filterService.getFilterResetIcon()}/>
-                                                        </button>
+                                                    <button className="content__filter-clear ripple"
+                                                            onClick={resetFilters}>
+                                                        <FontAwesomeIcon className="nav-icon"
+                                                                         icon={filterService.getFilterResetIcon()}/>
+                                                    </button>
 
-                                                    )}
-                                                </div>
-                                            </>
+                                                )}
+                                            </div>
                                         ))}
                                     </>
                                 )}

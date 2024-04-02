@@ -60,9 +60,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+                const data = res || [];
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;

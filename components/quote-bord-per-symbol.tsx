@@ -150,9 +150,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
         return new Promise((resolve) => {
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
-                    const data = res?.sort((a, b) => {
-                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                    }) || [];
+                    const data = res || [];
 
                     const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
                     this.companyProfile = symbol?.company_profile || null;

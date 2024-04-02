@@ -140,9 +140,7 @@ class IndicatorBlock extends React.Component {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                }) || [];
+                const data = res || [];
                 this.symbols = data.filter(s => s.is_approved)
 
             })
