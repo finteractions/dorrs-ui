@@ -75,6 +75,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
             this.context.userProfile.access
         );
 
+
         this.companyProfile = null;
         this.symbol = null;
         this.state = {
@@ -213,7 +214,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                         <div className={'profile__right-title'}>
                                             <div>{this.symbol.security_name} ({this.symbol.symbol})</div>
                                             <div className={'justify-content-end'}>
-                                                {this.props.access.create && (
+                                                {this.props.access.edit && (
                                                     <>
                                                         <button className="d-none d-md-block b-btn ripple"
                                                                 disabled={this.state.isLoading}
@@ -488,5 +489,4 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
 }
 
-// export default SymbolInfoBlock;
 export default portalAccessWrapper(SymbolInfoBlock, 'SymbolBlock');
