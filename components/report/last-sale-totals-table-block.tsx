@@ -12,6 +12,9 @@ import LoaderBlock from "@/components/loader-block";
 import reportsService from "@/services/reports/reports-service";
 import {instanceOf} from "prop-types";
 import downloadFile from "@/services/download-file/download-file";
+import {Button} from "react-bootstrap";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faFileExport} from "@fortawesome/free-solid-svg-icons";
 
 
 interface ReportLastSaleTotalsTableState extends IState {
@@ -23,6 +26,7 @@ interface ReportLastSaleTotalsTableState extends IState {
     filterData: any;
     report: IWeeklyMonthlyReport | null;
     params: any;
+    isToggle: boolean;
 }
 
 interface ReportLastSaleTotalsTableProps {
@@ -61,7 +65,8 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
             dataFull: [],
             filterData: [],
             report: props.report,
-            params: params
+            params: params,
+            isToggle: false,
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -134,7 +139,23 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
 
     componentDidMount() {
         this.getDetails();
+        window.addEventListener('click', this.handleClickOutside);
     }
+
+    componentWillUnmount() {
+        window.removeEventListener('click', this.handleClickOutside);
+    }
+
+    toggleMenu = () => {
+        this.setState({isToggle: !this.state.isToggle})
+    };
+
+    handleClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-last-sale');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isToggle: false});
+        }
+    };
 
     getDetails = () => {
 
@@ -202,16 +223,34 @@ class ReportLastSaleTotalsTable extends React.Component<ReportLastSaleTotalsTabl
                                     <div className={'content__bottom'}>
                                         <div
                                             className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                            <button className="border-grey-btn ripple d-flex"
-                                                    onClick={this.downloadLastSalesCSV}>
-                                                <span className="file-item__download"></span>
-                                                <span>CSV</span>
-                                            </button>
-                                            <button className="border-grey-btn ripple d-flex"
-                                                    onClick={this.downloadLastSalesXLSX}>
-                                                <span className="file-item__download"></span>
-                                                <span>XLSX</span>
-                                            </button>
+                                            <div className="filter-menu filter-menu-last-sale">
+                                                <Button
+                                                    variant="link"
+                                                    className="d-md-none admin-table-btn ripple"
+                                                    type="button"
+                                                    onClick={this.toggleMenu}
+                                                >
+                                                    <FontAwesomeIcon icon={faFileExport}/>
+                                                </Button>
+                                                <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                                    <li>
+                                                        <button className="border-grey-btn ripple d-flex"
+                                                                onClick={this.downloadLastSalesCSV}>
+                                                            <span className="file-item__download"></span>
+                                                            <span>CSV</span>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button className="border-grey-btn ripple d-flex"
+                                                                onClick={this.downloadLastSalesXLSX}>
+                                                            <span className="file-item__download"></span>
+                                                            <span>XLSX</span>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+
                                         </div>
 
                                         <Table columns={columns}

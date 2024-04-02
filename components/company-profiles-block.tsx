@@ -71,7 +71,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             formCompanyData: null,
             formCompanyAction: 'add',
             isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: props.isAdmin ? '' : 'd-none d-md-flex'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -259,14 +259,16 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                     <div className="content__top">
                         <div className="content__title">Company Profile</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            <Button
-                                variant="link"
-                                className="d-md-none admin-table-btn ripple"
-                                type="button"
-                                onClick={() => this.handleShowFilters()}
-                            >
-                                <FontAwesomeIcon icon={faFilter}/>
-                            </Button>
+                            {!this.state.isAdmin && (
+                                <Button
+                                    variant="link"
+                                    className="d-md-none admin-table-btn ripple"
+                                    type="button"
+                                    onClick={() => this.handleShowFilters()}
+                                >
+                                    <FontAwesomeIcon icon={faFilter}/>
+                                </Button>
+                            )}
                         </div>
                     </div>
 
