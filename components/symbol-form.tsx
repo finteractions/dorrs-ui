@@ -34,7 +34,6 @@ import {UnderpinningAssetValue} from "@/enums/underpinning-asset-value";
 import {FungibilityType} from "@/enums/fungibility-type";
 import {RedeemabilityType} from "@/enums/redeemability-type";
 import {NatureOfRecord} from "@/enums/nature-of-record";
-import {SecurityCategory} from "@/enums/security-category";
 import {getLotSize} from "@/enums/lot-size";
 
 

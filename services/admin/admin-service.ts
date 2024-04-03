@@ -16,7 +16,6 @@ import {IFees} from "@/interfaces/i-fees";
 import {IInvoice} from "@/interfaces/i-invoice";
 import {IBank} from "@/interfaces/i-bank";
 import {IChartStatistics} from "@/interfaces/i-chart-statistics";
-import {IMemberDistributionPerTariff} from "@/interfaces/i-member-distribution-per-tariff";
 import {IMemberDistribution} from "@/interfaces/i-member-distribution";
 import {IMemberDistributionHistory} from "@/interfaces/i-member-distribution-history";
 import {IOrder} from "@/interfaces/i-order";
@@ -372,6 +371,32 @@ class AdminService extends BaseService {
     public async getCompanyProfile(): Promise<Array<ICompanyProfile>> {
         return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
     }
+
+    // **** Admin Tools **** //
+    public async getOrderGeneratorStatus(): Promise<Array<{status: boolean}>> {
+        return (await apiWebBackendService.get<IResponse<Array<{status:boolean}>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async setOrderGeneratorStatus(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/order_generator/status/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getOrderGeneratorSymbols(): Promise<Array<string>> {
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async addOrderGeneratorSymbol(data: any): Promise<Array<string>> {
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+    }
+
+    public async deleteOrderGeneratorSymbol(symbol: string): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}tools/order_generator/symbols/${symbol}/`, {}, {}, this.getAdminToken());
+    }
+
+    public async deleteOrderGeneratorOrders(): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/order_generator/clear/`, {}, {}, this.getAdminToken());
+    }
+    //********************** //
 
 }
 

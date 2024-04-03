@@ -4708,5 +4708,108 @@
     color: #CB3D34;
   }
 
+
+  .b-select-search {
+    font-weight: 400;
+    font-size: 14px;
+    height: 35px;
+    color: #718494;
+
+    .select__react__control {
+      border-radius: 4px;
+      border: 1px solid #718494;
+      background-color: initial;
+      box-shadow: initial !important;
+
+      .select__react__value-container {
+        .select__react__single-value {
+          div {
+            font-size: 14px;
+            padding: 0;
+            margin: 0;
+            font-weight: normal;
+            color: var(--text-colour-9)
+          }
+
+          .flex-panel-box .panel {
+            background-color: transparent;
+          }
+
+          canvas, img {
+            display: none !important;
+          }
+        }
+      }
+    }
+
+    .select__react__value-container {
+      padding-left: 16px;
+
+      .select__react__single-value {
+        color: #718494;
+      }
+    }
+
+    .select__react__menu {
+
+      color: var(--text-colour-4);
+
+      .select__react__menu-list {
+        background-color: var(--background);
+
+        .content__bottom {
+          padding: 10px 20px;
+          margin-bottom: 0;
+        }
+
+        .select__react__option {
+          word-break: break-word;
+        }
+
+        .select__react__option--is-focused,
+        .select__react__option--is-selected {
+          background-color: var(--background-colour);
+          color: var(--text-colour);
+        }
+
+        .select__react__control--is-focused .select__react__option:checked {
+          background-color: var(--form-background-colour-2);
+        }
+
+      }
+    }
+  }
+
+  .b-select {
+    width: 100%;
+    height: 35px;;
+    border: 1px solid #718494;
+    border-radius: 6px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "Work Sans", sans-serif;
+    padding: 0 16px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: var(--text-colour-9);
+    background: url(../public/img/select-arrow.svg) right 16px center/24px no-repeat #f8fbff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: .01px;
+    -o-text-overflow: "";
+    text-overflow: "";
+    -ms-appearance: none;
+    appearance: none !important;
+  }
+
+  .b-checkbox:not(:last-child) {
+    margin: 0 0 10px
+  }
+
+  .w-100 {
+    width: 100%;
+  }
+
 }
 
