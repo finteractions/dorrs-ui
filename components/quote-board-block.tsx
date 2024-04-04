@@ -17,6 +17,7 @@ import {getGlobalConfig} from "@/utils/global-config";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import {Button} from "react-bootstrap";
+import converterService from "@/services/converter/converter-service";
 
 
 interface QuoteBoardBlockState extends IState {
@@ -144,6 +145,14 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                 id: "percentage_changed",
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                vwap: row.vwap,
+                decimals: converterService.getDecimals(row.fractional_lot_size)
+            }), {
+                id: "vwap",
+                cell: (item) => formatterService.numberFormat(item.getValue().vwap, decimalPlaces),
+                header: () => <span>VWAP</span>,
             }),
         ];
     }
@@ -379,7 +388,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 <div>
                                                     <div>Last Price:</div>
                                                     <div><span className={'sign'}></span><span
-                                                        className={'stay'}>{formatterService.numberFormat(Number(item.last_price))}</span>
+                                                        className={'stay'}>{formatterService.numberFormat(Number(item.last_price), decimalPlaces)}</span>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -389,6 +398,10 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 <div>
                                                     <div>% Change:</div>
                                                     <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
+                                                </div>
+                                                <div>
+                                                    <div>VWAP:</div>
+                                                    <div>{formatterService.numberFormat(Number(item.vwap), decimalPlaces)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -420,6 +433,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
 
                                         <div>
                                             <div>
+                                                <div></div>
                                                 <div onClick={() => this.navigate(item.symbol_name)}
                                                      className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
                                                     className="nav-icon" icon={faEye}/>
@@ -441,7 +455,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             <div>
                                                 <div>Last Price:</div>
                                                 <div><span className={'sign'}></span><span
-                                                    className={'stay'}>{formatterService.numberFormat(Number(item.last_price))}</span>
+                                                    className={'stay'}>{formatterService.numberFormat(Number(item.last_price), decimalPlaces)}</span>
                                                 </div>
                                             </div>
                                             <div>
@@ -451,6 +465,12 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             <div>
                                                 <div>% Change:</div>
                                                 <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
+                                            </div>
+                                            <div>
+                                                <div>VWAP:</div>
+                                                <div><span className={'sign'}></span><span
+                                                    className={'stay'}>{formatterService.numberFormat(Number(item.vwap), decimalPlaces)}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

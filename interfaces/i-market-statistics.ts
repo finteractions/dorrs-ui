@@ -6,4 +6,6 @@ export interface IMarketStatistics {
     last_price: string;
     price_changed: string;
     percentage_changed: string;
+    vwap: string;
+    fractional_lot_size: string
 }

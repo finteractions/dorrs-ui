@@ -30,7 +30,7 @@ function NotificationAlertBlock(props: NotificationAlertBlockProps) {
                     <>
                         {props?.amount && props?.currency && (
                             <p>You will
-                                get <span>{formatterService.numberFormat(props.amount, undefined, props.decimals)} {props.currency}</span>
+                                get <span>{formatterService.numberFormat(props.amount, props.decimals)} {props.currency}</span>
                             </p>
                         )}
                     </>

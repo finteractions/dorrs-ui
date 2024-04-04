@@ -12,20 +12,19 @@ import React from "react";
 
 function numberFormat(
     number: number | undefined,
-    minimumFractionDigits = 2,
-    maximumFractionDigits = 8,
+    decimals = 2,
     locale = 'en-US'): string {
 
     if (number === undefined || number === null) {
         return '';
     }
 
-    const roundedNumber = numberDown(number, maximumFractionDigits);
+    const roundedNumber = numberDown(number, decimals);
 
     return new Intl.NumberFormat(locale, {
         style: 'decimal',
-        minimumFractionDigits: minimumFractionDigits,
-        maximumFractionDigits: maximumFractionDigits,
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
     }).format(Number(roundedNumber));
 }
 

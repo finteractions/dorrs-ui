@@ -81,7 +81,7 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
 
                             // @ts-ignore
                             customCenterText: {
-                                text: `${formatterService.numberFormat(data[0], 0, 0)}%`,
+                                text: `${formatterService.numberFormat(data[0], 0)}%`,
                                 color: colours[theme as 'light' | 'dark'].text,
                                 font: 'bold 13px Arial',
                             }
