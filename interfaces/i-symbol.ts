@@ -19,6 +19,9 @@ export interface ISymbol {
     fifth_character_identifier: string;
     digital_asset_category: string;
     instrument_type: string;
+    alternative_asset_category: string;
+    alternative_asset_subcategory: string;
+    exempted_offerings: string;
     issuer_name: string;
     issuer_type: string;
     legal_claim_entity: string;

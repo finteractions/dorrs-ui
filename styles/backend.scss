@@ -4811,5 +4811,22 @@
     width: 100%;
   }
 
+  fieldset {
+    border: 1px solid #ccc;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  legend {
+    display: table;
+    width: auto;
+    padding: 0 10px;
+    border: none;
+    line-height: 1;
+    font-size: 15px;
+    color: #75808a;
+    font-weight: 500;
+  }
+
 }
 

@@ -249,11 +249,6 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             className={'input__wrap'}>{this.symbol.security_name || 'not filled'}</div>
                                                     </div>
                                                     <div className={'input__box'}>
-                                                        <div className={'input__title'}>Symbol</div>
-                                                        <div
-                                                            className={'input__wrap'}>{this.symbol.symbol || 'not filled'}</div>
-                                                    </div>
-                                                    <div className={'input__box'}>
                                                         <div className={'input__title'}>Does it have cusip number?</div>
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.is_cusip ? 'Yes' : 'No' || 'not filled'}</div>
@@ -334,10 +329,27 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             className={'input__wrap'}>{this.symbol.fifth_character_identifier || 'not filled'}</div>
                                                     </div>
                                                     <div className={'input__box'}>
+                                                        <div className={'input__title'}>Symbol</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.symbol || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
                                                         <div className={'input__title'}>Digital Asset
                                                         </div>
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.digital_asset_category || 'not filled'} {this.symbol.instrument_type ? ` / ${this.symbol.instrument_type}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Alternative Asset
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.alternative_asset_category || 'not filled'} {this.symbol.alternative_asset_subcategory ? ` / ${this.symbol.alternative_asset_subcategory}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Exempted Offerings
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.exempted_offerings || 'not filled'}</div>
                                                     </div>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Issuer Name
