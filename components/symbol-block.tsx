@@ -214,7 +214,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         {item.getValue()}
                     </div>
                 ,
-                header: () => <span>Company Profile Status</span>,
+                header: () => <span>Asset Profile Status</span>,
             }),
         ];
 
@@ -226,7 +226,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             {key: 'market_sector', placeholder: 'Market Sector'},
             {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
             {key: 'status', placeholder: 'Status'},
-            {key: 'company_profile_status', placeholder: 'Company Profile Status'},
+            {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
         ]
     }
 
@@ -309,9 +309,9 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Company Profile'
+            return 'View Asset Profile'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
         }
     }
 
@@ -463,7 +463,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                         {(this.state.companyProfileAccess.create ||
                                             this.state.companyProfileAccess.edit ||
                                             this.state.companyProfileAccess.view) && (
-                                            <div className="modal__navigate__title">Company Profile:</div>
+                                            <div className="modal__navigate__title">Asset Profile:</div>
                                         )}
 
                                         {(this.state.companyProfileAccess.create ||

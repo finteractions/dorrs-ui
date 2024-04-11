@@ -5,12 +5,12 @@ import {useRouter} from "next/router";
 import CompanyProfilesPortalBlock from "@/components/company-profiles-portal-block";
 
 
-const CompanyProfile: NextPageWithLayout = () => {
+const AssetProfiles: NextPageWithLayout = () => {
 
     const router = useRouter();
 
     const onCallback = (symbol: string) => {
-        router.push(`/company-profile/${symbol}`)
+        router.push(`/asset-profiles/${symbol}`)
     }
 
     return (
@@ -24,7 +24,7 @@ const CompanyProfile: NextPageWithLayout = () => {
     )
 }
 
-CompanyProfile.getLayout = function getLayout(page: ReactElement) {
+AssetProfiles.getLayout = function getLayout(page: ReactElement) {
     return (
         <PortalLayout>
             {page}
@@ -32,6 +32,6 @@ CompanyProfile.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
-CompanyProfile.layoutName = "PortalLayout"
+AssetProfiles.layoutName = "PortalLayout"
 
-export default CompanyProfile
+export default AssetProfiles

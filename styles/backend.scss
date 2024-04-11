@@ -4456,6 +4456,7 @@
 
     .view_block {
       flex: 0 0 50%;
+      max-width: 50%;
 
       &.flex-20 {
         flex: 0 0 20%;
@@ -4475,6 +4476,7 @@
 
       .view_block_body {
         margin: 0 30px;
+        word-wrap: break-word;
 
         .view_block_title {
           font-weight: 600;

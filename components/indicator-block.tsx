@@ -22,6 +22,7 @@ import userPermissionService from "@/services/user/user-permission-service";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import AssetImage from "@/components/asset-image";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import CompanyProfileForm from "@/components/company-profile-form";
 
 
 const formSchema = Yup.object().shape({
@@ -164,7 +165,7 @@ class IndicatorBlock extends React.Component {
         }
     }
 
-    openModal = (form: string, name: string) => {
+    openModal = (form: string) => {
         this.setState({isOpenModal: true, formType: form});
     }
 
@@ -273,7 +274,7 @@ class IndicatorBlock extends React.Component {
                             }}
                         </Formik>
                     ) : (
-                        <CompanyProfile
+                        <CompanyProfileForm
                             action={this.state.formAction}
                             data={this.state.companyProfile}
                             symbolData={this.state.symbol}
@@ -317,7 +318,7 @@ class IndicatorBlock extends React.Component {
             case 'security':
                 return `${add} Symbol`;
             case 'company_profile':
-                return `${add} Company Profile`;
+                return `${add} Asset Profile`;
             case 'last_sale_reporting':
                 return `${add} Last Sale`;
             case 'bbo':
@@ -366,7 +367,7 @@ class IndicatorBlock extends React.Component {
                                             <button
                                                 type="button"
                                                 className='b-btn ripple'
-                                                onClick={() => this.openModal(key, value?.name)}
+                                                onClick={() => this.openModal(key)}
                                             >
                                                 <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
                                             </button>

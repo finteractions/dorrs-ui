@@ -14,8 +14,16 @@ import adminService from "@/services/admin/admin-service";
 import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFilter} from "@fortawesome/free-solid-svg-icons";
+import {faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
+import SymbolForm from "@/components/symbol-form";
+import {ErrorMessage, Field, Form, Formik} from "formik";
+import {ISymbol} from "@/interfaces/i-symbol";
+import Select from "react-select";
+import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import * as Yup from "yup";
+import CompanyProfileForm from "@/components/company-profile-form";
+
 
 interface CompanyProfilesBlockState extends IState {
     isLoading: boolean;
@@ -32,6 +40,12 @@ interface CompanyProfilesBlockState extends IState {
     formCompanyAction: string;
     isFilterShow: boolean;
     filtersClassName: string;
+    isOpenModal: boolean;
+    formAction: string;
+    formType: string;
+    symbol: ISymbol | null;
+    companyProfile: ICompanyProfile | null;
+    isOverrideComponent: boolean;
 }
 
 interface CompanyProfilesBlockProps extends ICallback {
@@ -44,6 +58,12 @@ interface CompanyProfilesBlockProps extends ICallback {
     isAdmin?: boolean;
 }
 
+const formSchema = Yup.object().shape({
+    symbol: Yup.string().required('Required'),
+});
+
+let initialValues = {} as ISymbol;
+
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
@@ -51,7 +71,9 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, CompanyProfilesBlockState> {
 
+    host = `${window.location.protocol}//${window.location.host}`;
     state: CompanyProfilesBlockState;
+    symbols: Array<ISymbol> = new Array<ISymbol>();
 
     constructor(props: CompanyProfilesBlockProps) {
         super(props);
@@ -71,7 +93,13 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             formCompanyData: null,
             formCompanyAction: 'add',
             isFilterShow: false,
-            filtersClassName: props.isAdmin ? '' : 'd-none d-md-flex'
+            filtersClassName: props.isAdmin ? '' : 'd-none d-md-flex',
+            isOpenModal: false,
+            formAction: 'add',
+            companyProfile: null,
+            formType: '',
+            symbol: null,
+            isOverrideComponent: true,
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -162,12 +190,12 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                             {item.getValue()}
                         </div>
                     ,
-                    header: () => <span>Company Profile Status</span>,
+                    header: () => <span>Asset Profile Status</span>,
                 })
             )
 
             tableFilters.push(
-                {key: 'company_profile_status', placeholder: 'Company Profile Status'},
+                {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
             )
         }
 
@@ -177,6 +205,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     componentDidMount() {
         this.setState({isLoading: true});
         this.getCompanyProfiles();
+        this.getSymbols();
     }
 
     handleShowFilters = () => {
@@ -211,13 +240,29 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             });
     }
 
+    getSymbols = () => {
+        symbolService.getSymbols()
+            .then((res: Array<ISymbol>) => {
+                const data = res || [];
+                this.symbols = data.filter(s => s.is_approved)
+
+            })
+            .catch((errors: IError) => {
+
+            })
+            .finally(() => {
+            });
+    }
+
     navigate = (symbol: string) => {
         this.props.onCallback(symbol);
     }
 
     onCallback = async (values: any, step: boolean) => {
         this.getCompanyProfiles();
-        this.cancelCompanyForm()
+        this.cancelCompanyForm();
+        this.getSymbols();
+        this.closeModal();
     };
 
     filterData = () => {
@@ -240,11 +285,15 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode})
     }
 
+    openCompanyProfileModal = (form: string) => {
+        this.setState({isOpenModal: true, formType: form});
+    }
+
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Company Profile'
+            return 'View Asset Profile'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
         }
     }
 
@@ -252,12 +301,137 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         this.setState({isOpenCompanyModal: false});
     }
 
+    modalTitle = () => {
+        const add = 'Add';
+        switch (this.state.formType) {
+            case 'security':
+                return `${add} Symbol`;
+            case 'company_profile':
+                return `${add} Asset Profile`;
+            default:
+                return '';
+        }
+    }
+
+    handleSubmit = async (values: ISymbol, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+
+        const symbol = this.symbols.find(s => s.symbol === values.symbol);
+        this.setState({
+            isOpenModal: true,
+            symbol: symbol ?? null,
+            companyProfile: symbol?.company_profile ?? null,
+            isOverrideComponent: false,
+            formAction: symbol?.company_profile ? 'edit' : 'add'
+        });
+    };
+
+    renderFormBasedOnType(formType: string) {
+        switch (formType) {
+            case 'security':
+                return (
+                    <SymbolForm
+                        isAdmin={false}
+                        action={this.state.formAction}
+                        data={null}
+                        onCallback={this.onCallback}
+                    />
+                );
+            case 'company_profile':
+                return (
+                    this.state.isOverrideComponent ? (
+                        <Formik<ISymbol>
+                            initialValues={initialValues}
+                            validationSchema={formSchema}
+                            onSubmit={this.handleSubmit}
+                        >
+                            {({
+                                  isSubmitting,
+                                  setFieldValue,
+                                  isValid,
+                                  dirty,
+                                  values,
+                                  errors
+                              }) => {
+                                return (
+                                    <Form>
+                                        <div className="input">
+                                            <div className="input__title">Symbol <i>*</i></div>
+                                            <div
+                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                <Field
+                                                    name="symbol_tmp"
+                                                    id="symbol_tmp"
+                                                    as={Select}
+                                                    className="b-select-search"
+                                                    placeholder="Select Symbol"
+                                                    classNamePrefix="select__react"
+                                                    isDisabled={isSubmitting}
+                                                    options={Object.values(this.symbols).map((item) => ({
+                                                        value: item.symbol,
+                                                        label: (
+                                                            <div className={'flex-panel-box'}>
+                                                                <div className={'panel'}>
+                                                                    <div
+                                                                        className={'content__bottom d-flex justify-content-between font-size-18'}>
+                                                                        <div className={'view_block_main_title'}>
+                                                                            <AssetImage alt=''
+                                                                                        src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                                                                        width={75} height={75}/>
+                                                                            {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                                                                        </div>
+                                                                        <DoughnutChartPercentage
+                                                                            percentage={item.fill_out_percentage}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ),
+                                                    }))}
+                                                    onChange={(selectedOption: any) => {
+                                                        setFieldValue('symbol', selectedOption.value);
+                                                    }}
+                                                />
+                                                <Field type="hidden" name="symbol" id="symbol"/>
+                                                <ErrorMessage name="symbol" component="div"
+                                                              className="error-message"/>
+                                            </div>
+                                        </div>
+                                        <button
+                                            className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                            type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                            Next
+                                        </button>
+                                    </Form>
+                                );
+                            }}
+                        </Formik>
+                    ) : (
+                        <CompanyProfileForm
+                            action={this.state.formAction}
+                            data={this.state.companyProfile}
+                            symbolData={this.state.symbol}
+                            onCallback={this.onCallback}
+                            isAdmin={false}
+                        />
+                    )
+                );
+            default:
+                return null;
+        }
+    }
+
+    closeModal(): void {
+        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add'});
+    }
+
     render() {
         return (
             <>
                 <div className="panel">
                     <div className="content__top">
-                        <div className="content__title">Company Profile</div>
+                        <div className="content__title">Asset Profiles</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
                             {!this.state.isAdmin && (
                                 <Button
@@ -268,6 +442,35 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                 >
                                     <FontAwesomeIcon icon={faFilter}/>
                                 </Button>
+                            )}
+
+                            {this.props.access.create && (
+                                <>
+                                    {!this.state.isAdmin ? (
+                                        <>
+                                            <button className="d-none d-md-block b-btn ripple"
+                                                    disabled={this.state.isLoading}
+                                                    onClick={() => this.openCompanyProfileModal('company_profile')}>Add
+                                                Asset Profile
+                                            </button>
+                                            <Button
+                                                variant="link"
+                                                className={'d-md-none admin-table-btn ripple'}
+                                                type="button"
+                                                onClick={() => this.openCompanyProfileModal('company_profile')}
+                                            >
+                                                <FontAwesomeIcon icon={faPlus}/>
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <button className="border-btn ripple modal-link"
+                                                disabled={this.state.isLoading}
+                                                onClick={() => this.openCompanyProfileModal('company_profile')}>Add
+                                            Asset Profile
+                                        </button>
+                                    )}
+                                </>
+
                             )}
                         </div>
                     </div>
@@ -314,6 +517,14 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                                     onCallback={this.onCallback}
                                                     isAdmin={this.state.isAdmin}/>
 
+                                </Modal>
+
+                                <Modal isOpen={this.state.isOpenModal}
+                                       onClose={() => this.closeModal()}
+                                       title={this.modalTitle()}
+                                       className={`${['dob', 'bbo', 'last_sale_reporting'].includes(this.state.formType) ? 'big_modal' : ''}`}
+                                >
+                                    {this.renderFormBasedOnType(this.state.formType)}
                                 </Modal>
                             </div>
                         </>

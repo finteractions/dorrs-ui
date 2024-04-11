@@ -159,7 +159,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                     let data = res || [];
                     data = data.filter(s => s.is_approved).filter(s => !this.state.orderGeneratorSymbols.includes(s.symbol))
 
-                    this.setState({symbols: data}, () => console.log(this.state.symbols));
+                    this.setState({symbols: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});

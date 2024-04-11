@@ -88,7 +88,7 @@ class DashboardBlock extends React.Component<{}> {
 
                     const statistics = {
                         'Symbols': symbols.length,
-                        'Company Profile': companyProfile.length
+                        'Asset Profiles': companyProfile.length
                     }
                     this.setState({symbolCount: statistics});
 

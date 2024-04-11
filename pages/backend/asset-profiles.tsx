@@ -5,7 +5,7 @@ import BackendLayout from "@/components/layouts/backend/backend-layout";
 import {NextPageWithLayout} from "@/pages/_app";
 
 
-const CompanyProfile: NextPageWithLayout = () => {
+const AssetProfiles: NextPageWithLayout = () => {
 
     const router = useRouter();
 
@@ -26,7 +26,7 @@ const CompanyProfile: NextPageWithLayout = () => {
     )
 }
 
-CompanyProfile.getLayout = function getLayout(page: ReactElement) {
+AssetProfiles.getLayout = function getLayout(page: ReactElement) {
     return (
         <BackendLayout>
             {page}
@@ -34,6 +34,6 @@ CompanyProfile.getLayout = function getLayout(page: ReactElement) {
     )
 }
 
-CompanyProfile.layoutName = "BackendLayout"
+AssetProfiles.layoutName = "BackendLayout"
 
-export default CompanyProfile
+export default AssetProfiles

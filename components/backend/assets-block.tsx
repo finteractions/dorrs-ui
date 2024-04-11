@@ -152,7 +152,7 @@ class AssetsBlock extends React.Component<{}> {
                         {item.getValue()}
                     </div>
                 ,
-                header: () => <span>Company Profile Status</span>,
+                header: () => <span>Asset Profile Status</span>,
             }),
             columnHelper.accessor((row) => row.created_at, {
                 id: "created_at",
@@ -170,7 +170,7 @@ class AssetsBlock extends React.Component<{}> {
             {key: 'market_sector', placeholder: 'Market Sector'},
             {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
             {key: 'status', placeholder: 'Status'},
-            {key: 'company_profile_status', placeholder: 'Company Profile Status'},
+            {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
         ]
     }
 
@@ -247,9 +247,9 @@ class AssetsBlock extends React.Component<{}> {
 
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Company Profile'
+            return 'View Asset Profile'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
         }
     }
 
@@ -348,7 +348,7 @@ class AssetsBlock extends React.Component<{}> {
                 >
                     {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
                         <div className="modal__navigate">
-                            <div className="modal__navigate__title">Company Profile:</div>
+                            <div className="modal__navigate__title">Asset Profile:</div>
 
                             {this.state.formData?.company_profile ? (
                                 <>

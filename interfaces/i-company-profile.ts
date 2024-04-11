@@ -2,6 +2,12 @@ import {ISymbol} from "@/interfaces/i-symbol";
 
 export interface ICompanyProfile {
     id: number;
+    asset_type: string;
+    asset_type_option: string;
+    asset_type_description: string;
+    asset_type_image: string;
+    asset_type_image_tmp?: string;
+    total_shares_outstanding: string;
     symbol: string;
     security_name: string;
     company_name: string;
@@ -17,6 +23,8 @@ export interface ICompanyProfile {
     sic_industry_classification: string;
     incorporation_information: string;
     number_of_employees: string;
+    initial_offering_date: string;
+    price_per_share: string;
     company_officers_and_contacts: string[];
     board_of_directors: string[];
     product_and_services: string;

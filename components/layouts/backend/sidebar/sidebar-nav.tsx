@@ -167,8 +167,8 @@ const MENU_LIST: MenuItem[] = [
     //     submenus: []
     // },
     {
-        text: 'Company Profile',
-        href: "/backend/company-profile",
+        text: 'Asset Profiles',
+        href: "/backend/asset-profiles",
         icon: faBuilding,
         submenus: []
     },

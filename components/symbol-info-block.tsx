@@ -172,9 +172,9 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Company Profile'
+            return 'View Asset Profile'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
         }
     }
 
@@ -418,7 +418,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                     {(this.state.companyProfileAccess.create ||
                                         this.state.companyProfileAccess.edit ||
                                         this.state.companyProfileAccess.view) && (
-                                        <div className="modal__navigate__title">Company Profile:</div>
+                                        <div className="modal__navigate__title">Asset Profile:</div>
                                     )}
 
                                     {(this.state.companyProfileAccess.create ||

@@ -14,6 +14,30 @@ interface Menus {
 
 let MENU_LIST: Array<Menus> = [
     {
+        text: 'Asset Type',
+        to: "asset_type",
+        icon: '/img/pd-ico.svg',
+        alt: 'Asset Type'
+    },
+    {
+        text: 'Total Shares Outstanding',
+        to: "total_shares_outstanding",
+        icon: '/img/pd-ico.svg',
+        alt: 'Total Shares Outstanding'
+    },
+    {
+        text: 'Initial Offering Date',
+        to: "initial_offering_date",
+        icon: '/img/pd-ico.svg',
+        alt: 'Initial Offering Date'
+    },
+    {
+        text: 'Price Per Share',
+        to: "price_per_share",
+        icon: '/img/pd-ico.svg',
+        alt: 'Price Per Shar'
+    },
+    {
         text: 'Company Address',
         to: "company_address",
         icon: '/img/pd-ico.svg',
@@ -26,7 +50,7 @@ let MENU_LIST: Array<Menus> = [
         alt: 'Password'
     },
     {
-        text: 'Company Profile Data',
+        text: 'Asset Profile Data',
         to: "company_profile_data",
         icon: '/img/pd-ico.svg',
         alt: 'Payment'

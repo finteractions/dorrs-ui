@@ -2073,6 +2073,7 @@ body {
 
         .content__bottom {
           padding: 20px 20px;
+          word-break: break-all;
 
           .table {
             margin: 0px -20px 0px -20px;
@@ -3442,6 +3443,8 @@ body {
 
       .view_block {
         flex: 0 0 50%;
+        max-width: 50%;
+
         @media(max-width: 767px) {
           flex: 0 0 100%;
         }
@@ -3452,6 +3455,7 @@ body {
 
         .view_block_body {
           margin: 0 30px;
+          word-wrap: break-word;
 
           .view_block_title {
             font-weight: 600;

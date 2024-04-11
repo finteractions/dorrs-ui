@@ -9,6 +9,8 @@ import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
 import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
+import formatterService from "@/services/formatter/formatter-service";
+import {FormFieldOptionType} from "@/enums/form-field-option-type";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -26,12 +28,15 @@ interface CompanyProfileState extends IState, IModalState {
     }[],
 }
 
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
     symbols: Array<ISymbol> = new Array<ISymbol>();
     state: CompanyProfileState;
     companyProfile: ICompanyProfile | null;
     symbol: ISymbol | null;
+    host = `${window.location.protocol}//${window.location.host}`;
 
     constructor(props: CompanyProfileProps) {
         super(props);
@@ -102,7 +107,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
     handleBack = () => {
         const router = useRouter();
-        router.push('/company-profile');
+        router.push('/asset-profiles');
     }
 
 
@@ -119,9 +124,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
-            return 'View Company Profile'
+            return 'View Asset Profile'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Company Profile`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
         }
     }
 
@@ -162,6 +167,59 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                             </div>
 
+                                            <div id={'asset_type'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Asset Type</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile.asset_type || 'not filled'}</div>
+                                                </div>
+                                            </div>
+
+                                            {this.companyProfile?.asset_type && this.companyProfile?.asset_type !== '' && (
+                                                <div id={'asset_type_additional'} className={'panel'}>
+                                                    <div className={'content__top'}>
+                                                        <div
+                                                            className={'content__title'}>{this.companyProfile?.asset_type} Additional
+                                                            Info
+                                                        </div>
+                                                    </div>
+                                                    <div className={'content__bottom'}>
+                                                        {this.companyProfile.asset_type_option === FormFieldOptionType.TEXT && (
+                                                            <div>{this.companyProfile?.asset_type_description || 'not filled'}</div>
+                                                        )}
+
+                                                        {this.companyProfile.asset_type_option === FormFieldOptionType.IMAGE && (
+                                                            <img
+                                                                src={`${this.host}${this.companyProfile.asset_type_image}`}/>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div id={'total_shares_outstanding'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Total Shares Outstanding</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile?.total_shares_outstanding ? formatterService.numberFormat(Number(this.companyProfile.total_shares_outstanding)) : 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'initial_offering_date'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Initial Offering Date</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile?.initial_offering_date ? formatterService.dateTimeFormat(this.companyProfile?.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'price_per_share'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Price Per Share</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
+                                                </div>
+                                            </div>
                                             <div id={'company_address'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div className={'content__title'}>Company Address</div>
@@ -193,7 +251,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             </div>
                                             <div id={'company_profile_data'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Company Profile Data</div>
+                                                    <div className={'content__title'}>Asset Profile Data</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div className={'view_panel'}>
@@ -360,7 +418,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                         <div className={'panel'}>
                                             <div
                                                 className={'content__bottom flex flex-1 justify-content-center text-center'}>
-                                                <div className="mb-24 w-100">This is Company Profile
+                                                <div className="mb-24 w-100">This is Asset Profile
                                                     for {this.symbol?.symbol}</div>
                                                 <button
                                                     className={`b-btn ripple`}

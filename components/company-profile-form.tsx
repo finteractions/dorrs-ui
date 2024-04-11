@@ -1,5 +1,5 @@
 import React from 'react';
-import {Formik, Form, Field, ErrorMessage} from "formik";
+import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
 import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
@@ -18,6 +18,11 @@ import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid
 import Link from "next/link";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import Select from "react-select";
+import {AlternativeAssetCategory} from "@/enums/alternative-asset-category";
+import NumericInputField from "@/components/numeric-input-field";
+import {SingleDatePicker} from "react-dates";
+import moment from "moment/moment";
+import {FormFieldOptionType, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
 
 
 const allowedFileSizeMB = 1
@@ -38,6 +43,15 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedFileSize;
         }),
+    asset_type_image_tmp: Yup.mixed()
+        .test('asset_type_image', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+            if (!value) return true;
+            return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+        })
+        .test('asset_type_image', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+            if (!value) return true;
+            return value.size <= allowedFileSize;
+        }),
 });
 
 interface CompanyProfileFormState extends IState {
@@ -52,6 +66,8 @@ interface CompanyProfileFormState extends IState {
     }[],
     selectedCountry: string;
     selectedFile: File | null;
+    selectedFileAssetTypeLogo: File | null;
+    focusedInitialOfferingDate: any;
 }
 
 interface CompanyProfileFormProps extends ICallback {
@@ -62,9 +78,12 @@ interface CompanyProfileFormProps extends ICallback {
     onCancel?: () => void;
 }
 
+const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+
 class CompanyProfileForm extends React.Component<CompanyProfileFormProps, CompanyProfileFormState> {
 
     state: CompanyProfileFormState;
+    host = `${window.location.protocol}//${window.location.host}`;
 
     constructor(props: CompanyProfileFormProps) {
         super(props);
@@ -94,6 +113,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         const initialValues: {
             symbol: string;
+            asset_type: string;
+            asset_type_option: string;
+            asset_type_description: string;
+            asset_type_image: string;
+            total_shares_outstanding: string;
+            initial_offering_date: string;
+            price_per_share: string;
             company_name: string;
             business_description: string;
             street_address_1: string;
@@ -120,6 +146,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             logo: string;
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
+            total_shares_outstanding: initialData?.total_shares_outstanding || '',
+            initial_offering_date: initialData?.initial_offering_date || '',
+            price_per_share: initialData?.price_per_share || '',
+            asset_type: initialData?.asset_type || this.props.symbolData?.alternative_asset_category || '',
+            asset_type_option: initialData?.asset_type_option || '',
+            asset_type_description: initialData?.asset_type_description || '',
+            asset_type_image: initialData?.asset_type_image || '',
             company_name: initialData?.company_name || this.props.symbolData?.security_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
@@ -159,6 +192,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             usaStates: usaStatesList,
             selectedCountry: initialValues.country,
             selectedFile: null,
+            selectedFileAssetTypeLogo: null,
+            focusedInitialOfferingDate: null,
         };
 
     }
@@ -181,10 +216,20 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         formData.delete('logo_tmp');
         formData.delete('logo');
+        formData.delete('asset_type_image');
+        formData.delete('asset_type_image_tmp');
+
+
+        if (this.state.selectedFileAssetTypeLogo) {
+            formData.append('asset_type_image', this.state.selectedFileAssetTypeLogo);
+        }
+
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
         }
+
+
         const request: Promise<any> = this.props.action == 'edit' ?
             !this.props?.isAdmin ? symbolService.updateCompanyProfile(formData, this.props.data?.id || 0) : adminService.updateCompanyProfile(formData, this.props.data?.id || 0) :
             !this.props?.isAdmin ? symbolService.createCompanyProfile(formData) : adminService.createCompanyProfile(formData);
@@ -228,6 +273,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target?.files?.[0] || null;
         this.setState({selectedFile: selectedFile});
+    };
+
+    handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target?.files?.[0] || null;
+        this.setState({selectedFileAssetTypeLogo: selectedFile});
     };
 
     render() {
@@ -307,6 +357,32 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 )}
 
+                                                <div className="input">
+                                                    <div className="input__title">Asset Type
+                                                    </div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="asset_type"
+                                                            id="asset_type"
+                                                            as="select"
+                                                            className="b-select"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        >
+                                                            <option value="">Select Asset Type
+                                                            </option>
+                                                            {Object.values(AlternativeAssetCategory).map((type) => (
+                                                                <option key={type} value={type}>
+                                                                    {type}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                        <ErrorMessage name="asset_type"
+                                                                      component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
                                                 {(this.isShow() && initialValues?.logo) && (
                                                     <div
                                                         className={"input d-flex justify-content-center company-profile-logo"}>
@@ -348,6 +424,68 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         />
                                                     </div>
                                                 </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Total Shares Outstanding</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="total_shares_outstanding"
+                                                            id="number_of_employees"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Total Shares Outstanding"
+                                                            component={NumericInputField}
+                                                            decimalScale={0}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="number_of_employees" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Initial Offering Date
+                                                    </div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <SingleDatePicker
+                                                            numberOfMonths={1}
+                                                            date={values.initial_offering_date ? moment(values.initial_offering_date) : null}
+                                                            onDateChange={date => setFieldValue('initial_offering_date', date?.format('YYYY-MM-DD').toString())}
+                                                            focused={this.state.focusedInitialOfferingDate}
+                                                            onFocusChange={({focused}) => this.setState({focusedInitialOfferingDate: focused})}
+                                                            id="initial_offering_date"
+                                                            displayFormat="YYYY-MM-DD"
+                                                            isOutsideRange={() => false}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            readOnly={true}
+                                                            placeholder={'Select Initial Offering Date'}
+                                                        />
+                                                        <ErrorMessage name="initial_offering_date" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Price Per Share</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="price_per_share"
+                                                            id="price_per_share"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Price Per Share"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            component={NumericInputField}
+                                                            decimalScale={decimalPlaces}
+                                                        />
+                                                        <ErrorMessage name="bid_price" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
                                                 <div className="input">
                                                     <div className="input__title">Company Name <i>*</i></div>
                                                     <div
@@ -381,6 +519,92 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
+
+                                                {values.asset_type !== '' && (
+                                                    <div className="input">
+                                                        <h4 className="input__group__title">{values.asset_type} Additional
+                                                            Fields:</h4>
+
+                                                        <div className="input">
+                                                            <div className="input__title">Choose either a Free Text Box
+                                                                or Upload Image Option
+                                                            </div>
+                                                            <div
+                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                <Field
+                                                                    name="asset_type_option"
+                                                                    id="asset_type_option"
+                                                                    as="select"
+                                                                    className="b-select"
+                                                                    disabled={isSubmitting || this.isShow()}
+                                                                >
+                                                                    <option value="">Select</option>
+                                                                    {Object.values(FormFieldOptionType).map((type) => (
+                                                                        <option key={type} value={type}>
+                                                                            {getFormFieldOptionTypeName(type as FormFieldOptionType)}
+                                                                        </option>
+                                                                    ))}
+                                                                </Field>
+                                                            </div>
+                                                        </div>
+
+                                                        {values.asset_type_option === FormFieldOptionType.TEXT && (
+                                                            <div className="input">
+                                                                <div className="input__wrap">
+                                                                    <Field
+                                                                        name="asset_type_description"
+                                                                        id="asset_type_description"
+                                                                        as="textarea"
+                                                                        rows="4"
+                                                                        className="input__textarea"
+                                                                        placeholder=""
+                                                                        maxLength={255}
+                                                                        disabled={isSubmitting}
+                                                                    />
+                                                                    <ErrorMessage name="asset_type_description"
+                                                                                  component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {values.asset_type_option === FormFieldOptionType.IMAGE && (
+                                                            <>
+                                                                {(this.isShow() && initialValues?.asset_type_image) && (
+                                                                    <div
+                                                                        className={"input d-flex justify-content-center company-profile-logo"}>
+                                                                        <img src={initialValues?.asset_type_image}
+                                                                             alt="Logo"/>
+                                                                    </div>
+                                                                )}
+                                                                {!this.isShow() && (
+                                                                    <div className="input">
+                                                                        <div className="input__wrap">
+                                                                            <input
+                                                                                id="asset_type_image_tmp"
+                                                                                name="asset_type_image_tmp"
+                                                                                type="file"
+                                                                                accept={'.' + allowedExt.join(',.')}
+                                                                                className="input__file"
+                                                                                disabled={isSubmitting}
+                                                                                onChange={(event) => {
+                                                                                    setFieldValue('asset_type_image_tmp', event.target?.files?.[0] || '');
+                                                                                    this.handleFileAssetLogoChange(event);
+                                                                                }}
+                                                                            />
+                                                                            {errors.asset_type_image_tmp && (
+                                                                                <div
+                                                                                    className="error-message">{errors.asset_type_image_tmp.toString()}</div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                    </div>
+                                                )}
+
 
                                                 <div className="input">
                                                     <h4 className="input__group__title">Company Address:</h4>
@@ -544,7 +768,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
 
                                                 <div className="input">
-                                                    <h4 className="input__group__title">Company Profile Data</h4>
+                                                    <h4 className="input__group__title">Asset Profile Data</h4>
 
                                                     <div className="input">
                                                         <div className="input__title">SIC Industry Classification</div>
@@ -612,6 +836,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             <Field
                                                                 name="number_of_employees"
                                                                 id="number_of_employees"
+                                                                component={NumericInputField}
+                                                                decimalScale={0}
                                                                 type="text"
                                                                 className="input__text"
                                                                 placeholder="Type Number of Employees"
@@ -928,6 +1154,30 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                 <div className='view_panel'>
                                     <div className="view_block">
                                         <div className="view_block_body">
+                                            <div className="view_block_title">Asset Type</div>
+                                            <div>{this.props.data?.asset_type || 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Total Shares Outstanding</div>
+                                            <div>{this.props.data.total_shares_outstanding ? formatterService.numberFormat(Number(this.props.data.total_shares_outstanding)) : 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Initial Offering Date</div>
+                                            <div>{this.props.data.initial_offering_date ? formatterService.dateTimeFormat(this.props.data.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Price Per Share</div>
+                                            <div>{this.props.data.price_per_share ? formatterService.numberFormat(Number(this.props.data.price_per_share), decimalPlaces) : 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
                                             <div className="view_block_title">Company Address</div>
                                             <div>{[this.props.data?.street_address_1, this.props.data?.street_address_2, this.props.data?.city, this.props.data?.zip_code, this.props.data?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
                                             <div className="mt-2">{this.props.data?.phone}</div>
@@ -940,9 +1190,38 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div>{this.props.data?.business_description || 'not filled'}</div>
                                         </div>
                                     </div>
+
+                                    {this.props.data?.asset_type && (
+                                        <>
+                                            <div className="view_block">
+                                                <div className="view_block_body">
+                                                    <div
+                                                        className="view_block_title">{this.props.data?.asset_type} Additional
+                                                        Info
+                                                    </div>
+                                                    {this.props.data?.asset_type_description || this.props.data?.asset_type_image ? (
+                                                        <>
+                                                            {this.props.data.asset_type_option === FormFieldOptionType.TEXT && (
+                                                                <div>{this.props.data?.asset_type_description || 'not filled'}</div>
+                                                            )}
+
+                                                            {this.props.data.asset_type_option === FormFieldOptionType.IMAGE && (
+                                                               <img src={`${this.host}${this.props.data.asset_type_image}`}/>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div>{'not filled'}</div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
                                     <div className="view_block">
                                         <div className="view_block_body">
-                                            <div className="view_block_title">Company Profile Data</div>
+                                            <div className="view_block_title">Asset Profile Data</div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">SIC Industry Classification</div>
                                                 <div

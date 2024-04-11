@@ -17,7 +17,7 @@ export default function CompanyProfileContainer({children}: CompanyProfileContai
                     <p>
                         <i className="icon-chevron-left"/> <Link
                         className="login__link"
-                        href="/company-profile"
+                        href="/asset-profiles"
 
                     >Back
                     </Link>
