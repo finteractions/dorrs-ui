@@ -21,7 +21,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IActivityStorage} from "@/interfaces/i-activity-storage";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faEdit} from "@fortawesome/free-solid-svg-icons";
 import NumericInputField from "@/components/numeric-input-field";
 import {
     DigitalAssetCategory,
@@ -37,6 +37,7 @@ import {NatureOfRecord} from "@/enums/nature-of-record";
 import {getLotSize} from "@/enums/lot-size";
 import {AlternativeAssetCategory, getAlternativeAssetSubCategory} from "@/enums/alternative-asset-category";
 import {ExemptedOfferingType} from "@/enums/exempted-offering-type";
+import Link from "next/link";
 
 
 const formSchema = Yup.object().shape({
@@ -242,7 +243,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             time_effective_delete: string;
             reason_delete: string;
             status: string;
-
+            edgar_cik: string;
         } = {
             reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
             symbol: initialData?.symbol || '',
@@ -293,7 +294,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             time_effective_delete: initialData?.time_effective_delete ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_delete}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
             reason_delete: initialData?.reason_delete || '',
-            status: initialData?.status || ''
+            status: initialData?.status || '',
+            edgar_cik: initialData?.edgar_cik || '',
         };
 
         this.state = {
@@ -679,171 +681,59 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     <>
 
                                                         {(!values.is_change) && (
-                                                            <>
-                                                                <div className="input">
-                                                                    <div className="input__title">Reason for
-                                                                        Entry <i>*</i>
-                                                                    </div>
-                                                                    <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                        <Field
-                                                                            name="reason_for_entry"
-                                                                            id="reason_for_entry"
-                                                                            as="select"
-                                                                            className="b-select"
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                        >
-                                                                            <option value="">Select a Reason</option>
-                                                                            <option value="New Ticker Symbol">New Ticker
-                                                                                Symbol
-                                                                            </option>
-                                                                            <option disabled={true}
-                                                                                    value="New Ticker Symbol">New
-                                                                                Security Name
-                                                                            </option>
-                                                                            <option disabled={true}
-                                                                                    value="Symbol Deletion">Symbol
-                                                                                Deletion
-                                                                            </option>
-                                                                        </Field>
-                                                                        <ErrorMessage name="reason_for_entry"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
+                                                            <div className="input">
+                                                                <div className="input__title">Reason for
+                                                                    Entry <i>*</i>
                                                                 </div>
-
-                                                                <div className="input">
-                                                                    <div className="input__title">Security Name <i>*</i>
-                                                                    </div>
-                                                                    <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                        <Field
-                                                                            name="security_name"
-                                                                            id="security_name"
-                                                                            type="text"
-                                                                            className="input__text"
-                                                                            placeholder="Type Security Name"
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                            onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
-                                                                        />
-                                                                        <ErrorMessage name="security_name"
-                                                                                      component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="reason_for_entry"
+                                                                        id="reason_for_entry"
+                                                                        as="select"
+                                                                        className="b-select"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    >
+                                                                        <option value="">Select a Reason</option>
+                                                                        <option value="New Ticker Symbol">New Ticker
+                                                                            Symbol
+                                                                        </option>
+                                                                        <option disabled={true}
+                                                                                value="New Ticker Symbol">New
+                                                                            Security Name
+                                                                        </option>
+                                                                        <option disabled={true}
+                                                                                value="Symbol Deletion">Symbol
+                                                                            Deletion
+                                                                        </option>
+                                                                    </Field>
+                                                                    <ErrorMessage name="reason_for_entry"
+                                                                                  component="div"
+                                                                                  className="error-message"/>
                                                                 </div>
-                                                            </>
+                                                            </div>
                                                         )}
-                                                        {(values.is_change) && (
-                                                            <>
-                                                                <hr className={'mb-24'}/>
-                                                                <div className="input">
-                                                                    <div className="input__group">
-                                                                        <div className="input">
-                                                                            <div className="input__title">Date <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap`}>
-                                                                                <SingleDatePicker
-                                                                                    numberOfMonths={1}
-                                                                                    date={values.date_entered_change ? moment(values.date_entered_change) : null}
-                                                                                    onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
-                                                                                    focused={this.state.focusedInputDateEntered}
-                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
-                                                                                    id="date_entered_change"
-                                                                                    displayFormat="YYYY-MM-DD"
-                                                                                    isOutsideRange={() => false}
-                                                                                    readOnly={true}
-                                                                                    disabled={true}
-                                                                                    placeholder={'Select Date'}
-                                                                                />
-                                                                                <ErrorMessage name="date_entered_change"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className="input">
-                                                                            <div className="input__title">Time <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap`}>
-                                                                                <Field
-                                                                                    name="time_entered_change"
-                                                                                    id="time_entered_change"
-                                                                                    type="time"
-                                                                                    placeholder="Type Time"
-                                                                                    className="input__text"
-                                                                                    readOnly={true}
-                                                                                    disabled={true}
-                                                                                />
-                                                                                <ErrorMessage name="time_entered_change"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="input__group">
-                                                                        <div className="input">
-                                                                            <div className="input__title">Effective
-                                                                                Date <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap`}>
-                                                                                <SingleDatePicker
-                                                                                    numberOfMonths={1}
-                                                                                    date={values.date_effective_change ? moment(values.date_effective_change) : null}
-                                                                                    onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
-                                                                                    focused={this.state.focusedInputDateEffective}
-                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
-                                                                                    id="date_effective_change"
-                                                                                    displayFormat="YYYY-MM-DD"
-                                                                                    isOutsideRange={() => false}
-                                                                                    readOnly={true}
-                                                                                    placeholder={'Select Date'}
-                                                                                />
-                                                                                <ErrorMessage
-                                                                                    name="date_effective_change"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className="input">
-                                                                            <div className="input__title">Effective
-                                                                                Time <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap`}>
-                                                                                <Field
-                                                                                    name="time_effective_change"
-                                                                                    id="time_effective_change"
-                                                                                    type="time"
-                                                                                    placeholder="Type Time"
-                                                                                    className="input__text"
-                                                                                />
-                                                                                <ErrorMessage
-                                                                                    name="time_effective_change"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
+                                                        <div className={'input'}>
+                                                            <h4 className={'input__group__title'}>Symbol
+                                                                Information:</h4>
+                                                            {(!values.is_change) && (
+                                                                <>
                                                                     <div className="input">
                                                                         <div className="input__title">Security
                                                                             Name <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                             <Field
-                                                                                name="new_security_name"
-                                                                                id="new_security_name"
+                                                                                name="security_name"
+                                                                                id="security_name"
                                                                                 type="text"
                                                                                 className="input__text"
                                                                                 placeholder="Type Security Name"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                             />
-                                                                            <ErrorMessage name="new_security_name"
+                                                                            <ErrorMessage name="security_name"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
@@ -852,203 +742,452 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         <div className="input__title">Symbol <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap`}>
+                                                                            className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                             <Field
-                                                                                name="new_symbol"
-                                                                                id="new_symbol"
+                                                                                name="symbol"
+                                                                                id="symbol"
                                                                                 type="text"
                                                                                 className="input__text"
                                                                                 placeholder="Type Symbol"
-                                                                                onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
                                                                             />
-                                                                            <ErrorMessage name="new_symbol"
-                                                                                          component="div"
+                                                                            {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className='border-grey-btn ripple'
+                                                                                    onClick={() => {
+                                                                                        setFieldValue('is_change', true);
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faEdit}/>
+                                                                                </button>
+                                                                            )}
+
+                                                                            <ErrorMessage name="symbol" component="div"
                                                                                           className="error-message"/>
                                                                         </div>
                                                                     </div>
+                                                                </>
+                                                            )}
+
+                                                            {(values.is_change) && (
+                                                                <>
                                                                     <div className="input">
-                                                                        <div className="input__title">Change Reason
-                                                                        </div>
-                                                                        <div className="input__wrap">
-                                                                            <Field
-                                                                                name="reason_change"
-                                                                                id="reason_change"
-                                                                                as="textarea"
-                                                                                rows="3"
-                                                                                className="input__textarea"
-                                                                                placeholder="Type change reason"
-                                                                                disabled={isSubmitting}
-                                                                            />
-                                                                            <ErrorMessage name="reason_change"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="input">
-                                                                        <div className="input__title">Digital Security
-                                                                            Identifier
-                                                                            Number -
-                                                                            DSIN
-                                                                        </div>
-                                                                        <div className="input__group mb-0">
+                                                                        <div className="input__group">
                                                                             <div className="input">
-                                                                                <div className="input__title">Current
+                                                                                <div
+                                                                                    className="input__title">Date <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
+                                                                                    <SingleDatePicker
+                                                                                        numberOfMonths={1}
+                                                                                        date={values.date_entered_change ? moment(values.date_entered_change) : null}
+                                                                                        onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                        focused={this.state.focusedInputDateEntered}
+                                                                                        onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
+                                                                                        id="date_entered_change"
+                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        isOutsideRange={() => false}
+                                                                                        readOnly={true}
+                                                                                        disabled={true}
+                                                                                        placeholder={'Select Date'}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="date_entered_change"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className="input__title">Time <i>*</i>
                                                                                 </div>
                                                                                 <div
                                                                                     className={`input__wrap`}>
                                                                                     <Field
-                                                                                        name="dsin"
-                                                                                        id="dsin"
-                                                                                        type="text"
-                                                                                        className="input__text dsin"
+                                                                                        name="time_entered_change"
+                                                                                        id="time_entered_change"
+                                                                                        type="time"
+                                                                                        placeholder="Type Time"
+                                                                                        className="input__text"
+                                                                                        readOnly={true}
                                                                                         disabled={true}
                                                                                     />
-                                                                                    <ErrorMessage name="dsin"
-                                                                                                  component="div"
-                                                                                                  className="error-message"/>
+                                                                                    <ErrorMessage
+                                                                                        name="time_entered_change"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
                                                                                 </div>
                                                                             </div>
+                                                                        </div>
+                                                                        <div className="input__group">
                                                                             <div className="input">
+                                                                                <div className="input__title">Effective
+                                                                                    Date <i>*</i>
+                                                                                </div>
                                                                                 <div
-                                                                                    className="input__title">Destination
+                                                                                    className={`input__wrap`}>
+                                                                                    <SingleDatePicker
+                                                                                        numberOfMonths={1}
+                                                                                        date={values.date_effective_change ? moment(values.date_effective_change) : null}
+                                                                                        onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                        focused={this.state.focusedInputDateEffective}
+                                                                                        onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
+                                                                                        id="date_effective_change"
+                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        isOutsideRange={() => false}
+                                                                                        readOnly={true}
+                                                                                        placeholder={'Select Date'}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="date_effective_change"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                            <div className="input">
+                                                                                <div className="input__title">Effective
+                                                                                    Time <i>*</i>
                                                                                 </div>
                                                                                 <div
                                                                                     className={`input__wrap`}>
                                                                                     <Field
-                                                                                        name="new_dsin"
-                                                                                        id="new_dsin"
-                                                                                        type="text"
-                                                                                        className="input__text dsin blue"
-                                                                                        disabled={true}
+                                                                                        name="time_effective_change"
+                                                                                        id="time_effective_change"
+                                                                                        type="time"
+                                                                                        placeholder="Type Time"
+                                                                                        className="input__text"
                                                                                     />
-                                                                                    <ErrorMessage name="new_dsin"
-                                                                                                  component="div"
-                                                                                                  className="error-message"/>
+                                                                                    <ErrorMessage
+                                                                                        name="time_effective_change"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div className={'input__title mt-2'}>
+                                                                        <div className="input">
+                                                                            <div className="input__title">Security
+                                                                                Name <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <Field
+                                                                                    name="new_security_name"
+                                                                                    id="new_security_name"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Security Name"
+                                                                                />
+                                                                                <ErrorMessage name="new_security_name"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="input">
+                                                                            <div
+                                                                                className="input__title">Symbol <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap`}>
+                                                                                <Field
+                                                                                    name="new_symbol"
+                                                                                    id="new_symbol"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Symbol"
+                                                                                    onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                                />
+                                                                                <ErrorMessage name="new_symbol"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="input">
+                                                                            <div className="input__title">Change Reason
+                                                                            </div>
+                                                                            <div className="input__wrap">
+                                                                                <Field
+                                                                                    name="reason_change"
+                                                                                    id="reason_change"
+                                                                                    as="textarea"
+                                                                                    rows="3"
+                                                                                    className="input__textarea"
+                                                                                    placeholder="Type change reason"
+                                                                                    disabled={isSubmitting}
+                                                                                />
+                                                                                <ErrorMessage name="reason_change"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="input">
+                                                                            <div className="input__title">Digital
+                                                                                Security
+                                                                                Identifier
+                                                                                Number -
+                                                                                DSIN
+                                                                            </div>
+                                                                            <div className="input__group mb-0">
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Current
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={`input__wrap`}>
+                                                                                        <Field
+                                                                                            name="dsin"
+                                                                                            id="dsin"
+                                                                                            type="text"
+                                                                                            className="input__text dsin"
+                                                                                            disabled={true}
+                                                                                        />
+                                                                                        <ErrorMessage name="dsin"
+                                                                                                      component="div"
+                                                                                                      className="error-message"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Destination
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={`input__wrap`}>
+                                                                                        <Field
+                                                                                            name="new_dsin"
+                                                                                            id="new_dsin"
+                                                                                            type="text"
+                                                                                            className="input__text dsin blue"
+                                                                                            disabled={true}
+                                                                                        />
+                                                                                        <ErrorMessage name="new_dsin"
+                                                                                                      component="div"
+                                                                                                      className="error-message"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className={'input__title mt-2'}>
                                                                             <span
                                                                                 className={'fw-bold '}>Notice: </span> if
-                                                                            you change the Symbol the DSIN is changed
+                                                                                you change the Symbol the DSIN is
+                                                                                changed
 
+                                                                            </div>
                                                                         </div>
                                                                     </div>
+                                                                    <hr className={'mb-24'}/>
+
+                                                                    <div className="input">
+                                                                        <div className="input__title">Security
+                                                                            Name <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                            <Field
+                                                                                name="security_name"
+                                                                                id="security_name"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Security Name"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
+                                                                            />
+                                                                            <ErrorMessage name="security_name"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="input">
+                                                                        <div className="input__title">Symbol <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                            <Field
+                                                                                name="symbol"
+                                                                                id="symbol"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Symbol"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
+                                                                            />
+                                                                            <ErrorMessage name="symbol" component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )}
+
+                                                            <div className={'input'}>
+                                                                <div className="input">
+                                                                    <div
+                                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
+                                                                        <Field
+                                                                            type="checkbox"
+                                                                            name="is_cusip"
+                                                                            id="is_cusip"
+                                                                            disabled={isSubmitting || this.isShow()}
+                                                                            onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
+                                                                        />
+                                                                        <label htmlFor="is_cusip">
+                                                                            <span></span><i> Does it have cusip number?
+                                                                        </i>
+                                                                        </label>
+                                                                        <ErrorMessage name="is_cusip" component="div"
+                                                                                      className="error-message"/>
+                                                                    </div>
                                                                 </div>
-                                                                <hr className={'mb-24'}/>
-                                                            </>
-                                                        )}
 
+                                                                {values.is_cusip && (
+                                                                    <div className="input">
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                            <Field
+                                                                                name="cusip"
+                                                                                id="cusip"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type CUSIP"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="cusip" component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
 
-                                                        <div className={'input'}>
+                                                            </div>
+
                                                             <div className="input">
+                                                                <div className="input__title">Digital Security
+                                                                    Identifier
+                                                                    Number -
+                                                                    DSIN
+                                                                </div>
                                                                 <div
-                                                                    className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
+                                                                    className={`input__wrap text-center`}>
                                                                     <Field
-                                                                        type="checkbox"
-                                                                        name="is_cusip"
-                                                                        id="is_cusip"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                        onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
+                                                                        name="dsin"
+                                                                        id="dsin"
+                                                                        type="text"
+                                                                        className="input__text dsin"
+                                                                        disabled={true}
                                                                     />
-                                                                    <label htmlFor="is_cusip">
-                                                                        <span></span><i> Does it have cusip number?
-                                                                    </i>
-                                                                    </label>
-                                                                    <ErrorMessage name="is_cusip" component="div"
+                                                                    <ErrorMessage name="dsin" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
 
-                                                            {values.is_cusip && (
+                                                            <div className="input">
+                                                                <div className="input__title">Fifth Character
+                                                                    Identifiers
+                                                                </div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="fifth_character_identifier"
+                                                                        id="fifth_character_identifier"
+                                                                        as="select"
+                                                                        className="b-select"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    >
+                                                                        <option value="">Select Fifth Character
+                                                                            Identifiers
+                                                                        </option>
+                                                                        {Object.values(FifthCharacterIdentifier).map((identifier) => (
+                                                                            <option key={identifier} value={identifier}>
+                                                                                {identifier}
+                                                                            </option>
+                                                                        ))}
+                                                                    </Field>
+                                                                    <ErrorMessage name="fifth_character_identifier"
+                                                                                  component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="input">
+                                                                <div className="input__title">Alternative Asset
+                                                                </div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="alternative_asset_category"
+                                                                        id="alternative_asset_category"
+                                                                        as="select"
+                                                                        className="b-select"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    >
+                                                                        <option value="">Select Alternative Asset
+                                                                        </option>
+                                                                        {Object.values(AlternativeAssetCategory).map((type) => (
+                                                                            <option key={type} value={type}>
+                                                                                {type}
+                                                                            </option>
+                                                                        ))}
+                                                                    </Field>
+                                                                    <ErrorMessage name="alternative_asset_category"
+                                                                                  component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+
+                                                            {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
                                                                 <div className="input">
                                                                     <div
                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <Field
-                                                                            name="cusip"
-                                                                            id="cusip"
-                                                                            type="text"
-                                                                            className="input__text"
-                                                                            placeholder="Type CUSIP"
+                                                                            name="alternative_asset_subcategory"
+                                                                            id="alternative_asset_subcategory"
+                                                                            as="select"
+                                                                            className="b-select"
                                                                             disabled={isSubmitting || this.isShow()}
-                                                                        />
-                                                                        <ErrorMessage name="cusip" component="div"
-                                                                                      className="error-message"/>
+                                                                        >
+                                                                            <option value="">Select category</option>
+                                                                            {Object.values(getAlternativeAssetSubCategory(values.alternative_asset_category)).map((type: any) => (
+                                                                                <option key={type} value={type}>
+                                                                                    {type}
+                                                                                </option>
+                                                                            ))}
+
+                                                                        </Field>
+
+                                                                        <ErrorMessage
+                                                                            name="alternative_asset_subcategory"
+                                                                            component="div"
+                                                                            className="error-message"/>
                                                                     </div>
                                                                 </div>
                                                             )}
 
-                                                        </div>
-
-
-                                                        <div className="input">
-                                                            <div className="input__title">Digital Security Identifier
-                                                                Number -
-                                                                DSIN
-                                                            </div>
-                                                            <div
-                                                                className={`input__wrap text-center`}>
-                                                                <Field
-                                                                    name="dsin"
-                                                                    id="dsin"
-                                                                    type="text"
-                                                                    className="input__text dsin"
-                                                                    disabled={true}
-                                                                />
-                                                                <ErrorMessage name="dsin" component="div"
-                                                                              className="error-message"/>
-                                                            </div>
-                                                        </div>
-
-                                                        <fieldset>
-                                                            <legend>{(values.digital_asset_category !== '' && getDigitalAssetCategoryInstrument(values.digital_asset_category)) ? 'Digital Asset Category' : 'Symbol'}</legend>
                                                             <div className="input">
-                                                                <div className="input__title">Primary ATS <i>*</i></div>
+                                                                <div className="input__title">Exempted Offerings</div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <Field
-                                                                        name="primary_ats"
-                                                                        id="primary_ats"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Primary ATS"
+                                                                        name="exempted_offerings"
+                                                                        id="exempted_offerings"
+                                                                        as="select"
+                                                                        className="b-select"
                                                                         disabled={isSubmitting || this.isShow()}
-                                                                    />
-                                                                    <ErrorMessage name="primary_ats" component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="input">
-                                                                <div className="input__title">Transfer Agent</div>
-                                                                <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                    <Field
-                                                                        name="transfer_agent"
-                                                                        id="transfer_agent"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Transfer Agent"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                    />
-                                                                    <ErrorMessage name="transfer_agent" component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="input">
-                                                                <div className="input__title">Custodian</div>
-                                                                <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                    <Field
-                                                                        name="custodian"
-                                                                        id="custodian"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Custodian"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                    />
-                                                                    <ErrorMessage name="custodian" component="div"
+                                                                    >
+                                                                        <option value="">Select Exempted Offering
+                                                                        </option>
+                                                                        {Object.values(ExemptedOfferingType).map((type) => (
+                                                                            <option key={type} value={type}>
+                                                                                {type}
+                                                                            </option>
+                                                                        ))}
+                                                                    </Field>
+                                                                    <ErrorMessage name="exempted_offerings"
+                                                                                  component="div"
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
@@ -1142,67 +1281,69 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
+                                                        </div>
+
+
+                                                        <div className={'input'}>
+                                                            <h4 className={'input__group__title'}>Symbol Trading
+                                                                Information:</h4>
 
                                                             <div className="input">
-                                                                <div className="input__title">Fifth Character
-                                                                    Identifiers
-                                                                </div>
+                                                                <div className="input__title">Primary ATS <i>*</i></div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <Field
-                                                                        name="fifth_character_identifier"
-                                                                        id="fifth_character_identifier"
-                                                                        as="select"
-                                                                        className="b-select"
+                                                                        name="primary_ats"
+                                                                        id="primary_ats"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Primary ATS"
                                                                         disabled={isSubmitting || this.isShow()}
-                                                                    >
-                                                                        <option value="">Select Fifth Character
-                                                                            Identifiers
-                                                                        </option>
-                                                                        {Object.values(FifthCharacterIdentifier).map((identifier) => (
-                                                                            <option key={identifier} value={identifier}>
-                                                                                {identifier}
-                                                                            </option>
-                                                                        ))}
-                                                                    </Field>
-                                                                    <ErrorMessage name="fifth_character_identifier"
-                                                                                  component="div"
+                                                                    />
+                                                                    <ErrorMessage name="primary_ats" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
 
-                                                            {(!values.is_change) && (
-                                                                <div className="input">
-                                                                    <div className="input__title">Symbol <i>*</i></div>
-                                                                    <div
-                                                                        className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                        <Field
-                                                                            name="symbol"
-                                                                            id="symbol"
-                                                                            type="text"
-                                                                            className="input__text"
-                                                                            placeholder="Type Symbol"
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
-                                                                        />
-                                                                        {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
-                                                                            <button
-                                                                                type="button"
-                                                                                className='border-grey-btn ripple'
-                                                                                onClick={() => {
-                                                                                    setFieldValue('is_change', true);
-                                                                                }}
-                                                                            >
-                                                                                <FontAwesomeIcon className="nav-icon"
-                                                                                                 icon={faEdit}/>
-                                                                            </button>
-                                                                        )}
-
-                                                                        <ErrorMessage name="symbol" component="div"
-                                                                                      className="error-message"/>
-                                                                    </div>
+                                                            <div className="input">
+                                                                <div className="input__title">Transfer Agent</div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="transfer_agent"
+                                                                        id="transfer_agent"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Transfer Agent"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    />
+                                                                    <ErrorMessage name="transfer_agent" component="div"
+                                                                                  className="error-message"/>
                                                                 </div>
-                                                            )}
+                                                            </div>
+
+                                                            <div className="input">
+                                                                <div className="input__title">Custodian</div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="custodian"
+                                                                        id="custodian"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Custodian"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    />
+                                                                    <ErrorMessage name="custodian" component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <div className={'input'}>
+                                                            <h4 className={'input__group__title'}>Digital Asset:</h4>
 
                                                             <div className="input">
                                                                 <div className="input__title">Digital Asset Category
@@ -1260,85 +1401,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
 
                                                             <div className="input">
-                                                                <div className="input__title">Alternative Asset
-                                                                </div>
-                                                                <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                    <Field
-                                                                        name="alternative_asset_category"
-                                                                        id="alternative_asset_category"
-                                                                        as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                    >
-                                                                        <option value="">Select Alternative Asset
-                                                                        </option>
-                                                                        {Object.values(AlternativeAssetCategory).map((type) => (
-                                                                            <option key={type} value={type}>
-                                                                                {type}
-                                                                            </option>
-                                                                        ))}
-                                                                    </Field>
-                                                                    <ErrorMessage name="alternative_asset_category"
-                                                                                  component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-
-                                                            {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
-                                                                <div className="input">
-                                                                    <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                        <Field
-                                                                            name="alternative_asset_subcategory"
-                                                                            id="alternative_asset_subcategory"
-                                                                            as="select"
-                                                                            className="b-select"
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                        >
-                                                                            <option value="">Select category</option>
-                                                                            {Object.values(getAlternativeAssetSubCategory(values.alternative_asset_category)).map((type: any) => (
-                                                                                <option key={type} value={type}>
-                                                                                    {type}
-                                                                                </option>
-                                                                            ))}
-
-                                                                        </Field>
-
-                                                                        <ErrorMessage
-                                                                            name="alternative_asset_subcategory"
-                                                                            component="div"
-                                                                            className="error-message"/>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
-                                                            <div className="input">
-                                                                <div className="input__title">Exempted Offerings</div>
-                                                                <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                    <Field
-                                                                        name="exempted_offerings"
-                                                                        id="exempted_offerings"
-                                                                        as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                    >
-                                                                        <option value="">Select Exempted Offering
-                                                                        </option>
-                                                                        {Object.values(ExemptedOfferingType).map((type) => (
-                                                                            <option key={type} value={type}>
-                                                                                {type}
-                                                                            </option>
-                                                                        ))}
-                                                                    </Field>
-                                                                    <ErrorMessage name="exempted_offerings"
-                                                                                  component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="input">
                                                                 <div className="input__title">Issuer Name</div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
@@ -1354,6 +1416,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
+
                                                             <div className="input">
                                                                 <div className="input__title">Issuer Type</div>
                                                                 <div
@@ -1431,7 +1494,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
                                                             <hr/>
 
-
                                                             <div className="input">
                                                                 <div className="input__title">Rights Type</div>
                                                                 <div
@@ -1508,7 +1570,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 </div>
                                                             </div>
 
-
                                                             <div className={'input'}>
                                                                 <div className="input__title">Redeemability Type</div>
                                                                 <div
@@ -1557,7 +1618,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 </div>
                                                             )}
 
-
                                                             <div className="input">
                                                                 <div className="input__title">Nature of record</div>
                                                                 <div
@@ -1582,8 +1642,33 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
-                                                        </fieldset>
 
+                                                            <hr/>
+
+                                                            <div className="input">
+                                                                <div className="input__title">Edgar CIK
+                                                                    <Link className={'link info-panel-title-link'}
+                                                                          href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
+                                                                          target={'_blank'}>
+                                                                        Company Filings <FontAwesomeIcon className="nav-icon"
+                                                                                                         icon={faArrowUpRightFromSquare}/>
+                                                                    </Link>
+                                                                </div>
+                                                                <div
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    <Field
+                                                                        name="edgar_cik"
+                                                                        id="edgar_cik"
+                                                                        type="text"
+                                                                        className="input__text"
+                                                                        placeholder="Type Edgar CIK"
+                                                                        disabled={isSubmitting || this.isShow()}
+                                                                    />
+                                                                    <ErrorMessage name="edgar_cik" component="div"
+                                                                                  className="error-message"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                     </>
                                                 )}

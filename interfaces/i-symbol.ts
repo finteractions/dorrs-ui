@@ -67,4 +67,5 @@ export interface ISymbol {
     created_by: string;
     created_date_time: string;
     fill_out_percentage: number;
+    edgar_cik: string;
 }
