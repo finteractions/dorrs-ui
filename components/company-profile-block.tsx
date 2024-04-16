@@ -431,9 +431,14 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                 </div>
                             </>
                         ) : (
-                            <div className={'content__bottom'}>
-                                <NoDataBlock/>
+                            <div className={'flex-panel-box'}>
+                                <div className={'panel'}>
+                                    <div className={'content__bottom'}>
+                                        <NoDataBlock/>
+                                    </div>
+                                </div>
                             </div>
+
                         )}
 
 

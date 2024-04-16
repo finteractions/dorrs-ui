@@ -372,6 +372,22 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
     }
 
+    public async getDataFeedProviders(): Promise<IDataFeedProvider[]> {
+        return (await apiWebBackendService.get<IResponse<IDataFeedProvider[]>>(`${this.PATH}data_feed_providers/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    }
+
+    public async createDataFeedProvider(data: any): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}data_feed_providers/`, data, {}, this.getAdminToken());
+    }
+
+    public async updateDataFeedProvider(id: number, data: any): Promise<IResponseApi> {
+        return apiWebBackendService.put<IResponseApi>(`${this.PATH}data_feed_providers/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async deleteDataFeedProvider(id: number): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}data_feed_providers/${id}/`, {}, {}, this.getAdminToken());
+    }
+
     // **** Admin Tools **** //
     public async getOrderGeneratorStatus(): Promise<Array<{status: boolean}>> {
         return (await apiWebBackendService.get<IResponse<Array<{status:boolean}>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getUserAccessToken())).data;
@@ -397,6 +413,7 @@ class AdminService extends BaseService {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/order_generator/clear/`, {}, {}, this.getAdminToken());
     }
     //********************** //
+
 
 }
 

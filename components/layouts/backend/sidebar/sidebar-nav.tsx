@@ -11,7 +11,7 @@ import {
     faBuilding,
     faBook,
     faFileArchive,
-    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle, faCalendarAlt
+    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle, faCalendarAlt, faRss
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -170,6 +170,12 @@ const MENU_LIST: MenuItem[] = [
         text: 'Asset Profiles',
         href: "/backend/asset-profiles",
         icon: faBuilding,
+        submenus: []
+    },
+    {
+        text: 'Data Feed Providers',
+        href: "/backend/data-feed-providers",
+        icon: faRss,
         submenus: []
     },
     {

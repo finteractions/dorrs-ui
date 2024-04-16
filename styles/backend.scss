@@ -388,7 +388,11 @@
     font-size: 14px;
     line-height: 1;
     color: #75808a;
-    margin: 0 0 7px
+    margin: 0 0 7px;
+
+    .link {
+      margin-left: 10px;
+    }
   }
 
   .input__coin {
@@ -4451,7 +4455,7 @@
     display: flex;
     flex-wrap: wrap;
     margin: 0 -30px;
-    row-gap: 50px;
+    row-gap: 25px;
 
 
     .view_block {
@@ -4472,6 +4476,7 @@
 
       &.full_block {
         flex: 0 0 100%;
+        max-width: 100%;
       }
 
       .view_block_body {
@@ -4828,6 +4833,17 @@
     font-size: 15px;
     color: #75808a;
     font-weight: 500;
+  }
+
+  .icon-block {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
+  .icon-block-show {
+    width: 18px;
+    margin-right: 15px;
   }
 
 }

@@ -5,129 +5,90 @@ import NoDataBlock from "@/components/no-data-block";
 import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
 import {IFirm} from "@/interfaces/i-firm";
-import FirmForm from "@/components/backend/firm-form";
-import {IBank} from "@/interfaces/i-bank";
-import {IBankTemplate} from "@/interfaces/i-bank-template";
-import adminIconService from "@/services/admin/admin-icon-service";
+import DataFeedProviderForm from "@/components/backend/data-feed-provider-form";
+import AssetImage from "@/components/asset-image";
+import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
+
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
-let tableFilters: Array<ITableFilter> = []
 
-interface FirmsBlockState {
+interface DataFeedProvidersBlockState {
     loading: boolean;
     isOpenModal: boolean;
-    formFirmData: IFirm | null;
-    formBankData: IBankTemplate | null;
+    formDataFeedProviderData: IDataFeedProvider | null;
+    formDataFeedProviderLinks: ISettings[];
     formAction: string;
-    data: IFirm[];
+    data: IDataFeedProvider[];
     errors: string[];
     modalTitle: string;
-    showSymbolForm: boolean;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
-class FirmsBlock extends React.Component<{}> {
-    state: FirmsBlockState;
+class DataFeedProvidersBlock extends React.Component<{}> {
+    state: DataFeedProvidersBlockState;
     getAssetsInterval!: NodeJS.Timer;
-    columnDefinition: any;
-    columnValues: any;
 
     constructor(props: {}) {
         super(props);
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         this.state = {
             loading: true,
             isOpenModal: false,
-            formFirmData: null,
-            formBankData: null,
+            formDataFeedProviderData: null,
+            formDataFeedProviderLinks: [],
             formAction: 'add',
             data: [],
             errors: [],
             modalTitle: '',
-            showSymbolForm: true,
         }
 
         columns = [
-            columnHelper.accessor((row) => row.name, {
+            columnHelper.accessor((row) => ({
+                name: row.name,
+                image: row.logo
+            }), {
                 id: "name",
-                cell: (item) => item.getValue(),
-                header: () => <span>Name</span>,
-            }),
-            columnHelper.accessor((row) => row.mpid, {
-                id: "mpid",
-                cell: (item) => item.getValue(),
-                header: () => <span>MPID</span>,
-            }),
-            columnHelper.accessor((row) => row.is_member, {
-                id: "is_member",
-                cell: (item) => <FontAwesomeIcon className="nav-icon"
-                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
-                header: () => <span>DORRS Member</span>,
-            }),
-            columnHelper.accessor((row) => row.is_ats, {
-                id: "is_ats",
-                cell: (item) => <FontAwesomeIcon className="nav-icon"
-                                                 icon={adminIconService.iconBoolean(item.getValue())}/>,
-                header: () => <span>ATS</span>,
-            }),
-            columnHelper.accessor((row) => row.status, {
-                id: "status",
                 cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                        {item.getValue()}
+                    <div className={`table-image`}
+                    >
+                        <div className="table-image-container">
+                            <AssetImage alt='' src={item.getValue().image ? `${item.getValue().image}` : ''}
+                                        width={28} height={28}/>
+                        </div>
+                        {item.getValue().name}
                     </div>
                 ,
-                header: () => <span>Status</span>,
-            }),
-            columnHelper.accessor((row) => row.created_at, {
-                id: "created_at",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created Date</span>,
+                header: () => <span>Name</span>,
             }),
         ];
-
-        tableFilters = [
-            {key: 'name', placeholder: 'Name'},
-            {key: 'mpid', placeholder: 'MPID'},
-            {key: 'is_member_text', placeholder: 'DORRS Member'},
-            {key: 'is_ats_text', placeholder: 'ATS'},
-            {key: 'status', placeholder: 'Status'},
-        ]
     }
 
     componentDidMount() {
-        this.getFirms()
-            .then(() => this.getBank())
+        this.getDataFeedProviders()
+            .then(() => this.getDataFeedProviderLinks())
             .finally(() => {
                 this.setState({loading: false}, () => {
                     this.startAutoUpdate();
                 })
             })
-
-
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
     }
 
-    getFirms = () => {
+    getDataFeedProviders = () => {
         return new Promise(resolve => {
-            adminService.getFirms()
-                .then((res: IFirm[]) => {
-                    const data = res?.sort((a, b) => a.id - b.id) || [];
-                    data.forEach((s, idx) => {
-                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-                        s.is_member_text = s.is_member ? 'Yes' : 'No'
-                        s.is_ats_text = s.is_ats ? 'Yes' : 'No'
-                    });
+            adminService.getDataFeedProviders()
+                .then((res: IDataFeedProvider[]) => {
+                    const data = res || [];
                     this.setState({data: data});
                 })
                 .catch((errors: IError) => {
@@ -139,29 +100,12 @@ class FirmsBlock extends React.Component<{}> {
         })
     }
 
-    getBank = () => {
+    getDataFeedProviderLinks = () => {
         return new Promise(resolve => {
-            adminService.getFirmBank()
-                .then((res: IBank[]) => {
-                    const bank = res[0];
-
-                    const columns = bank.columns;
-                    let values = bank.values;
-
-                    const columnsObject = JSON.parse(columns) as any
-                    values = values.replace(/'/g, '"');
-                    const valuesObject = JSON.parse(values)
-
-                    this.columnDefinition = columnsObject;
-                    this.columnValues = valuesObject;
-
-                    this.setState({
-                        formBankData: new class implements IBankTemplate {
-                            columnDefinition = columnsObject;
-                            columnValues = valuesObject
-                        }
-                    });
-
+            dataFeedProvidersService.getLinks()
+                .then((res: ISettings[]) => {
+                    const data = res || [];
+                    this.setState({formDataFeedProviderLinks: data});
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -173,7 +117,7 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     startAutoUpdate(): void {
-        this.getAssetsInterval = setInterval(this.getFirms, Number(fetchIntervalSec) * 1000);
+        this.getAssetsInterval = setInterval(this.getDataFeedProviders, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate(): void {
@@ -185,7 +129,7 @@ class FirmsBlock extends React.Component<{}> {
         this.setState({
             isOpenModal: true,
             formAction: mode,
-            formFirmData: data || null,
+            formDataFeedProviderData: data || null,
             modalTitle: this.modalTitle(mode)
         })
     }
@@ -193,11 +137,11 @@ class FirmsBlock extends React.Component<{}> {
 
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
-            return 'Do you want to remove this firm?';
+            return 'Do you want to remove this Data Feed Provider?';
         } else if (mode === 'view') {
-            return 'View Firm'
+            return 'View Data Feed Provider'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Firm`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Data Feed Provider`;
         }
     }
 
@@ -208,14 +152,14 @@ class FirmsBlock extends React.Component<{}> {
 
     submitForm(): void {
         this.setState({isOpenModal: false}, async () => {
-            await this.getFirms();
+            await this.getDataFeedProviders();
         });
 
     }
 
     onCallback = async (values: any, step: boolean) => {
         this.closeModal();
-        await this.getFirms();
+        await this.getDataFeedProviders();
     };
 
     render() {
@@ -224,9 +168,10 @@ class FirmsBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Firm Management</div>
+                        <div className="content__title">Data Feed Providers</div>
                         <button className="border-btn ripple modal-link"
-                                disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Firm
+                                disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Data Feed
+                            Provider
                         </button>
                     </div>
 
@@ -247,14 +192,13 @@ class FirmsBlock extends React.Component<{}> {
                                                viewBtn={true}
                                                editBtn={true}
                                                deleteBtn={true}
-                                               filters={tableFilters}
                                         />
                                     ) : (
                                         <>
                                             {this.state.errors.length ? (
                                                 <AlertBlock type="error" messages={this.state.errors}/>
                                             ) : (
-                                                <NoDataBlock primaryText="No firms available yet"/>
+                                                <NoDataBlock primaryText="No Data Feed Provider available yet"/>
                                             )}
                                         </>
                                     )}
@@ -267,13 +211,13 @@ class FirmsBlock extends React.Component<{}> {
                 <Modal isOpen={this.state.isOpenModal}
                        onClose={() => this.closeModal()}
                        title={this.modalTitle(this.state.formAction)}
+                       className={this.state.formAction === 'view' ? 'big_modal' : ''}
                 >
 
-                    <FirmForm
-                        action={this.state.formAction}
-                        firmData={this.state.formFirmData}
-                        bankData={this.state.formBankData}
-                        onCallback={this.onCallback}
+                    <DataFeedProviderForm action={this.state.formAction}
+                                          dataFeedProviderData={this.state.formDataFeedProviderData}
+                                          dataFeedProviderLinks={this.state.formDataFeedProviderLinks}
+                                          onCallback={this.onCallback}
                     />
                 </Modal>
 
@@ -282,4 +226,4 @@ class FirmsBlock extends React.Component<{}> {
     }
 }
 
-export default FirmsBlock;
+export default DataFeedProvidersBlock;

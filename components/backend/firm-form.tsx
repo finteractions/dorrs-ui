@@ -161,7 +161,7 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                                             placeholder="Type Name"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
-                                                        <ErrorMessage name="company_name" component="div"
+                                                        <ErrorMessage name="name" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>

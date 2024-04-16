@@ -203,7 +203,7 @@ class TradesBlock extends React.Component<{}> {
                                             {this.state.errors.length ? (
                                                 <AlertBlock type="error" messages={this.state.errors}/>
                                             ) : (
-                                                <NoDataBlock primaryText="No symbols available yet"/>
+                                                <NoDataBlock primaryText="No data available yet"/>
                                             )}
                                         </>
                                     )}
