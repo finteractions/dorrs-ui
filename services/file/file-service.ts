@@ -28,6 +28,18 @@ function createFile(file: IFile): File {
     return new File([uint8Array], file.name, { type: mime });
 }
 
+function getFileNameFromUrl(url: string): string {
+    let pathParts: string[];
+    try {
+        const urlObj = new URL(url);
+        pathParts = urlObj.pathname.split('/').filter(part => part.length > 0);
+    } catch (e) {
+        pathParts = url.split('/').filter(part => part.length > 0);
+    }
+
+    return pathParts[pathParts.length - 1];
+}
+
 // function createFileFromExternal(path:string): File {
 //     // const arr = file.content.split(",");
 //     // const mime = path.match(/:(.*?);/)[1];
@@ -43,7 +55,8 @@ function createFile(file: IFile): File {
 
 const fileService = {
     readFile,
-    createFile
+    createFile,
+    getFileNameFromUrl
 }
 
 export default fileService;

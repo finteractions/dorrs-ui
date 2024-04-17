@@ -10,7 +10,10 @@ import Modal from "@/components/modal";
 import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 import formatterService from "@/services/formatter/formatter-service";
-import {FormFieldOptionType} from "@/enums/form-field-option-type";
+import {FormFieldOptionType, FormFieldOptionType2} from "@/enums/form-field-option-type";
+import fileService from "@/services/file/file-service";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -220,6 +223,61 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
                                                 </div>
                                             </div>
+
+
+                                            <div id={'asset_type_additional'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div
+                                                        className={'content__title'}>Issuer
+                                                        Profile
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <>
+                                                        {((this.companyProfile.issuer_profile_description || this.companyProfile.issuer_profile_image || this.companyProfile?.issuer_profile_file) && this.companyProfile.issuer_profile_option !== '') ? (
+                                                            <>
+                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.TEXT && (
+                                                                    <div>{this.companyProfile?.issuer_profile_description || 'not filled'}</div>
+                                                                )}
+
+                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.IMAGE && (
+                                                                    <>
+                                                                        {this.companyProfile.issuer_profile_image ? (
+                                                                            <img
+                                                                                src={`${this.host}${this.companyProfile.issuer_profile_image}`}/>
+                                                                        ) : (
+                                                                            <div>{'not filled'}</div>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.FILE && (
+                                                                    <>
+                                                                        {this.companyProfile.issuer_profile_file ? (
+                                                                            <Link
+                                                                                className={'link info-panel-title-link'}
+                                                                                href={`${this.host}${this.companyProfile.issuer_profile_file}`}
+                                                                                target={'_blank'}>
+                                                                                {fileService.getFileNameFromUrl(this.companyProfile.issuer_profile_file)} {' '}
+                                                                                <FontAwesomeIcon className="nav-icon"
+                                                                                                 icon={faArrowUpRightFromSquare}/>
+                                                                            </Link>
+                                                                        ) : (
+                                                                            <div>{'not filled'}</div>
+                                                                        )}
+
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <div>{'not filled'}</div>
+                                                        )}
+                                                    </>
+
+                                                </div>
+                                            </div>
+
+
                                             <div id={'company_address'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div className={'content__title'}>Company Address</div>

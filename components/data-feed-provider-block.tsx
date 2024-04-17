@@ -174,7 +174,9 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                         <div className={'content__top'}>
                                             <div className={'content__title'}>Symbols</div>
                                         </div>
-                                        <DataFeedProviderHistoryBlock name={this.props.name}/>
+                                        <div className={`content__bottom`}>
+                                            <DataFeedProviderHistoryBlock name={this.props.name}/>
+                                        </div>
                                     </div>
                                 </>
 

@@ -54,7 +54,7 @@ class DataFeedProviderHistoryBlock extends React.Component<DataFeedProviderHisto
                 id: "symbol",
                 cell: (item) =>
                     <div
-                         className={`table-image`}
+                        className={`table-image`}
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
@@ -139,21 +139,14 @@ class DataFeedProviderHistoryBlock extends React.Component<DataFeedProviderHisto
                 {this.state.isLoading ? (
                     <LoaderBlock/>
                 ) : (
-                    <>
-
-                        <div className={'panel'}>
-                            <div className={`content__bottom`}>
-                                <Table columns={columns}
-                                       data={this.state.data}
-                                       searchPanel={true}
-                                       block={this}
-                                       filters={tableFilters}
-                                       filtersClassName={this.state.filtersClassName}
-                                       ref={this.tableRef}
-                                />
-                            </div>
-                        </div>
-                    </>
+                    <Table columns={columns}
+                           data={this.state.data}
+                           searchPanel={true}
+                           block={this}
+                           filters={tableFilters}
+                           filtersClassName={this.state.filtersClassName}
+                           ref={this.tableRef}
+                    />
                 )}
             </>
         );

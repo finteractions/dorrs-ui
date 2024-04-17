@@ -22,12 +22,16 @@ import {AlternativeAssetCategory} from "@/enums/alternative-asset-category";
 import NumericInputField from "@/components/numeric-input-field";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment/moment";
-import {FormFieldOptionType, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
+import {FormFieldOptionType, FormFieldOptionType2, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
+import fileService from "@/services/file/file-service";
 
 
-const allowedFileSizeMB = 1
-const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
-const allowedExt = ['png', 'jpg', 'jpeg']
+const allowedImageFileSizeMB = 1
+const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
+const allowedImageExt = ['png', 'jpg', 'jpeg']
+const allowedFileSizeMB = 5
+const allowedFileSize = allowedImageFileSizeMB * 1024 * 1024;
+const allowedFileExt = ['pdf']
 
 const selectedCountry = 'US';
 
@@ -35,20 +39,38 @@ const formSchema = Yup.object().shape({
     symbol: Yup.string().required('Required'),
     company_name: Yup.string().required('Required').label('Company Name'),
     logo_tmp: Yup.mixed()
-        .test('logo_tmp', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+        .test('logo_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;
-            return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
         })
-        .test('logo_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+        .test('logo_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
             if (!value) return true;
-            return value.size <= allowedFileSize;
+            return value.size <= allowedImageFileSize;
         }),
     asset_type_image_tmp: Yup.mixed()
-        .test('asset_type_image', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+        .test('asset_type_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;
-            return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
         })
-        .test('asset_type_image', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+        .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+            if (!value) return true;
+            return value.size <= allowedImageFileSize;
+        }),
+    issuer_profile_image_tmp: Yup.mixed()
+        .test('issuer_profile_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+            if (!value) return true;
+            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+        })
+        .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+            if (!value) return true;
+            return value.size <= allowedImageFileSize;
+        }),
+    issuer_profile_file_tmp: Yup.mixed()
+        .test('issuer_profile_file_tmp', `File is not a valid image. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+            if (!value) return true;
+            return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
+        })
+        .test('issuer_profile_file_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
             if (!value) return true;
             return value.size <= allowedFileSize;
         }),
@@ -67,6 +89,8 @@ interface CompanyProfileFormState extends IState {
     selectedCountry: string;
     selectedFile: File | null;
     selectedFileAssetTypeLogo: File | null;
+    selectedFileIssuerProfileImage: File | null;
+    selectedFileIssuerProfileFile: File | null;
     focusedInitialOfferingDate: any;
 }
 
@@ -144,6 +168,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             us_reporting: string;
             edgar_cik: string;
             logo: string;
+            issuer_profile_option: string;
+            issuer_profile_description: string;
+            issuer_profile_image: string;
+            issuer_profile_file: string;
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
@@ -153,6 +181,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             asset_type_option: initialData?.asset_type_option || '',
             asset_type_description: initialData?.asset_type_description || '',
             asset_type_image: initialData?.asset_type_image || '',
+            issuer_profile_option: initialData?.issuer_profile_option || '',
+            issuer_profile_description: initialData?.issuer_profile_description || '',
+            issuer_profile_image: initialData?.issuer_profile_image || '',
+            issuer_profile_file: initialData?.issuer_profile_file || '',
             company_name: initialData?.company_name || this.props.symbolData?.security_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
@@ -193,6 +225,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             selectedCountry: initialValues.country,
             selectedFile: null,
             selectedFileAssetTypeLogo: null,
+            selectedFileIssuerProfileImage: null,
+            selectedFileIssuerProfileFile: null,
             focusedInitialOfferingDate: null,
         };
 
@@ -214,10 +248,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         const directorsValues = values.board_of_directors;
         formData.append('board_of_directors', JSON.stringify(directorsValues));
 
-        formData.delete('logo_tmp');
         formData.delete('logo');
+        formData.delete('logo_tmp');
         formData.delete('asset_type_image');
         formData.delete('asset_type_image_tmp');
+        formData.delete('issuer_profile_image');
+        formData.delete('issuer_profile_image_tmp');
+        formData.delete('issuer_profile_file');
+        formData.delete('issuer_profile_file_tmp');
 
 
         if (this.state.selectedFileAssetTypeLogo) {
@@ -227,6 +265,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
+        }
+
+        if (this.state.selectedFileIssuerProfileImage) {
+            formData.append('issuer_profile_image', this.state.selectedFileIssuerProfileImage);
+        }
+
+        if (this.state.selectedFileIssuerProfileFile) {
+            formData.append('issuer_profile_file', this.state.selectedFileIssuerProfileFile);
         }
 
 
@@ -278,6 +324,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target?.files?.[0] || null;
         this.setState({selectedFileAssetTypeLogo: selectedFile});
+    };
+
+    handleFileIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target?.files?.[0] || null;
+        this.setState({selectedFileIssuerProfileImage: selectedFile});
+    };
+
+    handleFileIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target?.files?.[0] || null;
+        this.setState({selectedFileIssuerProfileFile: selectedFile});
     };
 
     render() {
@@ -397,7 +453,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 id="logo_tmp"
                                                                 name="logo_tmp"
                                                                 type="file"
-                                                                accept={'.' + allowedExt.join(',.')}
+                                                                accept={'.' + allowedImageExt.join(',.')}
                                                                 className="input__file"
                                                                 disabled={isSubmitting}
                                                                 onChange={(event) => {
@@ -584,7 +640,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 id="asset_type_image_tmp"
                                                                                 name="asset_type_image_tmp"
                                                                                 type="file"
-                                                                                accept={'.' + allowedExt.join(',.')}
+                                                                                accept={'.' + allowedImageExt.join(',.')}
                                                                                 className="input__file"
                                                                                 disabled={isSubmitting}
                                                                                 onChange={(event) => {
@@ -605,6 +661,128 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 )}
 
+                                                <div className="input">
+                                                    <h4 className="input__group__title">Issuer Profile Fields:</h4>
+
+                                                    <div className="input">
+                                                        <div className="input__title">Information on Offering
+                                                            Prospective, Financials and other details can be loaded on
+                                                            the Issuance of the company so broker-dealers can use the
+                                                            data as due diligence.
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="issuer_profile_option"
+                                                                id="issuer_profile_option"
+                                                                as="select"
+                                                                className="b-select"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            >
+                                                                <option value="">Select</option>
+                                                                {Object.values(FormFieldOptionType2).map((type) => (
+                                                                    <option key={type} value={type}>
+                                                                        {getFormFieldOptionTypeName(type as FormFieldOptionType2)}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
+                                                        </div>
+                                                    </div>
+
+                                                    {values.issuer_profile_option === FormFieldOptionType2.TEXT && (
+                                                        <div className="input">
+                                                            <div className="input__wrap">
+                                                                <Field
+                                                                    name="issuer_profile_description"
+                                                                    id="issuer_profile_description"
+                                                                    as="textarea"
+                                                                    rows="4"
+                                                                    className="input__textarea"
+                                                                    placeholder=""
+                                                                    maxLength={255}
+                                                                    disabled={isSubmitting}
+                                                                />
+                                                                <ErrorMessage name="issuer_profile_description"
+                                                                              component="div"
+                                                                              className="error-message"/>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {values.issuer_profile_option === FormFieldOptionType2.IMAGE && (
+                                                        <>
+                                                            {(this.isShow() && initialValues?.issuer_profile_image) && (
+                                                                <div
+                                                                    className={"input d-flex justify-content-center company-profile-logo"}>
+                                                                    <img src={initialValues?.issuer_profile_image}
+                                                                         alt="Logo"/>
+                                                                </div>
+                                                            )}
+                                                            {!this.isShow() && (
+                                                                <div className="input">
+                                                                    <div className="input__wrap">
+                                                                        <input
+                                                                            id="issuer_profile_image_tmp"
+                                                                            name="issuer_profile_image_tmp"
+                                                                            type="file"
+                                                                            accept={'.' + allowedImageExt.join(',.')}
+                                                                            className="input__file"
+                                                                            disabled={isSubmitting}
+                                                                            onChange={(event) => {
+                                                                                setFieldValue('issuer_profile_image_tmp', event.target?.files?.[0] || '');
+                                                                                this.handleFileIssuerProfileImageChange(event);
+                                                                            }}
+                                                                        />
+                                                                        {errors.issuer_profile_image_tmp && (
+                                                                            <div
+                                                                                className="error-message">{errors.issuer_profile_image_tmp.toString()}</div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {values.issuer_profile_option === FormFieldOptionType2.FILE && (
+                                                        <>
+                                                            {(this.isShow() && initialValues?.issuer_profile_file) && (
+                                                                <div
+                                                                    className={"input d-flex justify-content-center company-profile-logo"}>
+                                                                    <Link className={'link info-panel-title-link'}
+                                                                          href={`${this.host}${initialValues?.issuer_profile_file}`}
+                                                                          target={'_blank'}>
+                                                                        {fileService.getFileNameFromUrl(initialValues?.issuer_profile_file)}
+                                                                        <FontAwesomeIcon className="nav-icon"
+                                                                                         icon={faArrowUpRightFromSquare}/>
+                                                                    </Link>
+                                                                </div>
+                                                            )}
+                                                            {!this.isShow() && (
+                                                                <div className="input">
+                                                                    <div className="input__wrap">
+                                                                        <input
+                                                                            id="issuer_profile_file_tmp"
+                                                                            name="issuer_profile_file_tmp"
+                                                                            type="file"
+                                                                            accept={'.' + allowedFileExt.join(',.')}
+                                                                            className="input__file"
+                                                                            disabled={isSubmitting}
+                                                                            onChange={(event) => {
+                                                                                setFieldValue('issuer_profile_file_tmp', event.target?.files?.[0] || '');
+                                                                                this.handleFileIssuerProfileFileChange(event);
+                                                                            }}
+                                                                        />
+                                                                        {errors.issuer_profile_file_tmp && (
+                                                                            <div
+                                                                                className="error-message">{errors.issuer_profile_file_tmp.toString()}</div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                </div>
 
                                                 <div className="input">
                                                     <h4 className="input__group__title">Company Address:</h4>
@@ -1206,7 +1384,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             )}
 
                                                             {this.props.data.asset_type_option === FormFieldOptionType.IMAGE && (
-                                                               <img src={`${this.host}${this.props.data.asset_type_image}`}/>
+                                                                <img
+                                                                    src={`${this.host}${this.props.data.asset_type_image}`}/>
                                                             )}
                                                         </>
                                                     ) : (
@@ -1218,6 +1397,56 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             </div>
                                         </>
                                     )}
+
+
+                                    <>
+                                        <div className="view_block">
+                                            <div className="view_block_body">
+                                                <div
+                                                    className="view_block_title">Issuer Profile
+                                                </div>
+                                                {((this.props.data?.issuer_profile_description || this.props.data?.issuer_profile_image || this.props.data?.issuer_profile_file) && this.props.data.issuer_profile_option !== '') ? (
+                                                    <>
+                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.TEXT && (
+                                                            <div>{this.props.data?.issuer_profile_description || 'not filled'}</div>
+                                                        )}
+
+                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.IMAGE && (
+                                                            <>
+                                                                {this.props.data.issuer_profile_image ? (
+                                                                    <img
+                                                                        src={`${this.host}${this.props.data.issuer_profile_image}`}/>
+                                                                ) : (
+                                                                    <div>{'not filled'}</div>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.FILE && (
+                                                            <>
+                                                                {this.props.data.issuer_profile_file ? (
+                                                                    <Link className={'link info-panel-title-link'}
+                                                                          href={`${this.host}${this.props.data.issuer_profile_file}`}
+                                                                          target={'_blank'}>
+                                                                        {fileService.getFileNameFromUrl(this.props.data.issuer_profile_file)}
+                                                                        <FontAwesomeIcon className="nav-icon"
+                                                                                         icon={faArrowUpRightFromSquare}/>
+                                                                    </Link>
+                                                                ) : (
+                                                                    <div>{'not filled'}</div>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div>{'not filled'}</div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+
 
                                     <div className="view_block">
                                         <div className="view_block_body">

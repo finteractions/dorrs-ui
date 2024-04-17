@@ -152,7 +152,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
             }), {
                 id: "vwap",
                 cell: (item) => formatterService.numberFormat(item.getValue().vwap, decimalPlaces),
-                header: () => <span>VWAP</span>,
+                header: () => <span>VWAP (90 Days)</span>,
             }),
         ];
     }
@@ -467,7 +467,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                             </div>
                                             <div>
-                                                <div>VWAP:</div>
+                                                <div>VWAP (90 Days):</div>
                                                 <div><span className={'sign'}></span><span
                                                     className={'stay'}>{formatterService.numberFormat(Number(item.vwap), decimalPlaces)}</span>
                                                 </div>

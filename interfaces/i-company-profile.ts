@@ -7,6 +7,12 @@ export interface ICompanyProfile {
     asset_type_description: string;
     asset_type_image: string;
     asset_type_image_tmp?: string;
+    issuer_profile_option: string;
+    issuer_profile_description: string;
+    issuer_profile_image: string;
+    issuer_profile_image_tmp?: string;
+    issuer_profile_file: string;
+    issuer_profile_file_tmp?: string;
     total_shares_outstanding: string;
     symbol: string;
     security_name: string;

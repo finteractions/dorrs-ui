@@ -3469,6 +3469,14 @@ body {
             font-weight: 600;
             margin-top: 10px;
           }
+
+          .info-panel-title-link {
+            font-size: inherit;
+
+            > svg {
+              margin-left: 5px;
+            }
+          }
         }
       }
     }
