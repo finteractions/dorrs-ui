@@ -1,4 +1,7 @@
 export enum AssetType {
-    CRYPTO = 'crypto',
-    FIAT = 'fiat'
+    COMPANY = 'Company',
+    PRIVATE_FUNDS = 'Private Funds',
+    REAL_ESTATE = 'Real Estate',
+    COLLECTIBLES = 'Collectibles',
+    ART = 'Art'
 }

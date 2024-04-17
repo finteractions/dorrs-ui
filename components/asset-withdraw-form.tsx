@@ -10,7 +10,7 @@ import WalletForm from "@/components/wallet-form";
 import ordersService from "@/services/orders/orders-service";
 import LoaderBlock from "@/components/loader-block";
 import VerifyOtpForm from "@/components/verify-otp-form";
-import {AssetType} from "@/enums/asset-type";
+import {AssetTypeExchange} from "@/enums/asset-type-exchange";
 import Image from "next/image";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
@@ -68,7 +68,7 @@ class AssetWithdrawForm extends React.Component<AssetWithdrawFormProps, AssetWit
             isLoadingWithdrawAddresses: false
         };
 
-        this.isFIAT = this.userAsset?.asset.network.toLowerCase() === AssetType.FIAT;
+        this.isFIAT = this.userAsset?.asset.network.toLowerCase() === AssetTypeExchange.FIAT;
 
         this.formSchema = Yup.object().shape({
             amount: Yup.number()

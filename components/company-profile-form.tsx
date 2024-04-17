@@ -24,6 +24,7 @@ import {SingleDatePicker} from "react-dates";
 import moment from "moment/moment";
 import {FormFieldOptionType, FormFieldOptionType2, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
 import fileService from "@/services/file/file-service";
+import {AssetType} from "@/enums/asset-type";
 
 
 const allowedImageFileSizeMB = 1
@@ -177,7 +178,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
             initial_offering_date: initialData?.initial_offering_date || '',
             price_per_share: initialData?.price_per_share || '',
-            asset_type: initialData?.asset_type || this.props.symbolData?.alternative_asset_category || '',
+            asset_type: initialData?.asset_type || '',
             asset_type_option: initialData?.asset_type_option || '',
             asset_type_description: initialData?.asset_type_description || '',
             asset_type_image: initialData?.asset_type_image || '',
@@ -427,7 +428,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         >
                                                             <option value="">Select Asset Type
                                                             </option>
-                                                            {Object.values(AlternativeAssetCategory).map((type) => (
+                                                            {Object.values(AssetType).map((type) => (
                                                                 <option key={type} value={type}>
                                                                     {type}
                                                                 </option>
