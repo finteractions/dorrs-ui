@@ -23,4 +23,5 @@ export interface ILastSale {
     company_profile?: ICompanyProfile;
     price_formatted?: string;
     total_volume?: string;
+    data_feed_provider_logo: string;
 }

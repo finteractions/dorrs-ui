@@ -104,17 +104,31 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                 ,
                 header: () => <span>Symbol</span>,
             }),
-            columnHelper.accessor((row) => row.bid_mpid, {
+            columnHelper.accessor((row) => row.bid_origin, {
+                id: "bid_origin",
+                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                header: () => <span>Bid Origin</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                mpid: row.bid_mpid,
+                image: row.bid_data_feed_provider_logo
+            }), {
                 id: "bid_mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue());
-                         }}
-                    >
-                        {item.getValue()}
-                    </div>,
-                header: () => <span>Bid MPID </span>,
+                    <>
+                        {item.getValue().mpid && (
+                            <div className={'cursor-pointer link table-image'}
+                                 onClick={() => {
+                                     this.handleMPID(item.getValue().mpid);
+                                 }}
+                            >
+                                <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                                {item.getValue().mpid}
+                            </div>
+                        )}
+                    </>,
+                header: () => <span>Bid MPID</span>,
             }),
             columnHelper.accessor((row) => ({
                 quantity: row.bid_quantity,
@@ -134,17 +148,31 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Bid Updated Date </span>,
             }),
-            columnHelper.accessor((row) => row.offer_mpid, {
+            columnHelper.accessor((row) => row.offer_origin, {
+                id: "offer_origin",
+                cell: (item) => <span className="blue-text">{item.getValue()}</span>,
+                header: () => <span>Offer Origin</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                mpid: row.offer_mpid,
+                image: row.offer_data_feed_provider_logo
+            }), {
                 id: "offer_mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue());
-                         }}
-                    >
-                        {item.getValue()}
-                    </div>,
-                header: () => <span>Offer MPID </span>,
+                    <>
+                        {item.getValue().mpid && (
+                            <div className={'cursor-pointer link table-image'}
+                                 onClick={() => {
+                                     this.handleMPID(item.getValue().mpid);
+                                 }}
+                            >
+                                <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                                {item.getValue().mpid}
+                            </div>
+                        )}
+                    </>,
+                header: () => <span>Offer MPID</span>,
             }),
             columnHelper.accessor((row) => ({
                 quantity: row.offer_quantity,
@@ -168,7 +196,9 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
 
         tableFilters = [
             {key: 'symbol_name', placeholder: 'Symbol'},
+            {key: 'bid_origin', placeholder: 'Bid Origin'},
             {key: 'bid_mpid', placeholder: 'Bid MPID'},
+            {key: 'offer_origin', placeholder: 'Offer Origin'},
             {key: 'offer_mpid', placeholder: 'Offer MPID'},
         ]
     }

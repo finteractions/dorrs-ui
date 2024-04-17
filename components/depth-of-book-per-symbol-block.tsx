@@ -28,6 +28,7 @@ import {
 import {Button} from "react-bootstrap";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import converterService from "@/services/converter/converter-service";
+import AssetImage from "@/components/asset-image";
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -120,6 +121,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             this.context.userProfile.access
         ).values
 
+        const host = `${window.location.protocol}//${window.location.host}`;
 
         columnsByOrder = [
             columnHelperByOrder.accessor((row) => row.bid_origin, {
@@ -172,17 +174,22 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 cell: (item) => item.getValue(),
                 header: () => <span>Offer Origin </span>,
             }),
-            columnHelperByOrder.accessor((row) => row.offer_mpid, {
-                id: "offer_mpid",
+            columnHelperByOrder.accessor((row) => ({
+                mpid: row.mpid,
+                image: row.data_feed_provider_logo
+            }), {
+                id: "mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
+                    <div className={'cursor-pointer link table-image'}
                          onClick={() => {
-                             this.handleMPID(item.getValue());
+                             this.handleMPID(item.getValue().mpid);
                          }}
                     >
-                        {item.getValue()}
+                        <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                    width={28} height={28}/>
+                        {item.getValue().mpid}
                     </div>,
-                header: () => <span>Offer MPID </span>,
+                header: () => <span>MPID</span>,
             }),
             columnHelperByOrder.accessor((row) => ({
                 quantity: row.offer_quantity,

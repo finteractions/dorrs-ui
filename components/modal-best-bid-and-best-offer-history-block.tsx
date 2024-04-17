@@ -48,6 +48,11 @@ class ModalBestBidAndBestOfferHistoryBlock extends React.Component<ModalBestBidA
         };
 
         columns = [
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
                 image: row.company_profile?.logo
@@ -60,11 +65,6 @@ class ModalBestBidAndBestOfferHistoryBlock extends React.Component<ModalBestBidA
                 id: "quote_condition",
                 cell: (item) => item.getValue(),
                 header: () => <span>QC </span>,
-            }),
-            columnHelper.accessor((row) => row.origin, {
-                id: "origin",
-                cell: (item) => item.getValue(),
-                header: () => <span>Origin</span>,
             }),
             columnHelper.accessor((row) => row.bid_mpid, {
                 id: "bid_mpid",

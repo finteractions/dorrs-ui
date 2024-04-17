@@ -23,6 +23,7 @@ import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
 import {Button} from "react-bootstrap";
+import AssetImage from "@/components/asset-image";
 
 
 interface DepthOfBookHistoryBlockState extends IState, IModalState {
@@ -97,6 +98,8 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
             filtersClassName: 'd-none d-md-flex'
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
+
         columns = [
             columnHelper.accessor((row) => row.origin, {
                 id: "origin",
@@ -114,17 +117,22 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
                     className={`${item.getValue().toString().toLowerCase()}-order-side`}>{item.getValue()}</span>,
                 header: () => <span>Side </span>,
             }),
-            columnHelper.accessor((row) => row.mpid, {
+            columnHelper.accessor((row) => ({
+                mpid: row.mpid,
+                image: row.data_feed_provider_logo
+            }), {
                 id: "mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
+                    <div className={'cursor-pointer link table-image'}
                          onClick={() => {
-                             this.handleMPID(item.getValue());
+                             this.handleMPID(item.getValue().mpid);
                          }}
                     >
-                        {item.getValue()}
+                        <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                    width={28} height={28}/>
+                        {item.getValue().mpid}
                     </div>,
-                header: () => <span>MPID </span>,
+                header: () => <span>MPID</span>,
             }),
 
             columnHelper.accessor((row) => ({

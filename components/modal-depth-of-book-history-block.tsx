@@ -50,6 +50,11 @@ class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHisto
         };
 
         columns = [
+            columnHelper.accessor((row) => row.origin, {
+                id: "origin",
+                cell: (item) => item.getValue(),
+                header: () => <span>Origin</span>,
+            }),
             columnHelper.accessor((row) => ({
                 symbol: row.symbol_name,
                 image: row.company_profile?.logo
@@ -57,11 +62,6 @@ class ModalDepthOfBookHistoryBlock extends React.Component<ModalDepthOfBookHisto
                 id: "symbol",
                 cell: (item) => item.getValue().symbol,
                 header: () => <span>Symbol</span>,
-            }),
-            columnHelper.accessor((row) => row.origin, {
-                id: "origin",
-                cell: (item) => item.getValue(),
-                header: () => <span>Origin</span>,
             }),
             columnHelper.accessor((row) => row.mpid, {
                 id: "mpid",

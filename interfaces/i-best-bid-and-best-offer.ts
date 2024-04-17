@@ -22,5 +22,6 @@ export interface IBestBidAndBestOffer {
     updated_at: string;
     user_name?: string;
     user_id?: string;
-    company_profile?: ICompanyProfile
+    company_profile?: ICompanyProfile;
+    data_feed_provider_logo: string;
 }

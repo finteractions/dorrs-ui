@@ -19,6 +19,7 @@ import converterService from "@/services/converter/converter-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFileExport, faFilter} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
+import AssetImage from "@/components/asset-image";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -70,6 +71,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             filtersClassName: 'd-none d-md-flex'
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
 
         columns = [
             columnHelper.accessor((row) => row.origin, {
@@ -82,15 +84,20 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                 cell: (item) => item.getValue(),
                 header: () => <span>Condition</span>,
             }),
-            columnHelper.accessor((row) => row.mpid, {
+            columnHelper.accessor((row) => ({
+                mpid: row.mpid,
+                image: row.data_feed_provider_logo
+            }), {
                 id: "mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
+                    <div className={'cursor-pointer link table-image'}
                          onClick={() => {
-                             this.handleMPID(item.getValue());
+                             this.handleMPID(item.getValue().mpid);
                          }}
                     >
-                        {item.getValue()}
+                        <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                    width={28} height={28}/>
+                        {item.getValue().mpid}
                     </div>,
                 header: () => <span>MPID</span>,
             }),

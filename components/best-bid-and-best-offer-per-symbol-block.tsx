@@ -20,6 +20,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFileExport, faFilter, faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import converterService from "@/services/converter/converter-service";
+import AssetImage from "@/components/asset-image";
 
 
 interface BestBidAndBestOfferPerSymbolBlockProps {
@@ -74,6 +75,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
             filtersClassName: 'd-none d-md-flex'
         }
 
+        const host = `${window.location.protocol}//${window.location.host}`;
 
         columns = [
             columnHelper.accessor((row) => row.origin, {
@@ -86,17 +88,26 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                 cell: (item) => item.getValue(),
                 header: () => <span>QC </span>,
             }),
-            columnHelper.accessor((row) => row.bid_mpid, {
+            columnHelper.accessor((row) => ({
+                mpid: row.bid_mpid,
+                image: row.data_feed_provider_logo
+            }), {
                 id: "bid_mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue());
-                         }}
-                    >
-                        {item.getValue()}
-                    </div>,
-                header: () => <span>Bid MPID </span>,
+                    <>
+                        {item.getValue().mpid && (
+                            <div className={'cursor-pointer link table-image'}
+                                 onClick={() => {
+                                     this.handleMPID(item.getValue().mpid);
+                                 }}
+                            >
+                                <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                                {item.getValue().mpid}
+                            </div>
+                        )}
+                    </>,
+                header: () => <span>Bid MPID</span>,
             }),
             columnHelper.accessor((row) => ({
                 quantity: row.bid_quantity,
@@ -121,17 +132,26 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                 cell: (item) => item.getValue(),
                 header: () => <span>Bid Time</span>,
             }),
-            columnHelper.accessor((row) => row.offer_mpid, {
+            columnHelper.accessor((row) => ({
+                mpid: row.offer_mpid,
+                image: row.data_feed_provider_logo
+            }), {
                 id: "offer_mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue());
-                         }}
-                    >
-                        {item.getValue()}
-                    </div>,
-                header: () => <span>Offer MPID </span>,
+                    <>
+                        {item.getValue().mpid && (
+                            <div className={'cursor-pointer link table-image'}
+                                 onClick={() => {
+                                     this.handleMPID(item.getValue().mpid);
+                                 }}
+                            >
+                                <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                                {item.getValue().mpid}
+                            </div>
+                        )}
+                    </>,
+                header: () => <span>Offer MPID</span>,
             }),
             columnHelper.accessor((row) => ({
                 quantity: row.offer_quantity,

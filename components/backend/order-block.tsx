@@ -110,17 +110,22 @@ class OrdersBlock extends React.Component<{}> {
                     className={`${item.getValue().toString().toLowerCase()}-order-side`}>{item.getValue()}</span>,
                 header: () => <span>Side </span>,
             }),
-            columnHelper.accessor((row) => row.mpid, {
+            columnHelper.accessor((row) => ({
+                mpid: row.mpid,
+                image: row.data_feed_provider_logo
+            }), {
                 id: "mpid",
                 cell: (item) =>
-                    <div className={'cursor-pointer link'}
+                    <div className={'cursor-pointer link table-image'}
                          onClick={() => {
-                             this.handleMPID(item.getValue());
+                             this.handleMPID(item.getValue().mpid);
                          }}
                     >
-                        {item.getValue()}
+                        <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                    width={28} height={28}/>
+                        {item.getValue().mpid}
                     </div>,
-                header: () => <span>MPID </span>,
+                header: () => <span>MPID</span>,
             }),
             columnHelper.accessor((row) => ({
                 quantity: row.quantity,
