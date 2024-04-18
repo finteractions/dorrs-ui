@@ -18,7 +18,6 @@ import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid
 import Link from "next/link";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import Select from "react-select";
-import {AlternativeAssetCategory} from "@/enums/alternative-asset-category";
 import NumericInputField from "@/components/numeric-input-field";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment/moment";

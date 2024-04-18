@@ -11,7 +11,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {countries} from "countries-list";
 import formatterService from "@/services/formatter/formatter-service";
 import adminService from "@/services/admin/admin-service";
-import CompanyProfile from "@/components/company-profile-form";
+import CompanyProfileForm from "@/components/company-profile-form";
 import Modal from "@/components/modal";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -22,7 +22,7 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import Select from "react-select";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 import * as Yup from "yup";
-import CompanyProfileForm from "@/components/company-profile-form";
+import Image from "next/image";
 
 
 interface CompanyProfilesBlockState extends IState {
@@ -174,32 +174,41 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                 cell: (item) => item.getValue(),
                 header: () => <span>City </span>,
             }),
+            columnHelper.accessor((row) => row.company_profile_status, {
+                id: "company_profile_status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
+                    </div>
+                ,
+                header: () => <span>Status</span>,
+            }),
+            columnHelper.accessor((row) => row.fill_out_percentage, {
+                id: "fill_out_percentage",
+                cell: (item) =>
+                    <div className={'d-flex justify-content-center'}>
+                        {item.getValue() === 100 ? (
+                            <Image src="/img/check-ok.svg" width={28} height={42} alt="Check"/>
+                        ) : (
+                            <DoughnutChartPercentage
+                                percentage={item.getValue()}
+                                width={40}
+                                height={40}
+                                fontSize={12}
+                                isAdmin={this.state.isAdmin}
+                            />
+                        )}
+                    </div>
+                ,
+                header: () => <span></span>,
+            }),
         ];
 
         tableFilters = [
             {key: 'company_name', placeholder: 'Company Name'},
-            {key: 'sic_industry_classification', placeholder: 'SIC Industry Classification'}
+            {key: 'sic_industry_classification', placeholder: 'SIC Industry Classification'},
+            {key: 'company_profile_status', placeholder: 'Status'},
         ]
-
-        if (this.state.isAdmin) {
-            columns.push(
-                columnHelper.accessor((row) => row.company_profile_status, {
-                    id: "company_profile_status",
-                    cell: (item) =>
-                        <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                            {item.getValue()}
-                        </div>
-                    ,
-                    header: () => <span>Asset Profile Status</span>,
-                })
-            )
-
-            tableFilters.push(
-                {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
-            )
-        }
-
-
     }
 
     componentDidMount() {
@@ -486,8 +495,8 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                            data={this.state.data}
                                            searchPanel={true}
                                            block={this}
-                                           viewBtn={this.state.isAdmin}
-                                           editBtn={this.state.isAdmin}
+                                           viewBtn={true}
+                                           editBtn={true}
                                            filters={tableFilters}
                                            filtersClassName={this.state.filtersClassName}
                                     />
@@ -500,22 +509,11 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                        onClose={() => this.cancelCompanyForm()}
                                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                                 >
-                                    {!this.state.isAdmin && (
-                                        <div className="modal__navigate">
-                                            <button className={'border-btn ripple'} onClick={() => this.setState({
-                                                isOpenCompanyModal: true,
-                                            })}>
-                                                Back to Symbol
-                                            </button>
-                                        </div>
-                                    )}
-
-
-                                    <CompanyProfile action={this.state.formCompanyAction}
-                                                    data={this.state.formCompanyData}
-                                                    symbolData={this.state.formCompanyData?.symbol_data || null}
-                                                    onCallback={this.onCallback}
-                                                    isAdmin={this.state.isAdmin}/>
+                                    <CompanyProfileForm action={this.state.formCompanyAction}
+                                                        data={this.state.formCompanyData}
+                                                        symbolData={this.state.formCompanyData?.symbol_data || null}
+                                                        onCallback={this.onCallback}
+                                                        isAdmin={this.state.isAdmin}/>
 
                                 </Modal>
 

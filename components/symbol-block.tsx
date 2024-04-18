@@ -21,12 +21,8 @@ import {
     faComment,
     faFileExport,
     faFilter,
-    faList,
     faPlus,
-    faSortAmountAsc,
-    faThLarge
 } from "@fortawesome/free-solid-svg-icons";
-import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import {Button} from "react-bootstrap";
 
 

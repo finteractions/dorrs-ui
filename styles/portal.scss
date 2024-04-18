@@ -2482,7 +2482,7 @@ body {
             td {
               border-top: 1px solid var(--border-colour-1);
               font-size: 14px;
-              padding: 2px 5px;
+              padding: 3px 5px;
               height: 35px;
               color: var(--text-colour-4);
 
@@ -3626,8 +3626,8 @@ body {
 
         .indicator__item__data {
           flex: 0 0 100%;
-          padding-left: 30px;
-          padding-right: 30px;
+          padding-left: 20px;
+          padding-right: 20px;
           padding-bottom: 20px;
           height: calc(100% - 70px);
 
@@ -3638,7 +3638,7 @@ body {
             > div {
               flex: 1;
               margin: 8px;
-              font-size: 15px;
+              font-size: 16px;
               color: var(--text-colour-4);
 
               > span.bg-stay {
@@ -3676,17 +3676,17 @@ body {
         }
 
         > div:nth-of-type(1) {
-          padding-top: 20px;
-          padding-left: 30px;
+          padding: 20px 20px;
           display: flex;
           justify-content: flex-start;
           align-items: center;
           column-gap: 10px;
           flex: 1;
+          color: var(--colour-gray);
         }
 
         > div:nth-of-type(2) {
-          padding: 20px 30px;
+          padding: 20px 20px;
           text-align: center;
           display: flex;
           align-items: center;
@@ -4200,6 +4200,10 @@ html.dark {
 
   .down.bg-down, .up.bg-up, .stay.bg-stay {
     color: #FFFFFF;
+  }
+
+  .b-logo {
+    filter: brightness(0) invert(1);
   }
 }
 

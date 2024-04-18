@@ -6,9 +6,22 @@ import formatterService from "@/services/formatter/formatter-service";
 
 type ChartProps = {
     percentage: number;
+    fontSize?: number;
+    width?: number;
+    height?: number;
+    isPercentageSign?: boolean;
+    isAdmin?: boolean;
 };
 
-const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
+
+const DoughnutChartPercentage: React.FC<ChartProps> = ({
+                                                           percentage,
+                                                           fontSize = 12,
+                                                           width = 75,
+                                                           height = 75,
+                                                           isPercentageSign = true,
+                                                           isAdmin = false
+                                                       }) => {
     const PATH = `${getGlobalConfig().host}-theme`;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [theme, setTheme] = useState('');
@@ -23,31 +36,37 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
         }
     }
 
-    useEffect(() => {
-        const storedTheme = localStorage.getItem(PATH);
-        if (storedTheme) {
-            setTheme(storedTheme);
-        } else {
-            setTheme('light');
-        }
-    }, [PATH]);
+    let timeout: NodeJS.Timeout;
+
+    const setColours = () => {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+            const storedTheme = !isAdmin ? localStorage.getItem(PATH) : null;
+            setTheme(storedTheme ?? 'light');
+        }, 100)
+    }
 
     useEffect(() => {
-        const storedTheme = localStorage.getItem(PATH);
-        if (storedTheme) {
-            setTheme(storedTheme);
-        } else {
-            setTheme('light');
-        }
+        !isAdmin ? window.addEventListener('themeToggle', setColours) : null
 
+        setColours()
+
+        return () => {
+            !isAdmin ? window.removeEventListener('themeToggle', setColours) : null;
+            clearTimeout(timeout);
+        };
+    }, []);
+
+
+    useEffect(() => {
         if (canvasRef.current) {
             const ctx = canvasRef.current.getContext('2d');
             if (ctx) {
-                canvasRef.current.height = 75;
-                canvasRef.current.width = 75;
+                canvasRef.current.height = height;
+                canvasRef.current.width = width;
                 Chart.register(...registerables);
                 Chart.defaults.font.family = '"PT Serif", serif';
-
 
                 const data = [percentage, 100 - percentage]
                 const backgroundColors = ['#3d7da2', colours[theme as 'light' | 'dark'].background]
@@ -81,9 +100,9 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
 
                             // @ts-ignore
                             customCenterText: {
-                                text: `${formatterService.numberFormat(data[0], 0)}%`,
+                                text: `${formatterService.numberFormat(data[0], 0)}${isPercentageSign ? '%' : ''}`,
                                 color: colours[theme as 'light' | 'dark'].text,
-                                font: 'bold 13px Arial',
+                                font: `bold ${fontSize}px Arial`,
                             }
                         },
                         cutout: '75%'
@@ -104,7 +123,7 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
                             ctx.font = font;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
-                            ctx.fillText(text, width / 2, height / 2);
+                            ctx.fillText(text, width / (isPercentageSign ? 2 : 2.1), height / 2 + 1);
                             ctx.restore();
                         }
                     }]
@@ -115,7 +134,7 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({percentage}) => {
                 };
             }
         }
-    }, [percentage, theme]);
+    }, [fontSize, height, isPercentageSign, percentage, theme, width]);
 
     return (
         <>
