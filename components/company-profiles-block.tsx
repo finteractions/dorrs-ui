@@ -187,7 +187,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                 id: "fill_out_percentage",
                 cell: (item) =>
                     <div className={'d-flex justify-content-center'}>
-                        {item.getValue() === 100 ? (
+                        {parseInt(item.getValue()) === 100 ? (
                             <Image src="/img/check-ok.svg" width={28} height={42} alt="Check"/>
                         ) : (
                             <DoughnutChartPercentage
