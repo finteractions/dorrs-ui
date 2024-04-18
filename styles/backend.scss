@@ -3933,6 +3933,10 @@
     :disabled {
       cursor: not-allowed;
     }
+
+    &.d-md-none {
+      display: none;
+    }
   }
 
   .admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover:not(:disabled) {
@@ -4844,6 +4848,17 @@
   .icon-block-show {
     width: 18px;
     margin-right: 15px;
+  }
+
+  .filter-menu {
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      -moz-column-gap: 5px;
+      column-gap: 5px;
+      row-gap: 5px;
+
+    }
   }
 
 }

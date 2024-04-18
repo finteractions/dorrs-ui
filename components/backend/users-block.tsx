@@ -181,7 +181,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">User Management</div>
+                        <div className="content__title">Users</div>
                     </div>
 
                     {this.state.loading ? (

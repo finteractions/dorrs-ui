@@ -6,12 +6,19 @@ import {
     faChevronUp,
     faUserTie,
     faGauge,
-    faWallet,
     faDollarSign,
     faBuilding,
     faBook,
     faFileArchive,
-    faHandHoldingUsd, faMoneyBillWave, faUsersRectangle, faCalendarAlt, faRss
+    faHandHoldingUsd,
+    faMoneyBillWave,
+    faUsersRectangle,
+    faCalendarAlt,
+    faRss,
+    faHandshake,
+    faArrowsUpToLine,
+    faList,
+    faFolderOpen
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -47,7 +54,7 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
-        text: 'User Management',
+        text: 'Users',
         href: '#',
         icon: faUserTie,
         submenus: [
@@ -59,117 +66,48 @@ const MENU_LIST: MenuItem[] = [
                 text: 'Activity Logs',
                 href: "/backend/activity-logs",
             },
-            // {
-            //     text: 'Blacklist (IP)',
-            //     href: "/backend/blacklist",
-            // }
         ]
     },
     {
-        text: 'Firm Management',
-        href: '#',
+        text: 'Firms',
+        href: "/backend/firm-management",
         icon: faBuilding,
-        submenus: [
-            {
-                text: 'Firms',
-                href: "/backend/firm-management",
-            }
-        ]
+        submenus: []
     },
     {
-        text: 'Form Management',
-        href: '#',
+        text: 'Membership Forms',
+        href: "/backend/membership-form",
         icon: faBook,
-        submenus: [
-            {
-                text: 'Membership Forms',
-                href: "/backend/membership-form",
-            }
-        ]
+        submenus: []
     },
     {
-        text: 'Symbol Management',
-        href: '#',
+        text: 'Symbols',
+        href: "/backend/asset-management",
         icon: faDollarSign,
-        submenus: [
-            {
-                text: 'Symbols',
-                href: "/backend/asset-management",
-            },
-            // {
-            //     text: 'All Symbols',
-            //     href: "/backend/trade-management",
-            // }
-        ]
+        submenus: []
     },
     {
-        text: 'Last Sale Management',
-        href: '#',
-        icon: faBook,
-        submenus: [
-            {
-                text: 'Last Sale Reporting',
-                href: "/backend/last-sales",
-            }
-        ]
+        text: 'Last Sale Reporting',
+        href: "/backend/last-sales",
+        icon: faHandshake,
+        submenus: []
     },
     {
-        text: 'BBO Management',
-        href: '#',
-        icon: faBook,
-        submenus: [
-            {
-                text: 'Best Bid and Best Offer',
-                href: "/backend/best-bid-and-best-offer",
-            }
-        ]
+        text: 'Best Bid and Best Offer',
+        href: "/backend/best-bid-and-best-offer",
+        icon: faArrowsUpToLine,
+        submenus: []
     },
     {
-        text: 'DOB Management',
-        href: '#',
-        icon: faBook,
-        submenus: [
-            {
-                text: 'Orders',
-                href: "/backend/orders",
-            }
-        ]
+        text: 'Orders',
+        href: "/backend/orders",
+        icon: faList,
+        submenus: []
     },
-    // {
-    //     text: 'Trade Management',
-    //     href: "/backend/trade-management",
-    //     icon: faMoneyBillTrendUp,
-    //     submenus: []
-    // },
-    // {
-    //     text: 'Custody Management',
-    //     href: '#',
-    //     icon: faSearchDollar,
-    //     submenus: [
-    //         {
-    //             text: 'Transactions',
-    //             href: "/backend/custody-management"
-    //         },
-    //         {
-    //             text: 'Bank Accounts',
-    //             href: "/backend/bank-accounts"
-    //         },
-    //         {
-    //             text: 'Fiat Withdrawals',
-    //             href: "/backend/fiat-withdrawals"
-    //         }
-    //     ]
-    // },
-    // {
-    //     text: 'Balances Screen',
-    //     href: "/backend/balances-screen",
-    //     icon: faWallet,
-    //     submenus: []
-    // },
     {
         text: 'Asset Profiles',
         href: "/backend/asset-profiles",
-        icon: faBuilding,
+        icon: faFolderOpen,
         submenus: []
     },
     {
@@ -208,12 +146,6 @@ const MENU_LIST: MenuItem[] = [
         icon: faFileArchive,
         submenus: []
     },
-    // {
-    //     text: 'Normal User',
-    //     href: "/backend/normal-user",
-    //     icon: faUser,
-    //     submenus: []
-    // }
 ]
 
 const SidebarNavItem = (props: SidebarNavItemProps) => {

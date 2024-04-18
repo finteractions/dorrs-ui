@@ -288,7 +288,7 @@ class AssetsBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Symbol Management</div>
+                        <div className="content__title">Symbols</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
                             <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadSymbolsCSV}>

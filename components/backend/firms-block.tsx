@@ -224,7 +224,7 @@ class FirmsBlock extends React.Component<{}> {
             <>
                 <div className="assets section page__section">
                     <div className="content__top">
-                        <div className="content__title">Firm Management</div>
+                        <div className="content__title">Firms</div>
                         <button className="border-btn ripple modal-link"
                                 disabled={this.state.loading} onClick={() => this.openModal('add')}>Add Firm
                         </button>
