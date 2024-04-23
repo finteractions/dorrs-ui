@@ -29,6 +29,9 @@ import {Button} from "react-bootstrap";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 import converterService from "@/services/converter/converter-service";
 import AssetImage from "@/components/asset-image";
+import websocketService from "@/services/websocket/websocket-service";
+import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
+import {boolean} from "yup";
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -121,6 +124,9 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             this.context.userProfile.access
         ).values
 
+        this.subscribe = this.subscribe.bind(this);
+        this.unsubscribe = this.unsubscribe.bind(this);
+
         const host = `${window.location.protocol}//${window.location.host}`;
 
         columnsByOrder = [
@@ -174,22 +180,22 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
                 cell: (item) => item.getValue(),
                 header: () => <span>Offer Origin </span>,
             }),
-            columnHelperByOrder.accessor((row) => ({
-                mpid: row.mpid,
-                image: row.data_feed_provider_logo
-            }), {
-                id: "mpid",
-                cell: (item) =>
-                    <div className={'cursor-pointer link table-image'}
-                         onClick={() => {
-                             this.handleMPID(item.getValue().mpid);
-                         }}
-                    >
-                        <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                    width={28} height={28}/>
-                        {item.getValue().mpid}
-                    </div>,
-                header: () => <span>MPID</span>,
+            columnHelperByOrder.accessor((row) => row.offer_mpid, {
+                id: "offer_mpid",
+                cell: (item) => {
+                    const value = item.getValue();
+
+                    return (
+                        <div className={'cursor-pointer link'}
+                             onClick={() => {
+                                 this.handleMPID(value);
+                             }}
+                        >
+                            {value}
+                        </div>
+                    )
+                },
+                header: () => <span>Offer MPID </span>,
             }),
             columnHelperByOrder.accessor((row) => ({
                 quantity: row.offer_quantity,
@@ -266,6 +272,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             .then(() => this.getData())
 
         this.startAutoUpdate();
+
+        this.subscriptions()
     }
 
     componentWillUnmount() {
@@ -273,11 +281,47 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         window.removeEventListener('resize', this.handleTheme);
         window.removeEventListener('click', this.handleClickOutside);
 
-        this.stopAutoUpdate();
+        this.unsubscribe();
     }
 
+
+    subscriptions(): void {
+        websocketService.isOpen.subscribe((isOpen: boolean) => {
+            if (isOpen) this.subscribe();
+        });
+
+        websocketService.on<Array<IDepthByOrder>>(WebsocketEvent.DEPTH).subscribe((data: Array<IDepthByOrder>) => {
+            this.handleDepthOfBookByOrder(data);
+        });
+    }
+
+    subscribe() {
+        websocketService.subscribeOnDepthOfBook(this.props.symbol)
+    }
+
+    unsubscribe() {
+        websocketService.unSubscribeOnDepthOfBook(this.props.symbol)
+    }
+
+    handleDepthOfBookByOrder = (data: Array<IDepthByOrder>) => {
+
+        data.forEach(s => {
+            s.bid_quote_condition = QuoteCondition[s.bid_quote_condition?.toLowerCase() as keyof typeof QuoteCondition] || ''
+            s.offer_quote_condition = QuoteCondition[s.offer_quote_condition?.toLowerCase() as keyof typeof QuoteCondition] || ''
+        })
+
+        this.setState({dataDepthByOrderFull: data}, () => {
+            this.filterDataDepthByOrder();
+        });
+
+    };
+
     startAutoUpdate = () => {
-        this.getOrdersInterval = setInterval(this.getData, Number(fetchIntervalSec) * 1000);
+        this.getOrdersInterval = setInterval(async () => {
+            if (this.state.type === 'by_price') {
+                await this.getData();
+            }
+        }, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate = () => {
@@ -292,7 +336,9 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     };
 
     filterDataDepthByOrder = () => {
-        this.setState({dataDepthByOrder: filterService.filterData(this.state.filterDataDepthByOrder, this.state.dataDepthByOrderFull)});
+        this.setState({dataDepthByOrder: filterService.filterData(this.state.filterDataDepthByOrder, this.state.dataDepthByOrderFull)}, () => {
+            this.handleTheme();
+        });
     }
 
     filterDataDepthByPrice = () => {
@@ -323,15 +369,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             ordersService.getDepthByOrder(this.props.symbol)
                 .then((res: Array<IDepthByOrder>) => {
                     const dataDepthByOrder = res || [];
-
-                    dataDepthByOrder.forEach(s => {
-                        s.bid_quote_condition = QuoteCondition[s.bid_quote_condition as keyof typeof QuoteCondition] || ''
-                        s.offer_quote_condition = QuoteCondition[s.offer_quote_condition as keyof typeof QuoteCondition] || ''
-                    })
-
-                    this.setState({dataDepthByOrderFull: dataDepthByOrder}, () => {
-                        this.filterDataDepthByOrder();
-                    });
+                    this.handleDepthOfBookByOrder(dataDepthByOrder)
                 })
                 .catch((errors: IError) => {
                     this.setState({dataDepthByOrderFull: [], dataDepthByOrder: []}, () => {
