@@ -32,6 +32,7 @@ import AssetImage from "@/components/asset-image";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
 import {boolean} from "yup";
+import {Subscription} from "rxjs";
 
 interface DepthOfBookPerSymbolProps {
     symbol: string;
@@ -92,6 +93,9 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     orderAccess = {view: false, create: false, edit: false, delete: false}
 
     depthOfBookHistoryBlockRef: React.RefObject<DepthOfBookHistoryBlock> = React.createRef();
+
+    private websocketSubscription: Subscription | null = null;
+    private deptByOrderSubscription: Subscription | null = null;
 
     constructor(props: DepthOfBookPerSymbolProps, context: IDataContext<null>) {
         super(props);
@@ -286,7 +290,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
 
     subscriptions(): void {
-        websocketService.isOpen.subscribe((isOpen: boolean) => {
+        this.websocketSubscription = websocketService.isOpen.subscribe((isOpen: boolean) => {
             if (isOpen) this.subscribe();
         });
 
@@ -301,6 +305,8 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
 
     unsubscribe() {
         websocketService.unSubscribeOnDepthOfBook(this.props.symbol)
+        this.websocketSubscription?.unsubscribe();
+        this.deptByOrderSubscription?.unsubscribe();
     }
 
     handleDepthOfBookByOrder = (data: Array<IDepthByOrder>) => {
