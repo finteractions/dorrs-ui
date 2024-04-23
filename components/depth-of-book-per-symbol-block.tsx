@@ -294,7 +294,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             if (isOpen) this.subscribe();
         });
 
-        websocketService.on<Array<IDepthByOrder>>(WebsocketEvent.DEPTH).subscribe((data: Array<IDepthByOrder>) => {
+        this.deptByOrderSubscription = websocketService.on<Array<IDepthByOrder>>(WebsocketEvent.DEPTH).subscribe((data: Array<IDepthByOrder>) => {
             this.handleDepthOfBookByOrder(data);
         });
     }
