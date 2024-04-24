@@ -124,12 +124,11 @@ class DataFeedProvidersBlock extends React.Component<{}> {
         if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
     }
 
-    openModal = (mode: string, data?: IFirm) => {
-
+    openModal = (mode: string, data?: IDataFeedProvider) => {
         this.setState({
             isOpenModal: true,
             formAction: mode,
-            formDataFeedProviderData: data || null,
+            formDataFeedProviderData: {...data} || null,
             modalTitle: this.modalTitle(mode)
         })
     }

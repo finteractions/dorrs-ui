@@ -7,8 +7,8 @@ interface IDataFeedProvider {
     fees_link: string;
     social_media_link: string;
     option: string;
-    description: string;
-    image: string;
+    description: string[];
+    images: string[];
     image_tmp: string;
     created_at: string;
     updated_at: string;

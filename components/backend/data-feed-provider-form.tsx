@@ -5,32 +5,16 @@ import AlertBlock from "@/components/alert-block";
 import LoaderBlock from "@/components/loader-block";
 import adminService from "@/services/admin/admin-service";
 import formatterService from "@/services/formatter/formatter-service";
-import {FormFieldOptionType, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {ISocialMediaLink, socialMediaLinks} from "@/interfaces/i-social-media-link";
 
 
 const allowedFileSizeMB = 1
+const allowedFileCount = 5
 const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
 const allowedExt = ['png', 'jpg', 'jpeg']
-
-const socialMediaLinkSchema = Yup.object().test(
-    'is-url-object',
-    'Invalid URL format',
-    (value) => {
-        if (!value) {
-            return true;
-        }
-        return Object.values(value).every((url) => {
-            if (typeof url !== 'string') {
-                return false;
-            }
-            return Yup.string().url().isValidSync(url);
-        });
-    }
-);
 
 const formSchema = Yup.object().shape({
     name: Yup.string().min(3).required('Required').label('Name'),
@@ -50,14 +34,34 @@ const formSchema = Yup.object().shape({
             return value.size <= allowedFileSize;
         }),
     image_tmp: Yup.mixed()
-        .test('asset_type_image', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+        .test('asset_type_images', `Too many files. Maximum ${allowedFileCount} files are allowed`, (value: any) => {
             if (!value) return true;
-            return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+            return value.length <= allowedFileCount;
         })
-        .test('asset_type_image', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+        .test('asset_type_images', `One or more files are not valid images. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;
-            return value.size <= allowedFileSize;
-        }),
+            let isValid = true;
+            for (let i = 0; i < value.length; i++) {
+                const file = value[i];
+                if (!allowedExt.includes(file.name.split('.').pop().toLowerCase())) {
+                    isValid = false;
+                    break;
+                }
+            }
+            return isValid;
+        })
+        .test('asset_type_images', `One or more files are too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+            if (!value) return true;
+            let isValid = true;
+            for (let i = 0; i < value.length; i++) {
+                const file = value[i];
+                if (file.size > allowedFileSize) {
+                    isValid = false;
+                    break;
+                }
+            }
+            return isValid;
+        })
 
 });
 
@@ -66,7 +70,7 @@ interface DataFeedProviderState extends IState {
     loading: boolean;
     isDeleting: boolean;
     selectedFile: File | null;
-    selectedFileAssetTypeLogo: File | null;
+    selectedFileAssetTypeLogo: FileList | null;
 }
 
 interface DataFeedProviderProps extends ICallback {
@@ -85,9 +89,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         super(props);
 
         const initialData = this.props.dataFeedProviderData || {} as IDataFeedProvider;
-
         let socialLinks = [...socialMediaLinks];
-
         const socials = JSON.parse(initialData?.social_media_link || this.props.dataFeedProviderData?.social_media_link || '{}')
 
         Object.keys(socials).forEach((soc: any) => {
@@ -98,6 +100,24 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         })
 
 
+        try {
+            const descriptions = JSON.parse(initialData.description.toString());
+            initialData.description = descriptions;
+            if (this.props.dataFeedProviderData) this.props.dataFeedProviderData.description = descriptions;
+        } catch (error) {
+            initialData.description = [""];
+
+        }
+
+        try {
+            const images = JSON.parse(initialData.images.toString().replace(/'/g, '"'));
+            initialData.images = images;
+            if (this.props.dataFeedProviderData) this.props.dataFeedProviderData.images = images;
+        } catch (error) {
+            initialData.images = [];
+        }
+
+
         const initialValues: {
             name: string;
             logo: string;
@@ -105,18 +125,18 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             social_media_link: string;
             fees_link: string;
             option: string;
-            description: string;
-            image: string;
+            description: string[];
+            images: string[];
             socials: any;
         } = {
-            name: initialData?.name || this.props.dataFeedProviderData?.name || '',
-            logo: initialData?.logo || this.props.dataFeedProviderData?.logo || '',
-            website_link: initialData?.website_link || this.props.dataFeedProviderData?.website_link || '',
-            fees_link: initialData?.fees_link || this.props.dataFeedProviderData?.fees_link || '',
+            name: initialData?.name || '',
+            logo: initialData?.logo || '',
+            website_link: initialData?.website_link || '',
+            fees_link: initialData?.fees_link || '',
             social_media_link: socials,
-            option: initialData?.option || this.props.dataFeedProviderData?.option || '',
-            description: initialData?.description || this.props.dataFeedProviderData?.description || '',
-            image: initialData?.image || this.props.dataFeedProviderData?.image || '',
+            option: initialData?.option || '',
+            description: initialData?.description || [""],
+            images: initialData?.images || [],
             socials: socialLinks
         };
 
@@ -140,9 +160,13 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             formData.append(key, value);
         }
 
+        formData.delete('description');
+        const descriptions = values.description;
+        formData.append('description', JSON.stringify(descriptions));
+
         formData.delete('logo');
         formData.delete('logo_tmp');
-        formData.delete('image');
+        formData.delete('images');
         formData.delete('image_tmp');
         formData.delete('social_media_link');
 
@@ -150,10 +174,11 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
 
         formData.append('social_media_link', JSON.stringify(values.social_media_link));
 
-        if (this.state.selectedFileAssetTypeLogo) {
-            formData.append('image', this.state.selectedFileAssetTypeLogo);
+        if (this.state.selectedFileAssetTypeLogo && this.state.selectedFileAssetTypeLogo.length > 0) {
+            for (const file of Array.from(this.state.selectedFileAssetTypeLogo)) {
+                formData.append('images[]', file);
+            }
         }
-
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
@@ -197,7 +222,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
     };
 
     handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
+        const selectedFile = event.target?.files || null;
         this.setState({selectedFileAssetTypeLogo: selectedFile});
     };
 
@@ -332,83 +357,95 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                 <div className="input">
                                                     <h4 className="input__group__title">Description of the
                                                         Provider:</h4>
-
                                                     <div className="input">
-                                                        <div className="input__title">Choose either a Free Text Box
-                                                            or Upload Image Option
+                                                        <div className="input__title input__btns">Text
+                                                            <button
+                                                                type="button"
+                                                                className='border-grey-btn ripple'
+                                                                onClick={() => {
+                                                                    const updatedDescriptions = [...values.description, ''];
+                                                                    setFieldValue('description', updatedDescriptions);
+                                                                }}
+                                                            >
+                                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                            </button>
                                                         </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="option"
-                                                                id="option"
-                                                                as="select"
-                                                                className="b-select"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            >
-                                                                <option value="">Select</option>
-                                                                {Object.values(FormFieldOptionType).map((type) => (
-                                                                    <option key={type} value={type}>
-                                                                        {getFormFieldOptionTypeName(type as FormFieldOptionType)}
-                                                                    </option>
+                                                            <div className="officer-input">
+                                                                {values.description.map((description, index) => (
+                                                                    <div className={'input__btns'} key={index}>
+                                                                        <Field
+                                                                            name={`description.${index}`}
+                                                                            as="textarea"
+                                                                            rows={4}
+                                                                            className="input__textarea"
+                                                                            placeholder={''}
+                                                                            disabled={isSubmitting || this.isShow()}
+                                                                        />
+
+                                                                        <button
+                                                                            disabled={isSubmitting || values.description.length < 2}
+                                                                            type="button"
+                                                                            className={`border-grey-btn ripple ${values.description.length < 2 ? 'disable' : ''}`}
+                                                                            onClick={() => {
+                                                                                const updatedDescriptions = [...values.description];
+                                                                                updatedDescriptions.splice(index, 1);
+                                                                                setFieldValue('description', updatedDescriptions);
+                                                                            }}
+                                                                        >
+                                                                            <FontAwesomeIcon className="nav-icon"
+                                                                                             icon={faMinus}/>
+                                                                        </button>
+                                                                    </div>
                                                                 ))}
-                                                            </Field>
+                                                            </div>
+                                                            {errors.description && (
+                                                                <div
+                                                                    className="error-message">{errors.description.toString()}</div>
+                                                            )}
                                                         </div>
                                                     </div>
 
-                                                    {values.option === FormFieldOptionType.TEXT && (
+                                                    {!this.isShow() && (
                                                         <div className="input">
+                                                            <div className="input__title input__btns">Images
+                                                                (maximum {allowedFileCount} files)
+                                                            </div>
+                                                            <div className={'link-list'}>
+                                                                {values.images.map((item: string, index: number) => (
+                                                                    <div key={index} className="mb-2 d-flex">
+                                                                        <Link className={'link info-panel-title-link'}
+                                                                              href={`${this.host}${item}`}
+                                                                              target={'_blank'}>
+                                                                            Image #{index + 1} {' '} <FontAwesomeIcon
+                                                                            className="nav-icon"
+                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                        </Link>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                             <div className="input__wrap">
-                                                                <Field
-                                                                    name="description"
-                                                                    id="description"
-                                                                    as="textarea"
-                                                                    rows="4"
-                                                                    className="input__textarea"
-                                                                    placeholder=""
+                                                                <input
+                                                                    id="image_tmp"
+                                                                    name="image_tmp"
+                                                                    type="file"
+                                                                    multiple={true}
+                                                                    accept={'.' + allowedExt.join(',.')}
+                                                                    className="input__file"
                                                                     disabled={isSubmitting}
+                                                                    onChange={(event) => {
+                                                                        setFieldValue('image_tmp', event.target?.files || '');
+                                                                        this.handleFileAssetLogoChange(event);
+                                                                    }}
                                                                 />
-                                                                <ErrorMessage name="description"
-                                                                              component="div"
-                                                                              className="error-message"/>
+                                                                {errors.image_tmp && (
+                                                                    <div
+                                                                        className="error-message">{errors.image_tmp.toString()}</div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     )}
-
-                                                    {values.option === FormFieldOptionType.IMAGE && (
-                                                        <>
-                                                            {(this.isShow() && initialValues?.image) && (
-                                                                <div
-                                                                    className={"input d-flex justify-content-center company-profile-logo"}>
-                                                                    <img src={initialValues?.image}
-                                                                         alt="Logo"/>
-                                                                </div>
-                                                            )}
-                                                            {!this.isShow() && (
-                                                                <div className="input">
-                                                                    <div className="input__wrap">
-                                                                        <input
-                                                                            id="image_tmp"
-                                                                            name="image_tmp"
-                                                                            type="file"
-                                                                            accept={'.' + allowedExt.join(',.')}
-                                                                            className="input__file"
-                                                                            disabled={isSubmitting}
-                                                                            onChange={(event) => {
-                                                                                setFieldValue('image_tmp', event.target?.files?.[0] || '');
-                                                                                this.handleFileAssetLogoChange(event);
-                                                                            }}
-                                                                        />
-                                                                        {errors.image_tmp && (
-                                                                            <div
-                                                                                className="error-message">{errors.image_tmp.toString()}</div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    )}
-
                                                 </div>
 
                                                 <hr/>
@@ -421,7 +458,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                                   href={item.value}
                                                                   target={'_blank'}>
                                                                 {item.name} <FontAwesomeIcon className="nav-icon"
-                                                                                                 icon={faArrowUpRightFromSquare}/>
+                                                                                             icon={faArrowUpRightFromSquare}/>
                                                             </Link>
                                                         </div>
                                                     ))}
@@ -445,10 +482,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                     }}
                                 </Formik>
                             </>
-                        )
-                        }
-
-
+                        )}
                     </>
                 )
             case 'view':
@@ -541,21 +575,18 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                     <div
                                         className="view_block_title">Description of Provider
                                     </div>
-                                    {this.props.dataFeedProviderData?.description || this.props.dataFeedProviderData?.image ? (
-                                        <>
-                                            {this.props.dataFeedProviderData.option === FormFieldOptionType.TEXT && (
-                                                <div>{this.props.dataFeedProviderData?.description || 'not filled'}</div>
-                                            )}
 
-                                            {this.props.dataFeedProviderData.option === FormFieldOptionType.IMAGE && (
-                                                <img src={this.props.dataFeedProviderData.image}/>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div>{'not filled'}</div>
-                                        </>
-                                    )}
+                                    <>
+                                        {this.props.dataFeedProviderData?.description.map((description, index) => (
+                                            <div className={'d-flex mb-2'} key={index}>{description}</div>
+                                        ))}
+
+                                        {this.props.dataFeedProviderData?.images.map((image, index) => (
+                                            <div className={'d-flex mb-2'} key={index}>
+                                                <img src={image}/>
+                                            </div>
+                                        ))}
+                                    </>
                                 </div>
                             </div>
                             <hr/>

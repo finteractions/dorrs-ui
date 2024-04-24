@@ -8,6 +8,9 @@ import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-p
 import {FormFieldOptionType} from "@/enums/form-field-option-type";
 import DataFeedProviderHistoryBlock from "@/components/data-feed-provider-history-block";
 import formatterService from "@/services/formatter/formatter-service";
+import Link from "next/link";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
 
 
 interface DataFeedProviderProps extends ICallback {
@@ -56,7 +59,26 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
             dataFeedProvidersService.getInfo(this.props.name)
                 .then((res: Array<IDataFeedProvider>) => {
                     const data = res || [];
-                    this.dataFeedProvider = data[0] ?? null
+                    const dataFeedProvider = (data[0] ?? null) as IDataFeedProvider
+
+                    try {
+                        const descriptions = JSON.parse(dataFeedProvider.description.toString());
+                        dataFeedProvider.description = descriptions;
+
+                    } catch (error) {
+                        dataFeedProvider.description = [""];
+                    }
+
+                    try {
+                        const images = JSON.parse(dataFeedProvider.images.toString().replace(/'/g, '"'));
+                        dataFeedProvider.images = images;
+
+                    } catch (error) {
+                        dataFeedProvider.images = [];
+                    }
+
+                    this.dataFeedProvider = dataFeedProvider;
+
                 })
                 .catch((errors: IError) => {
 
@@ -91,7 +113,7 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
 
 
     onCallback = async (values: any, step: boolean) => {
-        this.getDataFeedProviderInfo();
+        await this.getDataFeedProviderInfo();
     };
 
     render() {
@@ -158,14 +180,15 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                         </div>
                                         <div className={'content__bottom'}>
                                             <div className={'content__bottom'}>
-                                                {this.dataFeedProvider.option === FormFieldOptionType.TEXT && (
-                                                    <div>{this.dataFeedProvider?.description || 'not filled'}</div>
-                                                )}
+                                                {this.dataFeedProvider?.description.map((description, index) => (
+                                                    <div className={'d-flex mb-2'} key={index}>{description}</div>
+                                                ))}
 
-                                                {this.dataFeedProvider.option === FormFieldOptionType.IMAGE && (
-                                                    <img
-                                                        src={`${this.host}${this.dataFeedProvider.image}`}/>
-                                                )}
+                                                {this.dataFeedProvider?.images.map((image, index) => (
+                                                    <div className={'d-flex mb-2'} key={index}>
+                                                        <img src={image}/>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
