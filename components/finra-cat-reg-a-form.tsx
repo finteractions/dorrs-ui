@@ -223,7 +223,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">ATS & Exchange
+                                                    <div className="input__title">Listing
                                                     </div>
                                                     <div className="input__wrap">
                                                         <Field
@@ -239,7 +239,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Listing
+                                                    <div className="input__title">TS & Exchange
                                                     </div>
                                                     <div className="input__wrap">
                                                         <Field
