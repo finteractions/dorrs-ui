@@ -254,6 +254,7 @@ textarea.input__textarea {
   align-items: center;
   border: 1px solid $color-border;
   overflow: hidden;
+  position: relative;
 
   .icon-block {
     width: 30px;

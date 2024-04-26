@@ -36,6 +36,7 @@ interface ITableProps {
     className?: string,
     filters?: ITableFilter[];
     filtersClassName?: string;
+    options?: { type: string }
 }
 
 interface TableRef {
@@ -113,7 +114,8 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                      access,
                                                      className,
                                                      filters,
-                                                     filtersClassName
+                                                     filtersClassName,
+                                                     options
                                                  }: ITableProps,
                                                  ref: ForwardedRef<TableRef>) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -454,14 +456,14 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                     <div className='admin-table-actions'>
                                                         {viewBtn && (
                                                             <button
-                                                                onClick={() => block.openModal('view', row.original)}
+                                                                onClick={() => block.openModal('view', row.original, options?.type)}
                                                                 className='admin-table-btn ripple'><FontAwesomeIcon
                                                                 className="nav-icon" icon={faEye}/></button>
                                                         )}
                                                         {editBtn && (!access || access.edit) && (
                                                             <button
                                                                 disabled={isEditButtonDisabled(row.original) || isButtonDisabled(row.original)}
-                                                                onClick={() => block.openModal('edit', row.original)}
+                                                                onClick={() => block.openModal('edit', row.original, options?.type)}
                                                                 className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) || isButtonDisabled(row.original) ? 'disable' : ''}`}>
                                                                 <FontAwesomeIcon
                                                                     className="nav-icon" icon={faEdit}/></button>
@@ -482,7 +484,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                         {deleteBtn && (!access || access.delete) && (
                                                             <button
                                                                 disabled={isButtonDeleteDisabled(row.original)}
-                                                                onClick={() => block.openModal('delete', row.original)}
+                                                                onClick={() => block.openModal('delete', row.original, options?.type)}
                                                                 className={`admin-table-btn ripple ${isButtonDeleteDisabled(row.original) ? 'disable' : ''}`}>
                                                                 <FontAwesomeIcon
                                                                     className="nav-icon" icon={faTrashCan}/></button>

@@ -3451,6 +3451,7 @@ body {
 
         &.full_block {
           flex: 0 0 100%;
+          max-width: 100%;
         }
 
         .view_block_body {
@@ -4340,4 +4341,8 @@ a.block-link {
       color: #1c4a7e;
     }
   }
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
 }

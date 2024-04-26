@@ -13,7 +13,15 @@ import formatterService from "@/services/formatter/formatter-service";
 import {FormFieldOptionType, FormFieldOptionType2} from "@/enums/form-field-option-type";
 import fileService from "@/services/file/file-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faComment, faFileExport, faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {Button} from "react-bootstrap";
+import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
+import formService from "@/services/form/form-service";
+import FINRACatRegAForm from "@/components/finra-cat-reg-a-form";
+import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
+import {createColumnHelper} from "@tanstack/react-table";
+import AssetImage from "@/components/asset-image";
+import Table from "@/components/table/table";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -24,14 +32,23 @@ interface CompanyProfileState extends IState, IModalState {
     isLoading: boolean;
     isOpenCompanyModal: boolean;
     formCompanyAction: string;
+    formAction: string;
+    formType: string;
     errors: string[];
     usaStates: {
         abbreviation: string;
         name: string;
     }[],
+    finraCatRegAData: IFINRACatRegA[],
+    finraCatRegA: IFINRACatRegA | null,
+    filtersClassName: 'd-none d-md-flex'
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+
+const columnFINRARegAHelper = createColumnHelper<any>();
+let finraRegAColumns: any[] = [];
+let tableFINRARegAFilters: Array<ITableFilter> = []
 
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
@@ -41,6 +58,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     symbol: ISymbol | null;
     host = `${window.location.protocol}//${window.location.host}`;
 
+    tableFinraRegARef: React.RefObject<any> = React.createRef();
+
     constructor(props: CompanyProfileProps) {
         super(props);
 
@@ -48,6 +67,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         const usaStatesList = usaStates.states;
 
         this.companyProfile = null;
+
         this.symbol = null;
         this.state = {
             success: false,
@@ -56,58 +76,127 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             errors: [],
             isOpenCompanyModal: false,
             formCompanyAction: 'add',
+            formType: '',
+            formAction: 'add',
             usaStates: usaStatesList,
+            finraCatRegAData: [],
+            finraCatRegA: null,
+            filtersClassName: 'd-none d-md-flex'
         }
+
+        finraRegAColumns = [
+            columnFINRARegAHelper.accessor((row) => row.issuer_name, {
+                id: "issuer_name",
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>Issuer Name</span>,
+            }),
+            columnFINRARegAHelper.accessor((row) => row.listing, {
+                id: "listing",
+                cell: (item) => item.getValue(),
+                header: () => <span>Listing </span>,
+            }),
+            columnFINRARegAHelper.accessor((row) => row.ats_and_exchange, {
+                id: "ats_and_exchange",
+                cell: (item) => item.getValue(),
+                header: () => <span>ATS & Exchange </span>,
+            }),
+            columnFINRARegAHelper.accessor((row) => row.cik, {
+                id: "cik",
+                cell: (item) => item.getValue(),
+                header: () => <span>CIK</span>,
+            }),
+            // columnFINRARegAHelper.accessor((row) => row.status, {
+            //     id: "status",
+            //     cell: (item) =>
+            //         <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+            //             {item.getValue()}
+            //         </div>
+            //     ,
+            //     header: () => <span>Status</span>,
+            // }),
+        ];
+
+        tableFINRARegAFilters = [
+            // {key: 'ACCESSIONNUMBER', placeholder: 'Accession Number'},
+            // {key: 'FILE_NUM', placeholder: 'File Number'},
+            // {key: 'FILING_DATE', placeholder: 'Filling Date'},
+            // {key: 'SIC_CODE', placeholder: 'SIC'},
+            // {key: 'SUBMISSIONTYPE', placeholder: 'Submission Type'},
+            // {key: 'OVER100PERSONSFLAG', placeholder: 'Over 100 personals'},
+            // {key: 'OVER100ISSUERFLAG', placeholder: 'Over 100 issuers'},
+            // {key: 'status', placeholder: 'Status'},
+        ]
     }
 
     componentDidMount() {
         this.setState({isLoading: true});
-        this.getSymbols();
+        this.getSymbols()
+            .then(() => this.getFormDSubmission())
+            .finally(() => this.setState({isLoading: false}))
     }
 
     getSymbols = () => {
-        symbolService.getSymbols()
-            .then((res: Array<ISymbol>) => {
-                const data = res || [];
+        return new Promise(resolve => {
+            symbolService.getSymbols()
+                .then((res: Array<ISymbol>) => {
+                    const data = res || [];
 
-                data.forEach(s => {
-                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    data.forEach(s => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
 
-                    if (s.company_profile && s.company_profile?.status) {
-                        s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
-                    }
-
-                    if (typeof s.company_profile?.company_officers_and_contacts === 'string') {
-                        try {
-                            s.company_profile.company_officers_and_contacts = JSON.parse(s.company_profile.company_officers_and_contacts);
-                        } catch (error) {
-                            s.company_profile.company_officers_and_contacts = [""];
+                        if (s.company_profile && s.company_profile?.status) {
+                            s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                         }
-                    }
 
-                    if (typeof s.company_profile?.board_of_directors === 'string') {
-                        try {
-                            s.company_profile.board_of_directors = JSON.parse(s.company_profile.board_of_directors);
-                        } catch (error) {
-                            s.company_profile.board_of_directors = [""];
+                        if (typeof s.company_profile?.company_officers_and_contacts === 'string') {
+                            try {
+                                s.company_profile.company_officers_and_contacts = JSON.parse(s.company_profile.company_officers_and_contacts);
+                            } catch (error) {
+                                s.company_profile.company_officers_and_contacts = [""];
+                            }
                         }
-                    }
-                });
 
-                this.symbols = data;
-                const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
-                this.symbol = symbol || null;
-                this.companyProfile = symbol?.company_profile || null;
-            })
-            .catch((errors: IError) => {
+                        if (typeof s.company_profile?.board_of_directors === 'string') {
+                            try {
+                                s.company_profile.board_of_directors = JSON.parse(s.company_profile.board_of_directors);
+                            } catch (error) {
+                                s.company_profile.board_of_directors = [""];
+                            }
+                        }
+                    });
 
-            })
-            .finally(() => {
-                this.setState({isLoading: false}, () => {
-                    this.props.onCallback(this.companyProfile?.logo)
+                    this.symbols = data;
+                    const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
+                    this.symbol = symbol || null;
+                    this.companyProfile = symbol?.company_profile || null;
                 })
-            });
+                .catch((errors: IError) => {
+
+                })
+                .finally(() => {
+                    resolve(true);
+                    this.props.onCallback(this.companyProfile?.logo);
+                });
+        })
+
     }
+
+    getFormDSubmission() {
+        return new Promise(resolve => {
+            formService.getFINRARegA(this.props.symbol)
+                .then((res: Array<IFINRACatRegA>) => {
+                    const data = res || [];
+                    data.forEach(s => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    });
+                    this.setState({finraCatRegAData: data});
+                })
+                .finally(() => resolve(true))
+        })
+    }
+
     handleBack = () => {
         const router = useRouter();
         router.push('/asset-profiles');
@@ -125,6 +214,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         this.setState({isOpenCompanyModal: false});
     }
 
+    cancelForm(): void {
+        this.setState({isOpenModal: false, finraCatRegA: null});
+    }
+
     modalCompanyTitle = (mode: string) => {
         if (mode === 'view') {
             return 'View Asset Profile'
@@ -134,9 +227,51 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
 
     onCallback = async (values: any, step: boolean) => {
-        this.getSymbols();
+        this.getSymbols()
+            .then(() => this.getFormDSubmission())
         this.cancelCompanyForm()
+        this.cancelForm()
     };
+
+    openModal = (mode: string, data: IFINRACatRegA | null, formType: string) => {
+        this.setState({isOpenModal: true, formAction: mode, formType: formType, finraCatRegA: data})
+    }
+
+    getFormName() {
+        switch (this.state.formType) {
+            case 'finraRegA':
+                return 'FINRA CAT Form - REG A';
+        }
+    }
+
+    modalTitle = (mode: string) => {
+        if (mode === 'add') {
+            return `Add ${this.getFormName()}`
+        } else if (mode === 'edit') {
+            return `Edit ${this.getFormName()}`
+        } else if (mode === 'delete') {
+            return `Do you want to cancel this ${this.getFormName()}?`;
+        }  if (mode === 'view') {
+            return `View ${this.getFormName()}`
+        }else {
+            return '';
+        }
+    }
+
+    getRenderedForm() {
+        switch (this.state.formType) {
+            case 'finraRegA':
+                return (
+                    <FINRACatRegAForm action={this.state.formAction}
+                                      data={this.state.finraCatRegA}
+                                      symbolData={this.symbol}
+                                      onCallback={this.onCallback}
+                                      isAdmin={false}/>
+                )
+            default:
+                return (<></>)
+        }
+    }
 
     render() {
         return (
@@ -223,8 +358,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
                                                 </div>
                                             </div>
-
-
                                             <div id={'asset_type_additional'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div
@@ -276,8 +409,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
                                                 </div>
                                             </div>
-
-
                                             <div id={'company_address'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div className={'content__title'}>Company Address</div>
@@ -469,6 +600,49 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div id={'consolidated_audit_trail_eligible_symbol'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Consolidated Audit Trail Eligible
+                                                        Symbol
+                                                    </div>
+                                                    <div
+                                                        className="content__title_btns content__filter download-buttons justify-content-end">
+
+                                                        <>
+                                                            <button className="d-none d-md-block b-btn ripple"
+                                                                    disabled={this.state.isLoading}
+                                                                    onClick={() => this.openModal('add', null, 'finraRegA')}>
+                                                                <div>Add</div>
+                                                            </button>
+                                                            <Button
+                                                                variant="link"
+                                                                className="d-md-none admin-table-btn ripple"
+                                                                type="button"
+                                                                onClick={() => this.openModal('add', null, 'finraRegA')}>
+                                                                <FontAwesomeIcon icon={faPlus}/>
+                                                            </Button>
+                                                        </>
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    {this.state.finraCatRegAData.length ? (
+                                                        <Table columns={finraRegAColumns}
+                                                               data={this.state.finraCatRegAData}
+                                                               searchPanel={true}
+                                                               block={this}
+                                                               editBtn={true}
+                                                               viewBtn={true}
+                                                               deleteBtn={true}
+                                                               filters={tableFINRARegAFilters}
+                                                               filtersClassName={this.state.filtersClassName}
+                                                               ref={this.tableFinraRegARef}
+                                                               options={{type: 'finraRegA'}}
+                                                        />
+                                                    ) : (
+                                                        <NoDataBlock/>
+                                                    )}
+                                                </div>
+                                            </div>
 
                                         </>
 
@@ -510,6 +684,14 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             symbolData={this.symbol}
                                             onCallback={this.onCallback}
                                             isAdmin={false}/>
+
+                        </Modal>
+
+                        <Modal isOpen={this.state.isOpenModal}
+                               onClose={() => this.cancelForm()}
+                               title={this.modalTitle(this.state.formAction)}
+                        >
+                            {this.getRenderedForm()}
 
                         </Modal>
 

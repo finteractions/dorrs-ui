@@ -90,6 +90,12 @@ let MENU_LIST: Array<Menus> = [
         to: "financial_reporting",
         icon: '/img/pd-ico.svg',
         alt: 'Admin'
+    },
+    {
+        text: 'Consolidated Audit Trail Eligible Symbol',
+        to: "consolidated_audit_trail_eligible_symbol",
+        icon: '/img/pd-ico.svg',
+        alt: 'Admin'
     }
 ]
 

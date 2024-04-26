@@ -12,6 +12,7 @@ interface NumericInputFieldProps {
     handleChange?: (event: React.ChangeEvent<HTMLInputElement>) => void,
     disabled?: boolean,
     isThousandSeparator?: boolean
+    maxLength?: number
 }
 
 class NumericInputField extends React.Component<NumericInputFieldProps> {
@@ -41,7 +42,8 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
             decimalScale,
             disabled,
             handleChange,
-            isThousandSeparator
+            isThousandSeparator,
+            maxLength
         } = this.props;
         const {name} = field;
         field.value = field.value !== '' ? formatterService.numberDown(field.value, decimalScale || 0) : field.value;
@@ -57,6 +59,7 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
                     placeholder={placeholder}
                     decimalScale={decimalScale}
                     disabled={disabled}
+                    maxLength={maxLength}
                     onChange={this.handleChange}
                     onBlur={field.onBlur}
                     value={field.value}
