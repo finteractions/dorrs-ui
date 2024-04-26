@@ -133,7 +133,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     componentDidMount() {
         this.setState({isLoading: true});
         this.getSymbols()
-            .then(() => this.getFormDSubmission())
+            .then(() => this.getFINRARegA())
             .finally(() => this.setState({isLoading: false}))
     }
 
@@ -183,7 +183,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
     }
 
-    getFormDSubmission() {
+    getFINRARegA() {
         return new Promise(resolve => {
             formService.getFINRARegA(this.props.symbol)
                 .then((res: Array<IFINRACatRegA>) => {
@@ -227,10 +227,16 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
 
     onCallback = async (values: any, step: boolean) => {
-        this.getSymbols()
-            .then(() => this.getFormDSubmission())
+        if (typeof values === 'string') {
+            if (values === 'finraRegA') {
+                await this.getFINRARegA();
+            }
+        }
+
         this.cancelCompanyForm()
         this.cancelForm()
+
+        await this.getSymbols();
     };
 
     openModal = (mode: string, data: IFINRACatRegA | null, formType: string) => {
@@ -251,9 +257,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             return `Edit ${this.getFormName()}`
         } else if (mode === 'delete') {
             return `Do you want to cancel this ${this.getFormName()}?`;
-        }  if (mode === 'view') {
+        }
+        if (mode === 'view') {
             return `View ${this.getFormName()}`
-        }else {
+        } else {
             return '';
         }
     }

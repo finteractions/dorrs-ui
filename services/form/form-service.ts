@@ -47,19 +47,19 @@ class FormService extends BaseService {
             queryString += `?symbol=${symbol}`;
         }
 
-        return (await apiWebBackendService.get<IResponse<IFINRACatRegA[]>>(`${this.PATH}form_d_submission/${queryString}`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<IFINRACatRegA[]>>(`${this.PATH}form_finra_reg_a/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 
     public async createFINRARegA(data: any): Promise<any> {
-        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}form_d_submission/`, data, {}, this.getUserAccessToken())).data
+        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}form_finra_reg_a/`, data, {}, this.getUserAccessToken())).data
     }
 
     public async updateFINRARegA(data: any, id: number): Promise<any> {
-        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}form_d_submission/${id}/`, data, {}, this.getUserAccessToken())).data
+        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}form_finra_reg_a/${id}/`, data, {}, this.getUserAccessToken())).data
     }
 
     public async deleteFINRARegA(id: number): Promise<any> {
-        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}form_d_submission/${id}/`, {}, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}form_finra_reg_a/${id}/`, {}, {}, this.getUserAccessToken())).data;
     }
 
     // ***************************

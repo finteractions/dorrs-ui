@@ -80,7 +80,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(values);
+                this.props.onCallback('finraRegA');
             }))
             .catch((errors: IError) => {
                 console.log(errors)
@@ -114,7 +114,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
         this.setState({errorMessages: null});
         await formService.deleteFINRARegA(this.props.data?.id || 0)
             .then(((res: any) => {
-                this.props.onCallback(null)
+                this.props.onCallback('finraRegA');
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -124,7 +124,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
     };
 
     cancel = () => {
-        this.props.onCallback(null)
+        this.props.onCallback('finraRegA');
     }
 
     render() {
@@ -239,7 +239,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">TS & Exchange
+                                                    <div className="input__title">ATS & Exchange
                                                     </div>
                                                     <div className="input__wrap">
                                                         <Field
