@@ -83,6 +83,26 @@ class FormService extends BaseService {
         return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}issuer/${id}/`, {}, {}, this.getUserAccessToken())).data;
     }
 
+    public async getSECOffering(symbol?: string | null): Promise<ISECOffering[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<ISECOffering[]>>(`${this.PATH}offering/${queryString}`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async createSECOffering(data: any): Promise<any> {
+        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}offering/`, data, {}, this.getUserAccessToken())).data
+    }
+
+    public async updateSECOffering(data: any, id: number): Promise<any> {
+        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}offering/${id}/`, data, {}, this.getUserAccessToken())).data
+    }
+
+    public async deleteSECOffering(id: number): Promise<any> {
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}offering/${id}/`, {}, {}, this.getUserAccessToken())).data;
+    }
     // ***************************
 
 

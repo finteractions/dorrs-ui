@@ -1,6 +1,7 @@
 interface ISECIssuer {
     id: number;
     symbol: string
+    type: string;
     accession_number: string;
     is_primary_issuer: string;
     cik: string;

@@ -92,6 +92,12 @@ let MENU_LIST: Array<Menus> = [
         alt: 'Financial Reporting'
     },
     {
+        text: 'SEC Offering',
+        to: "sec_offering",
+        icon: '/img/pd-ico.svg',
+        alt: 'SEC Offering'
+    },
+    {
         text: 'SEC Issuer',
         to: "sec_issuer",
         icon: '/img/pd-ico.svg',

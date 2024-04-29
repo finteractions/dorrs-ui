@@ -14,31 +14,25 @@ import NumericInputField from "@/components/numeric-input-field";
 import InputMask from "react-input-mask";
 import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
 import {UsaStates} from "usa-states";
-import PhoneInputField from "@/components/phone-input-field";
 import {RegType} from "@/enums/reg-type";
+import Select from "react-select";
+import {FederalExemptionType} from "@/enums/federal-exemption-type";
+import {SingleDatePicker} from "react-dates";
+import moment from "moment/moment";
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required('Required').label('Type'),
-    accession_number: Yup.string().required('Required').label('Accession Number'),
-    is_primary_issuer: Yup.string().required('Required').label('Primary Issuer'),
-    cik: Yup.string().required('Required').label('CIK'),
-    entity_name: Yup.string().required('Required').label('Entity Name'),
-    street1: Yup.string().required('Required').label('Street 1'),
-    city: Yup.string().required('Required').label('City'),
-    state: Yup.string().required('Required').label('State'),
-    zip_code: Yup.string().required('Required').label('ZIP Code'),
-    jurisdiction: Yup.string().required('Required').label('Jurisdiction'),
-    entity_type: Yup.string().required('Required').label('Entity Type'),
+    investment_fund_type: Yup.string().required('Required').label('Investment Fund Type'),
     edgar_link_to_filling: Yup.string().url('Invalid URL').label('Edgars Link to filing'),
 });
 
-interface SECIssuerFormState extends IState {
+interface SECOfferingFormState extends IState {
     formInitialValues: {},
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
     loading: boolean;
     isDeleting: boolean;
-    focusedInitialOfferingDate: any;
+    focusedDate: any;
 
     usaStates: {
         abbreviation: string;
@@ -46,57 +40,64 @@ interface SECIssuerFormState extends IState {
     }[],
 }
 
-interface SECIssuerFormProps extends ICallback {
+interface SECOfferingFormProps extends ICallback {
     isAdmin: boolean;
     action: string;
-    data: ISECIssuer | null;
+    data: ISECOffering | null;
     symbolData: ISymbol | null;
     onCancel?: () => void;
 }
 
-class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormState> {
+class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingFormState> {
 
-    state: SECIssuerFormState;
+    state: SECOfferingFormState;
     host = `${window.location.protocol}//${window.location.host}`;
 
-    constructor(props: SECIssuerFormProps) {
+    constructor(props: SECOfferingFormProps) {
         super(props);
 
-        const initialData = this.props.data || {} as ISECIssuer;
+        const initialData = this.props.data || {} as ISECOffering;
+
+        if (typeof initialData?.federal_exemptions === 'string') {
+            try {
+                const company_officers_and_contacts = JSON.parse(initialData.federal_exemptions);
+                initialData.federal_exemptions = company_officers_and_contacts;
+            } catch (error) {
+                initialData.federal_exemptions = [""];
+            }
+        }
 
         const initialValues: {
             symbol: string
             type: string;
             accession_number: string;
-            is_primary_issuer: string;
-            cik: string;
-            entity_name: string;
-            street1: string;
-            street2: string;
-            city: string;
-            state: string;
-            zip_code: string;
-            phone_number: string;
-            jurisdiction: string;
-            entity_type: string;
-            year_of_financial_value: string;
+            investment_fund_type: string;
+            is_1940_act: string;
+            federal_exemptions: string[] | string;
+            sale_date: string;
+            is_pool_investment: string;
+            minimum_investment_accepted: string;
+            total_offering_amount: string;
+            total_amount_sold: string;
+            total_remaining: string;
+            is_accredited: string;
+            total_number_already_invested: string;
             edgar_link_to_filling: string;
         } = {
             symbol: this.props.symbolData?.symbol || '',
             type: initialData?.type || '',
             accession_number: initialData?.accession_number || '',
-            is_primary_issuer: initialData?.is_primary_issuer || '',
-            cik: initialData?.cik || '',
-            entity_name: initialData?.entity_name || '',
-            street1: initialData?.street1 || '',
-            street2: initialData?.street2 || '',
-            city: initialData?.city || '',
-            state: initialData?.state || '',
-            zip_code: initialData?.zip_code || '',
-            phone_number: initialData?.phone_number || '',
-            jurisdiction: initialData?.jurisdiction || '',
-            entity_type: initialData?.entity_type || '',
-            year_of_financial_value: initialData?.year_of_financial_value || '',
+            investment_fund_type: initialData?.investment_fund_type || '',
+            is_1940_act: initialData?.is_1940_act || '',
+            federal_exemptions: initialData?.federal_exemptions || [],
+            sale_date: initialData?.sale_date || '',
+            is_pool_investment: initialData?.is_pool_investment || '',
+            minimum_investment_accepted: initialData?.minimum_investment_accepted || '',
+            total_offering_amount: initialData?.total_offering_amount || '',
+            total_amount_sold: initialData?.total_amount_sold || '',
+            total_remaining: initialData?.total_remaining || '',
+            is_accredited: initialData?.is_accredited || '',
+            total_number_already_invested: initialData?.total_number_already_invested || '',
             edgar_link_to_filling: initialData?.edgar_link_to_filling || '',
         };
 
@@ -110,24 +111,32 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
             isApproving: null,
             isConfirmedApproving: false,
             isDeleting: false,
-            focusedInitialOfferingDate: null,
+            focusedDate: null,
             usaStates: usaStatesList,
         };
 
     }
 
-    handleSubmit = async (values: ISECIssuer, {setSubmitting}: {
+    handleSubmit = async (values: ISECOffering, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null})
+        const data = {...values};
+
+        data.federal_exemptions = JSON.stringify(values.federal_exemptions);
+        data.minimum_investment_accepted = data.minimum_investment_accepted.replace(/,/g, '');
+        data.total_offering_amount = data.total_offering_amount.replace(/,/g, '');
+        data.total_amount_sold = data.total_amount_sold.replace(/,/g, '');
+        data.total_remaining = data.total_remaining.replace(/,/g, '');
+        data.total_number_already_invested = data.total_number_already_invested.replace(/,/g, '');
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            formService.updateSECIssuer(values, this.props.data?.id || 0) :
-            formService.createSECIssuer(values)
+            formService.updateSECOffering(data, this.props.data?.id || 0) :
+            formService.createSECOffering(data)
 
         await request
             .then(((res: any) => {
-                this.props.onCallback('secIssuer');
+                this.props.onCallback('secOffering');
             }))
             .catch((errors: IError) => {
                 console.log(errors)
@@ -159,9 +168,9 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null});
-        await formService.deleteSECIssuer(this.props.data?.id || 0)
+        await formService.deleteSECOffering(this.props.data?.id || 0)
             .then(((res: any) => {
-                this.props.onCallback('secIssuer');
+                this.props.onCallback('secOffering');
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -171,7 +180,7 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
     };
 
     cancel = () => {
-        this.props.onCallback('secIssuer');
+        this.props.onCallback('secOffering');
     }
 
     render() {
@@ -186,8 +195,8 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
                             <LoaderBlock/>
                         ) : (
                             <>
-                                <Formik<ISECIssuer>
-                                    initialValues={this.state.formInitialValues as ISECIssuer}
+                                <Formik<ISECOffering>
+                                    initialValues={this.state.formInitialValues as ISECOffering}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                 >
@@ -298,13 +307,30 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
                                                     </div>
                                                 </div>
 
+
                                                 <div className="input">
-                                                    <div className="input__title">Primary Issuer <i>*</i></div>
+                                                    <div className="input__title">Investment Fund Type <i>*</i></div>
+                                                    <div className="input__wrap">
+                                                        <Field
+                                                            name="investment_fund_type"
+                                                            id="investment_fund_type"
+                                                            type="text"
+                                                            placeholder={'Type Investment Fund Type'}
+                                                            className="input__text"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="investment_fund_type" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Investment 1940</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
-                                                            name="is_primary_issuer"
-                                                            id="is_primary_issuer"
+                                                            name="is_1940_act"
+                                                            id="is_1940_act"
                                                             as="select"
                                                             className="b-select"
                                                             disabled={isSubmitting || this.isShow()}
@@ -316,205 +342,206 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
                                                                 </option>
                                                             ))}
                                                         </Field>
-                                                        <ErrorMessage name="is_primary_issuer"
+                                                        <ErrorMessage name="is_1940_act"
                                                                       component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">CIK
-                                                    </div>
-                                                    <div className="input__wrap">
+                                                    <div className="input__title">Federal Exemptions</div>
+                                                    <div className={`input__wrap ${isSubmitting || this.isShow() ? 'disable' : ''}`}>
                                                         <Field
-                                                            name="cik"
-                                                            id="cik"
-                                                            type="text"
-                                                            placeholder={'Type CIK'}
-                                                            component={NumericInputField}
-                                                            decimalScale={0}
-                                                            maxLength={10}
-                                                            isThousandSeparator={false}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
+                                                            name="federal_exemptions"
+                                                            id="federal_exemptions"
+                                                            as={Select}
+                                                            className={`b-select-search`}
+                                                            placeholder="Select Federal Exemption"
+                                                            classNamePrefix="select__react"
+                                                            isMulti={true}
+                                                            isDisabled={isSubmitting || this.isShow()}
+                                                            options={Object.values(FederalExemptionType).map((type) => ({
+                                                                value: type,
+                                                                label: type
+                                                            }))}
+                                                            onChange={(selectedOptions: any) => {
+                                                                const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value) : [];
+                                                                setFieldValue('federal_exemptions', selectedValues);
+                                                            }}
+                                                            value={(values.federal_exemptions as Array<string>).map((value) => ({
+                                                                value,
+                                                                label: value
+                                                            })) || []}
                                                         />
-                                                        <ErrorMessage name="ats_and_exchange" component="div"
+
+                                                        <ErrorMessage name="federal_exemptions" component="div" className="error-message" />
+                                                    </div>
+
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Sale Date</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+
+                                                        <SingleDatePicker
+                                                            numberOfMonths={1}
+                                                            date={values.sale_date ? moment(values.sale_date) : null}
+                                                            onDateChange={date => setFieldValue('sale_date', date?.format('YYYY-MM-DD').toString())}
+                                                            focused={this.state.focusedDate}
+                                                            onFocusChange={({focused}) => this.setState({focusedDate: focused})}
+                                                            id="sale_date"
+                                                            displayFormat="YYYY-MM-DD"
+                                                            isOutsideRange={() => false}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            readOnly={true}
+                                                            placeholder={'Select Bid Date'}
+                                                        />
+                                                        <ErrorMessage name="sale_date" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Entity Name <i>*</i></div>
-                                                    <div className="input__wrap">
-                                                        <Field
-                                                            name="entity_name"
-                                                            id="entity_name"
-                                                            type="text"
-                                                            placeholder={'Type Entity Name'}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="entity_name" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Street 1 <i>*</i></div>
-                                                    <div className="input__wrap">
-                                                        <Field
-                                                            name="street1"
-                                                            id="street1"
-                                                            type="text"
-                                                            placeholder={'Type Street 1'}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="street1" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Street 2</div>
-                                                    <div className="input__wrap">
-                                                        <Field
-                                                            name="street2"
-                                                            id="street2"
-                                                            type="text"
-                                                            placeholder={'Type Street 2'}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="street2" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">City <i>*</i></div>
-                                                    <div className="input__wrap">
-                                                        <Field
-                                                            name="city"
-                                                            id="city"
-                                                            type="text"
-                                                            placeholder={'Type City'}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="city" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">State <i>*</i></div>
+                                                    <div className="input__title">Investment Pool</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
-                                                            name="state"
-                                                            id="state"
+                                                            name="is_pool_investment"
+                                                            id="is_pool_investment"
                                                             as="select"
                                                             className="b-select"
                                                             disabled={isSubmitting || this.isShow()}
                                                         >
-                                                            <option value="">Select State
-                                                            </option>
-                                                            {this.state.usaStates.map((state) => (
-                                                                <option key={state.abbreviation}
-                                                                        value={state.abbreviation}>
-                                                                    {state.name} ({state.abbreviation})
+                                                            <option value="">Select</option>
+                                                            {Object.values(YesNoType).map((type) => (
+                                                                <option key={type} value={type}>
+                                                                    {getYesNoTypeName(type)}
                                                                 </option>
                                                             ))}
                                                         </Field>
-                                                        <ErrorMessage name="state"
+                                                        <ErrorMessage name="is_pool_investment"
                                                                       component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Zip Code <i>*</i></div>
+                                                    <div className="input__title">Minimum Investment Accepted</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
-                                                            name="zip_code"
-                                                            id="zip_code"
+                                                            name="minimum_investment_accepted"
+                                                            id="minimum_investment_accepted"
                                                             type="text"
                                                             className="input__text"
-                                                            placeholder="Type Zip Code"
+                                                            placeholder="Type Minimum Investment Accepted"
                                                             disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="zip_code" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Phone Number <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="phone_number"
-                                                            id="phone_number"
-                                                            component={PhoneInputField}
-                                                            disabled={isSubmitting || this.isShow()}
-                                                            country="us"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Jurisdiction <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="jurisdiction"
-                                                            id="jurisdiction"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Jurisdiction"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="jurisdiction" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Entity Type <i>*</i></div>
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <Field
-                                                            name="entity_type"
-                                                            id="entity_type"
-                                                            type="text"
-                                                            className="input__text"
-                                                            placeholder="Type Entity Type"
-                                                            disabled={isSubmitting || this.isShow()}
-                                                        />
-                                                        <ErrorMessage name="jurisdiction" component="div"
-                                                                      className="error-message"/>
-                                                    </div>
-                                                </div>
-
-                                                <div className="input">
-                                                    <div className="input__title">Year of Financial Value
-                                                    </div>
-                                                    <div className="input__wrap">
-                                                        <Field
-                                                            name="year_of_financial_value"
-                                                            id="year_of_financial_value"
-                                                            type="text"
                                                             component={NumericInputField}
                                                             decimalScale={0}
-                                                            maxLength={4}
-                                                            placeholder="Type Year of Financial Value"
-                                                            isThousandSeparator={false}
-                                                            className="input__text"
-                                                            disabled={isSubmitting || this.isShow()}
                                                         />
-                                                        <ErrorMessage name="year_of_financial_value" component="div"
+                                                        <ErrorMessage name="minimum_investment_accepted" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Total Offering Amount</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="total_offering_amount"
+                                                            id="total_offering_amount"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Total Offering Amount"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            component={NumericInputField}
+                                                            decimalScale={0}
+                                                        />
+                                                        <ErrorMessage name="total_offering_amount" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Total Amount Sold</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="total_amount_sold"
+                                                            id="total_amount_sold"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Total Amount Sold"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            component={NumericInputField}
+                                                            decimalScale={0}
+                                                        />
+                                                        <ErrorMessage name="total_amount_sold" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Total Remaining</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="total_remaining"
+                                                            id="total_remaining"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Total Remaining"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            component={NumericInputField}
+                                                            decimalScale={0}
+                                                        />
+                                                        <ErrorMessage name="total_remaining" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Accredited</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="is_accredited"
+                                                            id="is_accredited"
+                                                            as="select"
+                                                            className="b-select"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        >
+                                                            <option value="">Select</option>
+                                                            {Object.values(YesNoType).map((type) => (
+                                                                <option key={type} value={type}>
+                                                                    {getYesNoTypeName(type)}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                        <ErrorMessage name="is_accredited"
+                                                                      component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Total Number Already Invested</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="total_number_already_invested"
+                                                            id="total_number_already_invested"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Total Number Already Invested"
+                                                            disabled={isSubmitting || this.isShow()}
+                                                            component={NumericInputField}
+                                                            decimalScale={0}
+                                                        />
+                                                        <ErrorMessage name="total_number_already_invested"
+                                                                      component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
@@ -620,4 +647,4 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
     }
 }
 
-export default SECIssuerForm;
+export default SECOfferingForm;
