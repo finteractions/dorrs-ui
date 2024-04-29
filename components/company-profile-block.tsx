@@ -13,15 +13,14 @@ import formatterService from "@/services/formatter/formatter-service";
 import {FormFieldOptionType, FormFieldOptionType2} from "@/enums/form-field-option-type";
 import fileService from "@/services/file/file-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faComment, faFileExport, faFilter, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
-import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import formService from "@/services/form/form-service";
-import FINRACatRegAForm from "@/components/finra-cat-reg-a-form";
 import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
 import {createColumnHelper} from "@tanstack/react-table";
-import AssetImage from "@/components/asset-image";
 import Table from "@/components/table/table";
+import FINRACatRegAForm from "@/components/finra-cat-reg-a-form";
+import SECIssuerForm from "@/components/sec-issuer-form";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -40,7 +39,8 @@ interface CompanyProfileState extends IState, IModalState {
         name: string;
     }[],
     finraCatRegAData: IFINRACatRegA[],
-    finraCatRegA: IFINRACatRegA | null,
+    secIssuerData: ISECIssuer[],
+    formData: IFINRACatRegA | ISECIssuer | null,
     filtersClassName: 'd-none d-md-flex'
 }
 
@@ -49,6 +49,10 @@ const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const columnFINRARegAHelper = createColumnHelper<any>();
 let finraRegAColumns: any[] = [];
 let tableFINRARegAFilters: Array<ITableFilter> = []
+
+const columnSECIssuerHelper = createColumnHelper<any>();
+let secIssuerColumns: any[] = [];
+let tableSECIssuerFilters: Array<ITableFilter> = []
 
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
@@ -59,6 +63,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     host = `${window.location.protocol}//${window.location.host}`;
 
     tableFinraRegARef: React.RefObject<any> = React.createRef();
+    tableSECIssuerRef: React.RefObject<any> = React.createRef();
 
     constructor(props: CompanyProfileProps) {
         super(props);
@@ -80,7 +85,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             formAction: 'add',
             usaStates: usaStatesList,
             finraCatRegAData: [],
-            finraCatRegA: null,
+            secIssuerData: [],
+            formData: null,
             filtersClassName: 'd-none d-md-flex'
         }
 
@@ -107,33 +113,41 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                 cell: (item) => item.getValue(),
                 header: () => <span>CIK</span>,
             }),
-            // columnFINRARegAHelper.accessor((row) => row.status, {
-            //     id: "status",
-            //     cell: (item) =>
-            //         <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-            //             {item.getValue()}
-            //         </div>
-            //     ,
-            //     header: () => <span>Status</span>,
-            // }),
         ];
 
-        tableFINRARegAFilters = [
-            // {key: 'ACCESSIONNUMBER', placeholder: 'Accession Number'},
-            // {key: 'FILE_NUM', placeholder: 'File Number'},
-            // {key: 'FILING_DATE', placeholder: 'Filling Date'},
-            // {key: 'SIC_CODE', placeholder: 'SIC'},
-            // {key: 'SUBMISSIONTYPE', placeholder: 'Submission Type'},
-            // {key: 'OVER100PERSONSFLAG', placeholder: 'Over 100 personals'},
-            // {key: 'OVER100ISSUERFLAG', placeholder: 'Over 100 issuers'},
-            // {key: 'status', placeholder: 'Status'},
-        ]
+        secIssuerColumns = [
+            columnSECIssuerHelper.accessor((row) => row.accession_number, {
+                id: "accession_number",
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>Accession Number</span>,
+            }),
+            columnSECIssuerHelper.accessor((row) => row.is_primary_issuer, {
+                id: "is_primary_issuer",
+                cell: (item) => item.getValue(),
+                header: () => <span>Primary Issuer </span>,
+            }),
+            columnSECIssuerHelper.accessor((row) => row.cik, {
+                id: "cik",
+                cell: (item) => item.getValue(),
+                header: () => <span>CIK</span>,
+            }),
+            columnSECIssuerHelper.accessor((row) => row.entity_name, {
+                id: "entity_name",
+                cell: (item) => <span className={'truncate-text'} title={item.getValue()}>{item.getValue()}</span>,
+                header: () => <span>Entity Name</span>,
+            }),
+        ];
+
+        tableFINRARegAFilters = []
     }
 
     componentDidMount() {
         this.setState({isLoading: true});
         this.getSymbols()
             .then(() => this.getFINRARegA())
+            .then(() => this.getSECIssuer())
             .finally(() => this.setState({isLoading: false}))
     }
 
@@ -197,6 +211,21 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         })
     }
 
+    getSECIssuer() {
+        return new Promise(resolve => {
+            formService.getSECIssuer(this.props.symbol)
+                .then((res: Array<ISECIssuer>) => {
+                    const data = res || [];
+                    data.forEach(s => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                        s.is_primary_issuer = getYesNoTypeName(s.is_primary_issuer as YesNoType)
+                    });
+                    this.setState({secIssuerData: data});
+                })
+                .finally(() => resolve(true))
+        })
+    }
+
     handleBack = () => {
         const router = useRouter();
         router.push('/asset-profiles');
@@ -215,7 +244,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
 
     cancelForm(): void {
-        this.setState({isOpenModal: false, finraCatRegA: null});
+        this.setState({isOpenModal: false, formData: null});
     }
 
     modalCompanyTitle = (mode: string) => {
@@ -230,6 +259,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         if (typeof values === 'string') {
             if (values === 'finraRegA') {
                 await this.getFINRARegA();
+            } else if (values === 'secIssuer') {
+                await this.getSECIssuer();
             }
         }
 
@@ -239,14 +270,16 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         await this.getSymbols();
     };
 
-    openModal = (mode: string, data: IFINRACatRegA | null, formType: string) => {
-        this.setState({isOpenModal: true, formAction: mode, formType: formType, finraCatRegA: data})
+    openModal = (mode: string, data: IFINRACatRegA | ISECIssuer | null, formType: string) => {
+        this.setState({isOpenModal: true, formAction: mode, formType: formType, formData: data})
     }
 
     getFormName() {
         switch (this.state.formType) {
             case 'finraRegA':
                 return 'FINRA CAT Form - REG A';
+            case 'secIssuer':
+                return 'SEC Issuer';
         }
     }
 
@@ -256,7 +289,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         } else if (mode === 'edit') {
             return `Edit ${this.getFormName()}`
         } else if (mode === 'delete') {
-            return `Do you want to cancel this ${this.getFormName()}?`;
+            return `Do you want to delete this ${this.getFormName()}?`;
         }
         if (mode === 'view') {
             return `View ${this.getFormName()}`
@@ -270,10 +303,18 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             case 'finraRegA':
                 return (
                     <FINRACatRegAForm action={this.state.formAction}
-                                      data={this.state.finraCatRegA}
+                                      data={this.state.formData as IFINRACatRegA}
                                       symbolData={this.symbol}
                                       onCallback={this.onCallback}
                                       isAdmin={false}/>
+                )
+            case 'secIssuer':
+                return (
+                    <SECIssuerForm action={this.state.formAction}
+                                   data={this.state.formData as ISECIssuer}
+                                   symbolData={this.symbol}
+                                   onCallback={this.onCallback}
+                                   isAdmin={false}/>
                 )
             default:
                 return (<></>)
@@ -607,10 +648,50 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id={'consolidated_audit_trail_eligible_symbol'} className={'panel'}>
+                                            <div id={'sec_issuer'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Consolidated Audit Trail Eligible
-                                                        Symbol
+                                                    <div className={'content__title'}>SEC Issuer</div>
+                                                    <div
+                                                        className="content__title_btns content__filter download-buttons justify-content-end">
+
+                                                        <>
+                                                            <button className="d-none d-md-block b-btn ripple"
+                                                                    disabled={this.state.isLoading}
+                                                                    onClick={() => this.openModal('add', null, 'secIssuer')}>
+                                                                <div>Add</div>
+                                                            </button>
+                                                            <Button
+                                                                variant="link"
+                                                                className="d-md-none admin-table-btn ripple"
+                                                                type="button"
+                                                                onClick={() => this.openModal('add', null, 'secIssuer')}>
+                                                                <FontAwesomeIcon icon={faPlus}/>
+                                                            </Button>
+                                                        </>
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    {this.state.secIssuerData.length ? (
+                                                        <Table columns={secIssuerColumns}
+                                                               data={this.state.secIssuerData}
+                                                               searchPanel={true}
+                                                               block={this}
+                                                               editBtn={true}
+                                                               viewBtn={true}
+                                                               deleteBtn={true}
+                                                               filters={tableSECIssuerFilters}
+                                                               filtersClassName={this.state.filtersClassName}
+                                                               ref={this.tableSECIssuerRef}
+                                                               options={{type: 'secIssuer'}}
+                                                        />
+                                                    ) : (
+                                                        <NoDataBlock/>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div id={'finra_cat'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>FINRA CAT
                                                     </div>
                                                     <div
                                                         className="content__title_btns content__filter download-buttons justify-content-end">
@@ -650,7 +731,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     )}
                                                 </div>
                                             </div>
-
                                         </>
 
                                     ) : (

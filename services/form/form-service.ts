@@ -47,19 +47,40 @@ class FormService extends BaseService {
             queryString += `?symbol=${symbol}`;
         }
 
-        return (await apiWebBackendService.get<IResponse<IFINRACatRegA[]>>(`${this.PATH}form_finra_reg_a/${queryString}`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<IFINRACatRegA[]>>(`${this.PATH}finra_reg_a/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 
     public async createFINRARegA(data: any): Promise<any> {
-        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}form_finra_reg_a/`, data, {}, this.getUserAccessToken())).data
+        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}finra_reg_a/`, data, {}, this.getUserAccessToken())).data
     }
 
     public async updateFINRARegA(data: any, id: number): Promise<any> {
-        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}form_finra_reg_a/${id}/`, data, {}, this.getUserAccessToken())).data
+        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}finra_reg_a/${id}/`, data, {}, this.getUserAccessToken())).data
     }
 
     public async deleteFINRARegA(id: number): Promise<any> {
-        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}form_finra_reg_a/${id}/`, {}, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}finra_reg_a/${id}/`, {}, {}, this.getUserAccessToken())).data;
+    }
+
+    public async getSECIssuer(symbol?: string | null): Promise<ISECIssuer[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<ISECIssuer[]>>(`${this.PATH}issuer/${queryString}`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async createSECIssuer(data: any): Promise<any> {
+        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}issuer/`, data, {}, this.getUserAccessToken())).data
+    }
+
+    public async updateSECIssuer(data: any, id: number): Promise<any> {
+        return (await apiWebBackendService.put<IResponse<any>>(`${this.PATH}issuer/${id}/`, data, {}, this.getUserAccessToken())).data
+    }
+
+    public async deleteSECIssuer(id: number): Promise<any> {
+        return (await apiWebBackendService.delete<IResponse<any>>(`${this.PATH}issuer/${id}/`, {}, {}, this.getUserAccessToken())).data;
     }
 
     // ***************************

@@ -214,6 +214,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                             name="issuer_name"
                                                             id="issuer_name"
                                                             type="text"
+                                                            placeholder={'Type Issuer Name'}
                                                             className="input__text"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
@@ -230,6 +231,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                             name="listing"
                                                             id="listing"
                                                             type="text"
+                                                            placeholder={'Type Listing'}
                                                             className="input__text"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
@@ -246,6 +248,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                             name="ats_and_exchange"
                                                             id="ats_and_exchange"
                                                             type="text"
+                                                            placeholder={'Type ATS & Exchange'}
                                                             className="input__text"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
@@ -264,12 +267,13 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                                             type="text"
                                                             component={NumericInputField}
                                                             decimalScale={0}
+                                                            placeholder={'Type CIK'}
                                                             maxLength={10}
                                                             isThousandSeparator={false}
                                                             className="input__text"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
-                                                        <ErrorMessage name="ats_and_exchange" component="div"
+                                                        <ErrorMessage name="cik" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>

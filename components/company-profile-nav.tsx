@@ -41,62 +41,69 @@ let MENU_LIST: Array<Menus> = [
         text: 'Company Address',
         to: "company_address",
         icon: '/img/pd-ico.svg',
-        alt: 'Info'
+        alt: 'Company Address'
     },
     {
         text: 'Business Description',
         to: "business_description",
         icon: '/img/pd-ico.svg',
-        alt: 'Password'
+        alt: 'Business Description'
     },
     {
         text: 'Asset Profile Data',
         to: "company_profile_data",
         icon: '/img/pd-ico.svg',
-        alt: 'Payment'
+        alt: 'Asset Profile Data'
     },
     {
         text: 'Company Officers & Contacts',
         to: "company_officers_and_contacts",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Company Officers & Contacts'
     },
     {
         text: 'Board of Directors',
         to: "board_of_directors",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Board of Directors'
     },
     {
         text: 'Product & Services',
         to: "product_and_services",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Product & Services'
     },
     {
         text: 'Company Facilities',
         to: "company_facilities",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Company Facilities'
     },
     {
         text: 'Service Providers',
         to: "service_providers",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Service Providers'
     },
     {
         text: 'Financial Reporting',
         to: "financial_reporting",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
+        alt: 'Financial Reporting'
     },
     {
-        text: 'Consolidated Audit Trail Eligible Symbol',
-        to: "consolidated_audit_trail_eligible_symbol",
+        text: 'SEC Issuer',
+        to: "sec_issuer",
         icon: '/img/pd-ico.svg',
-        alt: 'Admin'
-    }
+        alt: 'SEC Issuer'
+    },
+    {
+        text: 'FINRA CAT',
+        to: "finra_cat",
+        icon: '/img/pd-ico.svg',
+        alt: 'FINRA CAT'
+    },
+
 ]
 
 const CompanyProfileNav = () => {
