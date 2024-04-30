@@ -86,7 +86,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
             columnHelper.accessor((row) => row, {
                 id: "symbol",
                 cell: (item) => item.getValue(),
-                header: () => <span>Symbol</span>,
+                header: () => <span>View</span>,
             }),
         ];
 
@@ -323,7 +323,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                             </div>
                                         </div>
                                         <div className="input">
-                                            <div className="input__title">Symbol <i>*</i></div>
+                                            <div className="input__title">View <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                 <Field
@@ -331,7 +331,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                     id="symbol"
                                                     as={Select}
                                                     className="b-select-search"
-                                                    placeholder="Select Symbol"
+                                                    placeholder="Select View"
                                                     classNamePrefix="select__react"
                                                     isDisabled={isSubmitting}
                                                     options={Object.values(this.state.symbols).map((item) => ({

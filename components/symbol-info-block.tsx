@@ -14,7 +14,7 @@ import {RedeemabilityType} from "@/enums/redeemability-type";
 import formatterService from "@/services/formatter/formatter-service";
 import {Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faEdit, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import SymbolForm from "@/components/symbol-form";
 import {DataContext} from "@/contextes/data-context";
@@ -148,8 +148,14 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
 
     openModal = (mode: string) => {
-        this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
-        this.cancelCompanyForm();
+        if (mode === 'edit') {
+            this.props.onCallback(this.props.symbol, mode)
+        } else {
+            this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
+            this.cancelCompanyForm();
+        }
+
+
     }
 
     openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
@@ -200,6 +206,10 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     };
 
+    navigate = () => {
+        this.props.onCallback(this.props.symbol, 'asset_profile');
+    }
+
     render() {
         return (
             <>
@@ -211,26 +221,46 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                             <div className={'profile__right'}>
                                 {this.symbol ? (
                                     <>
-                                        <div className={'profile__right-title'}>
-                                            <div>{this.symbol.security_name} ({this.symbol.symbol})</div>
-                                            <div className={'justify-content-end'}>
-                                                {this.props.access.edit && (
-                                                    <>
-                                                        <button className="d-none d-md-block b-btn ripple"
-                                                                disabled={this.state.isLoading}
-                                                                onClick={() => this.openModal('edit')}>Edit
-                                                        </button>
-                                                        <Button
-                                                            variant="link"
-                                                            className="d-md-none admin-table-btn ripple"
-                                                            type="button"
-                                                            onClick={() => this.openModal('edit')}
-                                                        >
-                                                            <FontAwesomeIcon icon={faEdit}/>
-                                                        </Button>
-                                                    </>
+                                        <div className={'profile__right-title '}>
+                                            <div className={'d-flex gap-10'}>
+                                                <div
+                                                    className={'cursor-pointer title d-flex align-items-center gap-10'}>{this.symbol.security_name} ({this.symbol.symbol})
+                                                    <span className={'admin-table-btn ripple'} onClick={() => this.navigate()}>
+                                                        <FontAwesomeIcon
+                                                            className="nav-icon" icon={faEye}/>
+                                                    </span>
 
+                                                </div>
+                                            </div>
+                                            <div className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                {this.symbol?.company_profile && (
+                                                    <>
+                                                        <div className="d-flex gap-10">
+                                                            <div className={'d-flex'}>Asset Profile:</div>
+                                                            <div
+                                                                className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
+                                                        </div>
+                                                    </>
                                                 )}
+                                                <div>
+                                                    {this.props.access.edit && (
+                                                        <>
+                                                            <button className="d-none d-md-block b-btn ripple"
+                                                                    disabled={this.state.isLoading}
+                                                                    onClick={() => this.openModal('edit')}>Edit
+                                                            </button>
+                                                            <Button
+                                                                variant="link"
+                                                                className="d-md-none admin-table-btn ripple"
+                                                                type="button"
+                                                                onClick={() => this.openModal('edit')}
+                                                            >
+                                                                <FontAwesomeIcon icon={faEdit}/>
+                                                            </Button>
+                                                        </>
+
+                                                    )}
+                                                </div>
 
                                             </div>
                                         </div>

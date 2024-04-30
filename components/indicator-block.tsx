@@ -223,7 +223,7 @@ class IndicatorBlock extends React.Component {
                                 return (
                                     <Form>
                                         <div className="input">
-                                            <div className="input__title">Symbol <i>*</i></div>
+                                            <div className="input__title">View <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                 <Field
@@ -231,7 +231,7 @@ class IndicatorBlock extends React.Component {
                                                     id="symbol_tmp"
                                                     as={Select}
                                                     className="b-select-search"
-                                                    placeholder="Select Symbol"
+                                                    placeholder="Select View"
                                                     classNamePrefix="select__react"
                                                     isDisabled={isSubmitting}
                                                     options={Object.values(this.symbols).map((item) => ({
@@ -316,7 +316,7 @@ class IndicatorBlock extends React.Component {
         const add = 'Add';
         switch (this.state.formType) {
             case 'security':
-                return `${add} Symbol`;
+                return `${add} View`;
             case 'company_profile':
                 return `${add} Asset Profile`;
             case 'last_sale_reporting':

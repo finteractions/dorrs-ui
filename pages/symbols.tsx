@@ -9,8 +9,12 @@ const Symbols: NextPageWithLayout = () => {
 
     const router = useRouter();
 
-    const onCallback = (symbol: string) => {
-        router.push(`/symbols/${symbol}`)
+    const onCallback = (symbol: string, mode?: string) => {
+        let queryString = "";
+        if (mode) {
+            queryString += `/${mode}`;
+        }
+        router.push(`/symbols/${symbol}${queryString}`)
     }
 
     return (

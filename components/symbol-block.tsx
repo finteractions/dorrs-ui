@@ -243,7 +243,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     };
 
     navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+        this.props.onCallback(symbol, 'view');
     }
 
     startAutoUpdate = () => {
@@ -281,8 +281,20 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     }
 
     openModal = (mode: string, data?: ISymbol) => {
-        this.setState({isOpenModal: true, symbol: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
-        this.cancelCompanyForm();
+        if (mode === 'delete') {
+            this.setState({
+                isOpenModal: true,
+                symbol: data || null,
+                formAction: mode,
+                modalTitle: this.modalTitle(mode)
+            })
+            this.cancelCompanyForm();
+        } else if (mode === 'add') {
+            this.props.onCallback(mode)
+        } else {
+            this.props.onCallback(data?.symbol, mode)
+        }
+
     }
 
     openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {

@@ -257,7 +257,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                         </div>
                                                     </div>
                                                     <div className="input">
-                                                        <div className="input__title">Symbol <i>*</i></div>
+                                                        <div className="input__title">View <i>*</i></div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
@@ -265,7 +265,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 id="symbol_tmp"
                                                                 as={Select}
                                                                 className="b-select-search"
-                                                                placeholder="Select Symbol"
+                                                                placeholder="Select View"
                                                                 classNamePrefix="select__react"
                                                                 isDisabled={isSubmitting || this.isShow()}
                                                                 options={Object.values(this.symbols).map((item) => ({
@@ -288,7 +288,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                         </div>
                                                     </div>
                                                     <div className="input">
-                                                        <div className="input__title">Symbol Suffix</div>
+                                                        <div className="input__title">View Suffix</div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
@@ -296,7 +296,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 id="symbol_suffix"
                                                                 type="text"
                                                                 className="input__text"
-                                                                placeholder="Type Symbol Suffix"
+                                                                placeholder="Type View Suffix"
                                                                 disabled={isSubmitting || this.isShow()}
                                                                 onChange={(e: any) => this.handleSymbolSuffix(e.target.value, values, setFieldValue)}
                                                             />
