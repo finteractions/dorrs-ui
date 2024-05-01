@@ -17,7 +17,7 @@ const View: NextPageWithLayout = () => {
         }
 
         if (mode === 'asset_profile') {
-            router.push(`/asset-profiles/${symbol}`)
+            router.push(`/asset-profiles/${symbol}/view`)
         } else {
             router.push(`/symbols/${symbol}${queryString}`)
         }

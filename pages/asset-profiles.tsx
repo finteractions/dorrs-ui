@@ -9,8 +9,12 @@ const AssetProfiles: NextPageWithLayout = () => {
 
     const router = useRouter();
 
-    const onCallback = (symbol: string) => {
-        router.push(`/asset-profiles/${symbol}`)
+    const onCallback = (symbol: string, mode?: string) => {
+        let queryString = "";
+        if (mode) {
+            queryString += `/${mode}`;
+        }
+        router.push(`/asset-profiles/${symbol}${queryString}`)
     }
 
     return (

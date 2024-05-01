@@ -23,6 +23,8 @@ import Select from "react-select";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 import * as Yup from "yup";
 import Image from "next/image";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 
 interface CompanyProfilesBlockState extends IState {
@@ -75,8 +77,13 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     state: CompanyProfilesBlockState;
     symbols: Array<ISymbol> = new Array<ISymbol>();
 
-    constructor(props: CompanyProfilesBlockProps) {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
+    constructor(props: CompanyProfilesBlockProps, context: IDataContext<null>) {
         super(props);
+
+        this.context = context;
 
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
@@ -264,7 +271,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     }
 
     navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+        this.props.onCallback(symbol, 'view');
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -291,7 +298,17 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     }
 
     openModal = (mode: string, data?: ICompanyProfile) => {
-        this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode})
+        if (this.state.isAdmin) {
+            this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode})
+        } else {
+            if (mode === 'delete') {
+                this.setState({isOpenCompanyModal: true, formCompanyData: data || null, formCompanyAction: mode})
+            } else if (mode === 'add') {
+                this.props.onCallback(mode)
+            } else {
+                this.props.onCallback(data?.symbol_data?.symbol, mode)
+            }
+        }
     }
 
     openCompanyProfileModal = (form: string) => {
@@ -325,15 +342,20 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     handleSubmit = async (values: ISymbol, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
+        if (this.state.isAdmin) {
+            const symbol = this.symbols.find(s => s.symbol === values.symbol);
+            this.setState({
+                isOpenModal: true,
+                symbol: symbol ?? null,
+                companyProfile: symbol?.company_profile ?? null,
+                isOverrideComponent: false,
+                formAction: symbol?.company_profile ? 'edit' : 'add'
+            });
+        } else {
+            this.context.setSharedData({symbol: values.symbol})
+            this.props.onCallback('add')
+        }
 
-        const symbol = this.symbols.find(s => s.symbol === values.symbol);
-        this.setState({
-            isOpenModal: true,
-            symbol: symbol ?? null,
-            companyProfile: symbol?.company_profile ?? null,
-            isOverrideComponent: false,
-            formAction: symbol?.company_profile ? 'edit' : 'add'
-        });
     };
 
     renderFormBasedOnType(formType: string) {
@@ -366,7 +388,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                 return (
                                     <Form>
                                         <div className="input">
-                                            <div className="input__title">View <i>*</i></div>
+                                            <div className="input__title">Symbol <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                 <Field
@@ -374,7 +396,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                                     id="symbol_tmp"
                                                     as={Select}
                                                     className="b-select-search"
-                                                    placeholder="Select View"
+                                                    placeholder="Select Symbol"
                                                     classNamePrefix="select__react"
                                                     isDisabled={isSubmitting}
                                                     options={Object.values(this.symbols).map((item) => ({

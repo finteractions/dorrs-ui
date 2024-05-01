@@ -1281,7 +1281,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <button
                                                         className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                                        Save Company Profile
+                                                        Save Asset Profile
                                                     </button>
                                                 )}
 

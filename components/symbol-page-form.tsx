@@ -22,7 +22,7 @@ import {FormStatus, getApprovedFormStatus, getBuildableFormStatuses} from "@/enu
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import moment from 'moment';
 import 'react-dates/initialize';
-import { SingleDatePicker } from "react-dates";
+import {SingleDatePicker} from "react-dates";
 import 'react-dates/lib/css/_datepicker.css';
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
 import {AlternativeAssetCategory, getAlternativeAssetSubCategory} from "@/enums/alternative-asset-category";
@@ -595,1280 +595,1286 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                 return (
                                     <Form id="bank-form">
                                         <div className="flex-panel-box">
+                                            {this.symbol && (
+                                                <div className={'panel'}>
+                                                    <div
+                                                        className={'content__bottom d-flex justify-content-between'}>
+                                                        <h2 className={'view_block_main_title'}>
+                                                            {this.symbol?.security_name} ({this.symbol?.symbol})
+                                                        </h2>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div className={'profile__right'}>
-
-                                                <>
-                                                    <div className={'profile__right-wrap-full'}>
-                                                        <div className={'profile__panel'}>
-                                                            <div className={'profile__info__panel view__input__box'}>
-                                                                {(values.is_delete) && (
-                                                                    <>
-                                                                        <div className="input">
-                                                                            <div className="input__group">
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Date <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap no-bg`}>
-                                                                                        <SingleDatePicker
-
-                                                                                            numberOfMonths={1}
-                                                                                            date={values.date_entered_change ? moment(values.date_entered_delete) : null}
-                                                                                            onDateChange={date => setFieldValue('date_entered_delete', date?.format('YYYY-MM-DD').toString())}
-                                                                                            focused={this.state.focusedInputDateEntered}
-                                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
-                                                                                            id="date_entered_delete"
-                                                                                            displayFormat="YYYY-MM-DD"
-                                                                                            isOutsideRange={() => false}
-                                                                                            readOnly={true}
-                                                                                            disabled={true}
-                                                                                            placeholder={'Select Date'}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="date_entered_delete"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-
-
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Time <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap`}>
-                                                                                        <Field
-                                                                                            name="time_entered_delete"
-                                                                                            id="time_entered_delete"
-                                                                                            type="time"
-                                                                                            placeholder="Type Time"
-                                                                                            className="input__text no-bg"
-                                                                                            readOnly={true}
-                                                                                            disabled={true}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="time_entered_delete"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="input__group">
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Effective
-                                                                                        Date <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap`}>
-                                                                                        <SingleDatePicker
-                                                                                            numberOfMonths={1}
-                                                                                            date={values.date_effective_delete ? moment(values.date_effective_delete) : null}
-                                                                                            onDateChange={date => setFieldValue('date_effective_delete', date?.format('YYYY-MM-DD').toString())}
-                                                                                            focused={this.state.focusedInputDateEffectiveDelete}
-                                                                                            onFocusChange={({focused}) => this.setState({focusedInputDateEffectiveDelete: focused})}
-                                                                                            id="date_effective_delete"
-                                                                                            displayFormat="YYYY-MM-DD"
-                                                                                            isOutsideRange={() => false}
-                                                                                            readOnly={true}
-                                                                                            placeholder={'Select Date'}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="date_effective_delete"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-
-
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Effective
-                                                                                        Time <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap`}>
-                                                                                        <Field
-                                                                                            name="time_effective_delete"
-                                                                                            id="time_effective_delete"
-                                                                                            type="time"
-                                                                                            placeholder="Type Time"
-                                                                                            className="input__text no-bg"
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="time_effective_delete"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
+                                                <div className={'profile__right-wrap-full'}>
+                                                    <div className={'profile__panel'}>
+                                                        <div className={'profile__info__panel view__input__box'}>
+                                                            {(values.is_delete) && (
+                                                                <>
+                                                                    <div className="input">
+                                                                        <div className="input__group">
                                                                             <div className="input">
-                                                                                <div className="input__title">Delete
-                                                                                    Reason
-                                                                                </div>
-                                                                                <div className="input__wrap">
-                                                                                    <Field
-                                                                                        name="reason_delete"
-                                                                                        id="reason_delete"
-                                                                                        as="textarea"
-                                                                                        rows="3"
-                                                                                        className="input__text no-bgarea"
-                                                                                        placeholder="Type delete reason"
-                                                                                        disabled={isSubmitting}
-                                                                                    />
-                                                                                    <ErrorMessage name="reason_delete"
-                                                                                                  component="div"
-                                                                                                  className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </>
-                                                                )}
-
-                                                                {this.props.action !== 'delete' && (
-                                                                    <>
-
-                                                                        {(!values.is_change) && (
-                                                                            <div className="input__box">
-                                                                                <div className="input__title">Reason for
-                                                                                    Entry <i>*</i>
+                                                                                <div
+                                                                                    className="input__title">Date <i>*</i>
                                                                                 </div>
                                                                                 <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="reason_for_entry"
-                                                                                        id="reason_for_entry"
-                                                                                        as="select"
-                                                                                        className="b-select no-bg"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    >
-                                                                                        <option value="">Select a
-                                                                                            Reason
-                                                                                        </option>
-                                                                                        <option
-                                                                                            value="New Ticker Symbol">New
-                                                                                            Ticker
-                                                                                            Symbol
-                                                                                        </option>
-                                                                                        <option disabled={true}
-                                                                                                value="New Ticker Symbol">New
-                                                                                            Security Name
-                                                                                        </option>
-                                                                                        <option disabled={true}
-                                                                                                value="Symbol Deletion">Symbol
-                                                                                            Deletion
-                                                                                        </option>
-                                                                                    </Field>
+                                                                                    className={`input__wrap no-bg`}>
+                                                                                    <SingleDatePicker
+
+                                                                                        numberOfMonths={1}
+                                                                                        date={values.date_entered_change ? moment(values.date_entered_delete) : null}
+                                                                                        onDateChange={date => setFieldValue('date_entered_delete', date?.format('YYYY-MM-DD').toString())}
+                                                                                        focused={this.state.focusedInputDateEntered}
+                                                                                        onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
+                                                                                        id="date_entered_delete"
+                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        isOutsideRange={() => false}
+                                                                                        readOnly={true}
+                                                                                        disabled={true}
+                                                                                        placeholder={'Select Date'}
+                                                                                    />
                                                                                     <ErrorMessage
-                                                                                        name="reason_for_entry"
+                                                                                        name="date_entered_delete"
                                                                                         component="div"
                                                                                         className="error-message"/>
                                                                                 </div>
                                                                             </div>
-                                                                        )}
-                                                                        <div className={'input__box full'}>
-                                                                            <h4 className={'input__group__title'}>Symbol
-                                                                                Information:</h4>
-                                                                        </div>
-
-                                                                        {(!values.is_change) && (
-                                                                            <>
-                                                                                <div className="input__box">
-                                                                                    <div
-                                                                                        className="input__title">Security
-                                                                                        Name <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="security_name"
-                                                                                            id="security_name"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Security Name"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                            onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="security_name"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="input__box">
-                                                                                    <div
-                                                                                        className="input__title">Symbol <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="symbol"
-                                                                                            id="symbol"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Symbol"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
-                                                                                        />
-                                                                                        {getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && (
-                                                                                            <button
-                                                                                                type="button"
-                                                                                                className='border-grey-btn ripple'
-                                                                                                onClick={() => {
-                                                                                                    setFieldValue('is_change', true);
-                                                                                                }}
-                                                                                            >
-                                                                                                <FontAwesomeIcon
-                                                                                                    className="nav-icon"
-                                                                                                    icon={faEdit}/>
-                                                                                            </button>
-                                                                                        )}
-
-                                                                                        <ErrorMessage name="symbol"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </>
-                                                                        )}
-
-                                                                        {(values.is_change) && (
-                                                                            <>
-                                                                                <div className="input__box full">
-                                                                                    <div className="input__group">
-                                                                                        <div className="input">
-                                                                                            <div
-                                                                                                className="input__title">Date <i>*</i>
-                                                                                            </div>
-                                                                                            <div
-                                                                                                className={`input__wrap no-border`}>
-                                                                                                <SingleDatePicker
-                                                                                                    numberOfMonths={1}
-                                                                                                    date={values.date_entered_change ? moment(values.date_entered_change) : null}
-                                                                                                    onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
-                                                                                                    focused={this.state.focusedInputDateEntered}
-                                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
-                                                                                                    id="date_entered_change"
-                                                                                                    displayFormat="YYYY-MM-DD"
-                                                                                                    isOutsideRange={() => false}
-                                                                                                    readOnly={true}
-                                                                                                    disabled={true}
-                                                                                                    placeholder={'Select Date'}
-                                                                                                />
-                                                                                                <ErrorMessage
-                                                                                                    name="date_entered_change"
-                                                                                                    component="div"
-                                                                                                    className="error-message"/>
-                                                                                            </div>
-                                                                                        </div>
 
 
-                                                                                        <div className="input">
-                                                                                            <div
-                                                                                                className="input__title">Time <i>*</i>
-                                                                                            </div>
-                                                                                            <div
-                                                                                                className={`input__wrap no-border`}>
-                                                                                                <Field
-                                                                                                    name="time_entered_change"
-                                                                                                    id="time_entered_change"
-                                                                                                    type="time"
-                                                                                                    placeholder="Type Time"
-                                                                                                    className="input__text no-bg"
-                                                                                                    readOnly={true}
-                                                                                                    disabled={true}
-                                                                                                />
-                                                                                                <ErrorMessage
-                                                                                                    name="time_entered_change"
-                                                                                                    component="div"
-                                                                                                    className="error-message"/>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="input__group">
-                                                                                        <div className="input">
-                                                                                            <div
-                                                                                                className="input__title">Effective
-                                                                                                Date <i>*</i>
-                                                                                            </div>
-                                                                                            <div
-                                                                                                className={`input__wrap no-border`}>
-                                                                                                <SingleDatePicker
-                                                                                                    numberOfMonths={1}
-                                                                                                    date={values.date_effective_change ? moment(values.date_effective_change) : null}
-                                                                                                    onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
-                                                                                                    focused={this.state.focusedInputDateEffective}
-                                                                                                    onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
-                                                                                                    id="date_effective_change"
-                                                                                                    displayFormat="YYYY-MM-DD"
-                                                                                                    isOutsideRange={() => false}
-                                                                                                    readOnly={true}
-                                                                                                    placeholder={'Select Date'}
-                                                                                                />
-                                                                                                <ErrorMessage
-                                                                                                    name="date_effective_change"
-                                                                                                    component="div"
-                                                                                                    className="error-message"/>
-                                                                                            </div>
-                                                                                        </div>
-
-
-                                                                                        <div className="input">
-                                                                                            <div
-                                                                                                className="input__title">Effective
-                                                                                                Time <i>*</i>
-                                                                                            </div>
-                                                                                            <div
-                                                                                                className={`input__wrap no-border`}>
-                                                                                                <Field
-                                                                                                    name="time_effective_change"
-                                                                                                    id="time_effective_change"
-                                                                                                    type="time"
-                                                                                                    placeholder="Type Time"
-                                                                                                    className="input__text no-bg"
-                                                                                                />
-                                                                                                <ErrorMessage
-                                                                                                    name="time_effective_change"
-                                                                                                    component="div"
-                                                                                                    className="error-message"/>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="input">
-                                                                                        <div
-                                                                                            className="input__title">Security
-                                                                                            Name <i>*</i>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            className={`input__wrap no-border`}>
-                                                                                            <Field
-                                                                                                name="new_security_name"
-                                                                                                id="new_security_name"
-                                                                                                type="text"
-                                                                                                className="input__text no-bg"
-                                                                                                placeholder="Type Security Name"
-                                                                                            />
-                                                                                            <ErrorMessage
-                                                                                                name="new_security_name"
-                                                                                                component="div"
-                                                                                                className="error-message"/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="input">
-                                                                                        <div
-                                                                                            className="input__title">Symbol <i>*</i>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            className={`input__wrap no-border`}>
-                                                                                            <Field
-                                                                                                name="new_symbol"
-                                                                                                id="new_symbol"
-                                                                                                type="text"
-                                                                                                className="input__text no-bg"
-                                                                                                placeholder="Type Symbol"
-                                                                                                onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
-                                                                                            />
-                                                                                            <ErrorMessage
-                                                                                                name="new_symbol"
-                                                                                                component="div"
-                                                                                                className="error-message"/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="input">
-                                                                                        <div
-                                                                                            className="input__title">Change
-                                                                                            Reason
-                                                                                        </div>
-                                                                                        <div
-                                                                                            className="input__wrap no-border">
-                                                                                            <Field
-                                                                                                name="reason_change"
-                                                                                                id="reason_change"
-                                                                                                as="textarea"
-                                                                                                rows="3"
-                                                                                                className="input__text no-bgarea"
-                                                                                                placeholder="Type change reason"
-                                                                                                disabled={isSubmitting}
-                                                                                            />
-                                                                                            <ErrorMessage
-                                                                                                name="reason_change"
-                                                                                                component="div"
-                                                                                                className="error-message"/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="input">
-                                                                                        <div
-                                                                                            className="input__title">Digital
-                                                                                            Security
-                                                                                            Identifier
-                                                                                            Number -
-                                                                                            DSIN
-                                                                                        </div>
-                                                                                        <div
-                                                                                            className="input__group mb-0">
-                                                                                            <div className="input">
-                                                                                                <div
-                                                                                                    className="input__title">Current
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border`}>
-                                                                                                    <Field
-                                                                                                        name="dsin"
-                                                                                                        id="dsin"
-                                                                                                        type="text"
-                                                                                                        className="input__text no-bg dsin no-bg dsin-view"
-                                                                                                        disabled={true}
-                                                                                                    />
-                                                                                                    <ErrorMessage
-                                                                                                        name="dsin"
-                                                                                                        component="div"
-                                                                                                        className="error-message"/>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div className="input">
-                                                                                                <div
-                                                                                                    className="input__title">Destination
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border`}>
-                                                                                                    <Field
-                                                                                                        name="new_dsin"
-                                                                                                        id="new_dsin"
-                                                                                                        type="text"
-                                                                                                        className="input__text no-bg dsin blue input__text no-bg dsin no-bg dsin-view"
-                                                                                                        disabled={true}
-                                                                                                    />
-                                                                                                    <ErrorMessage
-                                                                                                        name="new_dsin"
-                                                                                                        component="div"
-                                                                                                        className="error-message"/>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            className={'input__title mt-2'}>
-                                                                            <span
-                                                                                className={'fw-bold '}>Notice: </span> if
-                                                                                            you change the Symbol
-                                                                                            the DSIN is
-                                                                                            changed
-
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <hr className={'mb-24'}/>
-
-                                                                                <div className="input__box">
-                                                                                    <div
-                                                                                        className="input__title">Security
-                                                                                        Name <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="security_name"
-                                                                                            id="security_name"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Security Name"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                            onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="security_name"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="input__box">
-                                                                                    <div
-                                                                                        className="input__title">Symbol <i>*</i>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="symbol"
-                                                                                            id="symbol"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Symbol"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
-                                                                                        />
-                                                                                        <ErrorMessage name="symbol"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </>
-                                                                        )}
-
-                                                                        <div className={'input__box'}>
                                                                             <div className="input">
                                                                                 <div
-                                                                                    className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
+                                                                                    className="input__title">Time <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
                                                                                     <Field
-                                                                                        type="checkbox"
-                                                                                        name="is_cusip"
-                                                                                        id="is_cusip"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                        onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
+                                                                                        name="time_entered_delete"
+                                                                                        id="time_entered_delete"
+                                                                                        type="time"
+                                                                                        placeholder="Type Time"
+                                                                                        className="input__text no-bg"
+                                                                                        readOnly={true}
+                                                                                        disabled={true}
                                                                                     />
-                                                                                    <label htmlFor="is_cusip">
-                                                                                        <span></span><i> Does it
-                                                                                        have cusip number?
-                                                                                    </i>
-                                                                                    </label>
-                                                                                    <ErrorMessage name="is_cusip"
+                                                                                    <ErrorMessage
+                                                                                        name="time_entered_delete"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="input__group">
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className="input__title">Effective
+                                                                                    Date <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
+                                                                                    <SingleDatePicker
+                                                                                        numberOfMonths={1}
+                                                                                        date={values.date_effective_delete ? moment(values.date_effective_delete) : null}
+                                                                                        onDateChange={date => setFieldValue('date_effective_delete', date?.format('YYYY-MM-DD').toString())}
+                                                                                        focused={this.state.focusedInputDateEffectiveDelete}
+                                                                                        onFocusChange={({focused}) => this.setState({focusedInputDateEffectiveDelete: focused})}
+                                                                                        id="date_effective_delete"
+                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        isOutsideRange={() => false}
+                                                                                        readOnly={true}
+                                                                                        placeholder={'Select Date'}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="date_effective_delete"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className="input__title">Effective
+                                                                                    Time <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap`}>
+                                                                                    <Field
+                                                                                        name="time_effective_delete"
+                                                                                        id="time_effective_delete"
+                                                                                        type="time"
+                                                                                        placeholder="Type Time"
+                                                                                        className="input__text no-bg"
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="time_effective_delete"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="input">
+                                                                            <div className="input__title">Delete
+                                                                                Reason
+                                                                            </div>
+                                                                            <div className="input__wrap">
+                                                                                <Field
+                                                                                    name="reason_delete"
+                                                                                    id="reason_delete"
+                                                                                    as="textarea"
+                                                                                    rows="3"
+                                                                                    className="input__text no-bgarea"
+                                                                                    placeholder="Type delete reason"
+                                                                                    disabled={isSubmitting}
+                                                                                />
+                                                                                <ErrorMessage name="reason_delete"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )}
+
+                                                            {this.props.action !== 'delete' && (
+                                                                <>
+
+                                                                    {(!values.is_change) && (
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Reason for
+                                                                                Entry <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="reason_for_entry"
+                                                                                    id="reason_for_entry"
+                                                                                    as="select"
+                                                                                    className="b-select no-bg"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                >
+                                                                                    <option value="">Select a
+                                                                                        Reason
+                                                                                    </option>
+                                                                                    <option
+                                                                                        value="New Ticker Symbol">New
+                                                                                        Ticker
+                                                                                        Symbol
+                                                                                    </option>
+                                                                                    <option disabled={true}
+                                                                                            value="New Ticker Symbol">New
+                                                                                        Security Name
+                                                                                    </option>
+                                                                                    <option disabled={true}
+                                                                                            value="Symbol Deletion">Symbol
+                                                                                        Deletion
+                                                                                    </option>
+                                                                                </Field>
+                                                                                <ErrorMessage
+                                                                                    name="reason_for_entry"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className={'input__box full'}>
+                                                                        <h4 className={'input__group__title'}>Symbol
+                                                                            Information:</h4>
+                                                                    </div>
+
+                                                                    {(!values.is_change) && (
+                                                                        <>
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Security
+                                                                                    Name <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="security_name"
+                                                                                        id="security_name"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Security Name"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="security_name"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Symbol <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="symbol"
+                                                                                        id="symbol"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Symbol"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
+                                                                                    />
+                                                                                    {getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && (
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className='border-grey-btn ripple'
+                                                                                            onClick={() => {
+                                                                                                setFieldValue('is_change', true);
+                                                                                            }}
+                                                                                        >
+                                                                                            <FontAwesomeIcon
+                                                                                                className="nav-icon"
+                                                                                                icon={faEdit}/>
+                                                                                        </button>
+                                                                                    )}
+
+                                                                                    <ErrorMessage name="symbol"
                                                                                                   component="div"
                                                                                                   className="error-message"/>
                                                                                 </div>
                                                                             </div>
+                                                                        </>
+                                                                    )}
 
-                                                                            <div className="input__box">
-                                                                                {values.is_cusip && (
-
-                                                                                    <div
-                                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="cusip"
-                                                                                            id="cusip"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type CUSIP"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                        />
-                                                                                        <ErrorMessage name="cusip"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
+                                                                    {(values.is_change) && (
+                                                                        <>
+                                                                            <div className="input__box full">
+                                                                                <div className="input__group">
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Date <i>*</i>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <SingleDatePicker
+                                                                                                numberOfMonths={1}
+                                                                                                date={values.date_entered_change ? moment(values.date_entered_change) : null}
+                                                                                                onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                                focused={this.state.focusedInputDateEntered}
+                                                                                                onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
+                                                                                                id="date_entered_change"
+                                                                                                displayFormat="YYYY-MM-DD"
+                                                                                                isOutsideRange={() => false}
+                                                                                                readOnly={true}
+                                                                                                disabled={true}
+                                                                                                placeholder={'Select Date'}
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="date_entered_change"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
                                                                                     </div>
 
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
 
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Digital
-                                                                                Security
-                                                                                Identifier
-                                                                                Number -
-                                                                                DSIN
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Time <i>*</i>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <Field
+                                                                                                name="time_entered_change"
+                                                                                                id="time_entered_change"
+                                                                                                type="time"
+                                                                                                placeholder="Type Time"
+                                                                                                className="input__text no-bg"
+                                                                                                readOnly={true}
+                                                                                                disabled={true}
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="time_entered_change"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input__group">
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Effective
+                                                                                            Date <i>*</i>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <SingleDatePicker
+                                                                                                numberOfMonths={1}
+                                                                                                date={values.date_effective_change ? moment(values.date_effective_change) : null}
+                                                                                                onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
+                                                                                                focused={this.state.focusedInputDateEffective}
+                                                                                                onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
+                                                                                                id="date_effective_change"
+                                                                                                displayFormat="YYYY-MM-DD"
+                                                                                                isOutsideRange={() => false}
+                                                                                                readOnly={true}
+                                                                                                placeholder={'Select Date'}
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="date_effective_change"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
+                                                                                    </div>
+
+
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Effective
+                                                                                            Time <i>*</i>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <Field
+                                                                                                name="time_effective_change"
+                                                                                                id="time_effective_change"
+                                                                                                type="time"
+                                                                                                placeholder="Type Time"
+                                                                                                className="input__text no-bg"
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="time_effective_change"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Security
+                                                                                        Name <i>*</i>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={`input__wrap no-border`}>
+                                                                                        <Field
+                                                                                            name="new_security_name"
+                                                                                            id="new_security_name"
+                                                                                            type="text"
+                                                                                            className="input__text no-bg"
+                                                                                            placeholder="Type Security Name"
+                                                                                        />
+                                                                                        <ErrorMessage
+                                                                                            name="new_security_name"
+                                                                                            component="div"
+                                                                                            className="error-message"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Symbol <i>*</i>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={`input__wrap no-border`}>
+                                                                                        <Field
+                                                                                            name="new_symbol"
+                                                                                            id="new_symbol"
+                                                                                            type="text"
+                                                                                            className="input__text no-bg"
+                                                                                            placeholder="Type Symbol"
+                                                                                            onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                                        />
+                                                                                        <ErrorMessage
+                                                                                            name="new_symbol"
+                                                                                            component="div"
+                                                                                            className="error-message"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Change
+                                                                                        Reason
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="input__wrap no-border">
+                                                                                        <Field
+                                                                                            name="reason_change"
+                                                                                            id="reason_change"
+                                                                                            as="textarea"
+                                                                                            rows="3"
+                                                                                            className="input__text no-bgarea"
+                                                                                            placeholder="Type change reason"
+                                                                                            disabled={isSubmitting}
+                                                                                        />
+                                                                                        <ErrorMessage
+                                                                                            name="reason_change"
+                                                                                            component="div"
+                                                                                            className="error-message"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className="input__title">Digital
+                                                                                        Security
+                                                                                        Identifier
+                                                                                        Number -
+                                                                                        DSIN
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className="input__group mb-0">
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className="input__title">Current
+                                                                                            </div>
+                                                                                            <div
+                                                                                                className={`input__wrap no-border`}>
+                                                                                                <Field
+                                                                                                    name="dsin"
+                                                                                                    id="dsin"
+                                                                                                    type="text"
+                                                                                                    className="input__text no-bg dsin no-bg dsin-view"
+                                                                                                    disabled={true}
+                                                                                                />
+                                                                                                <ErrorMessage
+                                                                                                    name="dsin"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className="input__title">Destination
+                                                                                            </div>
+                                                                                            <div
+                                                                                                className={`input__wrap no-border`}>
+                                                                                                <Field
+                                                                                                    name="new_dsin"
+                                                                                                    id="new_dsin"
+                                                                                                    type="text"
+                                                                                                    className="input__text no-bg dsin blue input__text no-bg dsin no-bg dsin-view"
+                                                                                                    disabled={true}
+                                                                                                />
+                                                                                                <ErrorMessage
+                                                                                                    name="new_dsin"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={'input__title mt-2'}>
+                                                                            <span
+                                                                                className={'fw-bold '}>Notice: </span> if
+                                                                                        you change the Symbol
+                                                                                        the DSIN is
+                                                                                        changed
+
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
+                                                                            <hr className={'mb-24'}/>
+
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Security
+                                                                                    Name <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="security_name"
+                                                                                        id="security_name"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Security Name"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="security_name"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Symbol <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="symbol"
+                                                                                        id="symbol"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Symbol"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
+                                                                                    />
+                                                                                    <ErrorMessage name="symbol"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+
+                                                                    <div className={'input__box'}>
+                                                                        <div className="input">
                                                                             <div
-                                                                                className={`input__wrap no-border`}>
+                                                                                className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
                                                                                 <Field
-                                                                                    name="dsin"
-                                                                                    id="dsin"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg dsin no-bg dsin-view"
-                                                                                    disabled={true}
+                                                                                    type="checkbox"
+                                                                                    name="is_cusip"
+                                                                                    id="is_cusip"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
                                                                                 />
-                                                                                <ErrorMessage name="dsin"
+                                                                                <label htmlFor="is_cusip">
+                                                                                    <span></span><i> Does it
+                                                                                    have cusip number?
+                                                                                </i>
+                                                                                </label>
+                                                                                <ErrorMessage name="is_cusip"
                                                                                               component="div"
                                                                                               className="error-message"/>
                                                                             </div>
                                                                         </div>
 
                                                                         <div className="input__box">
-                                                                            <div className="input__title">Fifth
-                                                                                Character
-                                                                                Identifiers
-                                                                            </div>
+                                                                            {values.is_cusip && (
+
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="cusip"
+                                                                                        id="cusip"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type CUSIP"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage name="cusip"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Digital
+                                                                            Security
+                                                                            Identifier
+                                                                            Number -
+                                                                            DSIN
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap no-border`}>
+                                                                            <Field
+                                                                                name="dsin"
+                                                                                id="dsin"
+                                                                                type="text"
+                                                                                className="input__text no-bg dsin no-bg dsin-view"
+                                                                                disabled={true}
+                                                                            />
+                                                                            <ErrorMessage name="dsin"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Fifth
+                                                                            Character
+                                                                            Identifiers
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="fifth_character_identifier"
+                                                                                id="fifth_character_identifier"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Fifth
+                                                                                    Character
+                                                                                    Identifiers
+                                                                                </option>
+                                                                                {Object.values(FifthCharacterIdentifier).map((identifier) => (
+                                                                                    <option key={identifier}
+                                                                                            value={identifier}>
+                                                                                        {identifier}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="fifth_character_identifier"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Alternative
+                                                                            Asset
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="alternative_asset_category"
+                                                                                id="alternative_asset_category"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Alternative Asset
+                                                                                </option>
+                                                                                {Object.values(AlternativeAssetCategory).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="alternative_asset_category"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
+                                                                        <div className="input__box">
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
-                                                                                    name="fifth_character_identifier"
-                                                                                    id="fifth_character_identifier"
+                                                                                    name="alternative_asset_subcategory"
+                                                                                    id="alternative_asset_subcategory"
                                                                                     as="select"
                                                                                     className="b-select no-bg"
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                 >
-                                                                                    <option value="">Select Fifth
-                                                                                        Character
-                                                                                        Identifiers
+                                                                                    <option value="">Select
+                                                                                        category
                                                                                     </option>
-                                                                                    {Object.values(FifthCharacterIdentifier).map((identifier) => (
-                                                                                        <option key={identifier}
-                                                                                                value={identifier}>
-                                                                                            {identifier}
+                                                                                    {Object.values(getAlternativeAssetSubCategory(values.alternative_asset_category)).map((type: any) => (
+                                                                                        <option key={type}
+                                                                                                value={type}>
+                                                                                            {type}
                                                                                         </option>
                                                                                     ))}
+
                                                                                 </Field>
+
                                                                                 <ErrorMessage
-                                                                                    name="fifth_character_identifier"
+                                                                                    name="alternative_asset_subcategory"
                                                                                     component="div"
                                                                                     className="error-message"/>
                                                                             </div>
                                                                         </div>
+                                                                    )}
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Exempted
+                                                                            Offerings
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="exempted_offerings"
+                                                                                id="exempted_offerings"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Exempted
+                                                                                    Offering
+                                                                                </option>
+                                                                                {Object.values(ExemptedOfferingType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="exempted_offerings"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Market
+                                                                            Sector <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="market_sector"
+                                                                                id="market_sector"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Market
+                                                                                    Sector
+                                                                                </option>
+                                                                                {Object.values(MarketSector).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="market_sector"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Lot Size
+                                                                            ({getLotSize().join(', ')}) <i>*</i>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="lot_size"
+                                                                                id="lot_size"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Lot Size"
+                                                                                component={NumericInputField}
+                                                                                decimalScale={0}
+                                                                                isThousandSeparator={false}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="lot_size"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Fractional
+                                                                            Lot Size
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="fractional_lot_size"
+                                                                                id="fractional_lot_size"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Fractional Lot Size"
+                                                                                component={NumericInputField}
+                                                                                decimalScale={6}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage
+                                                                                name="fractional_lot_size"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Minimum
+                                                                            Price Variation
+                                                                            (MPV)
+                                                                            (.01,
+                                                                            .05, .10)
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="mvp"
+                                                                                id="mvp"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type MPV"
+                                                                                component={NumericInputField}
+                                                                                decimalScale={4}
+                                                                                isThousandSeparator={false}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="mvp"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    <div className={'input__box full'}>
+                                                                        <h4 className={'input__group__title'}>Symbol
+                                                                            Trading
+                                                                            Information:</h4>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Primary
+                                                                            ATS <i>*</i></div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="primary_ats"
+                                                                                id="primary_ats"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Primary ATS"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="primary_ats"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Transfer
+                                                                            Agent
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="transfer_agent"
+                                                                                id="transfer_agent"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Transfer Agent"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="transfer_agent"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Custodian
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="custodian"
+                                                                                id="custodian"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Custodian"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="custodian"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    <div className={'input__box full'}>
+                                                                        <h4 className={'input__group__title'}>Digital
+                                                                            Asset:</h4>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Digital
+                                                                            Asset Category
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="digital_asset_category"
+                                                                                id="digital_asset_category"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Digital
+                                                                                    Asset Category
+                                                                                </option>
+                                                                                {Object.values(DigitalAssetCategory).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="digital_asset_category"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.digital_asset_category !== '' && getDigitalAssetCategoryInstrument(values.digital_asset_category) && (
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="instrument_type"
+                                                                                    id="instrument_type"
+                                                                                    as="select"
+                                                                                    className="b-select no-bg"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                >
+                                                                                    <option value="">Select
+                                                                                        Instrument Type
+                                                                                    </option>
+                                                                                    {Object.values(getDigitalAssetCategoryInstrument(values.digital_asset_category)).map((type: any) => (
+                                                                                        <option key={type}
+                                                                                                value={type}>
+                                                                                            {type}
+                                                                                        </option>
+                                                                                    ))}
+
+                                                                                </Field>
+
+                                                                                <ErrorMessage
+                                                                                    name="instrument_type"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Issuer
+                                                                            Name
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="issuer_name"
+                                                                                id="issuer_name"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Issuer Name"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="issuer_name"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Issuer
+                                                                            Type
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="issuer_type"
+                                                                                id="issuer_type"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Issuer
+                                                                                    Type
+                                                                                </option>
+                                                                                {Object.values(IssuerType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="issuer_type"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    <div className={'input__box'}>
+                                                                        <div
+                                                                            className="input__title">Underpinning
+                                                                            Asset Value
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="underpinning_asset_value"
+                                                                                id="underpinning_asset_value"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handlePeggedChange(e, setFieldValue)}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Underpinning Asset Value
+                                                                                </option>
+                                                                                {Object.values(UnderpinningAssetValue).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="underpinning_asset_value"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.underpinning_asset_value === UnderpinningAssetValue.PEGGED && (
 
                                                                         <div className="input__box">
                                                                             <div
-                                                                                className="input__title">Alternative
+                                                                                className="input__title">Reference
                                                                                 Asset
                                                                             </div>
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
-                                                                                    name="alternative_asset_category"
-                                                                                    id="alternative_asset_category"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select
-                                                                                        Alternative Asset
-                                                                                    </option>
-                                                                                    {Object.values(AlternativeAssetCategory).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="alternative_asset_category"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
-                                                                            <div className="input__box">
-                                                                                <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="alternative_asset_subcategory"
-                                                                                        id="alternative_asset_subcategory"
-                                                                                        as="select"
-                                                                                        className="b-select no-bg"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    >
-                                                                                        <option value="">Select
-                                                                                            category
-                                                                                        </option>
-                                                                                        {Object.values(getAlternativeAssetSubCategory(values.alternative_asset_category)).map((type: any) => (
-                                                                                            <option key={type}
-                                                                                                    value={type}>
-                                                                                                {type}
-                                                                                            </option>
-                                                                                        ))}
-
-                                                                                    </Field>
-
-                                                                                    <ErrorMessage
-                                                                                        name="alternative_asset_subcategory"
-                                                                                        component="div"
-                                                                                        className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Exempted
-                                                                                Offerings
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="exempted_offerings"
-                                                                                    id="exempted_offerings"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Exempted
-                                                                                        Offering
-                                                                                    </option>
-                                                                                    {Object.values(ExemptedOfferingType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="exempted_offerings"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Market
-                                                                                Sector <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="market_sector"
-                                                                                    id="market_sector"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Market
-                                                                                        Sector
-                                                                                    </option>
-                                                                                    {Object.values(MarketSector).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage name="market_sector"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Lot Size
-                                                                                ({getLotSize().join(', ')}) <i>*</i>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="lot_size"
-                                                                                    id="lot_size"
+                                                                                    name="reference_asset"
+                                                                                    id="reference_asset"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
-                                                                                    placeholder="Type Lot Size"
-                                                                                    component={NumericInputField}
-                                                                                    decimalScale={0}
-                                                                                    isThousandSeparator={false}
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="lot_size"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Fractional
-                                                                                Lot Size
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="fractional_lot_size"
-                                                                                    id="fractional_lot_size"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Fractional Lot Size"
-                                                                                    component={NumericInputField}
-                                                                                    decimalScale={6}
+                                                                                    placeholder="Enter the asset Type"
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                 />
                                                                                 <ErrorMessage
-                                                                                    name="fractional_lot_size"
+                                                                                    name="reference_asset"
                                                                                     component="div"
                                                                                     className="error-message"/>
                                                                             </div>
                                                                         </div>
+                                                                    )}
 
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Minimum
-                                                                                Price Variation
-                                                                                (MPV)
-                                                                                (.01,
-                                                                                .05, .10)
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="mvp"
-                                                                                    id="mvp"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type MPV"
-                                                                                    component={NumericInputField}
-                                                                                    decimalScale={4}
-                                                                                    isThousandSeparator={false}
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="mvp"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Rights
+                                                                            Type
                                                                         </div>
-
-
-                                                                        <div className={'input__box full'}>
-                                                                            <h4 className={'input__group__title'}>Symbol
-                                                                                Trading
-                                                                                Information:</h4>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Primary
-                                                                                ATS <i>*</i></div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="primary_ats"
-                                                                                    id="primary_ats"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Primary ATS"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="primary_ats"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Transfer
-                                                                                Agent
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="transfer_agent"
-                                                                                    id="transfer_agent"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Transfer Agent"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="transfer_agent"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Custodian
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="custodian"
-                                                                                    id="custodian"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Custodian"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="custodian"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className={'input__box full'}>
-                                                                            <h4 className={'input__group__title'}>Digital
-                                                                                Asset:</h4>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Digital
-                                                                                Asset Category
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="digital_asset_category"
-                                                                                    id="digital_asset_category"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Digital
-                                                                                        Asset Category
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="rights_type"
+                                                                                id="rights_type"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Rights
+                                                                                    Type
+                                                                                </option>
+                                                                                {Object.values(RightsType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
                                                                                     </option>
-                                                                                    {Object.values(DigitalAssetCategory).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="digital_asset_category"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {values.digital_asset_category !== '' && getDigitalAssetCategoryInstrument(values.digital_asset_category) && (
-                                                                            <div className="input__box">
-                                                                                <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="instrument_type"
-                                                                                        id="instrument_type"
-                                                                                        as="select"
-                                                                                        className="b-select no-bg"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    >
-                                                                                        <option value="">Select
-                                                                                            Instrument Type
-                                                                                        </option>
-                                                                                        {Object.values(getDigitalAssetCategoryInstrument(values.digital_asset_category)).map((type: any) => (
-                                                                                            <option key={type}
-                                                                                                    value={type}>
-                                                                                                {type}
-                                                                                            </option>
-                                                                                        ))}
-
-                                                                                    </Field>
-
-                                                                                    <ErrorMessage
-                                                                                        name="instrument_type"
-                                                                                        component="div"
-                                                                                        className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Issuer
-                                                                                Name
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="issuer_name"
-                                                                                    id="issuer_name"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Issuer Name"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="issuer_name"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Issuer
-                                                                                Type
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="issuer_type"
-                                                                                    id="issuer_type"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Issuer
-                                                                                        Type
-                                                                                    </option>
-                                                                                    {Object.values(IssuerType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage name="issuer_type"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className={'input__box'}>
-                                                                            <div
-                                                                                className="input__title">Underpinning
-                                                                                Asset Value
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="underpinning_asset_value"
-                                                                                    id="underpinning_asset_value"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                    onChange={(e: any) => this.handlePeggedChange(e, setFieldValue)}
-                                                                                >
-                                                                                    <option value="">Select
-                                                                                        Underpinning Asset Value
-                                                                                    </option>
-                                                                                    {Object.values(UnderpinningAssetValue).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="underpinning_asset_value"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {values.underpinning_asset_value === UnderpinningAssetValue.PEGGED && (
-
-                                                                            <div className="input__box">
-                                                                                <div
-                                                                                    className="input__title">Reference
-                                                                                    Asset
-                                                                                </div>
-                                                                                <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="reference_asset"
-                                                                                        id="reference_asset"
-                                                                                        type="text"
-                                                                                        className="input__text no-bg"
-                                                                                        placeholder="Enter the asset Type"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    />
-                                                                                    <ErrorMessage
-                                                                                        name="reference_asset"
-                                                                                        component="div"
-                                                                                        className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Rights
-                                                                                Type
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="rights_type"
-                                                                                    id="rights_type"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Rights
-                                                                                        Type
-                                                                                    </option>
-                                                                                    {Object.values(RightsType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage name="rights_type"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Enforceability
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="enforceability_type"
-                                                                                    id="enforceability_type"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select
-                                                                                        Enforceability
-                                                                                    </option>
-                                                                                    {Object.values(EnforceabilityType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="enforceability_type"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Fungibility
-                                                                                Type
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="fungibility_type"
-                                                                                    id="fungibility_type"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select
-                                                                                        Fungibility Type
-                                                                                    </option>
-                                                                                    {Object.values(FungibilityType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="fungibility_type"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className={'input__box'}>
-                                                                            <div
-                                                                                className="input__title">Redeemability
-                                                                                Type
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="redeemability_type"
-                                                                                    id="redeemability_type"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                    onChange={(e: any) => this.handleRedeemabilityChange(e, setFieldValue)}
-                                                                                >
-                                                                                    <option value="">Select
-                                                                                        Redeemability Type
-                                                                                    </option>
-                                                                                    {Object.values(RedeemabilityType).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="redeemability_type"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {values.redeemability_type === RedeemabilityType.REDEEMABLE && (
-
-                                                                            <div className="input__box">
-                                                                                <div
-                                                                                    className="input__title">Redemption
-                                                                                    Asset Type
-                                                                                </div>
-                                                                                <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="redemption_asset_type"
-                                                                                        id="redemption_asset_type"
-                                                                                        type="text"
-                                                                                        className="input__text no-bg"
-                                                                                        placeholder="Enter the Redemption asset Type"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    />
-                                                                                    <ErrorMessage
-                                                                                        name="redemption_asset_type"
-                                                                                        component="div"
-                                                                                        className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Nature of
-                                                                                record
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="nature_of_record"
-                                                                                    id="nature_of_record"
-                                                                                    as="select"
-                                                                                    className="b-select no-bg"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select Nature
-                                                                                        of record
-                                                                                    </option>
-                                                                                    {Object.values(NatureOfRecord).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {type}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </Field>
-                                                                                <ErrorMessage
-                                                                                    name="nature_of_record"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Edgar CIK
-                                                                                <Link
-                                                                                    className={'link info-panel-title-link'}
-                                                                                    href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
-                                                                                    target={'_blank'}>
-                                                                                    Company Filings <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                </Link>
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="edgar_cik"
-                                                                                    id="edgar_cik"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Edgar CIK"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage name="edgar_cik"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-                                                                    </>
-                                                                )}
-
-                                                                {this.props.action !== 'view' && (
-                                                                    <div className="input__box full">
-                                                                        <div className="input__box">
-                                                                            <button id="add-bank-acc"
-                                                                                    className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
-                                                                                    type="submit"
-                                                                                    disabled={isSubmitting || !isValid || !dirty}>
-                                                                                {this.buttonText()}
-                                                                            </button>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="rights_type"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
                                                                         </div>
                                                                     </div>
-                                                                )}
 
-                                                                {this.state.errorMessages && (
-                                                                    <AlertBlock type={"error"}
-                                                                                messages={this.state.errorMessages}/>
-                                                                )}
-                                                            </div>
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Enforceability
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="enforceability_type"
+                                                                                id="enforceability_type"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Enforceability
+                                                                                </option>
+                                                                                {Object.values(EnforceabilityType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="enforceability_type"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Fungibility
+                                                                            Type
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="fungibility_type"
+                                                                                id="fungibility_type"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Fungibility Type
+                                                                                </option>
+                                                                                {Object.values(FungibilityType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="fungibility_type"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className={'input__box'}>
+                                                                        <div
+                                                                            className="input__title">Redeemability
+                                                                            Type
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="redeemability_type"
+                                                                                id="redeemability_type"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleRedeemabilityChange(e, setFieldValue)}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Redeemability Type
+                                                                                </option>
+                                                                                {Object.values(RedeemabilityType).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="redeemability_type"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.redeemability_type === RedeemabilityType.REDEEMABLE && (
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Redemption
+                                                                                Asset Type
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="redemption_asset_type"
+                                                                                    id="redemption_asset_type"
+                                                                                    type="text"
+                                                                                    className="input__text no-bg"
+                                                                                    placeholder="Enter the Redemption asset Type"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="redemption_asset_type"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Nature of
+                                                                            record
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="nature_of_record"
+                                                                                id="nature_of_record"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Nature
+                                                                                    of record
+                                                                                </option>
+                                                                                {Object.values(NatureOfRecord).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="nature_of_record"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Edgar CIK
+                                                                            <Link
+                                                                                className={'link info-panel-title-link'}
+                                                                                href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
+                                                                                target={'_blank'}>
+                                                                                Company Filings <FontAwesomeIcon
+                                                                                className="nav-icon"
+                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                            </Link>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="edgar_cik"
+                                                                                id="edgar_cik"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Edgar CIK"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="edgar_cik"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )}
+
+                                                            {this.props.action !== 'view' && (
+                                                                <div className="input__box full">
+                                                                    <div className="input__box">
+                                                                        <button id="add-bank-acc"
+                                                                                className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
+                                                                                type="submit"
+                                                                                disabled={isSubmitting || !isValid || !dirty}>
+                                                                            {this.buttonText()}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {this.state.errorMessages && (
+                                                                <AlertBlock type={"error"}
+                                                                            messages={this.state.errorMessages}/>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                </>
-
+                                                </div>
                                             </div>
                                         </div>
                                     </Form>

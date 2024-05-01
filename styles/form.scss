@@ -94,6 +94,10 @@ html.dark {
         }
       }
 
+      select.b-select {
+        background: url(../public/img/select-arrow.svg) right 16px center/24px no-repeat var(--form-background-colour)!important;
+      }
+
       .search-filter {
         border: var(--border) !important;
         background-color: var(--form-background-colour) !important;

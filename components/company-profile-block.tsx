@@ -13,7 +13,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import {FormFieldOptionType, FormFieldOptionType2} from "@/enums/form-field-option-type";
 import fileService from "@/services/file/file-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
 import formService from "@/services/form/form-service";
 import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
@@ -290,10 +290,17 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
 
     openCompanyModal = (mode: string) => {
-        this.setState({
-            isOpenCompanyModal: true,
-            formCompanyAction: mode,
-        })
+        if (mode === 'delete') {
+            this.setState({
+                isOpenCompanyModal: true,
+                formCompanyAction: mode,
+            })
+        } else if (mode === 'add') {
+            this.props.onCallback(mode)
+        } else {
+            this.props.onCallback(this.symbol?.symbol, mode)
+        }
+
     }
 
     cancelCompanyForm(): void {
@@ -390,6 +397,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         }
     }
 
+    navigate = () => {
+        this.props.onCallback(this.props.symbol, 'symbol', true);
+    }
+
     render() {
         return (
             <>
@@ -406,6 +417,11 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 <div className="content__bottom d-flex justify-content-between">
                                                     <h2 className="view_block_main_title">
                                                         {this.companyProfile.company_name} ({this.symbol.symbol})
+                                                        <span className={'admin-table-btn ripple'}
+                                                              onClick={() => this.navigate()}>
+                                                        <FontAwesomeIcon
+                                                            className="nav-icon" icon={faEye}/>
+                                                    </span>
                                                     </h2>
                                                     {!this.companyProfile.is_approved && (
                                                         <div

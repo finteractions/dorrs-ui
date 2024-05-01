@@ -217,54 +217,62 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        <div className="flex-panel-box">
-                            <div className={'profile__right'}>
-                                {this.symbol ? (
-                                    <>
-                                        <div className={'profile__right-title '}>
-                                            <div className={'d-flex gap-10'}>
-                                                <div
-                                                    className={'cursor-pointer title d-flex align-items-center gap-10'}>{this.symbol.security_name} ({this.symbol.symbol})
-                                                    <span className={'admin-table-btn ripple'} onClick={() => this.navigate()}>
+
+                        {this.symbol ? (
+                            <div className="flex-panel-box">
+                                <div className={'panel d-flex justify-content-between align-items-center'}>
+                                    <div className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
+                                        <div className={'d-flex gap-10'}>
+                                            <div
+                                                className={'cursor-pointer title d-flex align-items-center gap-10'}>
+                                                <h2 className={'view_block_main_title mb-0'}>{this.symbol.security_name} ({this.symbol.symbol})</h2>
+                                                {this.symbol?.company_profile && (
+                                                    <span className={'admin-table-btn ripple'}
+                                                          onClick={() => this.navigate()}>
                                                         <FontAwesomeIcon
                                                             className="nav-icon" icon={faEye}/>
                                                     </span>
-
-                                                </div>
-                                            </div>
-                                            <div className={'justify-content-end d-flex align-items-center gap-10'}>
-                                                {this.symbol?.company_profile && (
-                                                    <>
-                                                        <div className="d-flex gap-10">
-                                                            <div className={'d-flex'}>Asset Profile:</div>
-                                                            <div
-                                                                className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
-                                                        </div>
-                                                    </>
                                                 )}
-                                                <div>
-                                                    {this.props.access.edit && (
-                                                        <>
-                                                            <button className="d-none d-md-block b-btn ripple"
-                                                                    disabled={this.state.isLoading}
-                                                                    onClick={() => this.openModal('edit')}>Edit
-                                                            </button>
-                                                            <Button
-                                                                variant="link"
-                                                                className="d-md-none admin-table-btn ripple"
-                                                                type="button"
-                                                                onClick={() => this.openModal('edit')}
-                                                            >
-                                                                <FontAwesomeIcon icon={faEdit}/>
-                                                            </Button>
-                                                        </>
-
-                                                    )}
-                                                </div>
 
                                             </div>
                                         </div>
+                                        <div className={'justify-content-end d-flex align-items-center gap-10'}>
+                                            {this.symbol?.company_profile && (
+                                                <>
+                                                    <div className="d-flex gap-10">
+                                                        <div className={'d-flex bold'}>Asset Profile:</div>
+                                                        <div
+                                                            className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
+                                                    </div>
+                                                </>
+                                            )}
+                                            <div>
+                                                {this.props.access.edit && (
+                                                    <>
+                                                        <button className="d-none d-md-block b-btn ripple"
+                                                                disabled={this.state.isLoading}
+                                                                onClick={() => this.openModal('edit')}>Edit
+                                                        </button>
+                                                        <Button
+                                                            variant="link"
+                                                            className="d-md-none admin-table-btn ripple"
+                                                            type="button"
+                                                            onClick={() => this.openModal('edit')}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit}/>
+                                                        </Button>
+                                                    </>
 
+                                                )}
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className={'profile__right'}>
+                                    <>
                                         <div className={'profile__right-wrap-full'}>
                                             <div className={'profile__panel'}>
                                                 <div className={'profile__info__panel view__input__box'}>
@@ -448,11 +456,16 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                             </div>
                                         </div>
                                     </>
-                                ) : (
-                                    <NoDataBlock/>
-                                )}
+                                </div>
                             </div>
-                        </div>
+
+                        ) : (
+                            <div className="flex-panel-box">
+                                <div className={'profile__right'}>
+                                    <NoDataBlock/>
+                                </div>
+                            </div>
+                        )}
 
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}

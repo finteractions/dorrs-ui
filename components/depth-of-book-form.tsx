@@ -262,7 +262,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                             </div>
                                                         </div>
                                                         <div className="input">
-                                                            <div className="input__title">View <i>*</i></div>
+                                                            <div className="input__title">Symbol <i>*</i></div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                 <Field
@@ -270,7 +270,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                     id="symbol_tmp"
                                                                     as={Select}
                                                                     className="b-select-search"
-                                                                    placeholder="Select View"
+                                                                    placeholder="Select Symbol"
                                                                     classNamePrefix="select__react"
                                                                     isDisabled={isSubmitting || this.isShow()}
                                                                     options={Object.values(this.symbols).map((item) => ({

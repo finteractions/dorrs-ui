@@ -42,9 +42,13 @@ interface IndicatorBlockState extends IState {
     statistics: Map<string, IIndicatorBlock>;
 }
 
+interface IndicatorBlockProps extends ICallback {
+
+}
+
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
-class IndicatorBlock extends React.Component {
+class IndicatorBlock extends React.Component<IndicatorBlockProps> {
     host = `${window.location.protocol}//${window.location.host}`;
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -63,7 +67,7 @@ class IndicatorBlock extends React.Component {
         depthOfBook: false,
     }
 
-    constructor(props: {}, context: IDataContext<null>) {
+    constructor(props: IndicatorBlockProps, context: IDataContext<null>) {
         super(props);
         this.context = context;
 
@@ -166,7 +170,12 @@ class IndicatorBlock extends React.Component {
     }
 
     openModal = (form: string) => {
-        this.setState({isOpenModal: true, formType: form});
+        if (form === 'security') {
+            this.props.onCallback('symbol', 'add')
+        } else {
+            this.setState({isOpenModal: true, formType: form});
+        }
+
     }
 
     closeModal(): void {
@@ -182,15 +191,8 @@ class IndicatorBlock extends React.Component {
     handleSubmit = async (values: ISymbol, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-
-        const symbol = this.symbols.find(s => s.symbol === values.symbol);
-        this.setState({
-            isOpenModal: true,
-            symbol: symbol,
-            companyProfile: symbol?.company_profile,
-            isOverrideComponent: false,
-            formAction: symbol?.company_profile ? 'edit' : 'add'
-        });
+        this.context.setSharedData({symbol: values.symbol})
+        this.props.onCallback('asset_profile','add')
     };
 
     renderFormBasedOnType(formType: string) {
@@ -223,7 +225,7 @@ class IndicatorBlock extends React.Component {
                                 return (
                                     <Form>
                                         <div className="input">
-                                            <div className="input__title">View <i>*</i></div>
+                                            <div className="input__title">Symbol <i>*</i></div>
                                             <div
                                                 className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                 <Field
@@ -231,7 +233,7 @@ class IndicatorBlock extends React.Component {
                                                     id="symbol_tmp"
                                                     as={Select}
                                                     className="b-select-search"
-                                                    placeholder="Select View"
+                                                    placeholder="Select Symbol"
                                                     classNamePrefix="select__react"
                                                     isDisabled={isSubmitting}
                                                     options={Object.values(this.symbols).map((item) => ({

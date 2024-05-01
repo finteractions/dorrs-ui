@@ -6,11 +6,21 @@ import IndicatorBlock from "@/components/indicator-block";
 import {DataContext} from "@/contextes/data-context";
 import {AccountType} from "@/enums/account-type";
 import UserPortalBlock from "@/components/user-portal-block";
+import {useRouter} from "next/router";
 
 const Dashboard: NextPageWithLayout = () => {
 
     const dataContext = useContext(DataContext);
     const accountType: AccountType = dataContext.userProfile.account_type;
+    const router = useRouter();
+
+    const onCallback = (key: string, mode: string) => {
+        if (key === 'asset_profile') {
+            router.push(`/asset-profiles/${mode}`)
+        } else if (key === 'symbol') {
+            router.push(`/symbols/${mode}`)
+        }
+    }
 
     const components: Map<AccountType, any> = new Map<AccountType, any>()
         .set(AccountType.DORRS_ADMIN,
@@ -24,7 +34,7 @@ const Dashboard: NextPageWithLayout = () => {
         <>
             <div className={'flex-panel-box'}>
                 {components.get(accountType)}
-                <IndicatorBlock/>
+                <IndicatorBlock onCallback={onCallback}/>
             </div>
 
         </>
