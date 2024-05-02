@@ -121,7 +121,7 @@ function formatAndColorTickIndicationValueHTML(tickIndication: string) {
     );
 }
 
-function formatAndColorNumberBlockHTML(input: string | number, percentageSign = true, decimals=2) {
+function formatAndColorNumberBlockHTML(input: string | number, percentageSign = true, decimals = 2) {
     let formattedNumber = '';
     let icon: any = '';
     let className = '';
@@ -151,6 +151,20 @@ function formatAndColorNumberBlockHTML(input: string | number, percentageSign = 
     );
 }
 
+function getBackgroundColourByValue(input: string | number) {
+    const numberValue = Number(input);
+    const isPositive = numberValue > 0;
+    const isNegative = numberValue < 0;
+
+    if (isPositive) {
+        return 'up bg-up';
+    } else if (isNegative) {
+        return 'down bg-down';
+    } else {
+        return 'stay bg-stay';
+    }
+}
+
 const formatterService = {
     numberFormat,
     dateTimeFormat,
@@ -159,6 +173,7 @@ const formatterService = {
     formatAndColorNumberValueHTML,
     formatAndColorNumberBlockHTML,
     formatAndColorTickIndicationValueHTML,
+    getBackgroundColourByValue,
     toPlainString
 }
 

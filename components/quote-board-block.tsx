@@ -11,7 +11,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AssetImage from "@/components/asset-image";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
 import statisticsService from "@/services/statistics/statistics-service";
-import {faPlus, faMinus, faThLarge, faList, faEye, faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faMinus, faThLarge, faList, faEye, faSortAmountAsc, faSquare} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {getGlobalConfig} from "@/utils/global-config";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
@@ -360,7 +360,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                     </div>
                                                 )}
 
-                                                <div>{item.company_profile?.company_name}</div>
+                                                <div>{item.company_profile?.company_name || item.symbol_name}</div>
                                             </div>
 
                                             <div className={'gap-10'}>
@@ -447,7 +447,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                                 width={28} height={28}/>
                                                 </div>
                                             )}
-                                            <div>{item.company_profile?.company_name}</div>
+                                            <div>{item.company_profile?.company_name || item.symbol_name}</div>
                                         </div>
 
                                         <div className={'gap-10'}>
@@ -520,6 +520,135 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                     </>
 
                 );
+            case 'compact':
+                return (
+                    <>
+                        {this.state.dataWatchList.length > 0 && (
+                            <>
+                                <div className={'panel'}>
+                                    <div className="content__top">
+                                        <div className="content__title">Watch List</div>
+                                    </div>
+                                </div>
+                                <div className="indicators content__bottom">
+                                    {this.state.dataWatchList
+                                        .slice()
+                                        .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
+                                        .map(item => (
+                                            <div key={item.symbol_name}
+                                                 className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                                <div className={'gap-10 navigate-buttons'}>
+                                                    <div title={'Quote Board Profile'}>
+                                                        <div></div>
+                                                        <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                             className={'cursor-pointer title indicator-item'}>Q
+                                                        </div>
+                                                    </div>
+
+                                                    <div title={'Symbol Profile'}>
+                                                        <div></div>
+                                                        <div onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
+                                                             className={'cursor-pointer title indicator-item'}>S
+                                                        </div>
+                                                    </div>
+
+                                                    {item.company_profile && (
+                                                        <div title={'Asset Profile'}>
+                                                            <div></div>
+                                                            <div onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
+                                                                 className={'cursor-pointer title indicator-item'}>P
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    <div title={'Remove from Watch List'}
+                                                         className={'admin-table-actions'}>
+                                                        <button
+                                                            type="button"
+                                                            className='custom-btn admin-table-btn ripple indicator-item'
+                                                            onClick={() => this.removeFromFavorites(item)}
+                                                        >
+                                                            <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className={'indicator__item__data'}>
+                                                    <div className={''}>{item.company_profile?.company_name || item.symbol_name}</div>
+                                                    <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                </div>
+                            </>
+
+                        )}
+
+                        <div className={'panel'}>
+                            <div className="content__top">
+                                <div className="content__title">Market Overview</div>
+                            </div>
+                        </div>
+                        {this.state.dataList.length ? (
+                            <div className="tile indicators content__bottom">
+                                {this.state.dataList
+                                    .slice()
+                                    .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
+                                    .map(item => (
+                                    <div key={item.symbol_name}
+                                         className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                        <div className={'gap-10 navigate-buttons'}>
+                                            <div title={'Quote Board Profile'}>
+                                                <div></div>
+                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+
+                                                     className={'cursor-pointer title indicator-item'}>Q
+                                                </div>
+                                            </div>
+
+                                            <div title={'Symbol Profile'}>
+                                                <div></div>
+                                                <div
+                                                    onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
+                                                    className={'cursor-pointer title indicator-item'}>S
+                                                </div>
+                                            </div>
+
+                                            {item.company_profile && (
+                                                <div title={'Asset Profile'}>
+                                                    <div></div>
+                                                    <div
+                                                        onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
+                                                        className={'cursor-pointer title indicator-item'}>P
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div title={'Remove from Watch List'}
+                                                 className={'admin-table-actions'}>
+                                                <button
+                                                    type="button"
+                                                    className='custom-btn admin-table-btn ripple indicator-item'
+                                                    onClick={() => this.addToFavourites(item)}
+                                                >
+                                                    <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className={'indicator__item__data'}>
+                                            <div className={''}>{item.company_profile?.company_name || item.symbol_name}</div>
+                                            <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={'panel'}>
+                                <NoDataBlock/>
+                            </div>
+                        )}
+                    </>
+                );
             default:
                 return (
                     <></>
@@ -574,6 +703,19 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 <>Tile</>
                                             ) : (
                                                 <FontAwesomeIcon className="nav-icon" icon={faThLarge}/>
+                                            )}
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            className={`border-grey-btn ripple d-flex ${this.state.quoteModeView === 'compact' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                            disabled={this.state.isLoading}
+                                            onClick={() => this.setModeView('compact')}>
+                                            <span>{this.state.isToggle ? (
+                                                <>Compact</>
+                                            ) : (
+                                                <FontAwesomeIcon className="nav-icon" icon={faSquare}/>
                                             )}
                                             </span>
                                         </button>
