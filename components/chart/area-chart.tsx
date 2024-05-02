@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import {Chart} from 'chart.js/auto';
 import NoDataBlock from "@/components/no-data-block";
 
@@ -15,8 +15,8 @@ const defaultColors = {
         borderColor: '#718494',
     },
     dark: {
-        backgroundColor: '#767676a8',
-        borderColor: '#898989',
+        backgroundColor: '#3f536e',
+        borderColor: '#4573a2',
     },
 };
 

@@ -8,13 +8,15 @@ interface AreAndBarChartProps {
 
 const defaultColors = {
     light: {
-        backgroundColor: '#8293a16e',
+        backgroundColor: 'rgba(113, 132, 148, 0.2)',
+        barColour: '#8293a16e',
         borderColor: '#718494',
         textColour: '#7E8299',
     },
     dark: {
-        backgroundColor: '#767676a8',
-        borderColor: '#898989',
+        backgroundColor: '#3f536e',
+        barColour: '#4574a2',
+        borderColor: '#4574a2',
         textColour: '#ececec',
     },
 };
@@ -53,13 +55,13 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                             label: 'Volume',
                             data: data.map(item => ({x: getTicker(item.time), y: item.volume})),
                             yAxisID: 'left-y-axis',
-                            backgroundColor: colours.backgroundColor,
+                            backgroundColor: colours.barColour,
                         }, {
                             label: 'Price',
                             data: data.map(item => ({x: getTicker(item.time), y: item.price})),
                             yAxisID: 'right-y-axis',
                             borderColor: colours.borderColor,
-                            backgroundColor: 'rgba(113, 132, 148, 0.2)',
+                            backgroundColor: colours.backgroundColor,
                             type: 'line',
                             fill: true,
                             tension: 0.5,
