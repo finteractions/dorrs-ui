@@ -10,18 +10,14 @@ const View: NextPageWithLayout = () => {
     const router = useRouter();
     const symbol = router.query.symbol as string;
 
-    const onCallback = (symbol: string, mode?: string) => {
+    const onCallback = (symbol: string, mode?: string, option?: string) => {
+
         let queryString = "";
-        if (mode) {
-            queryString += `/${mode}`;
+        if (option) {
+            queryString += `/${option}`;
         }
 
-        if (mode === 'asset_profile') {
-            router.push(`/asset-profiles/${symbol}/view`)
-        } else {
-            router.push(`/symbols/${symbol}${queryString}`)
-        }
-
+        router.push(`/${mode}/${symbol}${queryString}`)
     }
 
     return (

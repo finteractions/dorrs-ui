@@ -13,8 +13,8 @@ const View: NextPageWithLayout = () => {
     const shared = useContext(DataContext);
 
 
-    const onCallback = (logo: string, mode?: string, toSymbol?: boolean) => {
-        if(!toSymbol){
+    const onCallback = (logo: string, mode?: string, toSymbol?: boolean, option?: string) => {
+        if (!toSymbol) {
             let queryString = "";
             if (mode) {
                 queryString += `/${mode}`;
@@ -22,8 +22,13 @@ const View: NextPageWithLayout = () => {
             } else {
                 shared.setSharedData({logo: logo})
             }
-        }else {
-            router.push(`/symbols/${logo}/view`)
+        } else {
+            let queryString = "";
+            if (option) {
+                queryString += `/${option}`;
+            }
+
+            router.push(`/${mode}/${logo}${queryString}`)
         }
 
     }

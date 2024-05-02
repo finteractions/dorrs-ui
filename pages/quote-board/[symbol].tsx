@@ -9,9 +9,19 @@ const Symbol: NextPageWithLayout = () => {
     const router = useRouter();
     const symbol = router.query.symbol as string;
 
+    const onCallback = (symbol: string, mode?: string, option?: string) => {
+
+        let queryString = "";
+        if (option) {
+            queryString += `/${option}`;
+        }
+
+        router.push(`/${mode}/${symbol}${queryString}`)
+    }
+
     return (
         <div className="flex-panel-box">
-            <QuoteBoardPerSymbolBlock
+            <QuoteBoardPerSymbolBlock onCallback={onCallback}
                 symbol={symbol}
             />
         </div>

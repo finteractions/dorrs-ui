@@ -8,8 +8,12 @@ import {useRouter} from "next/router";
 const QuoteBoard: NextPageWithLayout = () => {
     const router = useRouter();
 
-    const onCallback = (symbol: string) => {
-        router.push(`/quote-board/${symbol}`)
+    const onCallback = (mode: string, symbol: string, option: string) => {
+        let queryString = "";
+        if (option) {
+            queryString += `/${option}`;
+        }
+        router.push(`/${mode}/${symbol}${queryString}`)
     }
 
     return (

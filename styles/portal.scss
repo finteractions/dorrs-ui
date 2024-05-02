@@ -4353,9 +4353,24 @@ a.block-link {
 }
 
 .gap-10 {
-  gap: 10px;
+  gap: 10px!important;
 }
 
 .font-weight-normal {
   font-weight: normal;
+}
+
+.indicator-item {
+  color: var(--text-colour-1);
+  background: var(--background);
+  text-align: center;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  display: inline-flex;
+  padding: 6px 11.5px;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 6px;
 }

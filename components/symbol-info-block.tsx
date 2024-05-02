@@ -3,7 +3,6 @@ import symbolService from "@/services/symbol/symbol-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import LoaderBlock from "@/components/loader-block";
-import Link from "next/link";
 import {useRouter} from "next/router";
 import CompanyProfile from "@/components/company-profile-form";
 import Modal from "@/components/modal";
@@ -14,7 +13,7 @@ import {RedeemabilityType} from "@/enums/redeemability-type";
 import formatterService from "@/services/formatter/formatter-service";
 import {Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faEdit, faEye} from "@fortawesome/free-solid-svg-icons";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import SymbolForm from "@/components/symbol-form";
 import {DataContext} from "@/contextes/data-context";
@@ -149,7 +148,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     openModal = (mode: string) => {
         if (mode === 'edit') {
-            this.props.onCallback(this.props.symbol, mode)
+           this.navigate('symbols', 'edit')
         } else {
             this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
             this.cancelCompanyForm();
@@ -206,8 +205,9 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     };
 
-    navigate = () => {
-        this.props.onCallback(this.props.symbol, 'asset_profile');
+    navigate = (mode: string, option?: string) => {
+        console.log(mode, option)
+        this.props.onCallback(this.props.symbol, mode, option);
     }
 
     render() {
@@ -221,19 +221,26 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                         {this.symbol ? (
                             <div className="flex-panel-box">
                                 <div className={'panel d-flex justify-content-between align-items-center'}>
-                                    <div className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
-                                        <div className={'d-flex gap-10'}>
+                                    <div
+                                        className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
+                                        <div className={'d-flex gap-10 '}>
                                             <div
                                                 className={'cursor-pointer title d-flex align-items-center gap-10'}>
                                                 <h2 className={'view_block_main_title mb-0'}>{this.symbol.security_name} ({this.symbol.symbol})</h2>
+
+                                                <span title={'Quote Board Profile'}
+                                                      className={'indicator-item'}
+                                                      onClick={() => this.navigate('quote-board')}>
+                                                       Q
+                                                    </span>
+
                                                 {this.symbol?.company_profile && (
-                                                    <span className={'admin-table-btn ripple'}
-                                                          onClick={() => this.navigate()}>
-                                                        <FontAwesomeIcon
-                                                            className="nav-icon" icon={faEye}/>
+                                                    <span title={'Asset Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('asset-profiles', 'view')}>
+                                                       P
                                                     </span>
                                                 )}
-
                                             </div>
                                         </div>
                                         <div className={'justify-content-end d-flex align-items-center gap-10'}>

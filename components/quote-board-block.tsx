@@ -111,7 +111,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                 id: "symbol",
                 cell: (item) =>
                     <div onClick={() => {
-                        this.navigate(item.getValue().symbol)
+                        this.navigate('quote-board', item.getValue().symbol)
                     }}
                          className={`table-image cursor-pointer link`}
                     >
@@ -157,8 +157,8 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
         ];
     }
 
-    navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+    navigate = (mode: string, symbol: string, optional?: string) => {
+        this.props.onCallback(mode, symbol, optional);
     }
 
     componentDidMount() {
@@ -363,16 +363,35 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                 <div>{item.company_profile?.company_name}</div>
                                             </div>
 
-                                            <div>
-                                                <div>
+                                            <div className={'gap-10'}>
+                                                <div title={'Quote Board Profile'}>
                                                     <div></div>
-                                                    <div onClick={() => this.navigate(item.symbol_name)}
-                                                         className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
-                                                        className="nav-icon" icon={faEye}/>
+                                                    <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+
+                                                         className={'cursor-pointer title'}>Q
                                                     </div>
                                                 </div>
 
-                                                <div className={'admin-table-actions'}>
+                                                <div title={'Symbol Profile'}>
+                                                    <div></div>
+                                                    <div
+                                                        onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
+                                                        className={'cursor-pointer title'}>S
+                                                    </div>
+                                                </div>
+
+                                                {item.company_profile && (
+                                                    <div title={'Asset Profile'}>
+                                                        <div></div>
+                                                        <div
+                                                            onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
+                                                            className={'cursor-pointer title'}>P
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div title={'Remove from Watch List'}
+                                                     className={'admin-table-actions'}>
                                                     <button
                                                         type="button"
                                                         className='custom-btn admin-table-btn ripple '
@@ -431,17 +450,34 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             <div>{item.company_profile?.company_name}</div>
                                         </div>
 
-                                        <div>
-                                            <div>
+                                        <div className={'gap-10'}>
+                                            <div title={'Quote Board Profile'}>
                                                 <div></div>
-                                                <div onClick={() => this.navigate(item.symbol_name)}
-                                                     className={'cursor-pointer title'}>{item.symbol_name}<FontAwesomeIcon
-                                                    className="nav-icon" icon={faEye}/>
+                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                     className={'cursor-pointer title'}>Q
                                                 </div>
                                             </div>
 
+                                            <div title={'Symbol Profile'}>
+                                                <div></div>
+                                                <div onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
+                                                     className={'cursor-pointer title'}>S
+                                                </div>
+                                            </div>
 
-                                            <div className={'admin-table-actions'}>
+                                            {item.company_profile && (
+                                                <div title={'Asset Profile'}>
+                                                    <div></div>
+                                                    <div
+                                                        onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
+                                                        className={'cursor-pointer title'}>P
+                                                    </div>
+                                                </div>
+                                            )}
+
+
+                                            <div title={'Add to Watch List'}
+                                                 className={'admin-table-actions'}>
                                                 <button
                                                     type="button"
                                                     className='custom-btn admin-table-btn ripple '

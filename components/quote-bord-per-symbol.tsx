@@ -15,7 +15,7 @@ import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-pe
 import BestBidAndBestOfferPerSymbolBlock from "@/components/best-bid-and-best-offer-per-symbol-block";
 
 
-interface QuoteBoardPerSymbolProps {
+interface QuoteBoardPerSymbolProps extends ICallback{
     symbol: string;
 }
 
@@ -186,6 +186,10 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
         router.push('/best-bid-and-best-offer');
     }
 
+    navigate = (mode: string, option?: string) => {
+        this.props.onCallback(this.props.symbol, mode, option);
+    }
+
     render() {
         return (
             <>
@@ -205,23 +209,44 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                 </p>
                             </div>
                         </div>
-                        <div className={'panel'}>
-                            <div className={`content__bottom`}>
+                        <div className="flex-panel-box">
+                            <div className={'panel d-flex justify-content-between align-items-center'}>
+                                <div
+                                    className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
+                                    <div className={'d-flex gap-10 '}>
+                                        <div
+                                            className={'cursor-pointer title d-flex align-items-center gap-10'}>
+                                            <h2 className={'view_block_main_title mb-0'}>
+                                                {this.companyProfile ? (
+                                                    <>
+                                                        <div className={"company-profile-logo"}>
+                                                            <img src={this.companyProfile.logo} alt="Logo"/>
+                                                        </div>
+                                                        {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                    </>
+                                                ) : (
+                                                    <>{this.props.symbol}</>
+                                                )}
+                                            </h2>
+
+                                            <span title={'Symbol Profile'}
+                                                  className={'indicator-item'}
+                                                  onClick={() => this.navigate('symbols', 'view')}>
+                                                       S
+                                                    </span>
+
+                                            <span title={'Asset Profile'}
+                                                  className={'indicator-item'}
+                                                  onClick={() => this.navigate('asset-profiles', 'view')}>
+                                                       P
+                                                    </span>
 
 
-                                <h2 className={'view_block_main_title'}>
-                                    {this.companyProfile ? (
-                                        <>
-                                            <div className={"company-profile-logo"}>
-                                                <img src={this.companyProfile.logo} alt="Logo"/>
-                                            </div>
-                                            {this.companyProfile.company_name} ({this.companyProfile.security_name})
-                                        </>
-                                    ) : (
-                                        <>{this.props.symbol}</>
-                                    )}
-                                </h2>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
 
                         </div>
                         <div className="indicators content__bottom">

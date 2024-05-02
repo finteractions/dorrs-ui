@@ -387,18 +387,19 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             case 'secOffering':
                 return (
                     <SECOfferingForm action={this.state.formAction}
-                                   data={this.state.formData as ISECOffering}
-                                   symbolData={this.symbol}
-                                   onCallback={this.onCallback}
-                                   isAdmin={false}/>
+                                     data={this.state.formData as ISECOffering}
+                                     symbolData={this.symbol}
+                                     onCallback={this.onCallback}
+                                     isAdmin={false}/>
                 )
             default:
                 return (<></>)
         }
     }
 
-    navigate = () => {
-        this.props.onCallback(this.props.symbol, 'symbol', true);
+    navigate = (mode: string, option?: string) => {
+        this.props.onCallback(this.props.symbol, mode, true, option);
+        // this.props.onCallback(this.props.symbol, mode, option);
     }
 
     render() {
@@ -413,28 +414,41 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                 <div className="flex-panel-box">
                                     {this.companyProfile ? (
                                         <>
-                                            <div className="panel">
-                                                <div className="content__bottom d-flex justify-content-between">
-                                                    <h2 className="view_block_main_title">
-                                                        {this.companyProfile.company_name} ({this.symbol.symbol})
-                                                        <span className={'admin-table-btn ripple'}
-                                                              onClick={() => this.navigate()}>
-                                                        <FontAwesomeIcon
-                                                            className="nav-icon" icon={faEye}/>
-                                                    </span>
-                                                    </h2>
-                                                    {!this.companyProfile.is_approved && (
+                                            <div className={'panel d-flex justify-content-between align-items-center'}>
+                                                <div
+                                                    className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
+                                                    <div className={'d-flex gap-10 w-100'}>
                                                         <div
-                                                            className="content__title_btns content__filter download-buttons justify-content-end">
+                                                            className={'cursor-pointer title d-flex align-items-center gap-10 w-100'}>
+                                                            <h2 className={'view_block_main_title mb-0'}>
+                                                                {this.companyProfile.company_name} ({this.symbol.symbol})</h2>
 
-                                                            <button
-                                                                className={`b-btn ripple`}
-                                                                onClick={() => this.openCompanyModal('edit')}
-                                                            >Edit
-                                                            </button>
+                                                            <span title={'Quote Board Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('quote-board')}>
+                                                       Q
+                                                    </span>
 
+                                                            <span title={'Symbol Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('symbols', 'view')}>
+                                                       S
+                                                    </span>
+
+                                                            {!this.companyProfile.is_approved && (
+                                                                <div
+                                                                    className="content__title_btns content__filter download-buttons justify-content-end">
+
+                                                                    <button
+                                                                        className={`b-btn ripple`}
+                                                                        onClick={() => this.openCompanyModal('edit')}
+                                                                    >Edit
+                                                                    </button>
+
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
+                                                    </div>
                                                 </div>
                                             </div>
 
