@@ -8,9 +8,9 @@ interface AreAndBarChartProps {
 
 const defaultColors = {
     light: {
-        backgroundColor: 'rgba(113, 132, 148, 0.2)',
-        barColour: '#8293a16e',
-        borderColor: '#718494',
+        backgroundColor: '#a4c3de',
+        barColour: '#1f8ceb',
+        borderColor: '#1f8ceb',
         textColour: '#7E8299',
     },
     dark: {

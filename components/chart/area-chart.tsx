@@ -11,8 +11,8 @@ type ChartProps = {
 
 const defaultColors = {
     light: {
-        backgroundColor: '#d4dadf',
-        borderColor: '#718494',
+        backgroundColor: '#a4c3de',
+        borderColor: '#1f8ceb',
     },
     dark: {
         backgroundColor: '#3f536e',

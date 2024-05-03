@@ -11,20 +11,6 @@ import Image from "next/image";
 
 export default function PortalSidebar(props: { isShow: boolean; isShowMd: boolean, toggleIsShowSidebarMd: () => void }) {
     const {isShow, isShowMd} = props
-    // const [isNarrow, setIsNarrow] = useState(false)
-
-    // const toggleIsNarrow = () => {
-    //     const newValue = !isNarrow
-    //     localStorage.setItem('isNarrow', newValue ? 'true' : 'false')
-    //     setIsNarrow(newValue)
-    // }
-
-    // On first time load only
-    // useEffect(() => {
-    //     if (localStorage.getItem('isNarrow')) {
-    //         setIsNarrow(localStorage.getItem('isNarrow') === 'true')
-    //     }
-    // }, [setIsNarrow])
 
     return (
         <div

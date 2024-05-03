@@ -122,9 +122,9 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                     <div onClick={() => {
                         this.navigate(item.getValue().symbol_name)
                     }}
-                         className={`table-image ${!this.state.isAdmin ? 'cursor-pointer link' : ''}`}
+                         className={`table-image text-overflow ${!this.state.isAdmin ? 'cursor-pointer link' : ''}`}
                     >
-                        <div className="table-image-container">
+                        <div className="table-image-container ">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
                                         width={28} height={28}/>
                         </div>

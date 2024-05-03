@@ -35,6 +35,23 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
         resetIsShowSidebar();
     }, []);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1366) {
+                setIsShowSidebar(false);
+                setIsShowSidebarMd(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        handleResize();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
     const { ref } = useResizeDetector({ onResize });
 
     // On first time load only

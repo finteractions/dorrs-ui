@@ -360,36 +360,12 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                     </div>
                                                 )}
 
-                                                <div>{item.company_profile?.company_name || item.symbol_name}</div>
+                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                     className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
+                                                </div>
                                             </div>
 
                                             <div className={'gap-10'}>
-                                                <div title={'Quote Board Profile'}>
-                                                    <div></div>
-                                                    <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-
-                                                         className={'cursor-pointer title'}>Q
-                                                    </div>
-                                                </div>
-
-                                                <div title={'Symbol Profile'}>
-                                                    <div></div>
-                                                    <div
-                                                        onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
-                                                        className={'cursor-pointer title'}>S
-                                                    </div>
-                                                </div>
-
-                                                {item.company_profile && (
-                                                    <div title={'Asset Profile'}>
-                                                        <div></div>
-                                                        <div
-                                                            onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
-                                                            className={'cursor-pointer title'}>P
-                                                        </div>
-                                                    </div>
-                                                )}
-
                                                 <div title={'Remove from Watch List'}
                                                      className={'admin-table-actions'}>
                                                     <button
@@ -400,8 +376,6 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                         <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
                                                     </button>
                                                 </div>
-
-
                                             </div>
                                             <div className={'indicator__item__data'}>
                                                 <div>
@@ -447,35 +421,12 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                                 width={28} height={28}/>
                                                 </div>
                                             )}
-                                            <div>{item.company_profile?.company_name || item.symbol_name}</div>
+                                            <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                 className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
+                                            </div>
                                         </div>
 
                                         <div className={'gap-10'}>
-                                            <div title={'Quote Board Profile'}>
-                                                <div></div>
-                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                     className={'cursor-pointer title'}>Q
-                                                </div>
-                                            </div>
-
-                                            <div title={'Symbol Profile'}>
-                                                <div></div>
-                                                <div onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
-                                                     className={'cursor-pointer title'}>S
-                                                </div>
-                                            </div>
-
-                                            {item.company_profile && (
-                                                <div title={'Asset Profile'}>
-                                                    <div></div>
-                                                    <div
-                                                        onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
-                                                        className={'cursor-pointer title'}>P
-                                                    </div>
-                                                </div>
-                                            )}
-
-
                                             <div title={'Add to Watch List'}
                                                  className={'admin-table-actions'}>
                                                 <button
@@ -538,29 +489,6 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                             <div key={item.symbol_name}
                                                  className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
                                                 <div className={'gap-10 navigate-buttons'}>
-                                                    <div title={'Quote Board Profile'}>
-                                                        <div></div>
-                                                        <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                             className={'cursor-pointer title indicator-item'}>Q
-                                                        </div>
-                                                    </div>
-
-                                                    <div title={'Symbol Profile'}>
-                                                        <div></div>
-                                                        <div onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
-                                                             className={'cursor-pointer title indicator-item'}>S
-                                                        </div>
-                                                    </div>
-
-                                                    {item.company_profile && (
-                                                        <div title={'Asset Profile'}>
-                                                            <div></div>
-                                                            <div onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
-                                                                 className={'cursor-pointer title indicator-item'}>P
-                                                            </div>
-                                                        </div>
-                                                    )}
-
                                                     <div title={'Remove from Watch List'}
                                                          className={'admin-table-actions'}>
                                                         <button
@@ -573,7 +501,9 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                     </div>
                                                 </div>
                                                 <div className={'indicator__item__data'}>
-                                                    <div className={''}>{item.company_profile?.company_name || item.symbol_name}</div>
+                                                    <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                         className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
+                                                    </div>
                                                     <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                                 </div>
                                             </div>
@@ -595,52 +525,28 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                     .slice()
                                     .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
                                     .map(item => (
-                                    <div key={item.symbol_name}
-                                         className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
-                                        <div className={'gap-10 navigate-buttons'}>
-                                            <div title={'Quote Board Profile'}>
-                                                <div></div>
+                                        <div key={item.symbol_name}
+                                             className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                            <div className={'gap-10 navigate-buttons'}>
+                                                <div title={'Remove from Watch List'}
+                                                     className={'admin-table-actions'}>
+                                                    <button
+                                                        type="button"
+                                                        className='custom-btn admin-table-btn ripple indicator-item'
+                                                        onClick={() => this.addToFavourites(item)}
+                                                    >
+                                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className={'indicator__item__data'}>
                                                 <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-
-                                                     className={'cursor-pointer title indicator-item'}>Q
+                                                     className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
                                                 </div>
-                                            </div>
-
-                                            <div title={'Symbol Profile'}>
-                                                <div></div>
-                                                <div
-                                                    onClick={() => this.navigate('symbols', item.symbol_name, 'view')}
-                                                    className={'cursor-pointer title indicator-item'}>S
-                                                </div>
-                                            </div>
-
-                                            {item.company_profile && (
-                                                <div title={'Asset Profile'}>
-                                                    <div></div>
-                                                    <div
-                                                        onClick={() => this.navigate('asset-profiles', item.symbol_name, 'view')}
-                                                        className={'cursor-pointer title indicator-item'}>P
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div title={'Remove from Watch List'}
-                                                 className={'admin-table-actions'}>
-                                                <button
-                                                    type="button"
-                                                    className='custom-btn admin-table-btn ripple indicator-item'
-                                                    onClick={() => this.addToFavourites(item)}
-                                                >
-                                                    <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                                </button>
+                                                <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                             </div>
                                         </div>
-                                        <div className={'indicator__item__data'}>
-                                            <div className={''}>{item.company_profile?.company_name || item.symbol_name}</div>
-                                            <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         ) : (
                             <div className={'panel'}>
