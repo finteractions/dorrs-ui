@@ -72,7 +72,7 @@ class UserBlock extends React.Component {
                                     <div className={'membership__item__right'}>
                                         {this.state.customerType ? (
                                             <div
-                                                className={`table__status`}>
+                                                className={`table__status show`}>
                                                 Customer: {getCustomerTypeName(this.state.customerType)}
                                             </div>
                                         ) : (

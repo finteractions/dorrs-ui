@@ -114,7 +114,7 @@ class MembershipBlock extends React.Component {
                                     <div className={'membership__item__right'}>
                                         {this.membershipForm?.status ? (
                                             <div
-                                                className={`table__status table__status-${this.membershipForm.status.toLowerCase()}`}>
+                                                className={`table__status show table__status-${this.membershipForm.status.toLowerCase()}`}>
                                                 {`${this.membershipForm.status.charAt(0).toUpperCase()}${this.membershipForm.status.slice(1).toLowerCase()}`}
                                             </div>
                                         ) : (

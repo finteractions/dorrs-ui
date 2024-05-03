@@ -2616,9 +2616,11 @@ body {
       align-items: center;
 
       @media (min-width: 768px) and (max-width: 1366px) {
-        font-size: 0;
-        line-height: 0;
-        color: transparent;
+        &:not(.show){
+          font-size: 0;
+          line-height: 0;
+          color: transparent;
+        }
       }
     }
 
