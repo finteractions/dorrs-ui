@@ -139,7 +139,6 @@ class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingF
                 this.props.onCallback('secOffering');
             }))
             .catch((errors: IError) => {
-                console.log(errors)
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);

@@ -6,7 +6,6 @@ import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import Modal from "@/components/modal";
-import {IFirm} from "@/interfaces/i-firm";
 import DataFeedProviderForm from "@/components/backend/data-feed-provider-form";
 import AssetImage from "@/components/asset-image";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
@@ -210,7 +209,7 @@ class DataFeedProvidersBlock extends React.Component<{}> {
                 <Modal isOpen={this.state.isOpenModal}
                        onClose={() => this.closeModal()}
                        title={this.modalTitle(this.state.formAction)}
-                       className={this.state.formAction === 'view' ? 'big_modal' : ''}
+                       className={this.state.formAction !== 'delete' ? 'big_modal' : ''}
                 >
 
                     <DataFeedProviderForm action={this.state.formAction}

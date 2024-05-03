@@ -2878,6 +2878,7 @@ body {
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
 
+
       .logo {
         display: flex;
         justify-content: center;
@@ -2888,6 +2889,7 @@ body {
         overflow: hidden;
         position: relative;
         padding: 22px;
+
 
         > div {
           width: 100%;
@@ -2902,6 +2904,18 @@ body {
             object-fit: cover;
             object-position: center;
           }
+        }
+      }
+
+      &.content-box {
+        max-width: 210px;
+        width: 100%;
+        margin: 0px;
+
+        .logo {
+          max-width: 210px;
+          width: 100%;
+          height: unset;
         }
       }
     }
@@ -3778,6 +3792,11 @@ body {
             min-width: calc(100% - 15px);
           }
 
+          &.data-feed-provider {
+            max-width: calc(100% - 15px) !important;
+            min-width: calc(100% - 15px) !important;
+          }
+
           &.dashboard {
             flex: 0 1 100%;
           }
@@ -3809,6 +3828,11 @@ body {
         .indicator__item {
           &.statistics {
             min-width: calc(100% - 20px);
+          }
+
+          &.data-feed-provider {
+            max-width: calc(50% - 15px);
+            min-width: calc(50% - 15px);
           }
 
           &.compact {

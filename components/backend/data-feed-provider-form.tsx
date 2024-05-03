@@ -33,35 +33,17 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedFileSize;
         }),
-    image_tmp: Yup.mixed()
-        .test('asset_type_images', `Too many files. Maximum ${allowedFileCount} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return value.length <= allowedFileCount;
-        })
-        .test('asset_type_images', `One or more files are not valid images. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            let isValid = true;
-            for (let i = 0; i < value.length; i++) {
-                const file = value[i];
-                if (!allowedExt.includes(file.name.split('.').pop().toLowerCase())) {
-                    isValid = false;
-                    break;
-                }
-            }
-            return isValid;
-        })
-        .test('asset_type_images', `One or more files are too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            let isValid = true;
-            for (let i = 0; i < value.length; i++) {
-                const file = value[i];
-                if (file.size > allowedFileSize) {
-                    isValid = false;
-                    break;
-                }
-            }
-            return isValid;
-        })
+    image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('asset_type_image', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('asset_type_image_size', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })
+    ),
 
 });
 
@@ -70,7 +52,7 @@ interface DataFeedProviderState extends IState {
     loading: boolean;
     isDeleting: boolean;
     selectedFile: File | null;
-    selectedFileAssetTypeLogo: FileList | null;
+    selectedFileForDescription: File[];
 }
 
 interface DataFeedProviderProps extends ICallback {
@@ -140,14 +122,17 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             socials: socialLinks
         };
 
+        const selectedFileForDescription = initialData.images as any
+
         this.state = {
             success: false,
             formInitialValues: initialValues,
             loading: false,
             isDeleting: false,
             selectedFile: null,
-            selectedFileAssetTypeLogo: null,
+            selectedFileForDescription: selectedFileForDescription,
         };
+
     }
 
     handleSubmit = async (values: IDataFeedProvider, {setSubmitting}: {
@@ -174,8 +159,8 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
 
         formData.append('social_media_link', JSON.stringify(values.social_media_link));
 
-        if (this.state.selectedFileAssetTypeLogo && this.state.selectedFileAssetTypeLogo.length > 0) {
-            for (const file of Array.from(this.state.selectedFileAssetTypeLogo)) {
+        if (this.state.selectedFileForDescription && this.state.selectedFileForDescription.length > 0) {
+            for (const file of Array.from(this.state.selectedFileForDescription)) {
                 formData.append('images[]', file);
             }
         }
@@ -221,9 +206,23 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         this.setState({selectedFile: selectedFile});
     };
 
-    handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files || null;
-        this.setState({selectedFileAssetTypeLogo: selectedFile});
+    handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedFileForDescription || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedFileForDescription: updatedFiles} as DataFeedProviderState;
+        });
+    };
+
+
+    handleRemoveFile = (index: number) => {
+        this.setState((prevState) => {
+            const updatedFiles = (prevState.selectedFileForDescription || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedFileForDescription: updatedFiles};
+        });
     };
 
     render() {
@@ -352,100 +351,95 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                         </div>
                                                     </div>
                                                 ))}
+                                                <div className="input compact-form">
+                                                    <div
+                                                        className={'justify-content-between d-flex flex-wrap align-items-center'}>
+                                                        <h4 className="input__group__title">Description of the
+                                                            Provider:</h4>
 
-
-                                                <div className="input">
-                                                    <h4 className="input__group__title">Description of the
-                                                        Provider:</h4>
+                                                        <button
+                                                            type="button"
+                                                            className='border-grey-btn ripple'
+                                                            onClick={() => {
+                                                                const updatedDescriptions = [...values.description, ''];
+                                                                const index = updatedDescriptions.length - 1 || 0
+                                                                setFieldValue('description', updatedDescriptions);
+                                                                this.handleFileAssetLogoChange(null, index);
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                        </button>
+                                                    </div>
                                                     <div className="input">
-                                                        <div className="input__title input__btns">Text
-                                                            <button
-                                                                type="button"
-                                                                className='border-grey-btn ripple'
-                                                                onClick={() => {
-                                                                    const updatedDescriptions = [...values.description, ''];
-                                                                    setFieldValue('description', updatedDescriptions);
-                                                                }}
-                                                            >
-                                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
-                                                            </button>
-                                                        </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <div className="officer-input">
                                                                 {values.description.map((description, index) => (
-                                                                    <div className={'input__btns'} key={index}>
-                                                                        <Field
-                                                                            name={`description.${index}`}
-                                                                            as="textarea"
-                                                                            rows={4}
-                                                                            className="input__textarea"
-                                                                            placeholder={''}
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                        />
+                                                                    <>
+                                                                        <div
+                                                                            className={'input__btns gap-20'}
+                                                                            key={index}>
+                                                                            <div className={'input__wrap'}>
+                                                                                {!this.isShow() && values.images[index] && (
+                                                                                    <div key={index}
+                                                                                         className="mb-2 d-flex">
+                                                                                        <Link
+                                                                                            className={'link info-panel-title-link'}
+                                                                                            href={`${this.host}${values.images[index]}`}
+                                                                                            target={'_blank'}>
+                                                                                            Image #{index + 1} {' '}
+                                                                                            <FontAwesomeIcon
+                                                                                                className="nav-icon"
+                                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                                        </Link>
+                                                                                    </div>
+                                                                                )}
+                                                                                <input
+                                                                                    id={`image_tmp.${index}`}
+                                                                                    name={`image_tmp.${index}`}
+                                                                                    type="file"
+                                                                                    accept={'.' + allowedExt.join(',.')}
+                                                                                    className="input__file"
+                                                                                    disabled={isSubmitting}
+                                                                                    onChange={(event) => {
+                                                                                        setFieldValue(`image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                        this.handleFileAssetLogoChange(event, index);
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                            <Field
+                                                                                name={`description.${index}`}
+                                                                                as="textarea"
+                                                                                rows={4}
+                                                                                className="input__textarea"
+                                                                                placeholder={''}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
 
-                                                                        <button
-                                                                            disabled={isSubmitting || values.description.length < 2}
-                                                                            type="button"
-                                                                            className={`border-grey-btn ripple ${values.description.length < 2 ? 'disable' : ''}`}
-                                                                            onClick={() => {
-                                                                                const updatedDescriptions = [...values.description];
-                                                                                updatedDescriptions.splice(index, 1);
-                                                                                setFieldValue('description', updatedDescriptions);
-                                                                            }}
-                                                                        >
-                                                                            <FontAwesomeIcon className="nav-icon"
-                                                                                             icon={faMinus}/>
-                                                                        </button>
-                                                                    </div>
+                                                                            <button
+                                                                                disabled={isSubmitting || values.description.length < 2}
+                                                                                type="button"
+                                                                                className={`border-grey-btn ripple ${values.description.length < 2 ? 'disable' : ''}`}
+                                                                                onClick={() => {
+                                                                                    const updatedDescriptions = [...values.description];
+                                                                                    updatedDescriptions.splice(index, 1);
+                                                                                    setFieldValue('description', updatedDescriptions);
+                                                                                    this.handleRemoveFile(index)
+                                                                                }}
+                                                                            >
+                                                                                <FontAwesomeIcon className="nav-icon"
+                                                                                                 icon={faMinus}/>
+                                                                            </button>
+                                                                        </div>
+                                                                        {errors.image_tmp && errors.image_tmp[index] && (
+                                                                            <div
+                                                                                className="error-message input__btns">{errors.image_tmp[index].toString()}</div>
+                                                                        )}
+                                                                    </>
                                                                 ))}
                                                             </div>
-                                                            {errors.description && (
-                                                                <div
-                                                                    className="error-message">{errors.description.toString()}</div>
-                                                            )}
                                                         </div>
                                                     </div>
-
-                                                    {!this.isShow() && (
-                                                        <div className="input">
-                                                            <div className="input__title input__btns">Images
-                                                                (maximum {allowedFileCount} files)
-                                                            </div>
-                                                            <div className={'link-list'}>
-                                                                {values.images.map((item: string, index: number) => (
-                                                                    <div key={index} className="mb-2 d-flex">
-                                                                        <Link className={'link info-panel-title-link'}
-                                                                              href={`${this.host}${item}`}
-                                                                              target={'_blank'}>
-                                                                            Image #{index + 1} {' '} <FontAwesomeIcon
-                                                                            className="nav-icon"
-                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                        </Link>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                            <div className="input__wrap">
-                                                                <input
-                                                                    id="image_tmp"
-                                                                    name="image_tmp"
-                                                                    type="file"
-                                                                    multiple={true}
-                                                                    accept={'.' + allowedExt.join(',.')}
-                                                                    className="input__file"
-                                                                    disabled={isSubmitting}
-                                                                    onChange={(event) => {
-                                                                        setFieldValue('image_tmp', event.target?.files || '');
-                                                                        this.handleFileAssetLogoChange(event);
-                                                                    }}
-                                                                />
-                                                                {errors.image_tmp && (
-                                                                    <div
-                                                                        className="error-message">{errors.image_tmp.toString()}</div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
                                                 </div>
 
                                                 <hr/>
@@ -578,12 +572,16 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
 
                                     <>
                                         {this.props.dataFeedProviderData?.description.map((description, index) => (
-                                            <div className={'d-flex mb-2'} key={index}>{description}</div>
-                                        ))}
-
-                                        {this.props.dataFeedProviderData?.images.map((image, index) => (
-                                            <div className={'d-flex mb-2'} key={index}>
-                                                <img src={image}/>
+                                            <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'} key={index}>
+                                                {this.props.dataFeedProviderData?.images[index] && (
+                                                    <div
+                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                        <div className={'logo p-0 align-items-baseline '}>
+                                                            <img src={this.props.dataFeedProviderData?.images[index]}/>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <div className={'d-flex mb-2'}>{description}</div>
                                             </div>
                                         ))}
                                     </>

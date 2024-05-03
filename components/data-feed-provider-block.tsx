@@ -46,7 +46,7 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
     }
 
     async componentDidMount() {
-        this.setState({isLoading: true});
+
         await this.getDataFeedProviderInfo()
             .then(() => this.getStatistics())
             .finally(() => {
@@ -136,8 +136,8 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
 
                                     <div className="indicators content__bottom">
 
-                                        <div className={'indicator__item statistics'}>
-                                            <div className="content__top mb-0 justify-content-center px-0">
+                                        <div className={'indicator__item statistics data-feed-provider'}>
+                                            <div className="content__top mb-0 justify-content-center px-0 pb-0">
                                                 <div className="content__title">Total # of Symbols</div>
                                             </div>
 
@@ -145,8 +145,8 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                                 {formatterService.numberFormat(Number(this.dataFeedProviderStatistics?.total_symbol), 0)}
                                             </div>
                                         </div>
-                                        <div className={'indicator__item statistics'}>
-                                            <div className="content__top mb-0 justify-content-center px-0">
+                                        <div className={'indicator__item statistics data-feed-provider'}>
+                                            <div className="content__top mb-0 justify-content-center px-0 pb-0">
                                                 <div className="content__title">Total # of Trades</div>
                                             </div>
 
@@ -154,8 +154,8 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                                 {formatterService.numberFormat(Number(this.dataFeedProviderStatistics?.total_trade), 0)}
                                             </div>
                                         </div>
-                                        <div className={'indicator__item statistics'}>
-                                            <div className="content__top mb-0 justify-content-center px-0">
+                                        <div className={'indicator__item statistics data-feed-provider'}>
+                                            <div className="content__top mb-0 justify-content-center px-0 pb-0">
                                                 <div className="content__title">Total # of Quantity</div>
                                             </div>
 
@@ -163,8 +163,8 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                                 {formatterService.numberFormat(Number(this.dataFeedProviderStatistics?.total_quantity), 0)}
                                             </div>
                                         </div>
-                                        <div className={'indicator__item statistics'}>
-                                            <div className="content__top mb-0 justify-content-center px-0">
+                                        <div className={'indicator__item statistics data-feed-provider'}>
+                                            <div className="content__top mb-0 justify-content-center px-0 pb-0">
                                                 <div className="content__title">Total # by Dollar Value</div>
                                             </div>
 
@@ -179,17 +179,19 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                             <div className={'content__title'}>Description</div>
                                         </div>
                                         <div className={'content__bottom'}>
-                                            <div className={'content__bottom'}>
-                                                {this.dataFeedProvider?.description.map((description, index) => (
-                                                    <div className={'d-flex mb-2'} key={index}>{description}</div>
-                                                ))}
-
-                                                {this.dataFeedProvider?.images.map((image, index) => (
-                                                    <div className={'d-flex mb-2'} key={index}>
-                                                        <img src={image}/>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                            {this.dataFeedProvider?.description.map((description, index) => (
+                                                <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'} key={index}>
+                                                    {this.dataFeedProvider?.images[index] && (
+                                                        <div
+                                                            className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                            <div className={'logo p-0 align-items-baseline '}>
+                                                                <img src={this.dataFeedProvider?.images[index]}/>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    <div className={'d-flex mb-2'}>{description}</div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 

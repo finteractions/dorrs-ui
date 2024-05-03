@@ -29,7 +29,7 @@ export default function DataFeedProviderContainer({children}: DataFeedProviderCo
                         <div className="panel logo__pannel">
                             <DataFeedProviderLogo/>
                         </div>
-                        <div>
+                        <div className={'w-100'}>
                             <div className="profile__left">
                                 <DataFeedProviderNav/>
                             </div>

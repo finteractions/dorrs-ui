@@ -130,7 +130,6 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
                 this.props.onCallback('secIssuer');
             }))
             .catch((errors: IError) => {
-                console.log(errors)
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);

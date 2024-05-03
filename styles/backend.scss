@@ -4871,5 +4871,43 @@
     width: 100%;
   }
 
+  .gap-20 {
+    gap: 20px;
+  }
+
+  .compact-form {
+
+    .input__wrap {
+      .input__btns {
+        display: flex;
+        flex: 1 1 100%;
+        justify-content: space-between;
+
+        input[type="file"], input[type=image] {
+          max-width: 200px
+        }
+      }
+    }
+
+    button.border-grey-btn {
+      min-width: 35px;
+      margin-left: 10px;
+      border: 1px solid #718494;
+      color: #718494;
+    }
+
+  }
+
+  .content-box {
+    max-width: 210px;
+    width: 100%;
+    margin: 0px;
+
+    .logo {
+      max-width: 210px;
+      width: 100%;
+      height: unset;
+    }
+  }
 }
 

@@ -83,7 +83,6 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                 this.props.onCallback('finraRegA');
             }))
             .catch((errors: IError) => {
-                console.log(errors)
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);

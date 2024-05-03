@@ -206,7 +206,6 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
     };
 
     navigate = (mode: string, option?: string) => {
-        console.log(mode, option)
         this.props.onCallback(this.props.symbol, mode, option);
     }
 
