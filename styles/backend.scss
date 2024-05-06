@@ -4554,7 +4554,9 @@
     justify-content: space-between;
 
     > button {
-      min-width: unset;
+      min-width: 35px;
+      max-width: 35px;
+      width: 100%;
       margin-left: 10px;
       border: 1px solid #718494;
       color: #718494;

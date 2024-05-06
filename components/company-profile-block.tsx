@@ -222,6 +222,58 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                 s.company_profile.board_of_directors = [""];
                             }
                         }
+
+                        if (typeof s.company_profile?.asset_type_description === 'string') {
+                            try {
+                                const str = (s.company_profile.asset_type_description as string).toString()
+                                const asset_type_description = JSON.parse(str);
+                                s.company_profile.asset_type_description = asset_type_description;
+                            } catch (error) {
+                                s.company_profile.asset_type_description = [""];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.asset_type_images === 'string') {
+                            try {
+                                const str = (s.company_profile.asset_type_images as string).toString()
+                                const asset_type_images = JSON.parse(str.replace(/'/g, '"'));
+                                s.company_profile.asset_type_images = asset_type_images;
+                            } catch (error) {
+                                s.company_profile.asset_type_images = [];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.issuer_profile_description === 'string') {
+                            try {
+                                const str = (s.company_profile.issuer_profile_description as string).toString()
+                                const issuer_profile_description = JSON.parse(str);
+                                s.company_profile.issuer_profile_description = issuer_profile_description;
+                            } catch (error) {
+                                s.company_profile.issuer_profile_description = [""];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.issuer_profile_images === 'string') {
+                            try {
+                                const str = (s.company_profile.issuer_profile_images as string).toString();
+                                const issuer_profile_images = JSON.parse(str.replace(/'/g, '"'));
+                                s.company_profile.issuer_profile_images = issuer_profile_images;
+                            } catch (error) {
+                                s.company_profile.issuer_profile_images = [];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.issuer_profile_files === 'string') {
+                            try {
+                                const str = (s.company_profile.issuer_profile_files as string).toString()
+                                const issuer_profile_files = JSON.parse(str.replace(/'/g, '"'));
+                                s.company_profile.issuer_profile_files = issuer_profile_files;
+                            } catch (error) {
+                                s.company_profile.issuer_profile_files = [];
+                            }
+                        }
+
+
                     });
 
                     this.symbols = data;
@@ -470,14 +522,22 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         </div>
                                                     </div>
                                                     <div className={'content__bottom'}>
-                                                        {this.companyProfile.asset_type_option === FormFieldOptionType.TEXT && (
-                                                            <div>{this.companyProfile?.asset_type_description || 'not filled'}</div>
-                                                        )}
-
-                                                        {this.companyProfile.asset_type_option === FormFieldOptionType.IMAGE && (
-                                                            <img
-                                                                src={`${this.host}${this.companyProfile.asset_type_image}`}/>
-                                                        )}
+                                                        {this.companyProfile?.asset_type_description.map((description, index) => (
+                                                            <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                 key={index}>
+                                                                {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
+                                                                    <div
+                                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                        <div
+                                                                            className={'logo p-0 align-items-baseline '}>
+                                                                            <img
+                                                                                src={this.companyProfile?.asset_type_images[index]}/>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                <div className={'d-flex mb-2'}>{description}</div>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             )}
@@ -513,46 +573,38 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <>
-                                                        {((this.companyProfile.issuer_profile_description || this.companyProfile.issuer_profile_image || this.companyProfile?.issuer_profile_file) && this.companyProfile.issuer_profile_option !== '') ? (
-                                                            <>
-                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.TEXT && (
-                                                                    <div>{this.companyProfile?.issuer_profile_description || 'not filled'}</div>
-                                                                )}
-
-                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.IMAGE && (
-                                                                    <>
-                                                                        {this.companyProfile.issuer_profile_image ? (
+                                                    {this.companyProfile?.issuer_profile_description.map((description, index) => (
+                                                        <>
+                                                            <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                 key={index}>
+                                                                {this.companyProfile?.issuer_profile_images && this.companyProfile?.issuer_profile_images[index] && (
+                                                                    <div
+                                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                        <div
+                                                                            className={'logo p-0 align-items-baseline '}>
                                                                             <img
-                                                                                src={`${this.host}${this.companyProfile.issuer_profile_image}`}/>
-                                                                        ) : (
-                                                                            <div>{'not filled'}</div>
-                                                                        )}
-                                                                    </>
+                                                                                src={this.companyProfile?.issuer_profile_images[index]}/>
+                                                                        </div>
+                                                                    </div>
                                                                 )}
+                                                                <div className={'d-flex mb-2 flex-column'}>
+                                                                    <p className={'w-100 mb-1'}>{description}</p>
+                                                                    {this.companyProfile?.issuer_profile_files && this.companyProfile?.issuer_profile_files[index] && (
+                                                                        <p className={'w-100 mb-1'}><Link
+                                                                            className={'link info-panel-title-link'}
+                                                                            href={`${this.host}${this.companyProfile?.issuer_profile_files[index]}`}
+                                                                            target={'_blank'}>
+                                                                            File {' '}
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon"
+                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                        </Link></p>
+                                                                    )}
 
-                                                                {this.companyProfile.issuer_profile_option === FormFieldOptionType2.FILE && (
-                                                                    <>
-                                                                        {this.companyProfile.issuer_profile_file ? (
-                                                                            <Link
-                                                                                className={'link info-panel-title-link'}
-                                                                                href={`${this.host}${this.companyProfile.issuer_profile_file}`}
-                                                                                target={'_blank'}>
-                                                                                {fileService.getFileNameFromUrl(this.companyProfile.issuer_profile_file)} {' '}
-                                                                                <FontAwesomeIcon className="nav-icon"
-                                                                                                 icon={faArrowUpRightFromSquare}/>
-                                                                            </Link>
-                                                                        ) : (
-                                                                            <div>{'not filled'}</div>
-                                                                        )}
-
-                                                                    </>
-                                                                )}
-                                                            </>
-                                                        ) : (
-                                                            <div>{'not filled'}</div>
-                                                        )}
-                                                    </>
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                    ))}
 
                                                 </div>
                                             </div>

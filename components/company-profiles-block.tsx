@@ -102,7 +102,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             isFilterShow: false,
             filtersClassName: props.isAdmin ? '' : 'd-none d-md-flex',
             isOpenModal: false,
-            formAction: 'add',
+            formAction: '',
             companyProfile: null,
             formType: '',
             symbol: null,
@@ -454,7 +454,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add'});
+        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: ''});
     }
 
     render() {
@@ -527,7 +527,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                 )}
 
                                 <Modal isOpen={this.state.isOpenCompanyModal}
-                                       className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}
+                                       className={'big_modal'}
                                        onClose={() => this.cancelCompanyForm()}
                                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                                 >
@@ -542,7 +542,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                                 <Modal isOpen={this.state.isOpenModal}
                                        onClose={() => this.closeModal()}
                                        title={this.modalTitle()}
-                                       className={`${['dob', 'bbo', 'last_sale_reporting'].includes(this.state.formType) ? 'big_modal' : ''}`}
+                                       className={`${this.state.formAction !== '' ? 'big_modal' : ''}`}
                                 >
                                     {this.renderFormBasedOnType(this.state.formType)}
                                 </Modal>

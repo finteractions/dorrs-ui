@@ -7,8 +7,6 @@ import Link from "next/link";
 import {useRouter} from "next/router";
 import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
-import {FormFieldOptionType, FormFieldOptionType2, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
-import fileService from "@/services/file/file-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import * as Yup from "yup";
@@ -45,33 +43,38 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedImageFileSize;
         }),
-    asset_type_image_tmp: Yup.mixed()
-        .test('asset_type_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedImageFileSize;
-        }),
-    issuer_profile_image_tmp: Yup.mixed()
-        .test('issuer_profile_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedImageFileSize;
-        }),
-    issuer_profile_file_tmp: Yup.mixed()
-        .test('issuer_profile_file_tmp', `File is not a valid image. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('issuer_profile_file_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedFileSize;
-        }),
+    asset_type_image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('asset_type_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })
+    ),
+    issuer_profile_image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('issuer_profile_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })
+    ),
+    issuer_profile_file_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('issuer_profile_image_tmp', `File is not a valid. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            }))
 });
 
 interface CompanyProfilePageFormProps extends ICallback {
@@ -90,9 +93,9 @@ interface CompanyProfilePageFormState extends IState {
     formInitialValues: {},
     selectedCountry: string;
     selectedFile: File | null;
-    selectedFileAssetTypeLogo: File | null;
-    selectedFileIssuerProfileImage: File | null;
-    selectedFileIssuerProfileFile: File | null;
+    selectedAssetTypeImages: File[] | null;
+    selectedIssuerProfileImages: File[] | null;
+    selectedIssuerProfileFiles: File[] | null;
     focusedInitialOfferingDate: any;
 }
 
@@ -126,9 +129,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             formInitialValues: {},
             selectedCountry: '',
             selectedFile: null,
-            selectedFileAssetTypeLogo: null,
-            selectedFileIssuerProfileImage: null,
-            selectedFileIssuerProfileFile: null,
+            selectedAssetTypeImages: [],
+            selectedIssuerProfileImages: [],
+            selectedIssuerProfileFiles: [],
             focusedInitialOfferingDate: null,
         }
 
@@ -138,7 +141,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     initForm(data?: ICompanyProfile | null) {
         const action = data ? 'edit' : 'add';
 
-        const initialData = data || {} as ICompanyProfile;
+        const initialData = {...data || {}} as ICompanyProfile;
+
         if (typeof initialData?.company_officers_and_contacts === 'string') {
             try {
                 const company_officers_and_contacts = JSON.parse(initialData.company_officers_and_contacts);
@@ -157,12 +161,48 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             }
         }
 
+        try {
+            const asset_type_description = JSON.parse(initialData.asset_type_description.toString());
+            initialData.asset_type_description = asset_type_description;
+        } catch (error) {
+            initialData.asset_type_description = [""];
+        }
+
+        try {
+            const asset_type_images = JSON.parse(initialData.asset_type_images.toString().replace(/'/g, '"'));
+            initialData.asset_type_images = asset_type_images;
+        } catch (error) {
+            initialData.asset_type_images = [];
+        }
+
+        try {
+            const issuer_profile_description = JSON.parse(initialData.issuer_profile_description.toString());
+            initialData.issuer_profile_description = issuer_profile_description;
+        } catch (error) {
+            initialData.issuer_profile_description = [""];
+        }
+
+        try {
+            const issuer_profile_images = JSON.parse(initialData.issuer_profile_images.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_images = issuer_profile_images;
+        } catch (error) {
+            initialData.issuer_profile_images = [];
+        }
+
+        try {
+            const issuer_profile_files = JSON.parse(initialData.issuer_profile_files.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_files = issuer_profile_files;
+        } catch (error) {
+            initialData.issuer_profile_files = [];
+        }
+
+
         const initialValues: {
             symbol: string;
             asset_type: string;
             asset_type_option: string;
-            asset_type_description: string;
-            asset_type_image: string;
+            asset_type_description: string[];
+            asset_type_images: string[];
             total_shares_outstanding: string;
             initial_offering_date: string;
             price_per_share: string;
@@ -191,9 +231,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             edgar_cik: string;
             logo: string;
             issuer_profile_option: string;
-            issuer_profile_description: string;
-            issuer_profile_image: string;
-            issuer_profile_file: string;
+            issuer_profile_description: string[];
+            issuer_profile_images: string[];
+            issuer_profile_files: string[];
         } = {
             symbol: initialData?.symbol || this.props.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
@@ -201,13 +241,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             price_per_share: initialData?.price_per_share || '',
             asset_type: initialData?.asset_type || '',
             asset_type_option: initialData?.asset_type_option || '',
-            asset_type_description: initialData?.asset_type_description || '',
-            asset_type_image: initialData?.asset_type_image || '',
+            asset_type_description: initialData?.asset_type_description || [""],
+            asset_type_images: initialData?.asset_type_images || [],
             issuer_profile_option: initialData?.issuer_profile_option || '',
-            issuer_profile_description: initialData?.issuer_profile_description || '',
-            issuer_profile_image: initialData?.issuer_profile_image || '',
-            issuer_profile_file: initialData?.issuer_profile_file || '',
-            company_name: initialData?.company_name || this.symbol?.security_name || '',
+            issuer_profile_description: initialData?.issuer_profile_description || [""],
+            issuer_profile_images: initialData?.issuer_profile_images || [],
+            issuer_profile_files: initialData?.issuer_profile_files || [],
+            company_name: initialData?.company_name || this.props?.symbol || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
             street_address_2: initialData?.street_address_2 || '',
@@ -233,7 +273,18 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             logo: initialData?.logo || '',
         };
 
-        this.setState({formInitialValues: initialValues, selectedCountry: initialValues.country, action: action})
+        const selectedAssetTypeImages = initialData.asset_type_images as any
+        const selectedIssuerProfileImages = initialData.issuer_profile_images as any
+        const selectedIssuerProfileFiles = initialData.issuer_profile_files as any
+
+        this.setState({
+            formInitialValues: initialValues,
+            selectedCountry: initialValues.country,
+            action: action,
+            selectedAssetTypeImages: selectedAssetTypeImages,
+            selectedIssuerProfileImages: selectedIssuerProfileImages,
+            selectedIssuerProfileFiles: selectedIssuerProfileFiles,
+        })
     }
 
     componentDidMount() {
@@ -306,6 +357,14 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             formData.append(key, value);
         }
 
+        formData.delete('asset_type_description');
+        const asset_type_description = values.asset_type_description;
+        formData.append('asset_type_description', JSON.stringify(asset_type_description));
+
+        formData.delete('issuer_profile_description');
+        const issuer_profile_description = values.issuer_profile_description;
+        formData.append('issuer_profile_description', JSON.stringify(issuer_profile_description));
+
         const officerValues = values.company_officers_and_contacts;
         formData.append('company_officers_and_contacts', JSON.stringify(officerValues));
 
@@ -314,29 +373,34 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         formData.delete('logo');
         formData.delete('logo_tmp');
-        formData.delete('asset_type_image');
+        formData.delete('asset_type_images');
         formData.delete('asset_type_image_tmp');
-        formData.delete('issuer_profile_image');
+        formData.delete('issuer_profile_images');
         formData.delete('issuer_profile_image_tmp');
-        formData.delete('issuer_profile_file');
+        formData.delete('issuer_profile_files');
         formData.delete('issuer_profile_file_tmp');
-
-
-        if (this.state.selectedFileAssetTypeLogo) {
-            formData.append('asset_type_image', this.state.selectedFileAssetTypeLogo);
-        }
 
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
         }
 
-        if (this.state.selectedFileIssuerProfileImage) {
-            formData.append('issuer_profile_image', this.state.selectedFileIssuerProfileImage);
+        if (this.state.selectedAssetTypeImages && this.state.selectedAssetTypeImages.length > 0) {
+            for (const file of Array.from(this.state.selectedAssetTypeImages)) {
+                formData.append('asset_type_images[]', file);
+            }
         }
 
-        if (this.state.selectedFileIssuerProfileFile) {
-            formData.append('issuer_profile_file', this.state.selectedFileIssuerProfileFile);
+        if (this.state.selectedIssuerProfileImages && this.state.selectedIssuerProfileImages.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileImages)) {
+                formData.append('issuer_profile_images[]', file);
+            }
+        }
+
+        if (this.state.selectedIssuerProfileFiles && this.state.selectedIssuerProfileFiles.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileFiles)) {
+                formData.append('issuer_profile_files[]', file);
+            }
         }
 
 
@@ -371,19 +435,77 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         this.setState({selectedFile: selectedFile});
     };
 
-    handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileAssetTypeLogo: selectedFile});
+    // handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const selectedFile = event.target?.files?.[0] || null;
+    //     this.setState({selectedFileAssetTypeLogo: selectedFile});
+    // };
+    //
+    // handleFileIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const selectedFile = event.target?.files?.[0] || null;
+    //     this.setState({selectedFileIssuerProfileImage: selectedFile});
+    // };
+    //
+    // handleFileIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const selectedFile = event.target?.files?.[0] || null;
+    //     this.setState({selectedFileIssuerProfileFile: selectedFile});
+    // };
+
+    handleAssetTypeImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedAssetTypeImages || [])];
+            updatedFiles[index] = selectedFile;
+            return {...prevState, selectedAssetTypeImages: updatedFiles};
+        });
     };
 
-    handleFileIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileIssuerProfileImage: selectedFile});
+
+    handleAssetTypeImageRemove = (index: number) => {
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles = (prevState.selectedAssetTypeImages || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedAssetTypeImages: updatedFiles};
+        });
     };
 
-    handleFileIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileIssuerProfileFile: selectedFile});
+
+    handleIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileImages || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedIssuerProfileImages: updatedFiles} as CompanyProfilePageFormState;
+        });
+    };
+
+
+    handleIssuerProfileImageRemove = (index: number) => {
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles = (prevState.selectedIssuerProfileImages || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedIssuerProfileImages: updatedFiles};
+        });
+    };
+
+    handleIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileFiles || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedIssuerProfileFiles: updatedFiles} as CompanyProfilePageFormState;
+        });
+    };
+
+
+    handleIssuerProfileFileRemove = (index: number) => {
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles = (prevState.selectedIssuerProfileFiles || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedIssuerProfileFiles: updatedFiles};
+        });
     };
 
     render() {
@@ -614,234 +736,236 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     {values.asset_type !== '' && (
                                                                         <>
                                                                             <div className="input__box full">
-                                                                                <h4 className="input__group__title">{values.asset_type} Additional
-                                                                                    Fields:</h4>
+                                                                                <div className={'input__btns'}>
+                                                                                    <h4 className="input__group__title">{values.asset_type} Additional
+                                                                                        Fields:</h4>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className='border-grey-btn ripple'
+                                                                                        onClick={() => {
+                                                                                            const updatedDescriptions = [...values.asset_type_description, ''];
+                                                                                            const index = updatedDescriptions.length - 1 || 0
+                                                                                            setFieldValue('asset_type_description', updatedDescriptions);
+                                                                                            this.handleAssetTypeImageChange(null, index);
+                                                                                        }}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faPlus}/>
+                                                                                    </button>
+                                                                                </div>
+
                                                                             </div>
                                                                             <div className={'input__box full'}>
-                                                                                <div className="input__box">
-                                                                                    <div
-                                                                                        className="input__title">Choose
-                                                                                        either a Free Text Box
-                                                                                        or Upload Image Option
-                                                                                    </div>
+                                                                                <div className="input">
                                                                                     <div
                                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <Field
-                                                                                            name="asset_type_option"
-                                                                                            id="asset_type_option"
-                                                                                            as="select"
-                                                                                            className="b-select"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                        >
-                                                                                            <option value="">Select
-                                                                                            </option>
-                                                                                            {Object.values(FormFieldOptionType).map((type) => (
-                                                                                                <option key={type}
-                                                                                                        value={type}>
-                                                                                                    {getFormFieldOptionTypeName(type as FormFieldOptionType)}
-                                                                                                </option>
+                                                                                        <div className="officer-input">
+                                                                                            {values.asset_type_description.map((description, index) => (
+                                                                                                <>
+                                                                                                    <div
+                                                                                                        className={'input__btns gap-20'}
+                                                                                                        key={index}>
+                                                                                                        <div
+                                                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                            {!this.isShow() && values.asset_type_images[index] && (
+                                                                                                                <div
+                                                                                                                    key={index}
+                                                                                                                    className="mb-2 d-flex">
+                                                                                                                    <Link
+                                                                                                                        className={'link info-panel-title-link'}
+                                                                                                                        href={`${this.host}${values.asset_type_images[index]}`}
+                                                                                                                        target={'_blank'}>
+                                                                                                                        Image
+                                                                                                                        #{index + 1} {' '}
+                                                                                                                        <FontAwesomeIcon
+                                                                                                                            className="nav-icon"
+                                                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                                                    </Link>
+                                                                                                                </div>
+                                                                                                            )}
+                                                                                                            <input
+                                                                                                                id={`asset_type_image_tmp.${index}`}
+                                                                                                                name={`asset_type_image_tmp.${index}`}
+                                                                                                                type="file"
+                                                                                                                accept={'.' + allowedImageExt.join(',.')}
+                                                                                                                className={`input__file`}
+                                                                                                                disabled={isSubmitting}
+                                                                                                                onChange={(event) => {
+                                                                                                                    setFieldValue(`asset_type_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                    this.handleAssetTypeImageChange(event, index);
+                                                                                                                }}
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                        <Field
+                                                                                                            name={`asset_type_description.${index}`}
+                                                                                                            as="textarea"
+                                                                                                            rows={4}
+                                                                                                            className="input__textarea"
+                                                                                                            placeholder={''}
+                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                        />
+
+                                                                                                        <button
+                                                                                                            disabled={isSubmitting || values.asset_type_description.length < 2}
+                                                                                                            type="button"
+                                                                                                            className={`border-grey-btn ripple ${values.asset_type_description.length < 2 ? 'disable' : ''}`}
+                                                                                                            onClick={() => {
+                                                                                                                const updatedDescriptions = [...values.asset_type_description];
+                                                                                                                updatedDescriptions.splice(index, 1);
+                                                                                                                setFieldValue('asset_type_description', updatedDescriptions);
+                                                                                                                this.handleAssetTypeImageRemove(index)
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <FontAwesomeIcon
+                                                                                                                className="nav-icon"
+                                                                                                                icon={faMinus}/>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
+                                                                                                        <div
+                                                                                                            className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
+                                                                                                    )}
+                                                                                                </>
                                                                                             ))}
-                                                                                        </Field>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
 
-                                                                                {values.asset_type_option === FormFieldOptionType.TEXT && (
-                                                                                    <div className="input__box">
-                                                                                        <div
-                                                                                            className="input__wrap">
-                                                                                            <Field
-                                                                                                name="asset_type_description"
-                                                                                                id="asset_type_description"
-                                                                                                as="textarea"
-                                                                                                rows="4"
-                                                                                                className="input__textarea"
-                                                                                                placeholder=""
-                                                                                                maxLength={255}
-                                                                                                disabled={isSubmitting}
-                                                                                            />
-                                                                                            <ErrorMessage
-                                                                                                name="asset_type_description"
-                                                                                                component="div"
-                                                                                                className="error-message"/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-
-                                                                                {values.asset_type_option === FormFieldOptionType.IMAGE && (
-                                                                                    <>
-                                                                                        {(this.isShow() && initialValues?.asset_type_image) && (
-                                                                                            <div
-                                                                                                className={"input__box d-flex justify-content-center company-profile-logo"}>
-                                                                                                <img
-                                                                                                    src={initialValues?.asset_type_image}
-                                                                                                    alt="Logo"/>
-                                                                                            </div>
-                                                                                        )}
-                                                                                        {!this.isShow() && (
-                                                                                            <div
-                                                                                                className="input__box">
-                                                                                                <div
-                                                                                                    className="input__wrap">
-                                                                                                    <input
-                                                                                                        id="asset_type_image_tmp"
-                                                                                                        name="asset_type_image_tmp"
-                                                                                                        type="file"
-                                                                                                        accept={'.' + allowedImageExt.join(',.')}
-                                                                                                        className="input__file"
-                                                                                                        disabled={isSubmitting}
-                                                                                                        onChange={(event) => {
-                                                                                                            setFieldValue('asset_type_image_tmp', event.target?.files?.[0] || '');
-                                                                                                            this.handleFileAssetLogoChange(event);
-                                                                                                        }}
-                                                                                                    />
-                                                                                                    {errors.asset_type_image_tmp && (
-                                                                                                        <div
-                                                                                                            className="error-message">{errors.asset_type_image_tmp.toString()}</div>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </>
-                                                                                )}
 
                                                                             </div>
                                                                         </>
                                                                     )}
 
                                                                     <div className="input__box full">
-                                                                        <h4 className="input__group__title">Issuer
-                                                                            Profile Fields:</h4>
+                                                                        <div className={'input__btns'}>
+                                                                            <h4 className="input__group__title">Issuer
+                                                                                Profile Fields:</h4>
+                                                                            <button
+                                                                                type="button"
+                                                                                className='border-grey-btn ripple'
+                                                                                onClick={() => {
+                                                                                    const updatedDescriptions = [...values.issuer_profile_description, ''];
+                                                                                    const index = updatedDescriptions.length - 1 || 0
+                                                                                    setFieldValue('issuer_profile_description', updatedDescriptions);
+                                                                                    this.handleIssuerProfileImageChange(null, index);
+                                                                                    this.handleIssuerProfileFileChange(null, index);
+                                                                                }}
+                                                                            >
+                                                                                <FontAwesomeIcon
+                                                                                    className="nav-icon"
+                                                                                    icon={faPlus}/>
+                                                                            </button>
+                                                                        </div>
+
                                                                     </div>
-                                                                    <div className="input__box full">
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Information
-                                                                                on Offering
-                                                                                Prospective, Financials and other
-                                                                                details can be loaded on
-                                                                                the Issuance of the company so
-                                                                                broker-dealers can use the
-                                                                                data as due diligence.
-                                                                            </div>
+                                                                    <div className={'input__box full'}>
+                                                                        <div className="input">
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="issuer_profile_option"
-                                                                                    id="issuer_profile_option"
-                                                                                    as="select"
-                                                                                    className="b-select"
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                >
-                                                                                    <option value="">Select</option>
-                                                                                    {Object.values(FormFieldOptionType2).map((type) => (
-                                                                                        <option key={type}
-                                                                                                value={type}>
-                                                                                            {getFormFieldOptionTypeName(type as FormFieldOptionType2)}
-                                                                                        </option>
+                                                                                <div className="officer-input">
+                                                                                    {values.issuer_profile_description.map((description, index) => (
+                                                                                        <>
+                                                                                            <div
+                                                                                                className={'input__btns gap-20'}
+                                                                                                key={index}>
+                                                                                                <div
+                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    {!this.isShow() && values.issuer_profile_images[index] && (
+                                                                                                        <div key={index}
+                                                                                                             className="mb-2 d-flex">
+                                                                                                            <Link
+                                                                                                                className={'link info-panel-title-link'}
+                                                                                                                href={`${this.host}${values.asset_type_images[index]}`}
+                                                                                                                target={'_blank'}>
+                                                                                                                Image
+                                                                                                                #{index + 1} {' '}
+                                                                                                                <FontAwesomeIcon
+                                                                                                                    className="nav-icon"
+                                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                                            </Link>
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                    <input
+                                                                                                        id={`issuer_profile_image_tmp.${index}`}
+                                                                                                        name={`issuer_profile_image_tmp.${index}`}
+                                                                                                        type="file"
+                                                                                                        accept={'.' + allowedImageExt.join(',.')}
+                                                                                                        className={`input__file`}
+                                                                                                        disabled={isSubmitting}
+                                                                                                        onChange={(event) => {
+                                                                                                            setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                            this.handleIssuerProfileImageChange(event, index);
+                                                                                                        }}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                                <Field
+                                                                                                    name={`issuer_profile_description.${index}`}
+                                                                                                    as="textarea"
+                                                                                                    rows={4}
+                                                                                                    className="input__textarea"
+                                                                                                    placeholder={''}
+                                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                                />
+                                                                                                <div
+                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    {!this.isShow() && values.issuer_profile_files[index] && (
+                                                                                                        <div key={index}
+                                                                                                             className="mb-2 d-flex">
+                                                                                                            <Link
+                                                                                                                className={'link info-panel-title-link'}
+                                                                                                                href={`${this.host}${values.issuer_profile_files[index]}`}
+                                                                                                                target={'_blank'}>
+                                                                                                                File
+                                                                                                                {' '}
+                                                                                                                <FontAwesomeIcon
+                                                                                                                    className="nav-icon"
+                                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                                            </Link>
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                    <input
+                                                                                                        id={`issuer_profile_file_tmp.${index}`}
+                                                                                                        name={`issuer_profile_file_tmp.${index}`}
+                                                                                                        type="file"
+                                                                                                        accept={'.' + allowedFileExt.join(',.')}
+                                                                                                        className={`input__file`}
+                                                                                                        disabled={isSubmitting}
+                                                                                                        onChange={(event) => {
+                                                                                                            setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                            this.handleIssuerProfileFileChange(event, index);
+                                                                                                        }}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                                <button
+                                                                                                    disabled={isSubmitting || values.issuer_profile_description.length < 2}
+                                                                                                    type="button"
+                                                                                                    className={`border-grey-btn ripple ${values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
+                                                                                                    onClick={() => {
+                                                                                                        const updatedDescriptions = [...values.issuer_profile_description];
+                                                                                                        updatedDescriptions.splice(index, 1);
+                                                                                                        setFieldValue('issuer_profile_description', updatedDescriptions);
+                                                                                                        this.handleIssuerProfileImageRemove(index)
+                                                                                                        this.handleIssuerProfileFileRemove(index)
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faMinus}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                            {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
+                                                                                                <div
+                                                                                                    className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
+                                                                                            )}
+                                                                                        </>
                                                                                     ))}
-                                                                                </Field>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
 
-                                                                        {values.issuer_profile_option === FormFieldOptionType2.TEXT && (
-                                                                            <div className="input__box">
-                                                                                <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="issuer_profile_description"
-                                                                                        id="issuer_profile_description"
-                                                                                        as="textarea"
-                                                                                        rows="4"
-                                                                                        className="input__textarea"
-                                                                                        placeholder=""
-                                                                                        maxLength={255}
-                                                                                        disabled={isSubmitting}
-                                                                                    />
-                                                                                    <ErrorMessage
-                                                                                        name="issuer_profile_description"
-                                                                                        component="div"
-                                                                                        className="error-message"/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-                                                                        {values.issuer_profile_option === FormFieldOptionType2.IMAGE && (
-                                                                            <>
-                                                                                {(this.isShow() && initialValues?.issuer_profile_image) && (
-                                                                                    <div
-                                                                                        className={"input__box d-flex justify-content-center company-profile-logo"}>
-                                                                                        <img
-                                                                                            src={initialValues?.issuer_profile_image}
-                                                                                            alt="Logo"/>
-                                                                                    </div>
-                                                                                )}
-                                                                                {!this.isShow() && (
-                                                                                    <div className="input__box">
-                                                                                        <div
-                                                                                            className="input__wrap">
-                                                                                            <input
-                                                                                                id="issuer_profile_image_tmp"
-                                                                                                name="issuer_profile_image_tmp"
-                                                                                                type="file"
-                                                                                                accept={'.' + allowedImageExt.join(',.')}
-                                                                                                className="input__file"
-                                                                                                disabled={isSubmitting}
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue('issuer_profile_image_tmp', event.target?.files?.[0] || '');
-                                                                                                    this.handleFileIssuerProfileImageChange(event);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.issuer_profile_image_tmp && (
-                                                                                                <div
-                                                                                                    className="error-message">{errors.issuer_profile_image_tmp.toString()}</div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-                                                                            </>
-                                                                        )}
-
-                                                                        {values.issuer_profile_option === FormFieldOptionType2.FILE && (
-                                                                            <>
-                                                                                {(this.isShow() && initialValues?.issuer_profile_file) && (
-                                                                                    <div
-                                                                                        className={"input__box d-flex justify-content-center company-profile-logo"}>
-                                                                                        <Link
-                                                                                            className={'link info-panel-title-link'}
-                                                                                            href={`${this.host}${initialValues?.issuer_profile_file}`}
-                                                                                            target={'_blank'}>
-                                                                                            {fileService.getFileNameFromUrl(initialValues?.issuer_profile_file)}
-                                                                                            <FontAwesomeIcon
-                                                                                                className="nav-icon"
-                                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                                        </Link>
-                                                                                    </div>
-                                                                                )}
-                                                                                {!this.isShow() && (
-                                                                                    <div className="input__box">
-                                                                                        <div
-                                                                                            className="input__wrap">
-                                                                                            <input
-                                                                                                id="issuer_profile_file_tmp"
-                                                                                                name="issuer_profile_file_tmp"
-                                                                                                type="file"
-                                                                                                accept={'.' + allowedFileExt.join(',.')}
-                                                                                                className="input__file"
-                                                                                                disabled={isSubmitting}
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue('issuer_profile_file_tmp', event.target?.files?.[0] || '');
-                                                                                                    this.handleFileIssuerProfileFileChange(event);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.issuer_profile_file_tmp && (
-                                                                                                <div
-                                                                                                    className="error-message">{errors.issuer_profile_file_tmp.toString()}</div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-                                                                            </>
-                                                                        )}
 
                                                                     </div>
 

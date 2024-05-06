@@ -47,37 +47,42 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedImageFileSize;
         }),
-    asset_type_image_tmp: Yup.mixed()
-        .test('asset_type_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedImageFileSize;
-        }),
-    issuer_profile_image_tmp: Yup.mixed()
-        .test('issuer_profile_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedImageFileSize;
-        }),
-    issuer_profile_file_tmp: Yup.mixed()
-        .test('issuer_profile_file_tmp', `File is not a valid image. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
-            if (!value) return true;
-            return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
-        })
-        .test('issuer_profile_file_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
-            if (!value) return true;
-            return value.size <= allowedFileSize;
-        }),
+    asset_type_image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('asset_type_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })
+    ),
+    issuer_profile_image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('issuer_profile_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })
+    ),
+    issuer_profile_file_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('issuer_profile_image_tmp', `File is not a valid. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            }))
 });
 
 interface CompanyProfileFormState extends IState {
-    formInitialValues: {},
+    formInitialValues: ICompanyProfile,
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
     loading: boolean;
@@ -88,9 +93,9 @@ interface CompanyProfileFormState extends IState {
     }[],
     selectedCountry: string;
     selectedFile: File | null;
-    selectedFileAssetTypeLogo: File | null;
-    selectedFileIssuerProfileImage: File | null;
-    selectedFileIssuerProfileFile: File | null;
+    selectedAssetTypeImages: File[];
+    selectedIssuerProfileImages: File[];
+    selectedIssuerProfileFiles: File[];
     focusedInitialOfferingDate: any;
 }
 
@@ -112,15 +117,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     constructor(props: CompanyProfileFormProps) {
         super(props);
 
-        const initialData = this.props.data || {} as ICompanyProfile;
+        const initialData = {...this.props.data || {}} as ICompanyProfile;
+
         if (typeof initialData?.company_officers_and_contacts === 'string') {
             try {
                 const company_officers_and_contacts = JSON.parse(initialData.company_officers_and_contacts);
                 initialData.company_officers_and_contacts = company_officers_and_contacts;
-                if (this.props.data) this.props.data.company_officers_and_contacts = company_officers_and_contacts;
             } catch (error) {
                 initialData.company_officers_and_contacts = [""];
-                if (this.props.data) this.props.data.company_officers_and_contacts = [""];
             }
         }
 
@@ -131,16 +135,50 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                 if (this.props.data) this.props.data.board_of_directors = board_of_directors;
             } catch (error) {
                 initialData.board_of_directors = [""];
-                if (this.props.data) this.props.data.board_of_directors = [""];
             }
+        }
+
+        try {
+            const asset_type_description = JSON.parse(initialData.asset_type_description.toString());
+            initialData.asset_type_description = asset_type_description;
+        } catch (error) {
+            initialData.asset_type_description = [""];
+        }
+
+        try {
+            const asset_type_images = JSON.parse(initialData.asset_type_images.toString().replace(/'/g, '"'));
+            initialData.asset_type_images = asset_type_images;
+        } catch (error) {
+            initialData.asset_type_images = [];
+        }
+
+        try {
+            const issuer_profile_description = JSON.parse(initialData.issuer_profile_description.toString());
+            initialData.issuer_profile_description = issuer_profile_description;
+        } catch (error) {
+            initialData.issuer_profile_description = [""];
+        }
+
+        try {
+            const issuer_profile_images = JSON.parse(initialData.issuer_profile_images.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_images = issuer_profile_images;
+        } catch (error) {
+            initialData.issuer_profile_images = [];
+        }
+
+        try {
+            const issuer_profile_files = JSON.parse(initialData.issuer_profile_files.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_files = issuer_profile_files;
+        } catch (error) {
+            initialData.issuer_profile_files = [];
         }
 
         const initialValues: {
             symbol: string;
             asset_type: string;
             asset_type_option: string;
-            asset_type_description: string;
-            asset_type_image: string;
+            asset_type_description: string[];
+            asset_type_images: string[];
             total_shares_outstanding: string;
             initial_offering_date: string;
             price_per_share: string;
@@ -169,9 +207,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             edgar_cik: string;
             logo: string;
             issuer_profile_option: string;
-            issuer_profile_description: string;
-            issuer_profile_image: string;
-            issuer_profile_file: string;
+            issuer_profile_description: string[];
+            issuer_profile_images: string[];
+            issuer_profile_files: string[];
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
@@ -179,12 +217,12 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             price_per_share: initialData?.price_per_share || '',
             asset_type: initialData?.asset_type || '',
             asset_type_option: initialData?.asset_type_option || '',
-            asset_type_description: initialData?.asset_type_description || '',
-            asset_type_image: initialData?.asset_type_image || '',
+            asset_type_description: initialData?.asset_type_description || [""],
+            asset_type_images: initialData?.asset_type_images || [],
             issuer_profile_option: initialData?.issuer_profile_option || '',
-            issuer_profile_description: initialData?.issuer_profile_description || '',
-            issuer_profile_image: initialData?.issuer_profile_image || '',
-            issuer_profile_file: initialData?.issuer_profile_file || '',
+            issuer_profile_description: initialData?.issuer_profile_description || [""],
+            issuer_profile_images: initialData?.issuer_profile_images || [],
+            issuer_profile_files: initialData?.issuer_profile_files || [],
             company_name: initialData?.company_name || this.props.symbolData?.security_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
@@ -214,9 +252,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
 
+        const selectedAssetTypeImages = initialData.asset_type_images as any
+        const selectedIssuerProfileImages = initialData.issuer_profile_images as any
+        const selectedIssuerProfileFiles = initialData.issuer_profile_files as any
+
         this.state = {
             success: false,
-            formInitialValues: initialValues,
+            formInitialValues: initialValues as ICompanyProfile,
             loading: false,
             isApproving: null,
             isConfirmedApproving: false,
@@ -224,12 +266,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             usaStates: usaStatesList,
             selectedCountry: initialValues.country,
             selectedFile: null,
-            selectedFileAssetTypeLogo: null,
-            selectedFileIssuerProfileImage: null,
-            selectedFileIssuerProfileFile: null,
+            selectedAssetTypeImages: selectedAssetTypeImages,
+            selectedIssuerProfileImages: selectedIssuerProfileImages,
+            selectedIssuerProfileFiles: selectedIssuerProfileFiles,
             focusedInitialOfferingDate: null,
         };
-
     }
 
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
@@ -242,6 +283,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             formData.append(key, value);
         }
 
+        formData.delete('asset_type_description');
+        const asset_type_description = values.asset_type_description;
+        formData.append('asset_type_description', JSON.stringify(asset_type_description));
+
+        formData.delete('issuer_profile_description');
+        const issuer_profile_description = values.issuer_profile_description;
+        formData.append('issuer_profile_description', JSON.stringify(issuer_profile_description));
+
         const officerValues = values.company_officers_and_contacts;
         formData.append('company_officers_and_contacts', JSON.stringify(officerValues));
 
@@ -250,31 +299,35 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         formData.delete('logo');
         formData.delete('logo_tmp');
-        formData.delete('asset_type_image');
+        formData.delete('asset_type_images');
         formData.delete('asset_type_image_tmp');
-        formData.delete('issuer_profile_image');
+        formData.delete('issuer_profile_images');
         formData.delete('issuer_profile_image_tmp');
-        formData.delete('issuer_profile_file');
+        formData.delete('issuer_profile_files');
         formData.delete('issuer_profile_file_tmp');
-
-
-        if (this.state.selectedFileAssetTypeLogo) {
-            formData.append('asset_type_image', this.state.selectedFileAssetTypeLogo);
-        }
 
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
         }
 
-        if (this.state.selectedFileIssuerProfileImage) {
-            formData.append('issuer_profile_image', this.state.selectedFileIssuerProfileImage);
+        if (this.state.selectedAssetTypeImages && this.state.selectedAssetTypeImages.length > 0) {
+            for (const file of Array.from(this.state.selectedAssetTypeImages)) {
+                formData.append('asset_type_images[]', file);
+            }
         }
 
-        if (this.state.selectedFileIssuerProfileFile) {
-            formData.append('issuer_profile_file', this.state.selectedFileIssuerProfileFile);
+        if (this.state.selectedIssuerProfileImages && this.state.selectedIssuerProfileImages.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileImages)) {
+                formData.append('issuer_profile_images[]', file);
+            }
         }
 
+        if (this.state.selectedIssuerProfileFiles && this.state.selectedIssuerProfileFiles.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileFiles)) {
+                formData.append('issuer_profile_files[]', file);
+            }
+        }
 
         const request: Promise<any> = this.props.action == 'edit' ?
             !this.props?.isAdmin ? symbolService.updateCompanyProfile(formData, this.props.data?.id || 0) : adminService.updateCompanyProfile(formData, this.props.data?.id || 0) :
@@ -321,19 +374,62 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState({selectedFile: selectedFile});
     };
 
-    handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileAssetTypeLogo: selectedFile});
+    handleAssetTypeImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedAssetTypeImages || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedAssetTypeImages: updatedFiles} as CompanyProfileFormState;
+        });
     };
 
-    handleFileIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileIssuerProfileImage: selectedFile});
+
+    handleAssetTypeImageRemove = (index: number) => {
+        this.setState((prevState) => {
+            const updatedFiles = (prevState.selectedAssetTypeImages || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedAssetTypeImages: updatedFiles};
+        });
     };
 
-    handleFileIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target?.files?.[0] || null;
-        this.setState({selectedFileIssuerProfileFile: selectedFile});
+
+    handleIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileImages || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedIssuerProfileImages: updatedFiles} as CompanyProfileFormState;
+        });
+    };
+
+
+    handleIssuerProfileImageRemove = (index: number) => {
+        this.setState((prevState) => {
+            const updatedFiles = (prevState.selectedIssuerProfileImages || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedIssuerProfileImages: updatedFiles};
+        });
+    };
+
+    handleIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileFiles || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedIssuerProfileFiles: updatedFiles} as CompanyProfileFormState;
+        });
+    };
+
+
+    handleIssuerProfileFileRemove = (index: number) => {
+        this.setState((prevState) => {
+            const updatedFiles = (prevState.selectedIssuerProfileFiles || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedIssuerProfileFiles: updatedFiles};
+        });
     };
 
     render() {
@@ -577,211 +673,218 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
 
                                                 {values.asset_type !== '' && (
-                                                    <div className="input">
-                                                        <h4 className="input__group__title">{values.asset_type} Additional
-                                                            Fields:</h4>
+                                                    <>
+                                                        <div className="input__title input__btns">
+                                                            <h4 className="input__group__title">{values.asset_type} Additional
+                                                                Fields:</h4>
+                                                            <button
+                                                                type="button"
+                                                                className='border-grey-btn ripple'
+                                                                onClick={() => {
+                                                                    const updatedDescriptions = [...values.asset_type_description, ''];
+                                                                    const index = updatedDescriptions.length - 1 || 0
+                                                                    setFieldValue('asset_type_description', updatedDescriptions);
+                                                                    this.handleAssetTypeImageChange(null, index);
+                                                                }}
+                                                            >
+                                                                <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                            </button>
+                                                        </div>
 
                                                         <div className="input">
-                                                            <div className="input__title">Choose either a Free Text Box
-                                                                or Upload Image Option
-                                                            </div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                                <Field
-                                                                    name="asset_type_option"
-                                                                    id="asset_type_option"
-                                                                    as="select"
-                                                                    className="b-select"
-                                                                    disabled={isSubmitting || this.isShow()}
-                                                                >
-                                                                    <option value="">Select</option>
-                                                                    {Object.values(FormFieldOptionType).map((type) => (
-                                                                        <option key={type} value={type}>
-                                                                            {getFormFieldOptionTypeName(type as FormFieldOptionType)}
-                                                                        </option>
+                                                                <div className="officer-input">
+                                                                    {values.asset_type_description.map((description, index) => (
+                                                                        <>
+                                                                            <div
+                                                                                className={'input__btns gap-20'}
+                                                                                key={index}>
+                                                                                <div className={'input__wrap'}>
+                                                                                    {!this.isShow() && values.asset_type_images[index] && (
+                                                                                        <div key={index}
+                                                                                             className="mb-2 d-flex">
+                                                                                            <Link
+                                                                                                className={'link info-panel-title-link'}
+                                                                                                href={`${this.host}${values.asset_type_images[index]}`}
+                                                                                                target={'_blank'}>
+                                                                                                Image #{index + 1} {' '}
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                            </Link>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <input
+                                                                                        id={`asset_type_image_tmp.${index}`}
+                                                                                        name={`asset_type_image_tmp.${index}`}
+                                                                                        type="file"
+                                                                                        accept={'.' + allowedImageExt.join(',.')}
+                                                                                        className="input__file"
+                                                                                        disabled={isSubmitting}
+                                                                                        onChange={(event) => {
+                                                                                            setFieldValue(`asset_type_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                            this.handleAssetTypeImageChange(event, index);
+                                                                                        }}
+                                                                                    />
+                                                                                </div>
+                                                                                <Field
+                                                                                    name={`asset_type_description.${index}`}
+                                                                                    as="textarea"
+                                                                                    rows={4}
+                                                                                    className="input__textarea"
+                                                                                    placeholder={''}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+
+                                                                                <button
+                                                                                    disabled={isSubmitting || values.asset_type_description.length < 2}
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple ${values.asset_type_description.length < 2 ? 'disable' : ''}`}
+                                                                                    onClick={() => {
+                                                                                        const updatedDescriptions = [...values.asset_type_description];
+                                                                                        updatedDescriptions.splice(index, 1);
+                                                                                        setFieldValue('asset_type_description', updatedDescriptions);
+                                                                                        this.handleAssetTypeImageRemove(index)
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faMinus}/>
+                                                                                </button>
+                                                                            </div>
+                                                                            {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
+                                                                                <div
+                                                                                    className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
+                                                                            )}
+                                                                        </>
                                                                     ))}
-                                                                </Field>
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        {values.asset_type_option === FormFieldOptionType.TEXT && (
-                                                            <div className="input">
-                                                                <div className="input__wrap">
-                                                                    <Field
-                                                                        name="asset_type_description"
-                                                                        id="asset_type_description"
-                                                                        as="textarea"
-                                                                        rows="4"
-                                                                        className="input__textarea"
-                                                                        placeholder=""
-                                                                        maxLength={255}
-                                                                        disabled={isSubmitting}
-                                                                    />
-                                                                    <ErrorMessage name="asset_type_description"
-                                                                                  component="div"
-                                                                                  className="error-message"/>
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                    </>
+                                                )}
 
-                                                        {values.asset_type_option === FormFieldOptionType.IMAGE && (
-                                                            <>
-                                                                {(this.isShow() && initialValues?.asset_type_image) && (
+                                                <div className="input__title input__btns">
+                                                    <h4 className="input__group__title">Issuer Profile Fields:</h4>
+                                                    <button
+                                                        type="button"
+                                                        className='border-grey-btn ripple'
+                                                        onClick={() => {
+                                                            const updatedDescriptions = [...values.issuer_profile_description, ''];
+                                                            const index = updatedDescriptions.length - 1 || 0
+                                                            setFieldValue('issuer_profile_description', updatedDescriptions);
+                                                            this.handleIssuerProfileImageChange(null, index);
+                                                            this.handleIssuerProfileFileChange(null, index);
+                                                        }}
+                                                    >
+                                                        <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                    </button>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <div className="officer-input">
+                                                            {values.issuer_profile_description.map((description, index) => (
+                                                                <>
                                                                     <div
-                                                                        className={"input d-flex justify-content-center company-profile-logo"}>
-                                                                        <img src={initialValues?.asset_type_image}
-                                                                             alt="Logo"/>
-                                                                    </div>
-                                                                )}
-                                                                {!this.isShow() && (
-                                                                    <div className="input">
-                                                                        <div className="input__wrap">
+                                                                        className={'input__btns gap-20'}
+                                                                        key={index}>
+                                                                        <div className={'input__wrap'}>
+                                                                            {!this.isShow() && values.issuer_profile_images[index] && (
+                                                                                <div key={index}
+                                                                                     className="mb-2 d-flex">
+                                                                                    <Link
+                                                                                        className={'link info-panel-title-link'}
+                                                                                        href={`${this.host}${values.issuer_profile_images[index]}`}
+                                                                                        target={'_blank'}>
+                                                                                        Image #{index + 1} {' '}
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                    </Link>
+                                                                                </div>
+                                                                            )}
                                                                             <input
-                                                                                id="asset_type_image_tmp"
-                                                                                name="asset_type_image_tmp"
+                                                                                id={`issuer_profile_image_tmp.${index}`}
+                                                                                name={`issuer_profile_image_tmp.${index}`}
                                                                                 type="file"
                                                                                 accept={'.' + allowedImageExt.join(',.')}
                                                                                 className="input__file"
                                                                                 disabled={isSubmitting}
                                                                                 onChange={(event) => {
-                                                                                    setFieldValue('asset_type_image_tmp', event.target?.files?.[0] || '');
-                                                                                    this.handleFileAssetLogoChange(event);
+                                                                                    setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                    this.handleIssuerProfileImageChange(event, index);
                                                                                 }}
                                                                             />
-                                                                            {errors.asset_type_image_tmp && (
-                                                                                <div
-                                                                                    className="error-message">{errors.asset_type_image_tmp.toString()}</div>
-                                                                            )}
                                                                         </div>
-                                                                    </div>
-                                                                )}
-                                                            </>
-                                                        )}
-
-                                                    </div>
-                                                )}
-
-                                                <div className="input">
-                                                    <h4 className="input__group__title">Issuer Profile Fields:</h4>
-
-                                                    <div className="input">
-                                                        <div className="input__title">Information on Offering
-                                                            Prospective, Financials and other details can be loaded on
-                                                            the Issuance of the company so broker-dealers can use the
-                                                            data as due diligence.
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                            <Field
-                                                                name="issuer_profile_option"
-                                                                id="issuer_profile_option"
-                                                                as="select"
-                                                                className="b-select"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            >
-                                                                <option value="">Select</option>
-                                                                {Object.values(FormFieldOptionType2).map((type) => (
-                                                                    <option key={type} value={type}>
-                                                                        {getFormFieldOptionTypeName(type as FormFieldOptionType2)}
-                                                                    </option>
-                                                                ))}
-                                                            </Field>
-                                                        </div>
-                                                    </div>
-
-                                                    {values.issuer_profile_option === FormFieldOptionType2.TEXT && (
-                                                        <div className="input">
-                                                            <div className="input__wrap">
-                                                                <Field
-                                                                    name="issuer_profile_description"
-                                                                    id="issuer_profile_description"
-                                                                    as="textarea"
-                                                                    rows="4"
-                                                                    className="input__textarea"
-                                                                    placeholder=""
-                                                                    maxLength={255}
-                                                                    disabled={isSubmitting}
-                                                                />
-                                                                <ErrorMessage name="issuer_profile_description"
-                                                                              component="div"
-                                                                              className="error-message"/>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {values.issuer_profile_option === FormFieldOptionType2.IMAGE && (
-                                                        <>
-                                                            {(this.isShow() && initialValues?.issuer_profile_image) && (
-                                                                <div
-                                                                    className={"input d-flex justify-content-center company-profile-logo"}>
-                                                                    <img src={initialValues?.issuer_profile_image}
-                                                                         alt="Logo"/>
-                                                                </div>
-                                                            )}
-                                                            {!this.isShow() && (
-                                                                <div className="input">
-                                                                    <div className="input__wrap">
-                                                                        <input
-                                                                            id="issuer_profile_image_tmp"
-                                                                            name="issuer_profile_image_tmp"
-                                                                            type="file"
-                                                                            accept={'.' + allowedImageExt.join(',.')}
-                                                                            className="input__file"
-                                                                            disabled={isSubmitting}
-                                                                            onChange={(event) => {
-                                                                                setFieldValue('issuer_profile_image_tmp', event.target?.files?.[0] || '');
-                                                                                this.handleFileIssuerProfileImageChange(event);
-                                                                            }}
+                                                                        <Field
+                                                                            name={`issuer_profile_description.${index}`}
+                                                                            as="textarea"
+                                                                            rows={4}
+                                                                            className="input__textarea"
+                                                                            placeholder={''}
+                                                                            disabled={isSubmitting || this.isShow()}
                                                                         />
-                                                                        {errors.issuer_profile_image_tmp && (
-                                                                            <div
-                                                                                className="error-message">{errors.issuer_profile_image_tmp.toString()}</div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {values.issuer_profile_option === FormFieldOptionType2.FILE && (
-                                                        <>
-                                                            {(this.isShow() && initialValues?.issuer_profile_file) && (
-                                                                <div
-                                                                    className={"input d-flex justify-content-center company-profile-logo"}>
-                                                                    <Link className={'link info-panel-title-link'}
-                                                                          href={`${this.host}${initialValues?.issuer_profile_file}`}
-                                                                          target={'_blank'}>
-                                                                        {fileService.getFileNameFromUrl(initialValues?.issuer_profile_file)}
-                                                                        <FontAwesomeIcon className="nav-icon"
-                                                                                         icon={faArrowUpRightFromSquare}/>
-                                                                    </Link>
-                                                                </div>
-                                                            )}
-                                                            {!this.isShow() && (
-                                                                <div className="input">
-                                                                    <div className="input__wrap">
-                                                                        <input
-                                                                            id="issuer_profile_file_tmp"
-                                                                            name="issuer_profile_file_tmp"
-                                                                            type="file"
-                                                                            accept={'.' + allowedFileExt.join(',.')}
-                                                                            className="input__file"
-                                                                            disabled={isSubmitting}
-                                                                            onChange={(event) => {
-                                                                                setFieldValue('issuer_profile_file_tmp', event.target?.files?.[0] || '');
-                                                                                this.handleFileIssuerProfileFileChange(event);
+                                                                        <div className={'input__wrap'}>
+                                                                            {!this.isShow() && values.issuer_profile_files[index] && (
+                                                                                <div key={index}
+                                                                                     className="mb-2 d-flex">
+                                                                                    <Link
+                                                                                        className={'link info-panel-title-link'}
+                                                                                        href={`${this.host}${values.issuer_profile_files[index]}`}
+                                                                                        target={'_blank'}>
+                                                                                        File #{index + 1} {' '}
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                    </Link>
+                                                                                </div>
+                                                                            )}
+                                                                            <input
+                                                                                id={`issuer_profile_file_tmp.${index}`}
+                                                                                name={`issuer_profile_file_tmp.${index}`}
+                                                                                type="file"
+                                                                                accept={'.' + allowedFileExt.join(',.')}
+                                                                                className="input__file"
+                                                                                disabled={isSubmitting}
+                                                                                onChange={(event) => {
+                                                                                    setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                    this.handleIssuerProfileFileChange(event, index);
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                        <button
+                                                                            disabled={isSubmitting || values.issuer_profile_description.length < 2}
+                                                                            type="button"
+                                                                            className={`border-grey-btn ripple ${values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
+                                                                            onClick={() => {
+                                                                                const updatedDescriptions = [...values.issuer_profile_description];
+                                                                                updatedDescriptions.splice(index, 1);
+                                                                                setFieldValue('issuer_profile_description', updatedDescriptions);
+                                                                                this.handleIssuerProfileImageRemove(index)
+                                                                                this.handleIssuerProfileFileRemove(index)
                                                                             }}
-                                                                        />
-                                                                        {errors.issuer_profile_file_tmp && (
-                                                                            <div
-                                                                                className="error-message">{errors.issuer_profile_file_tmp.toString()}</div>
-                                                                        )}
+                                                                        >
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon"
+                                                                                icon={faMinus}/>
+                                                                        </button>
                                                                     </div>
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    )}
-
+                                                                    {errors.issuer_profile_image_tmp && errors.issuer_profile_image_tmp[index] && (
+                                                                        <div
+                                                                            className="error-message input__btns">{errors.issuer_profile_image_tmp[index].toString()}</div>
+                                                                    )}
+                                                                    {errors.issuer_profile_file_tmp && errors.issuer_profile_file_tmp[index] && (
+                                                                        <div
+                                                                            className="error-message input__btns">{errors.issuer_profile_file_tmp[index].toString()}</div>
+                                                                    )}
+                                                                </>
+                                                            ))}
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1321,78 +1424,77 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     )}
                                 </div>
                                 <h2 className={'view_block_main_title'}>
-                                    {this.props.data?.logo && (
+                                    {this.state.formInitialValues?.logo && (
                                         <div className={"company-profile-logo"}>
-                                            <img src={this.props.data?.logo} alt="Logo"/>
+                                            <img src={this.state.formInitialValues?.logo} alt="Logo"/>
                                         </div>
                                     )}
 
-                                    {this.props.data?.company_name} ({this.props.data?.security_name})
+                                    {this.state.formInitialValues?.company_name} ({this.state.formInitialValues?.security_name})
                                 </h2>
                                 <div className='view_panel'>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Asset Type</div>
-                                            <div>{this.props.data?.asset_type || 'not filled'}</div>
+                                            <div>{this.state.formInitialValues?.asset_type || 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Total Shares Outstanding</div>
-                                            <div>{this.props.data.total_shares_outstanding ? formatterService.numberFormat(Number(this.props.data.total_shares_outstanding)) : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.total_shares_outstanding ? formatterService.numberFormat(Number(this.state.formInitialValues.total_shares_outstanding)) : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Initial Offering Date</div>
-                                            <div>{this.props.data.initial_offering_date ? formatterService.dateTimeFormat(this.props.data.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.initial_offering_date ? formatterService.dateTimeFormat(this.state.formInitialValues.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Price Per Share</div>
-                                            <div>{this.props.data.price_per_share ? formatterService.numberFormat(Number(this.props.data.price_per_share), decimalPlaces) : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.price_per_share ? formatterService.numberFormat(Number(this.state.formInitialValues.price_per_share), decimalPlaces) : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Company Address</div>
-                                            <div>{[this.props.data?.street_address_1, this.props.data?.street_address_2, this.props.data?.city, this.props.data?.zip_code, this.props.data?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
-                                            <div className="mt-2">{this.props.data?.phone}</div>
-                                            <div className="mt-2">{this.props.data?.web_address}</div>
+                                            <div>{[this.state.formInitialValues?.street_address_1, this.state.formInitialValues?.street_address_2, this.state.formInitialValues?.city, this.state.formInitialValues?.zip_code, this.state.formInitialValues?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                            <div className="mt-2">{this.state.formInitialValues?.phone}</div>
+                                            <div className="mt-2">{this.state.formInitialValues?.web_address}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Business Description</div>
-                                            <div>{this.props.data?.business_description || 'not filled'}</div>
+                                            <div>{this.state.formInitialValues?.business_description || 'not filled'}</div>
                                         </div>
                                     </div>
 
-                                    {this.props.data?.asset_type && (
+                                    {this.state.formInitialValues?.asset_type && (
                                         <>
-                                            <div className="view_block">
+                                            <div className="view_block full_block">
                                                 <div className="view_block_body">
                                                     <div
-                                                        className="view_block_title">{this.props.data?.asset_type} Additional
+                                                        className="view_block_title">{this.state.formInitialValues?.asset_type} Additional
                                                         Info
                                                     </div>
-                                                    {this.props.data?.asset_type_description || this.props.data?.asset_type_image ? (
-                                                        <>
-                                                            {this.props.data.asset_type_option === FormFieldOptionType.TEXT && (
-                                                                <div>{this.props.data?.asset_type_description || 'not filled'}</div>
+                                                    {this.state.formInitialValues?.asset_type_description.map((description, index) => (
+                                                        <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                             key={index}>
+                                                            {this.state.formInitialValues?.asset_type_images && this.state.formInitialValues?.asset_type_images[index] && (
+                                                                <div
+                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                    <div className={'logo p-0 align-items-baseline '}>
+                                                                        <img
+                                                                            src={this.state.formInitialValues?.asset_type_images[index]}/>
+                                                                    </div>
+                                                                </div>
                                                             )}
-
-                                                            {this.props.data.asset_type_option === FormFieldOptionType.IMAGE && (
-                                                                <img
-                                                                    src={`${this.host}${this.props.data.asset_type_image}`}/>
-                                                            )}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div>{'not filled'}</div>
-                                                        </>
-                                                    )}
+                                                            <div className={'d-flex mb-2'}>{description}</div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </>
@@ -1400,49 +1502,41 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
 
                                     <>
-                                        <div className="view_block">
+                                        <div className="view_block full_block">
                                             <div className="view_block_body">
                                                 <div
                                                     className="view_block_title">Issuer Profile
                                                 </div>
-                                                {((this.props.data?.issuer_profile_description || this.props.data?.issuer_profile_image || this.props.data?.issuer_profile_file) && this.props.data.issuer_profile_option !== '') ? (
-                                                    <>
-                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.TEXT && (
-                                                            <div>{this.props.data?.issuer_profile_description || 'not filled'}</div>
-                                                        )}
-
-                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.IMAGE && (
-                                                            <>
-                                                                {this.props.data.issuer_profile_image ? (
+                                                {this.state.formInitialValues?.issuer_profile_description.map((description, index) => (
+                                                    <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                         key={index}>
+                                                        {this.state.formInitialValues?.issuer_profile_images && this.state.formInitialValues?.issuer_profile_images[index] && (
+                                                            <div
+                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                <div className={'logo p-0 align-items-baseline '}>
                                                                     <img
-                                                                        src={`${this.host}${this.props.data.issuer_profile_image}`}/>
-                                                                ) : (
-                                                                    <div>{'not filled'}</div>
-                                                                )}
-                                                            </>
+                                                                        src={this.state.formInitialValues?.issuer_profile_images[index]}/>
+                                                                </div>
+                                                            </div>
                                                         )}
+                                                        <div className={'d-flex mb-2 flex-column'}>
+                                                            <p className={'w-100 mb-1'}>{description}</p>
+                                                            {this.state.formInitialValues?.issuer_profile_files && this.state.formInitialValues?.issuer_profile_files[index] && (
+                                                                <p className={'w-100 mb-1'}><Link
+                                                                    className={'link info-panel-title-link'}
+                                                                    href={`${this.host}${this.state.formInitialValues?.issuer_profile_files[index]}`}
+                                                                    target={'_blank'}>
+                                                                    File{' '}
+                                                                    <FontAwesomeIcon
+                                                                        className="nav-icon"
+                                                                        icon={faArrowUpRightFromSquare}/>
+                                                                </Link></p>
+                                                            )}
 
-                                                        {this.props.data.issuer_profile_option === FormFieldOptionType2.FILE && (
-                                                            <>
-                                                                {this.props.data.issuer_profile_file ? (
-                                                                    <Link className={'link info-panel-title-link'}
-                                                                          href={`${this.host}${this.props.data.issuer_profile_file}`}
-                                                                          target={'_blank'}>
-                                                                        {fileService.getFileNameFromUrl(this.props.data.issuer_profile_file)}
-                                                                        <FontAwesomeIcon className="nav-icon"
-                                                                                         icon={faArrowUpRightFromSquare}/>
-                                                                    </Link>
-                                                                ) : (
-                                                                    <div>{'not filled'}</div>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <div>{'not filled'}</div>
-                                                    </>
-                                                )}
+                                                        </div>
+
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </>
@@ -1454,15 +1548,15 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="ver">
                                                 <div className="view_block_sub_title">SIC Industry Classification</div>
                                                 <div
-                                                    className="">{this.props.data?.sic_industry_classification || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.sic_industry_classification || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Incorporation Information</div>
                                                 <div
                                                     className="">
-                                                    {this.props.data?.incorporation_information ? (
+                                                    {this.state.formInitialValues?.incorporation_information ? (
 
-                                                        this.state.usaStates.filter(currency => currency.abbreviation === this.props.data?.incorporation_information).map(filteredState => (
+                                                        this.state.usaStates.filter(currency => currency.abbreviation === this.state.formInitialValues?.incorporation_information).map(filteredState => (
                                                             <React.Fragment key={filteredState.abbreviation}>
                                                                 {filteredState.name} ({filteredState.abbreviation})
                                                             </React.Fragment>
@@ -1475,7 +1569,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Number of Employees</div>
                                                 <div
-                                                    className="">{this.props.data?.number_of_employees || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.number_of_employees || 'not filled'}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1484,9 +1578,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="view_block_title">Company Officers & Contacts
                                             </div>
 
-                                            {this.props?.data?.company_officers_and_contacts.length ? (
+                                            {this.state.formInitialValues.company_officers_and_contacts.length ? (
 
-                                                this.props?.data?.company_officers_and_contacts.map((officer, index) => (
+                                                this.state.formInitialValues.company_officers_and_contacts.map((officer, index) => (
                                                     <>
                                                         <div>{officer}</div>
                                                     </>
@@ -1502,9 +1596,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="view_block_title">Board of Directors
                                             </div>
 
-                                            {this.props?.data?.board_of_directors.length ? (
+                                            {this.state.formInitialValues.board_of_directors.length ? (
 
-                                                this.props?.data?.board_of_directors.map((director, index) => (
+                                                this.state.formInitialValues.board_of_directors.map((director, index) => (
                                                     <>
                                                         <div>{director}</div>
                                                     </>
@@ -1518,13 +1612,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     <div className="view_block full_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Product & Services</div>
-                                            <div>{this.props.data?.product_and_services || 'not filled'}</div>
+                                            <div>{this.state.formInitialValues?.product_and_services || 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block full_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Company Facilities</div>
-                                            <div>{this.props.data?.company_facilities || 'not filled'}</div>
+                                            <div>{this.state.formInitialValues?.company_facilities || 'not filled'}</div>
                                         </div>
                                     </div>
 
@@ -1534,24 +1628,24 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Transfer Agent</div>
                                                 <div
-                                                    className="">{this.props.data?.transfer_agent || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.transfer_agent || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Accounting / Auditing Firm</div>
                                                 <div
-                                                    className="">{this.props.data?.accounting_auditing_firm || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.accounting_auditing_firm || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Investor Relations / Marketing /
                                                     Communications
                                                 </div>
                                                 <div
-                                                    className="">{this.props.data?.investor_relations_marketing_communications || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.investor_relations_marketing_communications || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Securities Counsel</div>
                                                 <div
-                                                    className="">{this.props.data?.securities_counsel || 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.securities_counsel || 'not filled'}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1561,11 +1655,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="view_block_title">Financial Reporting</div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">US Reporting</div>
-                                                <div className="">{this.props.data?.us_reporting || 'not filled'}</div>
+                                                <div className="">{this.state.formInitialValues?.us_reporting || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Edgar CIK</div>
-                                                <div className="">{this.props.data?.edgar_cik || 'not filled'}</div>
+                                                <div className="">{this.state.formInitialValues?.edgar_cik || 'not filled'}</div>
                                             </div>
                                         </div>
                                     </div>
