@@ -1896,8 +1896,13 @@ body {
       justify-content: flex-end;
 
       &.table-content-filter {
-        margin-bottom: 40px !important;
+        margin-bottom: 10px !important;
+
+        @media(max-width: 768px) {
+          margin-bottom: 40px !important;
+        }
       }
+
 
       .input__wrap {
         flex: 1;
@@ -2616,7 +2621,7 @@ body {
       align-items: center;
 
       @media (min-width: 768px) and (max-width: 1366px) {
-        &:not(.show){
+        &:not(.show) {
           font-size: 0;
           line-height: 0;
           color: transparent;
