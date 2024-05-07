@@ -24,6 +24,7 @@ import moment from "moment/moment";
 import {FormFieldOptionType, FormFieldOptionType2, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
 import fileService from "@/services/file/file-service";
 import {AssetType} from "@/enums/asset-type";
+import AssetImage from "@/components/asset-image";
 
 
 const allowedImageFileSizeMB = 1
@@ -1424,13 +1425,17 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     )}
                                 </div>
                                 <h2 className={'view_block_main_title'}>
-                                    {this.state.formInitialValues?.logo && (
-                                        <div className={"company-profile-logo"}>
-                                            <img src={this.state.formInitialValues?.logo} alt="Logo"/>
-                                        </div>
-                                    )}
+                                    <div className={"company-profile-logo"}>
+                                        <AssetImage alt=''
+                                                    src={this.state.formInitialValues?.logo}
+                                                    width={60}
+                                                    height={60}/>
+                                    </div>
 
-                                    {this.state.formInitialValues?.company_name} ({this.state.formInitialValues?.security_name})
+                                    {this.state.formInitialValues?.company_name}
+                                    {this.state.formInitialValues?.security_name && (
+                                        <>({this.state.formInitialValues?.security_name})</>
+                                    )}
                                 </h2>
                                 <div className='view_panel'>
                                     <div className="view_block">
@@ -1655,11 +1660,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="view_block_title">Financial Reporting</div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">US Reporting</div>
-                                                <div className="">{this.state.formInitialValues?.us_reporting || 'not filled'}</div>
+                                                <div
+                                                    className="">{this.state.formInitialValues?.us_reporting || 'not filled'}</div>
                                             </div>
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Edgar CIK</div>
-                                                <div className="">{this.state.formInitialValues?.edgar_cik || 'not filled'}</div>
+                                                <div
+                                                    className="">{this.state.formInitialValues?.edgar_cik || 'not filled'}</div>
                                             </div>
                                         </div>
                                     </div>

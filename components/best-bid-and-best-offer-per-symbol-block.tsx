@@ -348,11 +348,14 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
 
                                 {!this.isDashboard ? (
                                     <h2 className={'view_block_main_title'}>
+                                        <div className={"company-profile-logo"}>
+                                            <AssetImage alt=''
+                                                        src={this.companyProfile?.logo}
+                                                        width={60}
+                                                        height={60}/>
+                                        </div>
                                         {this.companyProfile ? (
                                             <>
-                                                <div className={"company-profile-logo"}>
-                                                    <img src={this.companyProfile.logo} alt="Logo"/>
-                                                </div>
                                                 {this.companyProfile.company_name} ({this.companyProfile.security_name})
                                             </>
                                         ) : (

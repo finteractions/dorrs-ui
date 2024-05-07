@@ -19,6 +19,7 @@ import SymbolForm from "@/components/symbol-form";
 import {DataContext} from "@/contextes/data-context";
 import UserPermissionService from "@/services/user/user-permission-service";
 import {IDataContext} from "@/interfaces/i-data-context";
+import AssetImage from "@/components/asset-image";
 
 
 interface SymbolInfoProps extends ICallback {
@@ -225,7 +226,14 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                         <div className={'d-flex gap-10 '}>
                                             <div
                                                 className={'cursor-pointer title d-flex align-items-center gap-10'}>
-                                                <h2 className={'view_block_main_title mb-0'}>{this.symbol.security_name} ({this.symbol.symbol})</h2>
+                                                <h2 className={'view_block_main_title mb-0'}>
+                                                    <div className={"company-profile-logo"}>
+                                                        <AssetImage alt=''
+                                                                    src={this.companyProfile?.logo}
+                                                                    width={60}
+                                                                    height={60}/>
+                                                    </div>
+                                                    {this.symbol.security_name} ({this.symbol.symbol})</h2>
 
                                                 <span title={'Quote Board Profile'}
                                                       className={'indicator-item'}

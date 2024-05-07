@@ -3,27 +3,54 @@ import Image from 'next/image';
 
 interface AssetImageProps {
     alt: string;
-    src: string;
-    height: number;
+    src?: string;
+    height?: number;
     width: number;
 }
 
 function AssetImage({alt, src, ...props}: AssetImageProps) {
     const [imageAlt, setImageAlt] = React.useState(alt);
-    const [imageSrc, setImageSrc] = React.useState(src);
+    const [imageSrc, setImageSrc] = React.useState(src || '/img/no-data.png');
 
     React.useEffect(() => {
         setImageAlt(alt);
-        setImageSrc(src);
+        setImageSrc(src || '/img/no-data.png');
     }, [alt, src]);
 
+    let finalSrc = imageSrc;
+    if (finalSrc && finalSrc.startsWith('/media')) {
+        const host = `${window.location.protocol}//${window.location.host}`;
+        finalSrc = host + finalSrc;
+    }
+
     return (
-        <Image
-            {...props}
-            src={imageSrc || '/img/image-error.png'}
-            alt={imageAlt}
-            onError={() => setImageSrc('/img/image-error.png')}
-        />
+        <>
+            {!props?.height ? (
+                <>
+                    {!src ? (
+                        <Image src="/img/no-data.png" width={200} height={200} alt="Bank"/>
+                    ) : (
+                        <div>
+                            <img
+                                src={src || '/img/no-data.png'}
+                                alt="Your Image"
+                            />
+                        </div>
+
+                    )}
+                </>
+            ) : (
+                <>
+                    <Image
+                        {...props}
+                        src={finalSrc}
+                        alt={imageAlt}
+                        onError={() => setImageSrc('/img/no-data.png')}
+                    />
+                </>
+            )}
+        </>
+
     );
 }
 

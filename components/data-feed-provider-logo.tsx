@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {DataContext} from "@/contextes/data-context";
 import LoaderBlock from "@/components/loader-block";
 import Image from "next/image";
+import AssetImage from "@/components/asset-image";
 
 const DataFeedProviderLogo = () => {
     const context = useContext(DataContext);
@@ -21,20 +22,9 @@ const DataFeedProviderLogo = () => {
             <div className={"logo"}>
                 {logo === null ? (
                     <LoaderBlock/>
-                ) : (<>
-                        {!logo ? (
-                            <Image src="/img/no-data.png" width={200} height={200} alt="Bank"/>
-                        ) : (
-                            <div>
-                                <img
-                                    src={logo || '/img/no-data.png'}
-                                    alt="Your Image"
-                                />
-                            </div>
-
-                        )}
-                    </>
-
+                ) : (
+                    <AssetImage alt='' src={logo}
+                                width={225} />
                 )}
 
             </div>

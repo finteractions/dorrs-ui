@@ -13,9 +13,10 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import DepthOfBookPerSymbolBlock from "@/components/depth-of-book-per-symbol-block";
 import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-per-symbol";
 import BestBidAndBestOfferPerSymbolBlock from "@/components/best-bid-and-best-offer-per-symbol-block";
+import AssetImage from "@/components/asset-image";
 
 
-interface QuoteBoardPerSymbolProps extends ICallback{
+interface QuoteBoardPerSymbolProps extends ICallback {
     symbol: string;
 }
 
@@ -217,11 +218,15 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                         <div
                                             className={'cursor-pointer title d-flex align-items-center gap-10'}>
                                             <h2 className={'view_block_main_title mb-0'}>
+                                                <div className={"company-profile-logo"}>
+                                                    <AssetImage alt=''
+                                                                src={this.companyProfile?.logo}
+                                                                width={60}
+                                                                height={60}/>
+                                                </div>
+
                                                 {this.companyProfile ? (
                                                     <>
-                                                        <div className={"company-profile-logo"}>
-                                                            <img src={this.companyProfile.logo} alt="Logo"/>
-                                                        </div>
                                                         {this.companyProfile.company_name} ({this.companyProfile.security_name})
                                                     </>
                                                 ) : (

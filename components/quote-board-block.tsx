@@ -352,13 +352,12 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                     {this.state.dataWatchList.map(item => (
                                         <div key={item.symbol_name} className={'indicator__item'}>
                                             <div className={''}>
-                                                {item.company_profile?.logo && (
-                                                    <div className={'table-image image-28'}>
-                                                        <AssetImage alt=''
-                                                                    src={`${this.host}${item.company_profile?.logo}`}
-                                                                    width={28} height={28}/>
-                                                    </div>
-                                                )}
+
+                                                <div className={'table-image image-28'}>
+                                                    <AssetImage alt=''
+                                                                src={item.company_profile?.logo}
+                                                                width={28} height={28}/>
+                                                </div>
 
                                                 <div onClick={() => this.navigate('quote-board', item.symbol_name)}
                                                      className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
@@ -414,13 +413,9 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                 {this.state.dataList.map(item => (
                                     <div key={item.symbol_name} className={'indicator__item'}>
                                         <div className={''}>
-                                            {item.company_profile?.logo && (
-                                                <div className={'table-image image-28'}>
-                                                    <AssetImage alt=''
-                                                                src={`${this.host}${item.company_profile?.logo}`}
-                                                                width={28} height={28}/>
-                                                </div>
-                                            )}
+                                            <AssetImage alt=''
+                                                        src={item.company_profile?.logo}
+                                                        width={28} height={28}/>
                                             <div onClick={() => this.navigate('quote-board', item.symbol_name)}
                                                  className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
                                             </div>
