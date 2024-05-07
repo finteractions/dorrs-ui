@@ -707,13 +707,18 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                     }, idx: number) => (
                                         <div key={idx} className="d-flex mb-2">
                                             <div>
-                                                <Link className={'link info-panel-title-link'}
-                                                      href={item.value ?? ''}
-                                                      target={'_blank'}>
-                                                    {item.key ?? ''} {' '}
-                                                    <FontAwesomeIcon className="nav-icon"
-                                                                     icon={faArrowUpRightFromSquare}/>
-                                                </Link>
+                                                {item.value.length ? (
+                                                    <Link className={'link info-panel-title-link'}
+                                                          href={item.value ?? ''}
+                                                          target={'_blank'}>
+                                                        {item.key ?? ''} {' '}
+                                                        <FontAwesomeIcon className="nav-icon"
+                                                                         icon={faArrowUpRightFromSquare}/>
+                                                    </Link>
+                                                ) : (
+                                                    <>not filled</>
+                                                )}
+
                                             </div>
                                         </div>
                                     ))}
