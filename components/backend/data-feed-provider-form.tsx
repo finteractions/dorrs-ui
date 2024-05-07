@@ -44,6 +44,12 @@ const formSchema = Yup.object().shape({
                 return value.size <= allowedFileSize;
             })
     ),
+    custom_link_name: Yup.array().of(
+        Yup.string().min(3).label('Name')
+    ),
+    custom_link_link: Yup.array().of(
+        Yup.string().url('Invalid URL').label('Fees Link')
+    ),
 
 });
 
@@ -73,6 +79,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         const initialData = this.props.dataFeedProviderData || {} as IDataFeedProvider;
         let socialLinks = [...socialMediaLinks];
         const socials = JSON.parse(initialData?.social_media_link || this.props.dataFeedProviderData?.social_media_link || '{}')
+        const customs = JSON.parse(initialData?.custom_link || this.props.dataFeedProviderData?.custom_link || '[{"key":"", "value":""}]')
 
         Object.keys(socials).forEach((soc: any) => {
             let social = socialLinks.find(s => s.key === soc)
@@ -81,6 +88,12 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             }
         })
 
+        const names: any[] = []
+        const links: any[] = []
+        customs.forEach((item: { key: string, value: string }) => {
+            names.push(item.key);
+            links.push(item.value)
+        })
 
         try {
             const descriptions = JSON.parse(initialData.description.toString());
@@ -110,6 +123,9 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             description: string[];
             images: string[];
             socials: any;
+            customs: any;
+            custom_link_name: any[];
+            custom_link_link: any[];
         } = {
             name: initialData?.name || '',
             logo: initialData?.logo || '',
@@ -119,7 +135,10 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
             option: initialData?.option || '',
             description: initialData?.description || [""],
             images: initialData?.images || [],
-            socials: socialLinks
+            socials: socialLinks,
+            customs: customs,
+            custom_link_name: names,
+            custom_link_link: links
         };
 
         const selectedFileForDescription = initialData.images as any
@@ -154,10 +173,23 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         formData.delete('images');
         formData.delete('image_tmp');
         formData.delete('social_media_link');
-
-        const socials = values.social_media_link;
+        formData.delete('custom_link');
+        formData.delete('custom_link');
 
         formData.append('social_media_link', JSON.stringify(values.social_media_link));
+
+        if (values.custom_link_link?.length) {
+            let data: { key: string; value: string }[] = [];
+
+            values.custom_link_name?.forEach((s: string, idx: number) => {
+                const key = s;
+                const value = values.custom_link_link?.[idx] ?? '';
+                data.push({key: key.trim(), value: value.trim()});
+            });
+
+            formData.append('custom_link', JSON.stringify(data));
+        }
+
 
         if (this.state.selectedFileForDescription && this.state.selectedFileForDescription.length > 0) {
             for (const file of Array.from(this.state.selectedFileForDescription)) {
@@ -351,6 +383,108 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                         </div>
                                                     </div>
                                                 ))}
+
+                                                <div className="input compact-form">
+                                                    <div
+                                                        className={'justify-content-between d-flex flex-wrap align-items-center mb-3'}>
+                                                        <div className="input__title">Custom Links:</div>
+
+                                                        <button
+                                                            type="button"
+                                                            className='border-grey-btn ripple'
+                                                            onClick={() => {
+                                                                const updatedCustoms = [...values.customs];
+                                                                updatedCustoms.push({key: '', value: ''})
+                                                                const updatedCustomsNames = [...values.custom_link_name || [], ""];
+                                                                const updatedCustomsLinks = [...values.custom_link_link || [], ""];
+                                                                setFieldValue('customs', updatedCustoms);
+                                                                setFieldValue('custom_link_name', updatedCustomsNames);
+                                                                setFieldValue('custom_link_link', updatedCustomsLinks);
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon className="nav-icon" icon={faPlus}/>
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="input">
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <div className="officer-input">
+                                                                {values.customs.map((item: {
+                                                                    key: string,
+                                                                    value: string
+                                                                }, index: number) => {
+                                                                    return (
+                                                                        <>
+                                                                            <div key={index} className="input">
+                                                                                <div
+                                                                                    className={'input__btns gap-20 align-items-baseline'}>
+                                                                                    <div
+                                                                                        className={'input__wrap w-100'}>
+                                                                                        <Field
+                                                                                            name={`custom_link_name.${index}`}
+                                                                                            id={`custom_link_name.${index}`}
+                                                                                            type="text"
+                                                                                            className="input__text"
+                                                                                            placeholder={`Type Name`}
+                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                        />
+                                                                                        {errors.custom_link_name && errors.custom_link_name[index] && (
+                                                                                            <div
+                                                                                                className="error-message input__btns">{errors.custom_link_name[index].toString()}</div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={'input__wrap w-100'}>
+                                                                                        <Field
+                                                                                            name={`custom_link_link.${index}`}
+                                                                                            id={`custom_link_link.${index}`}
+                                                                                            type="text"
+                                                                                            className="input__text"
+                                                                                            placeholder={`Type Link`}
+                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                        />
+                                                                                        {errors.custom_link_link && errors.custom_link_link[index] && (
+                                                                                            <div
+                                                                                                className="error-message input__btns">{errors.custom_link_link[index].toString()}</div>
+                                                                                        )}
+                                                                                    </div>
+
+                                                                                    <button
+                                                                                        disabled={isSubmitting || values.customs.length < 2}
+                                                                                        type="button"
+                                                                                        className={`border-grey-btn ripple ${values.customs.length < 2 ? 'disable' : ''}`}
+                                                                                        onClick={() => {
+                                                                                            const updatedCustoms = values.customs.filter((s: {
+                                                                                                key: string,
+                                                                                                value: string
+                                                                                            }, idx: number) => idx !== index);
+                                                                                            const updatedCustomsNames = values.custom_link_name?.filter((_, idx) => idx !== index);
+                                                                                            const updatedCustomsLinks = values.custom_link_link?.filter((_, idx) => idx !== index);
+                                                                                            setFieldValue('customs', updatedCustoms);
+                                                                                            setFieldValue('custom_link_name', updatedCustomsNames);
+                                                                                            setFieldValue('updatedCustomsLinks', updatedCustomsLinks);
+
+                                                                                        }}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faMinus}/>
+                                                                                    </button>
+                                                                                </div>
+
+                                                                            </div>
+                                                                        </>
+
+                                                                    );
+                                                                })}
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
                                                 <div className="input compact-form">
                                                     <div
                                                         className={'justify-content-between d-flex flex-wrap align-items-center'}>
@@ -562,6 +696,27 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                         </div>
                                     ))}
 
+                                </div>
+                            </div>
+                            <div className="view_block full_block">
+                                <div className="view_block_body">
+                                    <div className="view_block_title">Custom Links</div>
+                                    {(this.state.formInitialValues?.customs as any).map((item: {
+                                        key: string,
+                                        value: string
+                                    }, idx: number) => (
+                                        <div key={idx} className="d-flex mb-2">
+                                            <div>
+                                                <Link className={'link info-panel-title-link'}
+                                                      href={item.value ?? ''}
+                                                      target={'_blank'}>
+                                                    {item.key ?? ''} {' '}
+                                                    <FontAwesomeIcon className="nav-icon"
+                                                                     icon={faArrowUpRightFromSquare}/>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             <div className="view_block full_block">

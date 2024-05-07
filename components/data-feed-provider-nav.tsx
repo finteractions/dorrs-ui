@@ -25,6 +25,7 @@ const DataFeedProviderNav = () => {
 
             let socialLinks = [...socialMediaLinks];
             const socials = JSON.parse(dataFeedProvider?.social_media_link || '{}')
+            const customs = JSON.parse(dataFeedProvider?.custom_link || '[]')
 
             Object.keys(socials).forEach((soc: any) => {
                 let social = socialLinks.find(s => s.key === soc)
@@ -33,6 +34,7 @@ const DataFeedProviderNav = () => {
                 }
             })
             dataFeedProvider.socials = socialLinks;
+            dataFeedProvider.customs = customs;
             setDataFeedProvider(dataFeedProvider)
             setLoading(false)
         }
@@ -109,6 +111,27 @@ const DataFeedProviderNav = () => {
                                     </li>
                                 )}
 
+                            </>
+                        ))}
+
+                        {dataFeedProvider?.customs && (dataFeedProvider?.customs).map((item: {
+                            key: string,
+                            value: string
+                        }, idx: number) => (
+                            <>
+                                <li key={idx}>
+                                    <Link className={'link info-panel-title-link block-link'}
+                                          href={item.value}
+                                          target={'_blank'}>
+                                        <div className={''}>
+                                            <Image src={'/img/pd-ico.svg'} width={24} height={24} alt={''}/>
+                                            {item.key} {' '}
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={faArrowUpRightFromSquare}/>
+
+                                        </div>
+                                    </Link>
+                                </li>
                             </>
                         ))}
 
