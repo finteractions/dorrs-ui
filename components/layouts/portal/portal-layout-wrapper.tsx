@@ -43,12 +43,20 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
             }
         };
 
+        const hideSidebar = () => {
+            if (window.innerWidth < 1366) {
+                setIsShowSidebar(false);
+            }
+        };
+
         window.addEventListener('resize', handleResize);
+        window.addEventListener('hideSidebar', hideSidebar);
 
         handleResize();
 
         return () => {
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('hideSidebar', hideSidebar);
         };
     }, []);
 

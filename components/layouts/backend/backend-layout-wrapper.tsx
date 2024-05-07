@@ -43,6 +43,20 @@ export default function BackendLayoutWrapper({children}: PropsWithChildren) {
         }
     }, [setIsShowSidebarMd])
 
+    useEffect(() => {
+        const hideSidebar = () => {
+            if (window.innerWidth < 1366) {
+                setIsShowSidebar(false);
+            }
+        };
+
+        window.addEventListener('hideSidebar', hideSidebar);
+
+        return () => {
+            window.removeEventListener('hideSidebar', hideSidebar);
+        };
+    }, []);
+
     return (
         <>
             <div className="backend">

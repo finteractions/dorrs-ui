@@ -133,7 +133,8 @@ const PortalSidebarNavItem = (props: PortalSidebarNavItemProps) => {
     return (
         <Nav.Item>
             <Link href={href} passHref legacyBehavior>
-                <Nav.Link className={`${active ? 'active' : ''} px-3 py-2 d-flex align-items-center`}>
+                <Nav.Link className={`${active ? 'active' : ''} px-3 py-2 d-flex align-items-center`}
+                          onClick={() => window.dispatchEvent(new Event("hideSidebar"))}>
                     {icon ? <div dangerouslySetInnerHTML={{__html: icon}}/>
                         : <span className=""/>}
                     {children}
