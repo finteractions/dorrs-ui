@@ -12,7 +12,7 @@ export default function Document() {
                 <meta property="og:title" content=""/>
                 <meta property="og:description" content=""/>
                 <meta name="description" content=""/>
-                <link rel="shortcut icon" href="/img/favicon.png" type="image/png" />
+                <link rel="shortcut icon" href="/img/favicon.png" type="image/png"/>
             </Head>
             <body className="b-container">
             <Main/>

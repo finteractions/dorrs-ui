@@ -4,6 +4,7 @@ import authUserGuard from "@/guards/auth-user-guard";
 import {DataProvider} from "@/contextes/data-context";
 import {ThemeProvider} from "next-themes";
 import websocketService from "@/services/websocket/websocket-service";
+import ScrollToTop from "@/components/layouts/scroll-to-top";
 
 type DashboardLayoutProps = {
     children: React.ReactNode
@@ -28,6 +29,7 @@ function PortalLayout({children}: DashboardLayoutProps) {
                     </PortalLayoutWrapper>
                 </DataProvider>
             </ThemeProvider>
+            <ScrollToTop />
         </>
     );
 }
