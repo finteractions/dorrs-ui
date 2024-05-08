@@ -23,6 +23,10 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
 import InputMPIDField from "@/components/mpid-field";
 import converterService from "@/services/converter/converter-service";
+import {ILastSale} from "@/interfaces/i-last-sale";
+import {getGlobalConfig} from "@/utils/global-config";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBroom} from "@fortawesome/free-solid-svg-icons";
 
 
 const formSchema = Yup.object().shape({
@@ -103,10 +107,12 @@ interface BestBidAndBestOfferFormState extends IState {
 interface BestBidAndBestOfferFormProps extends ICallback {
     action: string;
     data: IBestBidAndBestOffer | null;
-    onCancel?: () => void;
+    onCancel: () => void;
+    isClose: boolean;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+const PATH = `${getGlobalConfig().host}-best-bid-and-best-offer-form`;
 
 class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -169,6 +175,18 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         };
     }
 
+    restoreForm = async () => {
+        let storedData: any = localStorage.getItem(PATH);
+
+        if (storedData) {
+            try {
+                storedData = JSON.parse(storedData) as IBestBidAndBestOffer
+                await this.fillForm(storedData)
+            } catch (ignored) {
+            }
+        }
+    }
+
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
@@ -191,7 +209,11 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
     }
 
     setLoading = () => {
-        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)})
+        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)}, async () => {
+            if (!this.state.isLoading) {
+                await this.restoreForm();
+            }
+        })
     }
 
     handleSubmit = async (values: IBestBidAndBestOffer, {setSubmitting}: {
@@ -218,6 +240,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);
+                localStorage.removeItem(PATH)
             });
     };
 
@@ -270,35 +293,61 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         })
     }
 
+
     fillForm = async (bestBidAndBestOffer: IBestBidAndBestOffer) => {
         if (this.formRef?.current) {
-            await this.formRef.current.setFieldValue('symbol', bestBidAndBestOffer.symbol_name)
-                .then(async () => await this.formRef.current.setFieldTouched('symbol', true, true))
+            const {setFieldValue, setFieldTouched} = this.formRef.current;
 
-            await this.formRef.current.setFieldValue('quote_condition', bestBidAndBestOffer.quote_condition.toLowerCase())
-                .then(async () => await this.formRef.current.setFieldTouched('quote_condition', true, true))
-
-            await this.formRef.current.setFieldValue('bid_quantity', bestBidAndBestOffer.bid_quantity ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('bid_quantity', true, true))
-
-            await this.formRef.current.setFieldValue('bid_price', bestBidAndBestOffer.bid_price ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('bid_price', true, true))
-
-            await this.formRef.current.setFieldValue('offer_quantity', bestBidAndBestOffer.offer_quantity ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('offer_quantity', true, true))
-
-            await this.formRef.current.setFieldValue('offer_price', bestBidAndBestOffer.offer_price ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('offer_price', true, true))
-
-            await this.formRef.current.setFieldValue('bid_mpid', bestBidAndBestOffer.bid_mpid)
-                .then(async () => await this.formRef.current.setFieldTouched('bid_mpid', true, true))
-
-            await this.formRef.current.setFieldValue('offer_mpid', bestBidAndBestOffer.offer_mpid)
-                .then(async () => await this.formRef.current.setFieldTouched('offer_mpid', true, true))
-
-            await this.formRef.current.setFieldValue('origin', bestBidAndBestOffer.origin)
-                .then(async () => await this.formRef.current.setFieldTouched('origin', true, true))
+            await Promise.all([
+                setFieldValue('symbol', bestBidAndBestOffer.symbol_name || bestBidAndBestOffer.symbol),
+                setFieldValue('quote_condition', bestBidAndBestOffer.quote_condition.toLowerCase()),
+                setFieldValue('bid_quantity', bestBidAndBestOffer.bid_quantity ?? ''),
+                setFieldValue('bid_price', bestBidAndBestOffer.bid_price ?? ''),
+                setFieldValue('offer_quantity', bestBidAndBestOffer.offer_quantity ?? ''),
+                setFieldValue('offer_price', bestBidAndBestOffer.offer_price ?? ''),
+                setFieldValue('bid_mpid', bestBidAndBestOffer.bid_mpid),
+                setFieldValue('offer_mpid', bestBidAndBestOffer.offer_mpid),
+                setFieldValue('origin', bestBidAndBestOffer.origin),
+            ]);
+            await Promise.all([
+                setFieldTouched('symbol', true, true),
+                setFieldTouched('quote_condition', true, true),
+                setFieldTouched('bid_quantity', true, true),
+                setFieldTouched('bid_price', true, true),
+                setFieldTouched('offer_quantity', true, true),
+                setFieldTouched('offer_price', true, true),
+                setFieldTouched('bid_mpid', true, true),
+                setFieldTouched('offer_mpid', true, true),
+                setFieldTouched('origin', true, true),
+            ]);
         }
+    }
+
+    clear = () => {
+        if (this.formRef?.current) {
+            this.formRef?.current.resetForm()
+        }
+    }
+
+    save = (save: boolean = false) => {
+
+        if (save) {
+            const values = this.formRef.current?.values;
+            const keys = this.formRef.current?.touched || {}
+
+            if (Object.keys(keys).length > 0 && values) {
+                values.bid_quantity = values.bid_quantity.replace(/,/g, '');
+                values.bid_price = values.bid_price.replace(/,/g, '');
+                values.offer_quantity = values.offer_quantity.replace(/,/g, '');
+                values.offer_price = values.offer_price.replace(/,/g, '');
+                localStorage.setItem(PATH, JSON.stringify(values))
+            }
+        } else {
+            localStorage.removeItem(PATH)
+        }
+
+        this.props.onCancel();
+
     }
 
     render() {
@@ -311,7 +360,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                         {this.state.isLoading && (
                             <LoaderBlock/>
                         )}
-                        <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
+                        <div className={`column-block ${this.state.isLoading || this.props.isClose ? 'd-none' : ''}`}>
                             <div className={'column-block__item'}>
                                 {!this.state.isLoadingForm && (
                                     <Formik<IBestBidAndBestOffer>
@@ -335,6 +384,18 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                             return (
                                                 <Form className={`quote_condition_${values.quote_condition} w-100`}>
                                                     <div className="input">
+                                                        {!this.isShow() && (
+                                                            <div className="d-flex justify-content-end input__btns ">
+                                                                <button
+                                                                    onClick={this.clear}
+                                                                    type="button"
+                                                                    title={'Clear form'}
+                                                                    className={'border-grey-btn ripple'}>
+                                                                    <FontAwesomeIcon className="nav-icon"
+                                                                                     icon={faBroom}/>
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                         <div className="input__title">Origin <i>*</i></div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
@@ -650,7 +711,40 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                     />
                                 </div>
                             )}
+
+
                         </div>
+
+                        {this.props.isClose && (
+                            <>
+                                <div className={'input'}>You have unsaved changes</div>
+                                <div
+                                    className={'profile__right-wrap-full'}>
+                                    <div className={'profile__panel'}>
+                                        <div className={'profile__info__panel'}>
+                                            <div className={'input__box buttons'}>
+                                                <button
+                                                    className={'b-btn ripple'}
+                                                    type={'button'}
+                                                    onClick={() => this.save(true)}
+
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    className={'border-btn ripple modal-link'}
+                                                    type={'button'}
+                                                    onClick={() => this.save(false)}
+                                                >
+                                                    Discard changes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </>
+                        )}
                     </>
                 )
         }

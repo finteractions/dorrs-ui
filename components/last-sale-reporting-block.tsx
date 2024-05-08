@@ -32,6 +32,7 @@ interface LastSaleReportingBlockState extends IState, IModalState {
     isToggle: boolean;
     isFilterShow: boolean;
     filtersClassName: string;
+    isClose: boolean;
 }
 
 interface LastSaleReportingBlockProps extends ICallback {
@@ -78,7 +79,8 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
             mpid: null,
             isToggle: false,
             isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: 'd-none d-md-flex',
+            isClose: false
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -250,7 +252,17 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false})
+        if (!this.state.isClose && this.state.formAction !== 'view') {
+            this.setState({isClose: !this.state.isClose}, () => {
+                this.state.isClose
+            })
+        } else {
+            this.cancel();
+        }
+    }
+
+    cancel = () => {
+        this.setState({isOpenModal: false, isClose: false})
     }
 
     modalTitle = (mode: string) => {
@@ -386,12 +398,14 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) ? 'big_modal' : ''}`}
+                                   className={`${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) && !this.state.isClose ? 'big_modal' : ''}`}
                             >
                                 <LastSaleReportingForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
+                                    isClose={this.state.isClose}
                                     onCallback={this.onCallback}
+                                    onCancel={this.cancel}
                                 />
                             </Modal>
 

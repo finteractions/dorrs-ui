@@ -522,22 +522,29 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         </div>
                                                     </div>
                                                     <div className={'content__bottom'}>
-                                                        {this.companyProfile?.asset_type_description.map((description, index) => (
-                                                            <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                 key={index}>
-                                                                {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
-                                                                    <div
-                                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                                        <div
-                                                                            className={'logo p-0 align-items-baseline '}>
-                                                                            <img
-                                                                                src={this.companyProfile?.asset_type_images[index]}/>
-                                                                        </div>
+                                                        {this.companyProfile?.asset_type_description ? (
+                                                            <>
+                                                                {this.companyProfile?.asset_type_description.map((description, index) => (
+                                                                    <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                         key={index}>
+                                                                        {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
+                                                                            <div
+                                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                <div
+                                                                                    className={'logo p-0 align-items-baseline '}>
+                                                                                    <img
+                                                                                        src={this.companyProfile?.asset_type_images[index]}/>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className={'d-flex mb-2'}>{description}</div>
                                                                     </div>
-                                                                )}
-                                                                <div className={'d-flex mb-2'}>{description}</div>
-                                                            </div>
-                                                        ))}
+                                                                ))}
+                                                            </>
+                                                        ) : (
+                                                            <>not filled</>
+                                                        )}
+
                                                     </div>
                                                 </div>
                                             )}
@@ -573,38 +580,46 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    {this.companyProfile?.issuer_profile_description.map((description, index) => (
+                                                    {this.companyProfile?.issuer_profile_description ? (
                                                         <>
-                                                            <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                 key={index}>
-                                                                {this.companyProfile?.issuer_profile_images && this.companyProfile?.issuer_profile_images[index] && (
+                                                            {this.companyProfile?.issuer_profile_description.map((description, index) => (
+                                                                <>
                                                                     <div
-                                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                                        <div
-                                                                            className={'logo p-0 align-items-baseline '}>
-                                                                            <img
-                                                                                src={this.companyProfile?.issuer_profile_images[index]}/>
+                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                        key={index}>
+                                                                        {this.companyProfile?.issuer_profile_images && this.companyProfile?.issuer_profile_images[index] && (
+                                                                            <div
+                                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                <div
+                                                                                    className={'logo p-0 align-items-baseline '}>
+                                                                                    <img
+                                                                                        src={this.companyProfile?.issuer_profile_images[index]}/>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className={'d-flex mb-2 flex-column'}>
+                                                                            <p className={'w-100 mb-1'}>{description}</p>
+                                                                            {this.companyProfile?.issuer_profile_files && this.companyProfile?.issuer_profile_files[index] && (
+                                                                                <p className={'w-100 mb-1'}><Link
+                                                                                    className={'link info-panel-title-link'}
+                                                                                    href={`${this.host}${this.companyProfile?.issuer_profile_files[index]}`}
+                                                                                    target={'_blank'}>
+                                                                                    File {' '}
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faArrowUpRightFromSquare}/>
+                                                                                </Link></p>
+                                                                            )}
+
                                                                         </div>
                                                                     </div>
-                                                                )}
-                                                                <div className={'d-flex mb-2 flex-column'}>
-                                                                    <p className={'w-100 mb-1'}>{description}</p>
-                                                                    {this.companyProfile?.issuer_profile_files && this.companyProfile?.issuer_profile_files[index] && (
-                                                                        <p className={'w-100 mb-1'}><Link
-                                                                            className={'link info-panel-title-link'}
-                                                                            href={`${this.host}${this.companyProfile?.issuer_profile_files[index]}`}
-                                                                            target={'_blank'}>
-                                                                            File {' '}
-                                                                            <FontAwesomeIcon
-                                                                                className="nav-icon"
-                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                        </Link></p>
-                                                                    )}
-
-                                                                </div>
-                                                            </div>
+                                                                </>
+                                                            ))}
                                                         </>
-                                                    ))}
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
+
 
                                                 </div>
                                             </div>

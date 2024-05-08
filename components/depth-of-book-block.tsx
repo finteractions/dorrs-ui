@@ -33,6 +33,7 @@ interface DepthOfBookBlockState extends IState, IModalState {
     mpid: string | null;
     isFilterShow: boolean;
     filtersClassName: string;
+    isClose: boolean;
 }
 
 interface DepthOfBookBlockProps extends ICallback {
@@ -78,7 +79,8 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
             filterData: [],
             mpid: null,
             isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: 'd-none d-md-flex',
+            isClose: false
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -257,7 +259,17 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false})
+        if (!this.state.isClose && this.state.formAction !== 'view') {
+            this.setState({isClose: !this.state.isClose}, () => {
+                this.state.isClose
+            })
+        } else {
+            this.cancel();
+        }
+    }
+
+    cancel = () => {
+        this.setState({isOpenModal: false, isClose: false})
     }
 
 
@@ -382,13 +394,14 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`bbo ${this.state.formAction} ${['new', 'add'].includes(this.state.formAction) ? 'big_modal' : ''}`}
+                                   className={`bbo ${this.state.formAction} ${['new', 'add'].includes(this.state.formAction) && !this.state.isClose ? 'big_modal' : ''}`}
                             >
                                 <DepthOfBookForm
                                     action={this.state.formAction}
                                     data={this.state.formData}
+                                    isClose={this.state.isClose}
                                     onCallback={this.onCallback}
-                                    onCancel={this.onCancel}
+                                    onCancel={this.cancel}
                                 />
                             </Modal>
 

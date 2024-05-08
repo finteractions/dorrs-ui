@@ -40,6 +40,7 @@ interface IndicatorBlockState extends IState {
     companyProfile: ICompanyProfile | null;
     isOverrideComponent: boolean;
     statistics: Map<string, IIndicatorBlock>;
+    isClose: boolean;
 }
 
 interface IndicatorBlockProps extends ICallback {
@@ -81,6 +82,7 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
             symbol: null,
             isOverrideComponent: true,
             statistics: new Map<string, IIndicatorBlock>(),
+            isClose: false
         }
 
     }
@@ -179,7 +181,18 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
     }
 
     closeModal(): void {
-        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add'});
+        if (!this.state.isClose) {
+            this.setState({isClose: !this.state.isClose}, () => {
+                this.state.isClose
+            })
+        } else {
+            this.cancel();
+        }
+
+    }
+
+    cancel = () => {
+        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add', isClose: false});
     }
 
     onCallback = async (values: any, step: boolean) => {
@@ -192,7 +205,7 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.context.setSharedData({symbol: values.symbol})
-        this.props.onCallback('asset_profile','add')
+        this.props.onCallback('asset_profile', 'add')
     };
 
     renderFormBasedOnType(formType: string) {
@@ -290,7 +303,9 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
                     <LastSaleReportingForm
                         action={this.state.formAction}
                         data={null}
+                        isClose={this.state.isClose}
                         onCallback={this.onCallback}
+                        onCancel={this.cancel}
                     />
                 );
             case 'bbo':
@@ -298,7 +313,9 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
                     <BestBidAndBestOfferForm
                         action={this.state.formAction}
                         data={null}
+                        isClose={this.state.isClose}
                         onCallback={this.onCallback}
+                        onCancel={this.cancel}
                     />
                 );
             case 'dob':
@@ -306,7 +323,9 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
                     <DepthOfBookForm
                         action={'new'}
                         data={null}
+                        isClose={this.state.isClose}
                         onCallback={this.onCallback}
+                        onCancel={this.cancel}
                     />
                 );
             default:
@@ -391,7 +410,7 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
                         <Modal isOpen={this.state.isOpenModal}
                                onClose={() => this.closeModal()}
                                title={this.modalTitle()}
-                               className={`${['dob', 'bbo', 'last_sale_reporting'].includes(this.state.formType) ? 'big_modal' : ''}`}
+                               className={`${['dob', 'bbo', 'last_sale_reporting'].includes(this.state.formType) && !this.state.isClose ? 'big_modal' : ''}`}
                         >
                             {this.renderFormBasedOnType(this.state.formType)}
                         </Modal>

@@ -19,6 +19,9 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalLastSaleReportingHistoryBlock from "@/components/modal-last-sale-reporting-history-block";
 import InputMPIDField from "@/components/mpid-field";
 import converterService from "@/services/converter/converter-service";
+import {getGlobalConfig} from "@/utils/global-config";
+import {faAddressCard, faBroom, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 const formSchema = Yup.object().shape({
@@ -49,10 +52,12 @@ interface LastSaleReportingState extends IState {
 interface LastSaleReportingProps extends ICallback {
     action: string;
     data: ILastSale | null;
-    onCancel?: () => void;
+    onCancel: () => void;
+    isClose: boolean;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+const PATH = `${getGlobalConfig().host}-last-sale-reporting-form`;
 
 class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -110,6 +115,18 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
 
     }
 
+    restoreForm = async () => {
+        let storedData: any = localStorage.getItem(PATH);
+
+        if (storedData) {
+            try {
+                storedData = JSON.parse(storedData) as ILastSale
+                await this.fillForm(storedData)
+            } catch (ignored) {
+            }
+        }
+    }
+
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
@@ -130,7 +147,11 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
     }
 
     setLoading = () => {
-        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)})
+        this.setState({isLoading: !(!this.state.isLoadingForm && !this.state.isLoadingHistory)}, async () => {
+            if (!this.state.isLoading) {
+                await this.restoreForm();
+            }
+        })
     }
 
     handleSymbolSuffix(value: any, values: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
@@ -159,6 +180,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);
+                localStorage.removeItem(PATH)
             });
     };
 
@@ -182,32 +204,57 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
 
     fillForm = async (lastSale: ILastSale) => {
         if (this.formRef?.current) {
-            await this.formRef.current.setFieldValue('symbol', lastSale.symbol_name)
-                .then(async () => await this.formRef.current.setFieldTouched('symbol', true, true))
+            const {setFieldValue, setFieldTouched} = this.formRef.current;
 
-            await this.formRef.current.setFieldValue('symbol_suffix', lastSale.symbol_suffix)
-                .then(async () => await this.formRef.current.setFieldTouched('symbol_suffix', true, true))
+            await Promise.all([
+                setFieldValue('symbol', lastSale.symbol_name || lastSale.symbol, true),
+                setFieldValue('symbol_suffix', lastSale.symbol_suffix, true),
+                setFieldValue('condition', lastSale.condition.toLowerCase(), true),
+                setFieldValue('tick_indication', lastSale.tick_indication, true),
+                setFieldValue('quantity', lastSale.quantity ?? '', true),
+                setFieldValue('price', lastSale.price ?? '', true),
+                setFieldValue('mpid', lastSale.mpid, true),
+                setFieldValue('origin', lastSale.origin, true),
+            ]);
 
-            await this.formRef.current.setFieldValue('condition', lastSale.condition.toLowerCase())
-                .then(async () => await this.formRef.current.setFieldTouched('condition', true, true))
-
-            await this.formRef.current.setFieldValue('tick_indication', lastSale.tick_indication)
-                .then(async () => await this.formRef.current.setFieldTouched('tick_indication', true, true))
-
-            await this.formRef.current.setFieldValue('quantity', lastSale.quantity ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('quantity', true, true))
-
-            await this.formRef.current.setFieldValue('price', lastSale.price ?? '')
-                .then(async () => await this.formRef.current.setFieldTouched('price', true, true))
-
-            await this.formRef.current.setFieldValue('mpid', lastSale.mpid)
-                .then(async () => await this.formRef.current.setFieldTouched('mpid', true, true))
-
-            await this.formRef.current.setFieldValue('origin', lastSale.origin)
-                .then(async () => await this.formRef.current.setFieldTouched('origin', true, true))
-
+            await Promise.all([
+                setFieldTouched('symbol', true, true),
+                setFieldTouched('symbol_suffix', true, true),
+                setFieldTouched('condition', true, true),
+                setFieldTouched('tick_indication', true, true),
+                setFieldTouched('quantity', true, true),
+                setFieldTouched('price', true, true),
+                setFieldTouched('mpid', true, true),
+                setFieldTouched('origin', true, true),
+            ]);
         }
     }
+
+    clear = () => {
+        if (this.formRef?.current) {
+            this.formRef?.current.resetForm()
+        }
+    }
+
+    save = (save: boolean = false) => {
+
+        if (save) {
+            const values = this.formRef.current?.values;
+            const keys = this.formRef.current?.touched || {}
+
+            if (Object.keys(keys).length > 0 && values) {
+                values.quantity = values.quantity.replace(/,/g, '');
+                values.price = values.price.replace(/,/g, '');
+                localStorage.setItem(PATH, JSON.stringify(values))
+            }
+        } else {
+            localStorage.removeItem(PATH)
+        }
+
+        this.props.onCancel();
+
+    }
+
 
     render() {
         switch (this.props.action) {
@@ -219,7 +266,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                         {this.state.isLoading && (
                             <LoaderBlock/>
                         )}
-                        <div className={`column-block ${this.state.isLoading ? 'd-none' : ''}`}>
+                        <div className={`column-block ${this.state.isLoading || this.props.isClose ? 'd-none' : ''}`}>
                             <div className={'column-block__item'}>
                                 {!this.state.isLoadingForm && (
                                     <Formik<ILastSale>
@@ -243,6 +290,19 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                             return (
                                                 <Form className={'w-100'}>
                                                     <div className="input">
+                                                        {!this.isShow() && (
+                                                            <div className="d-flex justify-content-end input__btns ">
+                                                                <button
+                                                                    onClick={this.clear}
+                                                                    type="button"
+                                                                    title={'Clear form'}
+                                                                    className={'border-grey-btn ripple'}>
+                                                                    <FontAwesomeIcon className="nav-icon"
+                                                                                     icon={faBroom}/>
+                                                                </button>
+                                                            </div>
+                                                        )}
+
                                                         <div className="input__title">Origin <i>*</i></div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
@@ -254,6 +314,8 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 placeholder="Type Origin"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
+                                                            <ErrorMessage name="origin" component="div"
+                                                                          className="error-message"/>
                                                         </div>
                                                     </div>
                                                     <div className="input">
@@ -288,7 +350,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                         </div>
                                                     </div>
                                                     <div className="input">
-                                                        <div className="input__title">View Suffix</div>
+                                                        <div className="input__title">Symbol Suffix</div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <Field
@@ -296,7 +358,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 id="symbol_suffix"
                                                                 type="text"
                                                                 className="input__text"
-                                                                placeholder="Type View Suffix"
+                                                                placeholder="Type Symbol Suffix"
                                                                 disabled={isSubmitting || this.isShow()}
                                                                 onChange={(e: any) => this.handleSymbolSuffix(e.target.value, values, setFieldValue)}
                                                             />
@@ -420,23 +482,6 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                         </div>
                                                     </div>
 
-                                                    {/*<div className="input">*/}
-                                                    {/*    <div className="input__title">Date <i>*</i></div>*/}
-                                                    {/*    <div className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>*/}
-                                                    {/*        <SingleDatePicker*/}
-                                                    {/*            date={values.date}*/}
-                                                    {/*            onDateChange={(date) => setFieldValue('date', date)}*/}
-                                                    {/*            focused={this.state.focusedInput}*/}
-                                                    {/*            onFocusChange={({ focused }) => this.setState({ focusedInput: focused })}*/}
-                                                    {/*            id="date"*/}
-                                                    {/*            displayFormat="YYYY-MM-DD"*/}
-                                                    {/*            numberOfMonths={1}*/}
-                                                    {/*            isOutsideRange={() => false}*/}
-                                                    {/*            disabled={isSubmitting || this.isShow()}*/}
-                                                    {/*        />*/}
-                                                    {/*        <ErrorMessage name="date" component="div" className="error-message" />*/}
-                                                    {/*    </div>*/}
-                                                    {/*</div>*/}
                                                     <div className="input">
                                                         <div className="input__title">Tick Indication <i>*</i></div>
                                                         <div
@@ -507,6 +552,37 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                 </div>
                             )}
                         </div>
+
+                        {this.props.isClose && (
+                            <>
+                                <div className={'input'}>You have unsaved changes</div>
+                                <div
+                                    className={'profile__right-wrap-full'}>
+                                    <div className={'profile__panel'}>
+                                        <div className={'profile__info__panel'}>
+                                            <div className={'input__box buttons'}>
+                                                <button
+                                                    className={'b-btn ripple'}
+                                                    type={'button'}
+                                                    onClick={() => this.save(true)}
+
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    className={'border-btn ripple modal-link'}
+                                                    type={'button'}
+                                                    onClick={() => this.save(false)}
+                                                >
+                                                    Discard changes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </>
+                        )}
 
                     </>
                 )
