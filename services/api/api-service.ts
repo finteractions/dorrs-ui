@@ -1,6 +1,7 @@
 import axios, {AxiosError, AxiosInstance, AxiosResponse} from 'axios';
 import {AUTH_USER_ACCESS_TOKEN, AUTH_USER_REFRESH_TOKEN} from "@/constants/settings";
 import cookieService from "@/services/cookie/cookie-service";
+import encryptionService from "@/services/encryption/encryption-service";
 
 interface ApiOptions {
     baseURL: string;
@@ -42,6 +43,7 @@ class ApiService {
 
     async post<T>(url: string, data: Record<string, unknown>, params?: Record<string, unknown>, token?: string,): Promise<T> {
         const headers = this.getHeaders(token);
+        data = this.encode(data)
 
         try {
             const response: AxiosResponse<T> = await this.http.post(url, data, {
@@ -67,6 +69,8 @@ class ApiService {
 
     async put<T>(url: string, data: Record<string, unknown>, params?: Record<string, unknown>, token?: string,): Promise<T> {
         const headers = this.getHeaders(token);
+
+        data = this.encode(data)
 
         try {
             const response: AxiosResponse<T> = await this.http.put(url, data, {
@@ -129,13 +133,17 @@ class ApiService {
                 cookieService.removeItem(AUTH_USER_REFRESH_TOKEN);
                 localStorage.clear();
             } else if ((error.response?.data as { messages: Array<{ message: string }> })?.messages) {
-                errorMessages.push(...(error.response?.data as { messages: Array<{ message: string }> })?.messages.map(s => s.message));
+                errorMessages.push(...(error.response?.data as {
+                    messages: Array<{ message: string }>
+                })?.messages.map(s => s.message));
             } else if ((error.response?.data as { message: string })?.message) {
                 errorMessages.push((error.response?.data as { message: string })?.message);
             } else if (typeof error.response?.data === "string") {
                 errorMessages.push(error.response?.data);
             } else if ((error.response?.data as { [key: string]: Array<string> })) {
-                errorMessages.push(...(Object.entries((error.response?.data as { [key: string]: Array<string> })).flatMap(([key, errorArray]) => {
+                errorMessages.push(...(Object.entries((error.response?.data as {
+                    [key: string]: Array<string>
+                })).flatMap(([key, errorArray]) => {
                     return errorArray.map(errorMessage => `${key}: ${errorMessage.replace(/"/g, '')}`);
                 })));
             } else if ((error.response?.data as { detail: string })?.detail) {
@@ -149,6 +157,20 @@ class ApiService {
             values = error?.response?.data
         }
         throw err;
+    }
+
+    private encode(data: any) {
+        const passwords = ['password', 'password1', 'password2', 'new_password', 'confirm_password', 'old_password'];
+        const encryptedData = {...data};
+
+        for (const key in encryptedData) {
+            if (passwords.includes(key)) {
+                encryptedData[key] = encryptionService.encrypt(encryptedData[key]);
+            }
+
+        }
+        return encryptedData;
+
     }
 
 }
