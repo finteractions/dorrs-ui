@@ -3,5 +3,6 @@ export enum AssetType {
     PRIVATE_FUNDS = 'Private Funds',
     REAL_ESTATE = 'Real Estate',
     COLLECTIBLES = 'Collectibles',
-    ART = 'Art'
+    ART = 'Art',
+    DIGITAL_ASSET = 'Digital Asset'
 }
