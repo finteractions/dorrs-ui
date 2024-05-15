@@ -5,7 +5,8 @@ const comparison_matrix: Record<string, string> = {
     'BestBidAndBestOfferBlock': 'bbo',
     'WeeklyAndMonthlyReportsBlock': 'weekly_and_monthly_reports',
     'DepthOfBookBlock': 'dob',
-    'QuoteBoardBlock': 'quote_board'
+    'QuoteBoardBlock': 'quote_board',
+    'DataFeedProvidersBlock': 'data_feed_providers'
 }
 
 function getAccessRulesByComponent(component_name: string, access_matrix: any[]) {

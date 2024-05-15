@@ -11,6 +11,7 @@ import {
 import {Button} from "react-bootstrap";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
 import formatterService from "@/services/formatter/formatter-service";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 
 
 interface DataFeedProvidersBlockState extends IState {
@@ -22,7 +23,12 @@ interface DataFeedProvidersBlockState extends IState {
 }
 
 interface DataFeedProvidersBlockProps extends ICallback {
-
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 let isDashboard = false;
@@ -42,7 +48,7 @@ class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps
 
     constructor(props: DataFeedProvidersBlockProps) {
         super(props);
-
+        
         this.state = {
             success: false,
             isLoading: true,
@@ -210,4 +216,4 @@ class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps
     }
 }
 
-export default DataFeedProvidersBlock;
+export default portalAccessWrapper(DataFeedProvidersBlock, 'DataFeedProvidersBlock');
