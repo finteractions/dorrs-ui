@@ -25,14 +25,18 @@ interface DataFeedProvidersBlockState {
     modalTitle: string;
 }
 
+interface DataFeedProvidersBlockProps extends ICallback {
+
+}
+
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
-class DataFeedProvidersBlock extends React.Component<{}> {
+class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps, DataFeedProvidersBlockState> {
     state: DataFeedProvidersBlockState;
     getAssetsInterval!: NodeJS.Timer;
 
-    constructor(props: {}) {
+    constructor(props: DataFeedProvidersBlockProps) {
         super(props);
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -55,7 +59,10 @@ class DataFeedProvidersBlock extends React.Component<{}> {
             }), {
                 id: "name",
                 cell: (item) =>
-                    <div className={`table-image`}
+                    <div className={`table-image cursor-pointer link`}
+                         onClick={() => {
+                             this.navigate(item.getValue().name)
+                         }}
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${item.getValue().image}` : ''}
@@ -67,6 +74,10 @@ class DataFeedProvidersBlock extends React.Component<{}> {
                 header: () => <span>Name</span>,
             }),
         ];
+    }
+
+    navigate = (name: string) => {
+        this.props.onCallback(name);
     }
 
     componentDidMount() {
@@ -127,7 +138,7 @@ class DataFeedProvidersBlock extends React.Component<{}> {
         this.setState({
             isOpenModal: true,
             formAction: mode,
-            formDataFeedProviderData: {...data} || null,
+            formDataFeedProviderData: {...data} as IDataFeedProvider || null,
             modalTitle: this.modalTitle(mode)
         })
     }

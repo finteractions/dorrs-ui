@@ -165,6 +165,19 @@ function getBackgroundColourByValue(input: string | number) {
     }
 }
 
+function formatDateString(dateString: string) {
+    const [monthString, day] = dateString.split(', ');
+
+    const date = new Date(`${monthString} ${day}, ${new Date().getFullYear()}`);
+
+    const dayPadded = String(date.getDate()).padStart(2, '0');
+    const monthPadded = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы нумеруются с 0
+    const year = date.getFullYear();
+
+    return `${dayPadded}-${monthPadded}-${year}`;
+}
+
+
 const formatterService = {
     numberFormat,
     dateTimeFormat,
@@ -174,7 +187,8 @@ const formatterService = {
     formatAndColorNumberBlockHTML,
     formatAndColorTickIndicationValueHTML,
     getBackgroundColourByValue,
-    toPlainString
+    toPlainString,
+    formatDateString
 }
 
 export default formatterService;

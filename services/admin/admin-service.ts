@@ -376,9 +376,28 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
     }
 
-    public async getDataFeedProviders(): Promise<IDataFeedProvider[]> {
-        return (await apiWebBackendService.get<IResponse<IDataFeedProvider[]>>(`${this.PATH}data_feed_providers/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
+    public async getDataFeedProviders(name?: string): Promise<IDataFeedProvider[]> {
+        let queryString = "";
+        if (name) {
+            queryString += `&name=${name}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<IDataFeedProvider[]>>(`${this.PATH}data_feed_providers/?limit=${this.queryLimit}${queryString}`, {}, this.getAdminToken())).results;
     }
+
+    public async getDataFeedProviderDates(): Promise<IResponse<any>> {
+        return (await apiWebBackendService.get<IResponse<any>>(`${this.PATH}data_feed_providers/dates/`, {}, this.getAdminToken())).data;
+    }
+
+    public async getDataFeedProviderHistory(data: any): Promise<IResponse<any>> {
+        return (await apiWebBackendService.post<IResponse<any>>(`${this.PATH}data_feed_providers/history/`, data, {}, this.getAdminToken())).data;
+    }
+
+    public async downloadDataFeedProviderHistory(data: any): Promise<string> {
+        data = Object.keys(data).length ? data : null;
+        return (await apiWebBackendService.post<string>(`${this.PATH}download_data_feed_providers_history/`, data, {}, this.getAdminToken()));
+    }
+
 
     public async createDataFeedProvider(data: any): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}data_feed_providers/`, data, {}, this.getAdminToken());
@@ -393,8 +412,10 @@ class AdminService extends BaseService {
     }
 
     // **** Admin Tools **** //
-    public async getOrderGeneratorStatus(): Promise<Array<{status: boolean}>> {
-        return (await apiWebBackendService.get<IResponse<Array<{status:boolean}>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getUserAccessToken())).data;
+    public async getOrderGeneratorStatus(): Promise<Array<{ status: boolean }>> {
+        return (await apiWebBackendService.get<IResponse<Array<{
+            status: boolean
+        }>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getUserAccessToken())).data;
     }
 
     public async setOrderGeneratorStatus(data: any): Promise<IResponseApi> {
@@ -416,6 +437,7 @@ class AdminService extends BaseService {
     public async deleteOrderGeneratorOrders(): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/order_generator/clear/`, {}, {}, this.getAdminToken());
     }
+
     //********************** //
 
 
