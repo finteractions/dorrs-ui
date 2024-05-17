@@ -22,6 +22,8 @@ import * as Yup from "yup";
 import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
 import {UserType} from "@/enums/user-type";
+import Select from "react-select";
+import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
 
 const formFirmSchema = Yup.object().shape({
     firm_id: Yup.number().required('Required').label('Firm'),
@@ -40,6 +42,10 @@ const formCustomerTypeSchema = Yup.object().shape({
     customer_type: Yup.string().required('Required').label('Customer'),
 });
 
+const formDataFeedProvidersSchema = Yup.object().shape({
+    customer_type: Yup.string().required('Required').label('Customer'),
+});
+
 interface UserBlockState extends IState {
     mode: string;
     data: IUserDetail | null;
@@ -54,13 +60,16 @@ interface UserBlockState extends IState {
     isUserAccountTypeEdit: boolean;
     isUserTypeEdit: boolean;
     isUserCustomerTypeEdit: boolean;
+    isUserDataFeedProvidersEdit: boolean;
     formFirmInitialValues: { firm_id: number | null },
     formAccountTypeInitialValues: { account_type: string | null },
     formCustomerTypeInitialValues: { customer_type: string | null },
+    formDataFeedProvidersInitialValues: { data_feed_providers: Array<string> | [] },
     formUserTypeInitialValues: { user_type: string | null },
     selectedAccountType: string
     selectedUserType: string
     selectedCustomerType: string
+    dataFeedProviders: Array<IDataFeedProvider>;
 }
 
 interface UserBlockProps {
@@ -89,13 +98,16 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             isUserAccountTypeEdit: false,
             isUserCustomerTypeEdit: false,
             isUserTypeEdit: false,
+            isUserDataFeedProvidersEdit: false,
             formFirmInitialValues: {firm_id: null},
             formAccountTypeInitialValues: {account_type: null},
             formUserTypeInitialValues: {user_type: null},
             formCustomerTypeInitialValues: {customer_type: null},
+            formDataFeedProvidersInitialValues: {data_feed_providers: []},
             selectedAccountType: '',
             selectedUserType: '',
-            selectedCustomerType: ''
+            selectedCustomerType: '',
+            dataFeedProviders: []
         };
     }
 
@@ -108,6 +120,15 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
         }
         this.getUser(this.props.user_id);
         this.getFirms();
+        this.getDataFeedProviders()
+    }
+
+    getDataFeedProviders() {
+        dataFeedProvidersService.getList()
+            .then((res: Array<IDataFeedProvider>) => {
+                const data = res || [];
+                this.setState({dataFeedProviders: data})
+            })
     }
 
     getFirms = () => {
@@ -172,13 +193,15 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                 const account_type = user.user_id?.account_type || null;
                 const customer_type = user.user_id?.customer_type || null;
                 const user_type = user.user_id?.user_type || null;
+                const data_feed_providers = user.user_id?.data_feed_providers || [];
 
                 this.setState({
                     data: user,
                     formFirmInitialValues: {firm_id: firm_id},
                     formAccountTypeInitialValues: {account_type: account_type},
                     formCustomerTypeInitialValues: {customer_type: customer_type},
-                    formUserTypeInitialValues: {user_type: user_type}
+                    formUserTypeInitialValues: {user_type: user_type},
+                    formDataFeedProvidersInitialValues: {data_feed_providers: data_feed_providers}
                 });
 
                 if (res[0].approved_by) {
@@ -219,6 +242,10 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
 
     editCustomerType = () => {
         this.setState({isUserCustomerTypeEdit: !this.state.isUserCustomerTypeEdit})
+    }
+
+    editDataFeedProviders = () => {
+        this.setState({isUserDataFeedProvidersEdit: !this.state.isUserDataFeedProvidersEdit})
     }
 
     handleFirmSubmit = async (values: Record<string, number | null>, {setSubmitting}: {
@@ -324,6 +351,27 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             }).finally(() => {
                 setSubmitting(false);
                 this.setState({isUserCustomerTypeEdit: false})
+            });
+    };
+
+    handleDataFeedProvidersSubmit = async (values: Record<string, string | null>, {setSubmitting}: {
+        setSubmitting: (isSubmitting: boolean) => void
+    }) => {
+        this.setState({errorMessages: null});
+        const data = {
+            user_id: this.state.data?.user_id.email,
+            data_feed_providers: values.data_feed_providers
+        }
+
+        await adminService.assignDataFeedProvider(data)
+            .then(((res: any) => {
+                this.getUser(this.props.user_id);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+                setSubmitting(false);
+                this.setState({isUserDataFeedProvidersEdit: false})
             });
     };
 
@@ -926,6 +974,106 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                             </div>
                                                         </div>
                                                     )}
+
+
+                                                    <div className="mb-3">
+                                                        <div className="info-panel-section-title mb-2">
+                                                            <div className='info-panel-title-text'>Data Feed Providers
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={'d-flex align-items-center'}>
+                                                            <div>
+                                                                {!this.state.isUserDataFeedProvidersEdit ? (
+                                                                    <>{this.state.data?.user_id?.data_feed_providers.length ? this.state.data?.user_id?.data_feed_providers.join(', ') : '-'}</>
+                                                                ) : (
+                                                                    <>
+                                                                        <Formik<any>
+                                                                            initialValues={this.state.formDataFeedProvidersInitialValues}
+                                                                            validationSchema={null}
+                                                                            onSubmit={this.handleDataFeedProvidersSubmit}
+                                                                        >
+                                                                            {({
+                                                                                  isSubmitting,
+                                                                                  setFieldValue,
+                                                                                  values,
+                                                                                  errors
+                                                                              }) => {
+                                                                                return (
+                                                                                    <Form id={'firm-user'}
+                                                                                          className={'edit-form-small align-items-start'}>
+                                                                                        <div className="input">
+                                                                                            <div
+                                                                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                                                                <Field
+                                                                                                    name="data_feed_providers"
+                                                                                                    id="data_feed_providers"
+                                                                                                    as={Select}
+                                                                                                    className={`b-select-search`}
+                                                                                                    placeholder="Select Data Feed Providers"
+                                                                                                    classNamePrefix="select__react"
+                                                                                                    isMulti={true}
+                                                                                                    isDisabled={isSubmitting}
+                                                                                                    options={this.state.dataFeedProviders.map((dataFeedProvider) => ({
+                                                                                                        value: dataFeedProvider.name,
+                                                                                                        label: dataFeedProvider.name
+                                                                                                    }))}
+                                                                                                    onChange={(selectedOptions: any) => {
+                                                                                                        const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value) : [];
+                                                                                                        setFieldValue('data_feed_providers', selectedValues);
+                                                                                                    }}
+                                                                                                    value={(values.data_feed_providers as Array<string>).map((value) => ({
+                                                                                                        value,
+                                                                                                        label: value
+                                                                                                    })) || []}
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <>
+                                                                                            <div
+                                                                                                className='admin-table-actions ml-20px'>
+                                                                                                <button
+                                                                                                    type="submit"
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faCheck}/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={this.editDataFeedProviders}
+                                                                                                    className='admin-table-btn ripple'>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faClose}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    </Form>
+                                                                                );
+                                                                            }}
+                                                                        </Formik>
+                                                                    </>
+                                                                )}
+                                                            </div>
+
+                                                            <div className='admin-table-actions ml-20px'>
+                                                                {!this.state.isUserDataFeedProvidersEdit ? (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={this.editDataFeedProviders}
+                                                                            className='admin-table-btn ripple'>
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon" icon={faEdit}/>
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <></>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
 
                                                     <div className="mb-3">
                                                         <div className="info-panel-section-title mb-2">

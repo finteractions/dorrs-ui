@@ -298,6 +298,10 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_customer_type/`, data, {}, this.getAdminToken()));
     }
 
+    public async assignDataFeedProvider(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}assign_data_feed_provider/`, data, {}, this.getAdminToken()));
+    }
+
     public async getBestBidAndBestOffer(): Promise<IBestBidAndBestOffer[]> {
         return (await apiWebBackendService.get<IResponse<IBestBidAndBestOffer[]>>(`${this.PATH}bbo/?limit=${this.queryLimit}`, {}, this.getAdminToken())).results;
     }

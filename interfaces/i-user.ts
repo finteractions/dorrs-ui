@@ -10,6 +10,7 @@ export interface IUser {
     account_type: string;
     user_type: string;
     customer_type: string;
+    data_feed_providers: string[];
     is_blocked: boolean;
     firm?: IFirm | null;
 }

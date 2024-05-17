@@ -16,6 +16,7 @@ interface IMembership {
     country: string;
     annual_fees: string;
     customer_type: string;
+    data_feed_providers: string[];
     user_id: string;
     status: string;
     comment: string;

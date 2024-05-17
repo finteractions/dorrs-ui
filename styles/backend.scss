@@ -4525,7 +4525,7 @@
     }
 
 
-    .b-select {
+    .b-select, .b-select-search .select__react__control {
       border-radius: 0;
       border: 1px solid #1E2D3B;
       box-sizing: border-box;
@@ -4533,7 +4533,29 @@
       line-height: 100%;
       font-feature-settings: "kern" off;
       color: #1E2D3B;
-      height: 28px;
+      height: 28px
+    }
+
+    .select__react__menu {
+      top: 28px;
+    }
+
+    .select__react__control {
+      min-height: 28px !important;
+
+      .select__react__value-container {
+        padding-top: 1px;
+      }
+
+      .select__react__indicators {
+        > div {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+      }
+    }
+
+    .b-select {
       background: url(../public/img/select-arrow.svg) right 16px center/24px no-repeat #fff;
     }
   }

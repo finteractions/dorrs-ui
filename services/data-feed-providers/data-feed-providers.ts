@@ -14,6 +14,10 @@ class DataFeedProvidersService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ISettings>>>(`${this.PATH}links/`, {}, this.getUserAccessToken())).data;
     }
 
+    public async getList(): Promise<Array<IDataFeedProvider>> {
+        return (await apiWebBackendService.get<IResponse<Array<IDataFeedProvider>>>(`${this.PATH}list/`, {}, this.getUserAccessToken())).data;
+    }
+
     public async getStatistics(name?: string | null,): Promise<Array<IDataFeedProviderStatistics>> {
         let queryString = "";
         if (name) {

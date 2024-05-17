@@ -1,9 +1,6 @@
 import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Modal from "@/components/modal";
-import MembershipForm from "@/components/membership-form";
-import formService from "@/services/form/form-service";
-import {FormStatus} from "@/enums/form-status";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {CustomerType, getCustomerTypeName} from "@/enums/customer-type";
@@ -12,6 +9,7 @@ import UserPortalForm from "@/components/user-portal-form";
 interface UserBlockState extends IState, IModalState {
     isLoading: boolean;
     customerType: CustomerType | null
+    dataFeedProviders: Array<string> | null;
     formAction: string;
 }
 
@@ -31,9 +29,9 @@ class UserBlock extends React.Component {
             isLoading: true,
             isOpenModal: false,
             formAction: 'add',
-            customerType: this.context.userProfile.customer_type
+            customerType: this.context.userProfile.customer_type,
+            dataFeedProviders: this.context.userProfile.data_feed_providers
         }
-
     }
 
     componentDidMount() {
@@ -100,6 +98,7 @@ class UserBlock extends React.Component {
                 >
                     <UserPortalForm
                         customer_type={this.state.customerType}
+                        data_feed_providers={this.state.dataFeedProviders}
                         onCallback={this.onCallback}/>
                 </Modal>
             </>

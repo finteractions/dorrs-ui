@@ -13,6 +13,8 @@ import downloadFile from "@/services/download-file/download-file";
 import {SUBSCRIBER_AGREEMENT} from "@/constants/settings";
 import formService from "@/services/form/form-service";
 import AlertBlock from "@/components/alert-block";
+import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
+import Select from "react-select";
 
 const formSchema = Yup.object().shape({
     customer_type: Yup.mixed<CustomerType>().oneOf(
@@ -22,15 +24,18 @@ const formSchema = Yup.object().shape({
 });
 
 let initialValues = {
-    customer_type: ""
-}
+    customer_type: "" as string | null,
+    data_feed_providers: [] as string[]
+};
 
 interface UserPortalFormState extends IState {
-
+    dataFeedProviders: Array<IDataFeedProvider>;
+    isDisabled: boolean;
 }
 
 interface UserPortalFormProps extends ICallback {
-    customer_type: string | null
+    customer_type: string | null,
+    data_feed_providers: Array<string> | null;
 }
 
 class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalFormState> {
@@ -42,10 +47,26 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
 
         this.state = {
             success: false,
+            dataFeedProviders: [],
+            isDisabled: !!this.props.customer_type
         }
 
         if (this.props.customer_type) initialValues.customer_type = this.props.customer_type;
+        if (this.props.data_feed_providers) initialValues.data_feed_providers = this.props.data_feed_providers;
     }
+
+    componentDidMount() {
+        this.getDataFeedProviders()
+    }
+
+    getDataFeedProviders() {
+        dataFeedProvidersService.getList()
+            .then((res: Array<IDataFeedProvider>) => {
+                const data = res || [];
+                this.setState({dataFeedProviders: data})
+            })
+    }
+
 
     handleSubmit = async (values: Record<string, string | boolean | null>, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
@@ -65,7 +86,7 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
 
     render() {
         return (
-            <Formik
+            <Formik<any>
                 initialValues={initialValues}
                 validationSchema={formSchema}
                 onSubmit={this.handleSubmit}
@@ -84,7 +105,7 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
                                                     type="radio"
                                                     value={type}
                                                     className="hidden"
-                                                    disabled={isSubmitting}
+                                                    disabled={isSubmitting || this.state.isDisabled}
                                                 />
                                                 <label className="sign-up__item" htmlFor={`customer_type_${type}`}>
                                                     <div className="sign-up__item-img">
@@ -121,9 +142,36 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
                                                 <p className={'mb-0'}>Return the electronic form by emailing it to <Link
                                                     href={'mailto:info@dorrs.io'}>info@dorrs.io</Link></p>
                                             </div>
-                                        </>
 
+                                            <div className={'sign-up__text mt-4 text-justify'}>
+                                                Choose the type of Data Feed Provider:
+                                            </div>
+                                            <Field
+                                                name="data_feed_providers"
+                                                id="data_feed_providers"
+                                                as={Select}
+                                                className={`b-select-search`}
+                                                placeholder="Select Data Feed Providers"
+                                                classNamePrefix="select__react"
+                                                isMulti={true}
+                                                isDisabled={isSubmitting || this.state.isDisabled}
+                                                options={Object.values(this.state.dataFeedProviders).map((dataFeedProvider) => ({
+                                                    value: dataFeedProvider.name,
+                                                    label: dataFeedProvider.name
+                                                }))}
+                                                onChange={(selectedOptions: any) => {
+                                                    const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value) : [];
+                                                    setFieldValue('data_feed_providers', selectedValues);
+                                                }}
+                                                value={(values.data_feed_providers as Array<string>).map((value) => ({
+                                                    value,
+                                                    label: value
+                                                })) || []}
+                                            />
+                                        </>
                                     )}
+
+
                                 </div>
 
 

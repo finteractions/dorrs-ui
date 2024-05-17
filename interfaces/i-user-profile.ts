@@ -15,6 +15,7 @@ export interface IUserProfile {
     house_number: string;
     firm?: IFirm
     customer_type?: string;
+    data_feed_providers?: string[];
     reference_number?: string;
     account_type?: string;
     user_type?: string;
