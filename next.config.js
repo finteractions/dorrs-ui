@@ -10,9 +10,13 @@ module.exports = {
         if (!isServer) {
             config.plugins.push(
                 new WebpackObfuscator({
+                    compact: true,
+                    controlFlowFlattening: true,
+                    deadCodeInjection: true,
                     rotateStringArray: true,
                     stringArray: true,
                     stringArrayThreshold: 0.75,
+                    unicodeEscapeSequence: true,
                 }, [])
             );
         }
