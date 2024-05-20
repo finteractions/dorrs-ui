@@ -149,7 +149,7 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
                                                     href={'mailto:info@dorrs.io'}>info@dorrs.io</Link></p>
                                             </div>
 
-                                            <div className={'sign-up__text mt-4 text-justify'}>
+                                            <div className={'sign-up__text mt-4 text-justify mb-2'}>
                                                 Choose the type of Data Feed Provider:
                                             </div>
                                             <Field
