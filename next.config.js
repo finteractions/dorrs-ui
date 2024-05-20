@@ -1,11 +1,21 @@
 /** @type {import('next').NextConfig} */
-const {parsed: localEnv} = require('dotenv').config({path: '.env'})
-const webpack = require('webpack')
-const {string} = require("yup");
+const {parsed: localEnv} = require('dotenv').config({path: '.env'});
+const webpack = require('webpack');
+const WebpackObfuscator = require('webpack-obfuscator');
 
 module.exports = {
-    webpack(config) {
+    webpack(config, {isServer}) {
         config.plugins.push(new webpack.EnvironmentPlugin(localEnv))
+
+        if (!isServer) {
+            config.plugins.push(
+                new WebpackObfuscator({
+                    rotateStringArray: true,
+                    stringArray: true,
+                    stringArrayThreshold: 0.75,
+                }, [])
+            );
+        }
 
         return config
     },

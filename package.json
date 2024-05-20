@@ -92,9 +92,11 @@
     "@types/scrollreveal": "^0.0.8",
     "@types/socket.io-client": "^3.0.0",
     "dotenv": "^16.0.3",
+    "javascript-obfuscator": "^4.1.0",
     "js-cookie": "^3.0.5",
     "react-scroll": "^1.9.0",
     "sass": "^1.62.1",
-    "webpack": "^5.88.2"
+    "webpack": "^5.88.2",
+    "webpack-obfuscator": "^3.5.1"
   }
 }
