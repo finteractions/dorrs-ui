@@ -15,8 +15,7 @@ module.exports = {
                     deadCodeInjection: true,
                     rotateStringArray: true,
                     stringArray: true,
-                    stringArrayThreshold: 0.75,
-                    unicodeEscapeSequence: true,
+                    stringArrayThreshold: 0.5
                 }, [])
             );
         }
