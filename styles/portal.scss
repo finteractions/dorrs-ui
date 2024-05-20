@@ -3927,7 +3927,7 @@ body {
 
     .sign-up__item {
       width: 100%;
-      border: 1px solid rgba(113, 132, 148, 0.50);
+      border: 3px solid rgba(113, 132, 148, 0.50);
       border-radius: 6px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
@@ -3965,6 +3965,7 @@ body {
         width: 17px;
         height: 17px
       }
+
     }
 
     .sign-up__item span {
@@ -3972,7 +3973,7 @@ body {
       font-size: 16px;
       line-height: 24px;
       text-align: center;
-      color: #0f172a
+      color: var(--text-colour-12)
     }
 
     .sign-up__item:not(:last-child) {
@@ -3984,11 +3985,16 @@ body {
 
       &:after {
         background-image: url(img/icon-2.png);
+        filter: grayscale(0)!important;
       }
 
       > span {
-        color: #0F4BAD;
+        //color: #0F4BAD;
       }
+    }
+
+    .sign-up__item.not-selected:after {
+      filter: grayscale(100%);
     }
 
     .sidebar .sidebar-nav .nav-group.show {
@@ -4466,3 +4472,10 @@ a.block-link {
   align-items: center;
 }
 
+input[type="radio"]:checked + label.sign-up__item {
+  border-width: 3px;
+
+  &.not-selected {
+    filter: grayscale(100%) !important;
+  }
+}

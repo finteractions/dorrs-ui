@@ -9,7 +9,6 @@ import UserPortalForm from "@/components/user-portal-form";
 interface UserBlockState extends IState, IModalState {
     isLoading: boolean;
     customerType: CustomerType | null
-    dataFeedProviders: Array<string> | null;
     formAction: string;
 }
 
@@ -30,7 +29,6 @@ class UserBlock extends React.Component {
             isOpenModal: false,
             formAction: 'add',
             customerType: this.context.userProfile.customer_type,
-            dataFeedProviders: this.context.userProfile.data_feed_providers
         }
     }
 
@@ -44,9 +42,10 @@ class UserBlock extends React.Component {
 
     onCallback = async (values: any, step: boolean) => {
         this.modalHandle();
+        this.context
         this.context.getUserProfile()
             .then(() => {
-                setTimeout(() => this.setState({customerType: this.context.userProfile.customer_type}), 350);
+                this.setState({customerType: this.context.userProfile.customer_type})
             })
     };
 
@@ -98,7 +97,6 @@ class UserBlock extends React.Component {
                 >
                     <UserPortalForm
                         customer_type={this.state.customerType}
-                        data_feed_providers={this.state.dataFeedProviders}
                         onCallback={this.onCallback}/>
                 </Modal>
             </>

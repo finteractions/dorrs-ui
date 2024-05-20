@@ -4,21 +4,21 @@ const webpack = require('webpack');
 const WebpackObfuscator = require('webpack-obfuscator');
 
 module.exports = {
-    webpack(config, {isServer}) {
+    webpack(config, { isServer, dev }) {
         config.plugins.push(new webpack.EnvironmentPlugin(localEnv))
 
-        if (!isServer) {
-            config.plugins.push(
-                new WebpackObfuscator({
-                    compact: true,
-                    controlFlowFlattening: true,
-                    deadCodeInjection: true,
-                    rotateStringArray: true,
-                    stringArray: true,
-                    stringArrayThreshold: 0.5
-                }, [])
-            );
-        }
+        // if (!isServer && !dev) {
+        //     config.plugins.push(
+        //         new WebpackObfuscator({
+        //             compact: true,
+        //             controlFlowFlattening: true,
+        //             deadCodeInjection: true,
+        //             rotateStringArray: true,
+        //             stringArray: true,
+        //             stringArrayThreshold: 0.5
+        //         }, [])
+        //     );
+        // }
 
         return config
     },

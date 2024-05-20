@@ -99,8 +99,8 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
     };
 
     const initData = async () => {
-        getEmailStatus()
-        getUserAssets(true);
+        // getEmailStatus()
+        // getUserAssets(true);
         getUserProfile();
     };
 

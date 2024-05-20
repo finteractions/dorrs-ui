@@ -15,6 +15,8 @@ import formService from "@/services/form/form-service";
 import AlertBlock from "@/components/alert-block";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
 import Select from "react-select";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 const formSchema = Yup.object().shape({
     customer_type: Yup.mixed<CustomerType>().oneOf(
@@ -35,24 +37,26 @@ interface UserPortalFormState extends IState {
 
 interface UserPortalFormProps extends ICallback {
     customer_type: string | null,
-    data_feed_providers: Array<string> | null;
 }
 
 class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalFormState> {
 
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
     state: UserPortalFormState;
 
-    constructor(props: UserPortalFormProps) {
+    constructor(props: UserPortalFormProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.state = {
             success: false,
-            dataFeedProviders: [],
+            dataFeedProviders: this.context.userProfile.data_feed_providers,
             isDisabled: !!this.props.customer_type
         }
 
         if (this.props.customer_type) initialValues.customer_type = this.props.customer_type;
-        if (this.props.data_feed_providers) initialValues.data_feed_providers = this.props.data_feed_providers;
+        initialValues.data_feed_providers = this.context.userProfile.data_feed_providers || []
     }
 
     componentDidMount() {
@@ -107,7 +111,9 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
                                                     className="hidden"
                                                     disabled={isSubmitting || this.state.isDisabled}
                                                 />
-                                                <label className="sign-up__item" htmlFor={`customer_type_${type}`}>
+                                                <label
+                                                    className={`sign-up__item ${this.state.isDisabled ? 'disabled' : ''} ${values.customer_type === type ? 'selected' : 'not-selected'}`}
+                                                    htmlFor={`customer_type_${type}`}>
                                                     <div className="sign-up__item-img">
                                                         <Image src={getCustomerTypeImage(type)} width={64} height={64}
                                                                alt={type}/>
