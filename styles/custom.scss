@@ -71,7 +71,7 @@ $color-warning: #F4CC72;
   display: none;
 }
 
-input[type="radio"]:checked + label.sign-up__item {
+input[type="radio"]:checked + label.sign-up__item, input[type="checkbox"]:checked + label.sign-up__item {
   border-color: $color-primary;
 }
 

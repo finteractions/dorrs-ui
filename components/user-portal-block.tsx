@@ -45,7 +45,9 @@ class UserBlock extends React.Component {
         this.context
         this.context.getUserProfile()
             .then(() => {
-                this.setState({customerType: this.context.userProfile.customer_type})
+                setTimeout(() => {
+                    this.setState({customerType: this.context.userProfile.customer_type})
+                }, 1000)
             })
     };
 

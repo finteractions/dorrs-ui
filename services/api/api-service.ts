@@ -160,6 +160,11 @@ class ApiService {
     }
 
     private encode(data: any) {
+
+        if (data instanceof FormData) {
+            return data;
+        }
+
         const passwords = ['password', 'password1', 'password2', 'new_password', 'confirm_password', 'old_password'];
         const encryptedData = {...data};
 
@@ -169,6 +174,7 @@ class ApiService {
             }
 
         }
+        console.log(encryptedData)
         return encryptedData;
 
     }

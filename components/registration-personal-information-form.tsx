@@ -11,6 +11,7 @@ import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
 import {AccountType, getAccountTypeImage} from "@/enums/account-type";
 import {UserType} from "@/enums/user-type";
 import Image from "next/image";
+import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
 
 const formSchema = Yup.object().shape({
     user_type: Yup.mixed<UserType>()
@@ -30,7 +31,8 @@ const formSchema = Yup.object().shape({
     mobile_number: FormValidator.phoneNumberField,
     agreement: Yup.boolean()
         .oneOf([true],
-            "Required")
+            "Required"),
+    data_feed_providers: Yup.array().of(Yup.string()).min(1, 'Required')
 });
 
 let initialValues = {
@@ -41,13 +43,15 @@ let initialValues = {
     password1: "",
     password2: "",
     mobile_number: "",
-    agreement: false
+    agreement: false,
+    data_feed_providers: [] as string[]
 };
 
 interface RegistrationPersonalInformationFormState extends IState {
     showPassword: boolean;
     showPasswordConfirm: boolean;
     email: string | null;
+    dataFeedProviders: Array<IDataFeedProvider>;
 }
 
 
@@ -66,7 +70,8 @@ class RegistrationPersonalInformationForm extends React.Component<{
             success: false,
             showPassword: false,
             showPasswordConfirm: false,
-            email: null
+            email: null,
+            dataFeedProviders: [],
         };
 
         if (this.props.initialValues) {
@@ -79,7 +84,19 @@ class RegistrationPersonalInformationForm extends React.Component<{
 
     }
 
-    handleSubmit = async (values: Record<string, string | boolean>, {setSubmitting}: {
+    componentDidMount() {
+        this.getDataFeedProviders()
+    }
+
+    getDataFeedProviders() {
+        dataFeedProvidersService.getList()
+            .then((res: Array<IDataFeedProvider>) => {
+                const data = res || [];
+                this.setState({dataFeedProviders: data})
+            })
+    }
+
+    handleSubmit = async (values: Record<string, string | boolean | string[]>, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null, email: String(values.email)})
@@ -105,13 +122,13 @@ class RegistrationPersonalInformationForm extends React.Component<{
         this.setState({showPasswordConfirm: !this.state.showPasswordConfirm});
     }
 
-    handleBack(event: SyntheticEvent, values: Record<string, string | boolean>) {
+    handleBack(event: SyntheticEvent, values: Record<string, string | boolean | string[]>) {
         values = Object.assign(values, {account_type: this.accountType});
         event.preventDefault();
         this.onCallback(values, false);
     }
 
-    onCallback(values: Record<string, string | boolean>, nextStep: boolean) {
+    onCallback(values: Record<string, string | boolean | string[]>, nextStep: boolean) {
         this.props.onCallback(values, nextStep);
     }
 
@@ -129,6 +146,17 @@ class RegistrationPersonalInformationForm extends React.Component<{
                         });
                     }, [setFieldValue]);
 
+                    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                        const { value, checked } = e.target;
+                        if (checked) {
+                            setFieldValue('data_feed_providers', [...values.data_feed_providers, value]);
+                        } else {
+                            setFieldValue(
+                                'data_feed_providers',
+                                values.data_feed_providers.filter((provider: string) => provider !== value)
+                            );
+                        }
+                    };
                     return (
                         <>
                             {!this.state.success && (
@@ -154,6 +182,29 @@ class RegistrationPersonalInformationForm extends React.Component<{
 
                                                         </div>
                                                         <span>{type}</span>
+                                                    </label>
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+                                        <div className="sign-up__title__small mb-24">Choose the type of Data Feed
+                                            Provider <i>*</i></div>
+                                        <div className="form-wrap sign-up__row_small">
+                                            {this.state.dataFeedProviders.map((provider: IDataFeedProvider, idx: number) => (
+                                                <React.Fragment key={idx}>
+                                                    <Field
+                                                        name="data_feed_providers"
+                                                        id={`data_feed_providers${idx}`}
+                                                        type="checkbox"
+                                                        value={provider.name}
+                                                        className={`hidden ${values.data_feed_providers.includes(provider.name) ? 'checked' : ''}`}
+                                                        checked={values.data_feed_providers.includes(provider.name) ? 'checked' : null}
+                                                        disabled={isSubmitting}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                    <label className="sign-up__item sign-up__item__small"
+                                                           htmlFor={`data_feed_providers${idx}`}>
+                                                        <div className="sign-up__item-img sign-up__item-img__small"></div>
+                                                        <span>{provider.name}</span>
                                                     </label>
                                                 </React.Fragment>
                                             ))}

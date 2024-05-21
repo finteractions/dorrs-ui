@@ -4281,6 +4281,14 @@ body {
       }
     }
 
+    input[type="radio"]:checked + label.sign-up__item , input[type="checkbox"]:checked + label.sign-up__item {
+      border-width: 3px;
+
+      &.not-selected {
+        filter: grayscale(100%) !important;
+      }
+    }
+
   }
 }
 
@@ -4472,10 +4480,3 @@ a.block-link {
   align-items: center;
 }
 
-input[type="radio"]:checked + label.sign-up__item {
-  border-width: 3px;
-
-  &.not-selected {
-    filter: grayscale(100%) !important;
-  }
-}

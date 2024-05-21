@@ -15,8 +15,6 @@ import {CustomerType, getCustomerTypeDescription, getCustomerTypeName} from "@/e
 import Link from "next/link";
 import downloadFile from "@/services/download-file/download-file";
 import {PARTICIPANT_AGREEMENT} from "@/constants/settings";
-import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
-import Select from "react-select";
 
 const selectedCountry = 'US';
 
@@ -68,7 +66,6 @@ interface MembershipFormState extends IState {
     selectedCompany: ICompanySearch | null
     availableCompanies: ICompanySearch[] | [],
     availableCompaniesLoading: boolean,
-    dataFeedProviders: Array<IDataFeedProvider>;
 
 }
 
@@ -104,7 +101,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             country: string;
             annual_fees: string;
             customer_type: string;
-            data_feed_providers: string[];
             firm: string;
             create_firm: boolean;
         } = {
@@ -123,7 +119,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             annual_fees: initialData?.annual_fees || "",
             firm: initialData?.firm || "",
             customer_type: initialData?.customer_type || "",
-            data_feed_providers: initialData?.data_feed_providers || [],
             create_firm: !!initialData?.company_name
         };
 
@@ -142,21 +137,8 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
             availableCompanies: [],
             selectedCompany: null,
             availableCompaniesLoading: false,
-            dataFeedProviders: [],
         };
 
-    }
-
-    componentDidMount() {
-        this.getDataFeedProviders()
-    }
-
-    getDataFeedProviders() {
-        dataFeedProvidersService.getList()
-            .then((res: Array<IDataFeedProvider>) => {
-                const data = res || [];
-                this.setState({dataFeedProviders: data})
-            })
     }
 
     handleSubmit = async (values: IMembership, {setSubmitting}: {
@@ -692,36 +674,6 @@ class MembershipForm extends React.Component<MembershipFormProps, MembershipForm
                                                 </>
 
                                             )}
-                                        </div>
-
-                                        <div className="input">
-                                            <div className="input__title">Choose the type of Data Feed Provider:</div>
-                                            <div
-                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}
-                                            >
-                                                <Field
-                                                    name="data_feed_providers"
-                                                    id="data_feed_providers"
-                                                    as={Select}
-                                                    className={`b-select-search`}
-                                                    placeholder="Select Data Feed Providers"
-                                                    classNamePrefix="select__react"
-                                                    isMulti={true}
-                                                    isDisabled={isSubmitting || this.isShow()}
-                                                    options={Object.values(this.state.dataFeedProviders).map((dataFeedProvider) => ({
-                                                        value: dataFeedProvider.name,
-                                                        label: dataFeedProvider.name
-                                                    }))}
-                                                    onChange={(selectedOptions: any) => {
-                                                        const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value) : [];
-                                                        setFieldValue('data_feed_providers', selectedValues);
-                                                    }}
-                                                    value={(values.data_feed_providers as Array<string>).map((value) => ({
-                                                        value,
-                                                        label: value
-                                                    })) || []}
-                                                />
-                                            </div>
                                         </div>
 
                                         {this.props.action !== 'view' && (

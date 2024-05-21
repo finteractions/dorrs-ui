@@ -13,9 +13,6 @@ import downloadFile from "@/services/download-file/download-file";
 import {SUBSCRIBER_AGREEMENT} from "@/constants/settings";
 import formService from "@/services/form/form-service";
 import AlertBlock from "@/components/alert-block";
-import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
-import Select from "react-select";
-import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 
 const formSchema = Yup.object().shape({
@@ -27,11 +24,9 @@ const formSchema = Yup.object().shape({
 
 let initialValues = {
     customer_type: "" as string | null,
-    data_feed_providers: [] as string[]
 };
 
 interface UserPortalFormState extends IState {
-    dataFeedProviders: Array<IDataFeedProvider>;
     isDisabled: boolean;
 }
 
@@ -40,9 +35,6 @@ interface UserPortalFormProps extends ICallback {
 }
 
 class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalFormState> {
-
-    static contextType = DataContext;
-    declare context: React.ContextType<typeof DataContext>;
     state: UserPortalFormState;
 
     constructor(props: UserPortalFormProps, context: IDataContext<null>) {
@@ -51,24 +43,10 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
 
         this.state = {
             success: false,
-            dataFeedProviders: this.context.userProfile.data_feed_providers,
             isDisabled: !!this.props.customer_type
         }
 
         if (this.props.customer_type) initialValues.customer_type = this.props.customer_type;
-        initialValues.data_feed_providers = this.context.userProfile.data_feed_providers || []
-    }
-
-    componentDidMount() {
-        this.getDataFeedProviders()
-    }
-
-    getDataFeedProviders() {
-        dataFeedProvidersService.getList()
-            .then((res: Array<IDataFeedProvider>) => {
-                const data = res || [];
-                this.setState({dataFeedProviders: data})
-            })
     }
 
 
@@ -148,32 +126,6 @@ class UserPortalForm extends React.Component<UserPortalFormProps, UserPortalForm
                                                 <p className={'mb-0'}>Return the electronic form by emailing it to <Link
                                                     href={'mailto:info@dorrs.io'}>info@dorrs.io</Link></p>
                                             </div>
-
-                                            <div className={'sign-up__text mt-4 text-justify mb-2'}>
-                                                Choose the type of Data Feed Provider:
-                                            </div>
-                                            <Field
-                                                name="data_feed_providers"
-                                                id="data_feed_providers"
-                                                as={Select}
-                                                className={`b-select-search`}
-                                                placeholder="Select Data Feed Providers"
-                                                classNamePrefix="select__react"
-                                                isMulti={true}
-                                                isDisabled={isSubmitting || this.state.isDisabled}
-                                                options={Object.values(this.state.dataFeedProviders).map((dataFeedProvider) => ({
-                                                    value: dataFeedProvider.name,
-                                                    label: dataFeedProvider.name
-                                                }))}
-                                                onChange={(selectedOptions: any) => {
-                                                    const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value) : [];
-                                                    setFieldValue('data_feed_providers', selectedValues);
-                                                }}
-                                                value={(values.data_feed_providers as Array<string>).map((value) => ({
-                                                    value,
-                                                    label: value
-                                                })) || []}
-                                            />
                                         </>
                                     )}
 
