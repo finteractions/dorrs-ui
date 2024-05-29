@@ -4152,7 +4152,7 @@ body {
       color: var(--colour-gray);
     }
 
-    span.bg-stay, div.bg-stay-block {
+    span.bg-stay, div.bg-stay-block:not(.compact) {
       background-color: var(--bg-gray);
     }
 
