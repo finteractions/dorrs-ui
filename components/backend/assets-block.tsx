@@ -39,7 +39,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class AssetsBlock extends React.Component<{}> {
     state: AssetsBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
 
     tableRef: React.RefObject<any> = React.createRef();
 
@@ -217,7 +217,7 @@ class AssetsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IAdminAsset) => {

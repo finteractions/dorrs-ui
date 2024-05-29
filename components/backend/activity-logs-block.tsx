@@ -25,7 +25,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class ActivityLogsBlock extends React.Component<{}> {
     state: ActivityLogsBlockState;
-    getActivityLogsInterval!: NodeJS.Timer;
+    getActivityLogsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -125,7 +125,7 @@ class ActivityLogsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getActivityLogsInterval) clearInterval(this.getActivityLogsInterval as NodeJS.Timer);
+        if (this.getActivityLogsInterval) clearInterval(this.getActivityLogsInterval as number);
     }
 
     render() {

@@ -34,7 +34,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class TradesBlock extends React.Component<{}> {
     state: TradesBlockState;
 
-    getTradesInterval!: NodeJS.Timer;
+    getTradesInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -103,7 +103,7 @@ class TradesBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getTradesInterval) clearInterval(this.getTradesInterval);
+        if (this.getTradesInterval) clearInterval(this.getTradesInterval as number);
     }
 
     openModal = (mode: string, data?: IAdminAsset) => {

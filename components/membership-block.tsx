@@ -18,7 +18,7 @@ class MembershipBlock extends React.Component {
 
     membershipForm: IMembership;
 
-    getMembershipFormsInterval!: NodeJS.Timer;
+    getMembershipFormsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}, membershipForm: IMembership) {
         super(props);
@@ -49,7 +49,7 @@ class MembershipBlock extends React.Component {
     }
 
     stopAutoUpdate = () => {
-        if (this.getMembershipFormsInterval) clearInterval(this.getMembershipFormsInterval);
+        if (this.getMembershipFormsInterval) clearInterval(this.getMembershipFormsInterval as number);
     }
 
     getMembershipForm = () => {

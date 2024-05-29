@@ -62,7 +62,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
 
     state: DepthOfBookHistoryBlockState;
     errors: Array<string> = new Array<string>();
-    getOrdersInterval!: NodeJS.Timer;
+    getOrdersInterval: NodeJS.Timer | number | undefined;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -225,7 +225,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
     }
 
     stopAutoUpdate = () => {
-        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval);
+        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval as number);
     }
 
     getOrders = () => {

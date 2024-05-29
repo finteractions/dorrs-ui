@@ -37,7 +37,7 @@ const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class BestBidAndBestOfferBlock extends React.Component<{}> {
     state: BestBidAndBestOfferBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
 
     tableRef: React.RefObject<any> = React.createRef();
 
@@ -251,7 +251,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IFirm) => {

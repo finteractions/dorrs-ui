@@ -41,7 +41,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
     state: FiatWithdrawalsBlockState;
     dateRangePickerRef1: any = React.createRef<typeof DateRangePicker>();
     dateRangePickerRef2: any = React.createRef<typeof DateRangePicker>();
-    getFiatWithdrawalsInterval!: NodeJS.Timer;
+    getFiatWithdrawalsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -166,7 +166,7 @@ class FiatWithdrawalsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getFiatWithdrawalsInterval) clearInterval(this.getFiatWithdrawalsInterval);
+        if (this.getFiatWithdrawalsInterval) clearInterval(this.getFiatWithdrawalsInterval as number);
     }
 
     openModal = (mode: string, data?: ICustody) => {

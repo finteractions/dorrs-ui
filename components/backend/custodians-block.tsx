@@ -39,7 +39,7 @@ class CustodiansBlock extends React.Component<{}> {
     state: CustodiansBlockState;
     dateRangePickerRef1: any = React.createRef<typeof DateRangePicker>();
     dateRangePickerRef2: any = React.createRef<typeof DateRangePicker>();
-    getCustodiansInterval!: NodeJS.Timer;
+    getCustodiansInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -162,7 +162,7 @@ class CustodiansBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getCustodiansInterval) clearInterval(this.getCustodiansInterval);
+        if (this.getCustodiansInterval) clearInterval(this.getCustodiansInterval as number);
     }
 
     openModal = (mode: string, data?: ICustody) => {

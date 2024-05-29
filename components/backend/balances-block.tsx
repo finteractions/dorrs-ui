@@ -36,7 +36,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class BalancesBlock extends React.Component<{}> {
     state: BalancesBlockState;
 
-    getBalancesInterval!: NodeJS.Timer;
+    getBalancesInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -112,7 +112,7 @@ class BalancesBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getBalancesInterval) clearInterval(this.getBalancesInterval);
+        if (this.getBalancesInterval) clearInterval(this.getBalancesInterval as number);
     }
 
     downloadBalancesCSV = () => {

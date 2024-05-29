@@ -34,7 +34,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps, DataFeedProvidersBlockState> {
     state: DataFeedProvidersBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: DataFeedProvidersBlockProps) {
         super(props);
@@ -131,7 +131,7 @@ class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IDataFeedProvider) => {

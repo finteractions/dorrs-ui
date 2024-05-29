@@ -85,7 +85,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     companyProfile: ICompanyProfile | null;
     state: DepthOfBookPerSymbolState;
     isDashboard: boolean;
-    getOrdersInterval!: NodeJS.Timer;
+    getOrdersInterval: NodeJS.Timer | number | undefined;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -331,7 +331,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
     }
 
     stopAutoUpdate = () => {
-        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval);
+        if (this.getOrdersInterval) clearInterval(this.getOrdersInterval as number);
     }
 
     handleClickOutside = (event: any) => {

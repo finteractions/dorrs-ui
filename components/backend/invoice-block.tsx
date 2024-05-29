@@ -32,7 +32,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class InvoiceBlock extends React.Component<{}> {
     state: InvoiceBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -157,7 +157,7 @@ class InvoiceBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IInvoice) => {

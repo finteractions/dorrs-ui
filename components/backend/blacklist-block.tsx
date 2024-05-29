@@ -37,7 +37,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class BlacklistBlock extends React.Component<{}> {
     state: BlacklistBlockState;
     dateRangePickerRef: any = React.createRef<typeof DateRangePicker>();
-    getBlacklistInterval!: NodeJS.Timer;
+    getBlacklistInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -73,7 +73,9 @@ class BlacklistBlock extends React.Component<{}> {
                 cell: (item) =>
                     <div className='status-panel'>
                         <div>{item.getValue().blocked_by}</div>
-                        {item.getValue().comment ? <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon className="nav-icon" icon={faComment}/></div> : ''}
+                        {item.getValue().comment ?
+                            <div title={item.getValue().comment} className="status-comment"><FontAwesomeIcon
+                                className="nav-icon" icon={faComment}/></div> : ''}
                     </div>,
                 header: () => <span>Blocked By</span>,
             }),
@@ -116,7 +118,7 @@ class BlacklistBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getBlacklistInterval) clearInterval(this.getBlacklistInterval);
+        if (this.getBlacklistInterval) clearInterval(this.getBlacklistInterval as number);
     }
 
     openModal = (mode: string, data?: IBlacklist) => {
@@ -147,7 +149,7 @@ class BlacklistBlock extends React.Component<{}> {
 
     handleFilterDateChange = (prop_name: string, startDate: moment.Moment | null, endDate: moment.Moment | null): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate} }
+            filterData: {...this.state.filterData, [prop_name]: {startDate: startDate, endDate: endDate}}
         }), () => {
             this.filterData();
         });
@@ -155,7 +157,7 @@ class BlacklistBlock extends React.Component<{}> {
 
     handleFilterChange = (prop_name: string, item: any): void => {
         this.setState(({
-            filterData: { ...this.state.filterData, [prop_name]: item?.value || ''}
+            filterData: {...this.state.filterData, [prop_name]: item?.value || ''}
         }), () => {
             this.filterData();
         });
@@ -224,15 +226,19 @@ class BlacklistBlock extends React.Component<{}> {
                                         </div>
                                         <div className="date__range__wrap">
                                             <DateRangePicker
-                                                onChange={(startDate, endDate) => {this.handleFilterDateChange('created_at',startDate, endDate)}}
-                                                onReset={() => {}}
+                                                onChange={(startDate, endDate) => {
+                                                    this.handleFilterDateChange('created_at', startDate, endDate)
+                                                }}
+                                                onReset={() => {
+                                                }}
                                                 ref={this.dateRangePickerRef}
                                             />
                                         </div>
                                         <button
                                             className="content__filter-clear ripple"
                                             onClick={this.handleResetButtonClick}>
-                                            <FontAwesomeIcon className="nav-icon" icon={filterService.getFilterResetIcon()}/>
+                                            <FontAwesomeIcon className="nav-icon"
+                                                             icon={filterService.getFilterResetIcon()}/>
                                         </button>
                                     </div>
 
@@ -261,7 +267,7 @@ class BlacklistBlock extends React.Component<{}> {
                 </div>
                 <Modal isOpen={this.state.isOpenModal} onClose={() => this.cancelForm()} title={this.state.modalTitle}>
                     <BlacklistForm action={this.state.formAction} data={this.state.formData}
-                               onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
+                                   onCancel={() => this.cancelForm()} onCallback={() => this.submitForm()}/>
                 </Modal>
             </>
         )

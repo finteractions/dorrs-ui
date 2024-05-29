@@ -68,7 +68,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
     state: SymbolBlockState;
     errors: Array<string> = new Array<string>();
-    getSymbolsInterval!: NodeJS.Timer;
+    getSymbolsInterval: NodeJS.Timer | number | undefined;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -251,7 +251,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     }
 
     stopAutoUpdate = () => {
-        if (this.getSymbolsInterval) clearInterval(this.getSymbolsInterval);
+        if (this.getSymbolsInterval) clearInterval(this.getSymbolsInterval as number);
     }
 
     getSymbols = () => {

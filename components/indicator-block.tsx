@@ -58,7 +58,7 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
 
     state: IndicatorBlockState;
 
-    getStatisticsInterval!: NodeJS.Timer;
+    getStatisticsInterval: NodeJS.Timer | number | undefined;
 
     access = {
         symbols: false,
@@ -106,7 +106,7 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
     }
 
     stopAutoUpdate = () => {
-        if (this.getStatisticsInterval) clearInterval(this.getStatisticsInterval);
+        if (this.getStatisticsInterval) clearInterval(this.getStatisticsInterval as number);
     }
 
     getStatistics = () => {

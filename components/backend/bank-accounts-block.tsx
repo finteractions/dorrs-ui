@@ -37,7 +37,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class BankAccountsBlock extends React.Component<{}> {
     state: BankAccountsBlockState;
 
-    getBankAccountsInterval!: NodeJS.Timer;
+    getBankAccountsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -153,7 +153,7 @@ class BankAccountsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getBankAccountsInterval) clearInterval(this.getBankAccountsInterval);
+        if (this.getBankAccountsInterval) clearInterval(this.getBankAccountsInterval as number);
     }
 
     openModal = (mode: string, data?: IAdminBankAccount) => {

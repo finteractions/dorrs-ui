@@ -55,7 +55,7 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
 
     state: BestBidAndBestOfferBlockState;
     errors: Array<string> = new Array<string>();
-    getBBOInterval!: NodeJS.Timer;
+    getBBOInterval: NodeJS.Timer | number | undefined;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -258,7 +258,7 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
     }
 
     stopAutoUpdate = () => {
-        if (this.getBBOInterval) clearInterval(this.getBBOInterval);
+        if (this.getBBOInterval) clearInterval(this.getBBOInterval as number);
     }
 
     getBBO = () => {

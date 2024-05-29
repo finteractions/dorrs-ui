@@ -29,7 +29,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class MembershipFormsBlock extends React.Component<{}> {
     state: MembershipFormsBlockState;
 
-    getMembershipFormsInterval!: NodeJS.Timer;
+    getMembershipFormsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -117,7 +117,7 @@ class MembershipFormsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getMembershipFormsInterval) clearInterval(this.getMembershipFormsInterval);
+        if (this.getMembershipFormsInterval) clearInterval(this.getMembershipFormsInterval as number);
     }
 
     openModal = (mode: string, data?: IAdminAsset) => {

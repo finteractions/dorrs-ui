@@ -36,7 +36,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class UsersBlock extends React.Component<UsersBlockProps> {
     state: UsersBlockState;
-    getUsersInterval!: NodeJS.Timer;
+    getUsersInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: UsersBlockProps) {
         super(props);
@@ -168,7 +168,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getUsersInterval) clearInterval(this.getUsersInterval);
+        if (this.getUsersInterval) clearInterval(this.getUsersInterval as number);
     }
 
     openModal = (mode: string, data?: IUserDetail) => {

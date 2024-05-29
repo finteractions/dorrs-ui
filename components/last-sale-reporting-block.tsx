@@ -56,7 +56,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
 
     state: LastSaleReportingBlockState;
     errors: Array<string> = new Array<string>();
-    getLastSaleReportingInterval!: NodeJS.Timer;
+    getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
 
     static contextType = DataContext;
     declare context: React.ContextType<typeof DataContext>;
@@ -223,7 +223,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     }
 
     stopAutoUpdate = () => {
-        if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval);
+        if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval as number);
     }
 
     getLastSaleReporting = () => {

@@ -64,7 +64,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
 
     state: TransactionsBlockState;
     dateRangePickerRef: any = React.createRef<typeof DateRangePicker>();
-    getTransactionsInterval!: NodeJS.Timer;
+    getTransactionsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -166,7 +166,7 @@ class TransactionsBlock extends React.Component<TransactionsBlockProps, Transact
     }
 
     stopAutoUpdate(): void {
-        if (this.getTransactionsInterval) clearInterval(this.getTransactionsInterval);
+        if (this.getTransactionsInterval) clearInterval(this.getTransactionsInterval as number);
     }
 
     // onChange = (startDate: moment.Moment | null, endDate: moment.Moment | null): void => {

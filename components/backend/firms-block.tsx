@@ -35,7 +35,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class FirmsBlock extends React.Component<{}> {
     state: FirmsBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
     columnDefinition: any;
     columnValues: any;
 
@@ -177,7 +177,7 @@ class FirmsBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IFirm) => {

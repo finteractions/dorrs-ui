@@ -39,7 +39,7 @@ const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class OrdersBlock extends React.Component<{}> {
     state: OrdersBlockState;
-    getAssetsInterval!: NodeJS.Timer;
+    getAssetsInterval: NodeJS.Timer | number | undefined;
 
     tableRef: React.RefObject<any> = React.createRef();
 
@@ -227,7 +227,7 @@ class OrdersBlock extends React.Component<{}> {
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval);
+        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
     openModal = (mode: string, data?: IFirm) => {

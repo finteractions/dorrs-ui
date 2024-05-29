@@ -42,13 +42,13 @@ class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps
 
     state: DataFeedProvidersBlockState;
     errors: Array<string> = new Array<string>();
-    getSymbolsInterval!: NodeJS.Timer;
+    getSymbolsInterval: NodeJS.Timer | number | undefined;
 
     tableRef: React.RefObject<any> = React.createRef();
 
     constructor(props: DataFeedProvidersBlockProps) {
         super(props);
-        
+
         this.state = {
             success: false,
             isLoading: true,
@@ -138,7 +138,7 @@ class DataFeedProvidersBlock extends React.Component<DataFeedProvidersBlockProps
     }
 
     stopAutoUpdate = () => {
-        if (this.getSymbolsInterval) clearInterval(this.getSymbolsInterval);
+        if (this.getSymbolsInterval) clearInterval(this.getSymbolsInterval as number);
     }
 
     getStatistics = () => {
