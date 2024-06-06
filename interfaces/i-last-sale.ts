@@ -24,4 +24,7 @@ export interface ILastSale {
     price_formatted?: string;
     total_volume?: string;
     data_feed_provider_logo: string;
+    vwap?: string;
+    price_changed?: string;
+    percentage_changed?: string;
 }

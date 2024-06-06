@@ -257,7 +257,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                         <div className="indicators content__bottom">
 
                             <div className={'indicator__item statistics'}>
-                                <div className="content__top">
+                                <div className="content__top pb-0">
                                     <div className="content__title">Best Bid and Best Offer</div>
                                 </div>
 
@@ -294,7 +294,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                 </div>
                             </div>
                             <div className={'indicator__item statistics'}>
-                                <div className="content__top">
+                                <div className="content__top pb-0">
                                     <div className="content__title">Last Sale</div>
                                 </div>
 
@@ -322,7 +322,16 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     </div>
                                     <div>
                                         <div>Price:</div>
-                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.price_formatted || 0, false, decimalPlaces)}</div>
+                                        <div
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.price) || 0, Number(this.state.lastSale?.fractional_lot_size || 0))}</div>
+                                    </div>
+                                    <div>
+                                        <div>Price Change:</div>
+                                        <div>{formatterService.formatAndColorNumberValueHTML(this.state.lastSale?.price_changed || 0)}</div>
+                                    </div>
+                                    <div>
+                                        <div>% Change:</div>
+                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.percentage_changed || 0)}</div>
                                     </div>
                                     <div>
                                         <div>Total Volume on current date:</div>
@@ -332,7 +341,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                 </div>
                             </div>
                             <div className={'indicator__item statistics'}>
-                                <div className="content__top">
+                                <div className="content__top pb-0">
                                     <div className="content__title">Company Description</div>
                                 </div>
 

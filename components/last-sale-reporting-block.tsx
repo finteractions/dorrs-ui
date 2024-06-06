@@ -229,9 +229,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
     getLastSaleReporting = () => {
         lastSaleService.getLastSaleReporting()
             .then((res: Array<ILastSale>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.created_at) - Date.parse(a.created_at);
-                }) || [];
+                const data = res || [];
 
                 data.forEach(s => {
                     s.condition = Condition[s.condition as keyof typeof Condition] || ''

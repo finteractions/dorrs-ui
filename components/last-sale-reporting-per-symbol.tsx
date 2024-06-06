@@ -216,9 +216,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
         return new Promise((resolve) => {
             lastSaleService.getLastSaleReportingBySymbol(this.props.symbol, this.props.symbolSuffix)
                 .then((res: Array<ILastSale>) => {
-                    const data = res?.sort((a, b) => {
-                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                    }) || [];
+                    const data = res || [];
 
                     data.forEach(s => {
                         s.condition = Condition[s.condition as keyof typeof Condition] || ''

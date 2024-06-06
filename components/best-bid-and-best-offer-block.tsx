@@ -264,9 +264,7 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
     getBBO = () => {
         bestBidAndBestOfferService.getBestBidAndBestOffer()
             .then((res: Array<IBestBidAndBestOffer>) => {
-                const data = res?.sort((a, b) => {
-                    return Date.parse(b.created_at) - Date.parse(a.created_at);
-                }) || [];
+                const data = res || [];
 
                 data.forEach(s => {
                     s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
@@ -433,7 +431,7 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
                             <Modal isOpen={this.state.isOpenModal}
                                    onClose={() => this.closeModal()}
                                    title={this.state.modalTitle}
-                                   className={`bbo ${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) && !this.state.isClose  ? 'big_modal' : ''}`}
+                                   className={`bbo ${this.state.formAction} ${['add', 'edit'].includes(this.state.formAction) && !this.state.isClose ? 'big_modal' : ''}`}
                             >
                                 <BestBidAndBestOfferForm
                                     action={this.state.formAction}

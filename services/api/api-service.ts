@@ -174,7 +174,6 @@ class ApiService {
             }
 
         }
-        console.log(encryptedData)
         return encryptedData;
 
     }

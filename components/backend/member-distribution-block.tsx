@@ -425,7 +425,7 @@ class MemberDistributionBlock extends React.Component<{}> {
                         )}
                         {this.state.statistics?.percentage && (
                             <div className="view_block">
-                                <div className="view_block_title bold">DORRS Fee Commission::</div>
+                                <div className="view_block_title bold">DORRS Fee Commission:</div>
                                 <div>{formatterService.numberFormat(Number(this.state.statistics?.percentage), 0)}%</div>
                             </div>
                         )}
