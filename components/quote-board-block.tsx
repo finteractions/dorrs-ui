@@ -350,17 +350,18 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                 </div>
                                 <div className="indicators content__bottom">
                                     {this.state.dataWatchList.map(item => (
-                                        <div key={item.symbol_name} className={'indicator__item'}>
+                                        <div key={item.symbol_name}
+                                             className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
                                             <div className={''}>
 
-                                                <div className={'table-image image-28'}>
+                                                <div className={'table-image image-28 mix-blend-mode-multiple-img'}>
                                                     <AssetImage alt=''
                                                                 src={item.company_profile?.logo}
                                                                 width={28} height={28}/>
                                                 </div>
 
                                                 <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                     className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
+                                                     className={`table-image cursor-pointer link`}>{item.symbol_name}
                                                 </div>
                                             </div>
 
@@ -392,8 +393,10 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                     <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                                 </div>
                                                 <div>
-                                                    <div>VWAP:</div>
-                                                    <div>{formatterService.numberFormat(Number(item.vwap), decimalPlaces)}</div>
+                                                    <div>VWAP (90 Days):</div>
+                                                    <div><span className={'sign'}></span><span
+                                                        className={'stay'}>{formatterService.numberFormat(Number(item.vwap), decimalPlaces)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -411,13 +414,16 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                         {this.state.dataList.length ? (
                             <div className="tile indicators content__bottom">
                                 {this.state.dataList.map(item => (
-                                    <div key={item.symbol_name} className={'indicator__item'}>
+                                    <div key={item.symbol_name}
+                                         className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
                                         <div className={''}>
-                                            <AssetImage alt=''
-                                                        src={item.company_profile?.logo}
-                                                        width={28} height={28}/>
+                                            <div className={'table-image image-28 mix-blend-mode-multiple-img'}>
+                                                <AssetImage alt=''
+                                                            src={item.company_profile?.logo}
+                                                            width={28} height={28}/>
+                                            </div>
                                             <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                 className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
+                                                 className={`table-image cursor-pointer link`}>{item.symbol_name}
                                             </div>
                                         </div>
 
@@ -483,9 +489,13 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                         .map(item => (
                                             <div key={item.symbol_name}
                                                  className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
-                                                <div className={'gap-10 navigate-buttons'}>
+                                                <div className={'gap-10 justify-content-between'}>
+                                                    <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                         className={`table-image cursor-pointer link`}>{item.symbol_name}
+                                                    </div>
+
                                                     <div title={'Remove from Watch List'}
-                                                         className={'admin-table-actions'}>
+                                                         className={'admin-table-actions navigate-buttons pb-0'}>
                                                         <button
                                                             type="button"
                                                             className='custom-btn admin-table-btn ripple indicator-item'
@@ -495,10 +505,9 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                         </button>
                                                     </div>
                                                 </div>
+                                                <div className={'stay'}>{formatterService.numberFormat(Number(item.last_price), decimalPlaces)}</div>
                                                 <div className={'indicator__item__data'}>
-                                                    <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                         className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
-                                                    </div>
+                                                    <div>{formatterService.formatAndColorNumberValueHTML(item.price_changed)}</div>
                                                     <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                                 </div>
                                             </div>
@@ -522,9 +531,13 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                     .map(item => (
                                         <div key={item.symbol_name}
                                              className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
-                                            <div className={'gap-10 navigate-buttons'}>
+                                            <div className={'gap-10 justify-content-between'}>
+                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
+                                                     className={`table-image cursor-pointer link`}>{item.symbol_name}
+                                                </div>
+
                                                 <div title={'Remove from Watch List'}
-                                                     className={'admin-table-actions'}>
+                                                     className={'admin-table-actions navigate-buttons pb-0'}>
                                                     <button
                                                         type="button"
                                                         className='custom-btn admin-table-btn ripple indicator-item'
@@ -534,10 +547,9 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
                                                     </button>
                                                 </div>
                                             </div>
+                                            <div className={'stay'}>{formatterService.numberFormat(Number(item.last_price), decimalPlaces)}</div>
                                             <div className={'indicator__item__data'}>
-                                                <div onClick={() => this.navigate('quote-board', item.symbol_name)}
-                                                     className={`table-image cursor-pointer link`}>{item.company_profile?.company_name || item.symbol_name}
-                                                </div>
+                                                <div>{formatterService.formatAndColorNumberValueHTML(item.price_changed)}</div>
                                                 <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                             </div>
                                         </div>

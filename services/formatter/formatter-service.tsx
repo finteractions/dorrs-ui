@@ -69,7 +69,7 @@ function toPlainString(num: string) {
 
 }
 
-function formatAndColorNumberValueHTML(input: string | number) {
+function formatAndColorNumberValueHTML(input: string | number, decimals = Number(process.env.PRICE_DECIMALS || '2')) {
     let sign = '';
     let formattedNumber = '';
     let className = '';
@@ -80,19 +80,19 @@ function formatAndColorNumberValueHTML(input: string | number) {
 
     if (isPositive) {
         sign = '+';
-        formattedNumber = formatterService.numberFormat(numberValue);
+        formattedNumber = formatterService.numberFormat(numberValue, decimals);
         className = 'up';
     } else if (isNegative) {
         sign = '-';
-        formattedNumber = formatterService.numberFormat(Math.abs(numberValue));
+        formattedNumber = formatterService.numberFormat(Math.abs(numberValue), decimals);
         className = 'down';
     } else {
         sign = ''
-        formattedNumber = formatterService.numberFormat(numberValue);
+        formattedNumber = formatterService.numberFormat(numberValue, decimals);
         className = 'stay';
     }
 
-    return (<span className={className}><span className={'sign'}>{sign}</span>{formattedNumber}</span>);
+    return (<span className={className}><span style={sign == '' ? {width:0} : {}} className={'sign'}>{sign}</span><span>{formattedNumber}</span></span>);
 }
 
 function formatAndColorTickIndicationValueHTML(tickIndication: string) {

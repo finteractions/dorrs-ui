@@ -356,7 +356,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                         </div>
                                         {this.companyProfile ? (
                                             <>
-                                                {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                {this.companyProfile.company_name} ({this.props.symbol})
                                             </>
                                         ) : (
                                             <>{this.props.symbol}</>

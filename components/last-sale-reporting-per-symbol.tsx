@@ -297,7 +297,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                         </div>
                                         {this.companyProfile ? (
                                             <>
-                                                {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                {this.companyProfile.company_name} ({this.props.symbol})
                                             </>
                                         ) : (
                                             <>{this.props.symbol}{this.props.symbolSuffix ? `:${this.props.symbolSuffix}` : ``}</>

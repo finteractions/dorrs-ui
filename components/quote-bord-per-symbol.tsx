@@ -227,7 +227,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
 
                                                 {this.companyProfile ? (
                                                     <>
-                                                        {this.companyProfile.company_name} ({this.companyProfile.security_name})
+                                                        {this.companyProfile.company_name} ({this.props.symbol})
                                                     </>
                                                 ) : (
                                                     <>{this.props.symbol}</>
