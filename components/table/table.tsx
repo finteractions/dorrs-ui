@@ -43,19 +43,40 @@ interface TableRef {
     getColumnFilters?: () => { [key: string]: string };
 }
 
-
 const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
     searchValue = searchValue?.trim();
+
+    const originalColumns = new Set<string>();
+
     Object.keys(columnFilters).forEach((key: string) => {
         if (columnFilters[key] === "") {
             delete columnFilters[key];
+        } else {
+            const [rowKey, nestedKey] = key.split('.');
+            originalColumns.add(rowKey);
         }
     });
+
+    const getAllValues = (obj: any) => {
+        const values: any[] = [];
+
+        const extractValues = (o: any) => {
+            Object.keys(o).forEach(key => {
+                if (typeof o[key] === 'object' && o[key] !== null) {
+                    extractValues(o[key]);
+                } else {
+                    values.push(o[key]);
+                }
+            });
+        };
+
+        extractValues(obj);
+        return values;
+    };
 
     if (searchValue.length > 0 || Object.keys(columnFilters).length > 0) {
         data = data.filter((rowData) => {
             const columnKeys = Object.keys(columnFilters);
-            const rowKeys = Object.keys(rowData);
 
             if (columnKeys.length > 0) {
                 return columnKeys.every((columnKey) => {
@@ -64,8 +85,8 @@ const filterData = (data: any[], searchValue: string, columnFilters: { [key: str
                         typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
                     const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
 
-                    const startDate = (columnFilters[columnKey] as any).startDate
-                    const endDate = (columnFilters[columnKey] as any).endDate
+                    const startDate = (columnFilters[columnKey] as any).startDate;
+                    const endDate = (columnFilters[columnKey] as any).endDate;
 
                     if (startDate && endDate) {
                         const date = moment(rowData[rowKey]);
@@ -75,20 +96,8 @@ const filterData = (data: any[], searchValue: string, columnFilters: { [key: str
                     return valueString === columnFilters[columnKey] && (searchValue === "" || valueString.toLowerCase().includes(searchValue.toLowerCase()));
                 });
             } else {
-                return rowKeys.some((rowKey) => {
-                    const value = typeof rowData[rowKey] === "object" ?
-                        (rowData[rowKey]?.startDate && rowData[rowKey]?.endDate) ?
-                            (moment(rowData[rowKey].startDate).isSameOrBefore(columnFilters[rowKey]) &&
-                                moment(rowData[rowKey].endDate).isSameOrAfter(columnFilters[rowKey])) :
-                            [] :
-                        [rowData[rowKey]].map(item => (item === null ? "" : item));
-
-                    if (Array.isArray(value)) {
-                        return searchValue === "" || value.some((val: any) => val.toString().toLowerCase().includes(searchValue.toLowerCase()));
-                    }
-
-                    return false;
-                });
+                const allValues = getAllValues(rowData).map(value => (value === null ? "" : value.toString().toLowerCase()));
+                return searchValue === "" || allValues.some((val: string) => val.includes(searchValue.toLowerCase()));
             }
         });
         return data;
@@ -145,7 +154,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
     const rows = table.getRowModel().rows;
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const searchValue = e.target.value;
+        const searchValue = e.target.value.trim();
         setSearchValue(searchValue);
         setFilteredData(filterData(originalData, searchValue, columnFilters));
     };
@@ -153,6 +162,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
     const resetFilters = () => {
         setColumnFilters({});
+        setSearchValue('');
         setSelectedDateRange([null, null]);
         setFilteredData(filterData(originalData, searchValue, columnFilters));
 

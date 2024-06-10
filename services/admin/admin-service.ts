@@ -47,6 +47,9 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.get<IResponse<IUserDetail[]>>(`${this.PATH}client_approval/?user_id=${encodeURIComponent(user_id)}`, {}, this.getAdminToken())).data;
     }
 
+    public addUser(data: any): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}users/`, data,{}, this.getAdminToken())
+    }
 
     public async approveUser(user_id: string, is_approved: boolean, comment: string): Promise<IResponseApi> {
         const data = {

@@ -12,6 +12,10 @@ import adminIconService from "@/services/admin/admin-icon-service";
 import UserImage from "@/components/user-image";
 import {NextRouter, withRouter} from 'next/router';
 import formatterService from "@/services/formatter/formatter-service";
+import Modal from "@/components/modal";
+import SymbolForm from "@/components/symbol-form";
+import CompanyProfile from "@/components/company-profile-form";
+import UserForm from "@/components/backend/user-form";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -172,7 +176,39 @@ class UsersBlock extends React.Component<UsersBlockProps> {
     }
 
     openModal = (mode: string, data?: IUserDetail) => {
-        this.props.router.push(`/backend/user-management/?user=${encodeURIComponent(data?.user_id.email || '')}`);
+        if (mode === 'view') {
+            this.props.router.push(`/backend/user-management/?user=${encodeURIComponent(data?.user_id.email || '')}`);
+        } else {
+            this.setState({
+                isOpenModal: true,
+                formData: data || null,
+                formAction: mode,
+                modalTitle: this.modalTitle(mode)
+            })
+        }
+
+    }
+
+    modalTitle = (mode: string) => {
+        if (mode === 'delete') {
+            return 'Do you want to delete this user?';
+        } else if (mode === 'view') {
+            return 'View User'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} User`;
+        }
+    }
+
+    cancelForm(): void {
+        this.setState({isOpenModal: false});
+    }
+
+    onCallback = (email: string) => {
+        this.getUsers();
+
+        if(email){
+            this.props.router.push(`/backend/user-management/?user=${encodeURIComponent(email || '')}`);
+        }
     }
 
     render() {
@@ -182,6 +218,11 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                 <div className="assets section page__section">
                     <div className="content__top">
                         <div className="content__title">Users</div>
+                        <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <button className="border-btn ripple modal-link"
+                                    disabled={this.state.loading} onClick={() => this.openModal('add')}>Add User
+                            </button>
+                        </div>
                     </div>
 
                     {this.state.loading ? (
@@ -214,6 +255,18 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                     )}
 
                 </div>
+
+
+                <Modal isOpen={this.state.isOpenModal}
+                       onClose={() => this.cancelForm()}
+                       title={this.modalTitle(this.state.formAction)}
+                >
+                    <UserForm
+                        action={this.state.formAction}
+                        data={this.state.formData}
+                        onCallback={this.onCallback}/>
+
+                </Modal>
             </>
         )
     }
