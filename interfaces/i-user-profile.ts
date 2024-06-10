@@ -19,4 +19,5 @@ export interface IUserProfile {
     reference_number?: string;
     account_type?: string;
     user_type?: string;
+    environment?: string;
 }

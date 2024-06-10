@@ -18,7 +18,7 @@ import {
     faHandshake,
     faArrowsUpToLine,
     faList,
-    faFolderOpen
+    faFolderOpen, faTools
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -28,6 +28,8 @@ import {
 } from 'react-bootstrap'
 import classNames from 'classnames'
 import Link from 'next/link'
+import {DataContext} from "@/contextes/data-context";
+import {Environment} from "@/enums/environment";
 
 type SidebarNavItemProps = {
     href: string;
@@ -243,9 +245,26 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 }
 
 export default function SidebarNav() {
+    const dataContext = useContext(DataContext);
+    const [menus, setMenus] = useState(MENU_LIST);
+
+    useEffect(() => {
+        let updatedMenus  = menus.filter(s => s.text !== 'Tools')
+        if (dataContext.environment === Environment.DEVELOPMENT) {
+            updatedMenus .push(
+                {
+                    text: 'Tools',
+                    href: "/backend/tools",
+                    icon: faTools,
+                    submenus: []
+                })
+        }
+        setMenus(updatedMenus );
+    }, [dataContext]);
+
     return (
         <ul className="list-unstyled">
-            {MENU_LIST.map((menu, idx) => (
+            {menus.map((menu, idx) => (
                 <React.Fragment key={idx}>
                     {menu.submenus.length > 0 ? (
                         <SidebarNavGroup key={idx} toggleIcon={menu.icon} toggleText={menu.text}>

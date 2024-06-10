@@ -19,6 +19,8 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
     const [sharedData, setSharedData] = useState<T | null>(null)
     const [errors, setErrors] = useState<Map<string, string[]>>(new Map());
     const [userProfileLoading, setUserProfileLoading] = useState(true);
+    const [environment, setEnvironment] = useState<string | null>('PROD');
+
     const authUserContext = useContext(AuthUserContext);
     const authAdminContext = useContext(AuthAdminContext);
     const router = useRouter();
@@ -67,6 +69,7 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
 
                 }
                 setUserProfile(userProfile)
+                setEnvironment(userProfile?.environment ? userProfile.environment : null)
             })
             .catch((errMsg: Array<string>) => {
                 setErrors(new Map(errors.set('userProfile', errMsg)))
@@ -120,7 +123,8 @@ const DataProvider = <T extends any>({children}: { children: React.ReactNode }) 
                 getSharedData,
                 clearUserData,
                 errors,
-                userProfileLoading
+                userProfileLoading,
+                environment
             }}
         >
             {children}
