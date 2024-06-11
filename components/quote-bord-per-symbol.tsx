@@ -31,12 +31,13 @@ interface QuoteBoardPerSymbolState extends IState {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps> {
 
     companyProfile: ICompanyProfile | null;
-    charts: Array<ITradingView> = new Array<ITradingView>();
     state: QuoteBoardPerSymbolState;
+    statisticsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: QuoteBoardPerSymbolProps) {
         super(props);
@@ -128,6 +129,16 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
             .then(() => this.getLastSale())
             .then(() => this.getBBO())
             .finally(() => this.setState({isLoading: false}))
+        this.startAutoUpdate();
+    }
+
+    componentWillUnmount() {
+        this.stopAutoUpdate();
+    }
+
+    load = () => {
+        this.getLastSale()
+            .then(() => this.getBBO())
     }
 
     getLastSale = () => {
@@ -189,6 +200,14 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
 
     navigate = (mode: string, option?: string) => {
         this.props.onCallback(this.props.symbol, mode, option);
+    }
+
+    startAutoUpdate = () => {
+        this.statisticsInterval = setInterval(this.load, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.statisticsInterval) clearInterval(this.statisticsInterval as number);
     }
 
     render() {

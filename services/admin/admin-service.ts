@@ -415,6 +415,7 @@ class AdminService extends BaseService {
     }
 
     // **** Admin Tools **** //
+    // Order Generator
     public async getOrderGeneratorStatus(): Promise<Array<{ status: boolean }>> {
         return (await apiWebBackendService.get<IResponse<Array<{
             status: boolean
@@ -439,6 +440,33 @@ class AdminService extends BaseService {
 
     public async deleteOrderGeneratorOrders(): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/order_generator/clear/`, {}, {}, this.getAdminToken());
+    }
+
+    // Last Sale Generator
+    public async getLastSaleGeneratorStatus(): Promise<Array<{ status: boolean }>> {
+        return (await apiWebBackendService.get<IResponse<Array<{
+            status: boolean
+        }>>>(`${this.PATH}tools/last_sale_generator/status/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async setLastSaleGeneratorStatus(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/last_sale_generator/status/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getLastSaleGeneratorSymbols(): Promise<Array<string>> {
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async addLastSaleGeneratorSymbol(data: any): Promise<Array<string>> {
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+    }
+
+    public async deleteLastSaleGeneratorSymbol(symbol: string): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}tools/last_sale_generator/symbols/${symbol}/`, {}, {}, this.getAdminToken());
+    }
+
+    public async deleteLastSaleGeneratorLastSales(): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/last_sale_generator/clear/`, {}, {}, this.getAdminToken());
     }
 
     //********************** //

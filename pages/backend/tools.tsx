@@ -2,6 +2,7 @@ import React, {ReactElement} from "react"
 import type {NextPageWithLayout} from "../_app";
 import BackendLayout from "@/components/layouts/backend/backend-layout";
 import OrderGeneratorBlock from "@/components/backend/order-generator-block";
+import LastSaleGeneratorBlock from "@/components/backend/last-sale-reporting-generator-block";
 
 
 const Tools: NextPageWithLayout = () => {
@@ -9,6 +10,7 @@ const Tools: NextPageWithLayout = () => {
     return (
         <>
             <OrderGeneratorBlock/>
+            <LastSaleGeneratorBlock/>
         </>
     )
 }

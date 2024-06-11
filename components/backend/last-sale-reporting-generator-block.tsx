@@ -11,11 +11,11 @@ import Select from "react-select";
 import {createColumnHelper} from "@tanstack/react-table";
 import Modal from "@/components/modal";
 
-interface OrderGeneratorState {
+interface LastSaleGeneratorState {
     isLoading: boolean;
     symbols: ISymbol[];
     isOrderGeneratorEnable: boolean,
-    orderGeneratorSymbols: Array<string>,
+    lastSaleGeneratorSymbols: Array<string>,
     errors: string[];
     formInitialValues: {},
     isOpenModal: boolean,
@@ -33,14 +33,14 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
-class OrderGeneratorBlock extends React.Component<{}> {
-    state: OrderGeneratorState;
+class LastSaleGeneratorBlock extends React.Component<{}> {
+    state: LastSaleGeneratorState;
     formRef: RefObject<any>;
 
     constructor(props: {}) {
         super(props);
 
-        const initialValues: IOrderGenerator = {
+        const initialValues: ILastSaleGenerator = {
             symbol: '',
             is_enable: false,
             symbol_tmp: ''
@@ -52,7 +52,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
             errors: [],
             formInitialValues: initialValues,
             isOrderGeneratorEnable: false,
-            orderGeneratorSymbols: [],
+            lastSaleGeneratorSymbols: [],
             isOpenModal: false,
             isDeleting: false,
             isClearing: false,
@@ -75,8 +75,8 @@ class OrderGeneratorBlock extends React.Component<{}> {
     }
 
     async load() {
-        await this.getOrderGeneratorStatus()
-            .then(() => this.getOrderGeneratorSymbols())
+        await this.getLastSaleGeneratorStatus()
+            .then(() => this.getLastSaleGeneratorSymbols())
             .then(() => this.getSymbols())
             .finally(async () => {
                 if (this.formRef.current) {
@@ -94,12 +94,12 @@ class OrderGeneratorBlock extends React.Component<{}> {
             })
     }
 
-    getOrderGeneratorSymbols = () => {
+    getLastSaleGeneratorSymbols = () => {
         return new Promise(resolve => {
-            adminService.getOrderGeneratorSymbols()
+            adminService.getLastSaleGeneratorSymbols()
                 .then((res: Array<string>) => {
                     res.sort();
-                    this.setState({orderGeneratorSymbols: res})
+                    this.setState({lastSaleGeneratorSymbols: res})
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -110,9 +110,9 @@ class OrderGeneratorBlock extends React.Component<{}> {
         })
     }
 
-    getOrderGeneratorStatus = () => {
+    getLastSaleGeneratorStatus = () => {
         return new Promise(resolve => {
-            adminService.getOrderGeneratorStatus()
+            adminService.getLastSaleGeneratorStatus()
                 .then((res: Array<{ status: boolean }>) => {
 
                     const status = res[0].status;
@@ -134,7 +134,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
             adminService.getAssets()
                 .then((res: ISymbol[]) => {
                     let data = res || [];
-                    data = data.filter(s => s.is_approved).filter(s => !this.state.orderGeneratorSymbols.includes(s.symbol))
+                    data = data.filter(s => s.is_approved).filter(s => !this.state.lastSaleGeneratorSymbols.includes(s.symbol))
 
                     this.setState({symbols: data});
                 })
@@ -147,14 +147,14 @@ class OrderGeneratorBlock extends React.Component<{}> {
         })
     }
 
-    handleSubmit = async (values: IOrderGenerator, {setSubmitting}: {
+    handleSubmit = async (values: ILastSaleGenerator, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         setSubmitting(true)
         const body = {
             symbol: values.symbol
         }
-        await adminService.addOrderGeneratorSymbol(body)
+        await adminService.addLastSaleGeneratorSymbol(body)
             .then((res: Array<string>) => {
 
             })
@@ -177,7 +177,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
         const body = {
             is_enable: isEnable
         }
-        await adminService.setOrderGeneratorStatus(body)
+        await adminService.setLastSaleGeneratorStatus(body)
             .then(((res: any) => {
 
             }))
@@ -201,7 +201,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
     handleDelete = async (symbol: string | null) => {
         this.setState({isDeleting: true});
 
-        await adminService.deleteOrderGeneratorSymbol(symbol ?? '')
+        await adminService.deleteLastSaleGeneratorSymbol(symbol ?? '')
             .then(((res: any) => {
 
             }))
@@ -224,7 +224,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
 
     clear = async () => {
         this.setState({isClearing: true})
-        await adminService.deleteOrderGeneratorOrders()
+        await adminService.deleteLastSaleGeneratorLastSales()
             .then(((res: any) => {
 
             }))
@@ -242,7 +242,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                 <div className="user section">
                     <div className={'approve-form'}>
                         <div className={'approve-form-text'}>
-                            Order Generator
+                            Last Sale Generator
                         </div>
                     </div>
 
@@ -252,8 +252,8 @@ class OrderGeneratorBlock extends React.Component<{}> {
                     <div className={`w-100 ${this.state.isLoading ? 'd-none' : ''}`}>
                         <div className={'form-panel'}>
                             <div>
-                                <Formik<IOrderGenerator>
-                                    initialValues={this.state.formInitialValues as IOrderGenerator}
+                                <Formik<ILastSaleGenerator>
+                                    initialValues={this.state.formInitialValues as ILastSaleGenerator}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                     innerRef={this.formRef}
@@ -277,11 +277,11 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                         <Field
                                                             type="checkbox"
                                                             name="is_enable"
-                                                            id="is_enable"
+                                                            id="is_enable_last_sale_generator"
                                                             disabled={isSubmitting}
                                                             onClick={(e: React.ChangeEvent<HTMLInputElement>) => this.handleStatusChangeSubmit(e, setFieldValue, {setSubmitting})}
                                                         />
-                                                        <label htmlFor="is_enable">
+                                                        <label htmlFor="is_enable_last_sale_generator">
                                                             <span></span><i> Enable
                                                         </i>
                                                         </label>
@@ -290,7 +290,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                     </div>
                                                 </div>
                                                 <div className="input">
-                                                    <div className="input__title">Clear all generated Orders</div>
+                                                    <div className="input__title">Clear all generated Last Sales</div>
                                                     <div
                                                         className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                         <div>
@@ -355,10 +355,10 @@ class OrderGeneratorBlock extends React.Component<{}> {
 
                                 </div>
 
-                                {this.state.orderGeneratorSymbols.length ? (
+                                {this.state.lastSaleGeneratorSymbols.length ? (
                                     <Table columns={columns}
                                            pageLength={pageLength}
-                                           data={this.state.orderGeneratorSymbols}
+                                           data={this.state.lastSaleGeneratorSymbols}
                                            searchPanel={true}
                                            block={this}
                                            viewBtn={false}
@@ -406,4 +406,4 @@ class OrderGeneratorBlock extends React.Component<{}> {
     }
 }
 
-export default OrderGeneratorBlock;
+export default LastSaleGeneratorBlock;

@@ -42,7 +42,7 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
-
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingPerSymbolProps> {
 
@@ -50,6 +50,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     charts: Array<ITradingView> = new Array<ITradingView>();
     state: LastSaleReportingPerSymbolState;
     isDashboard: boolean;
+    getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
 
     tableRef: React.RefObject<any> = React.createRef();
 
@@ -153,11 +154,20 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             .then(() => this.getLastSaleReporting())
             .finally(() => this.setState({isLoading: false}))
         window.addEventListener('click', this.handleClickOutside);
-
+        this.startAutoUpdate();
     }
 
     componentWillUnmount() {
+        this.stopAutoUpdate();
         window.addEventListener('click', this.handleClickOutside);
+    }
+
+    startAutoUpdate = () => {
+        this.getLastSaleReportingInterval = setInterval(this.getLastSaleReporting, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval as number);
     }
 
     toggleMenu = () => {

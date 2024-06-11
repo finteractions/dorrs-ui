@@ -1,0 +1,3 @@
+interface ILastSaleGenerator extends IGenerator{
+
+}

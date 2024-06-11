@@ -135,7 +135,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null})
-        console.log(values)
+
         await adminService.addUser(values)
             .then((res: any) => {
                 this.setState({success: true});
