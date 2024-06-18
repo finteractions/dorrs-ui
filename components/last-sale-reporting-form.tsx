@@ -208,7 +208,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
 
             await Promise.all([
                 setFieldValue('symbol', lastSale.symbol_name || lastSale.symbol, true),
-                setFieldValue('symbol_suffix', lastSale.symbol_suffix, true),
+                setFieldValue('symbol_suffix', lastSale.symbol_suffix ?? '', true),
                 setFieldValue('condition', lastSale.condition.toLowerCase(), true),
                 setFieldValue('tick_indication', lastSale.tick_indication, true),
                 setFieldValue('quantity', lastSale.quantity ?? '', true),

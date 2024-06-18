@@ -342,7 +342,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                     <div>
                                         <div>Price:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.price) || 0, Number(this.state.lastSale?.fractional_lot_size || 0))}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.price) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Price Change:</div>

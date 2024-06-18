@@ -92,7 +92,8 @@ function formatAndColorNumberValueHTML(input: string | number, decimals = Number
         className = 'stay';
     }
 
-    return (<span className={className}><span style={sign == '' ? {width:0} : {}} className={'sign'}>{sign}</span><span>{formattedNumber}</span></span>);
+    return (<span className={className}><span style={sign == '' ? {width: 0} : {}}
+                                              className={'sign'}>{sign}</span><span>{formattedNumber}</span></span>);
 }
 
 function formatAndColorTickIndicationValueHTML(tickIndication: string) {
@@ -177,6 +178,14 @@ function formatDateString(dateString: string) {
     return `${dayPadded}-${monthPadded}-${year}`;
 }
 
+function formatSymbolName(symbol: string) {
+    return symbol.replace('-', ' / ')
+}
+
+function getSymbolName(symbol: string){
+    return symbol.split('-')[0]
+}
+
 
 const formatterService = {
     numberFormat,
@@ -188,7 +197,9 @@ const formatterService = {
     formatAndColorTickIndicationValueHTML,
     getBackgroundColourByValue,
     toPlainString,
-    formatDateString
+    formatDateString,
+    formatSymbolName,
+    getSymbolName
 }
 
 export default formatterService;

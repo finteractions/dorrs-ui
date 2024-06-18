@@ -167,12 +167,12 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
 
     return (
         <>
-            <div className={'mb-48'}>
-                <canvas className={data.length > 0 ? '' : 'd-none'} ref={canvasRef}
-                        style={{maxHeight: '300px', width: '100%'}}></canvas>
-            </div>
+
+            <canvas className={data.length > 0 ? '' : 'd-none'} ref={canvasRef}
+                    style={{maxHeight: '300px', width: '100%'}}></canvas>
+
             {data.length === 0 && (
-                <div className="no-chart mb-48">
+                <div className="no-chart">
                     <NoDataBlock primaryText={' '} secondaryText="No Chart available yet"/>
                 </div>
             )}

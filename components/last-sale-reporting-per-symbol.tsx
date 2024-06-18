@@ -326,7 +326,9 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                 ) : (
                                     <>
                                         {this.charts.length ? (
-                                            <AreaAndBarChart data={this.charts}/>
+                                                <div className={'mb-48'}>
+                                                    <AreaAndBarChart data={this.charts}/>
+                                                </div>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

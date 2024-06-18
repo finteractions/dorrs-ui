@@ -410,7 +410,9 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                             </div>
                                         </div>
                                         {this.charts.length ? (
-                                            <AreaAndBarChart data={this.charts}/>
+                                            <div className={'mb-48'}>
+                                                <AreaAndBarChart data={this.charts}/>
+                                            </div>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>

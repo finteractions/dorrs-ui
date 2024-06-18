@@ -83,6 +83,24 @@ class WebSocketService extends BaseService {
         this.sendMessage(message)
     }
 
+
+    public subscribeOnAlgorandDataFeed(symbol: string): void {
+        const message = {
+            type: WebsocketEvent.SUBSCRIBE_ALGORAND_DATA_FEED,
+            symbol: symbol
+        }
+        this.sendMessage(message)
+    }
+
+    public unSubscribeOnAlgorandDataFeed(symbol: string): void {
+        const message = {
+            type: WebsocketEvent.UNSUBSCRIBE_ALGORAND_DATA_FEED,
+            symbol: symbol
+        }
+
+        this.sendMessage(message)
+    }
+
     public on<T>(event: string): Observable<T> {
         if (event) {
             return this.messagesSubject.asObservable().pipe(

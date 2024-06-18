@@ -3636,6 +3636,10 @@ body {
         &.statistics {
           flex: 1;
           max-width: unset;
+
+          &.mw-30 {
+            max-width: 30%;
+          }
         }
 
         &.dashboard {
@@ -4541,4 +4545,12 @@ a.block-link {
   min-height: 30px;
   min-width: 30px;
   align-items: center;
+}
+
+.pl-10 {
+  padding-left: 10px;
+}
+
+.pl-28 {
+  padding-left: 28px;
 }
