@@ -163,7 +163,7 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                 chartRef.current.destroy();
             }
         };
-    }, []);
+    }, [data]);
 
     return (
         <>

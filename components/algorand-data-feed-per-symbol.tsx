@@ -172,8 +172,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
         });
 
         this.algorandChartsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_CHARTS).subscribe((data: Array<ILastSale>) => {
-            console.log(data)
-            this.setState({charts: data})
+            this.setState({charts: data}, () => {
+                this.getLastSaleReporting();
+            })
         });
 
         this.algorandTransactionsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_TRANSACTIONS).subscribe((data: Array<ITradingView>) => {
