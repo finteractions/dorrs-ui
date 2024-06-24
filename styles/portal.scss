@@ -3640,6 +3640,10 @@ body {
           &.mw-30 {
             max-width: 30%;
           }
+
+          > .no-chart {
+            justify-content: center;
+          }
         }
 
         &.dashboard {

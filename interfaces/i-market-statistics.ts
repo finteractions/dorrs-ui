@@ -10,4 +10,5 @@ export interface IMarketStatistics {
     vwap: string;
     fractional_lot_size: string,
     latest_update?: string;
+    algorand_application_id?: string;
 }

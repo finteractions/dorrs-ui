@@ -14,11 +14,11 @@ import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
 import AssetImage from "@/components/asset-image";
-import algorandService from "@/services/algorand/algorand-service";
-import {IMarketStatistics} from "@/interfaces/i-market-statistics";
 import {Subscription} from "rxjs";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
+import statisticsService from "@/services/statistics/statistics-service";
+import lastSaleService from "@/services/last-sale/last-sale-service";
 
 interface AlgorandDataFeedPerSymbolProps {
     symbol: string;
@@ -28,8 +28,9 @@ interface AlgorandDataFeedPerSymbolState extends IState {
     isLoading: boolean;
     isLoadingChart: boolean;
     errors: string[];
-    data: ILastSale[];
-    statistics: IMarketStatistics | null;
+    transactions: ILastSale[];
+    lastSale: ILastSale | null;
+    charts: Array<ITradingView>;
     mpid: string | null;
     isToggle: boolean;
     isFilterShow: boolean;
@@ -45,7 +46,6 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPerSymbolProps> {
 
     companyProfile: ICompanyProfile | null;
-    charts: Array<ITradingView> = new Array<ITradingView>();
     state: AlgorandDataFeedPerSymbolState;
 
     getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
@@ -53,7 +53,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     tableRef: React.RefObject<any> = React.createRef();
 
     private websocketSubscription: Subscription | null = null;
-    private deptByOrderSubscription: Subscription | null = null;
+    private algorandChartsSubscription: Subscription | null = null;
+    private algorandTransactionsSubscription: Subscription | null = null;
+    private algorandStatisticsSubscription: Subscription | null = null;
 
     constructor(props: AlgorandDataFeedPerSymbolProps) {
         super(props);
@@ -65,8 +67,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
             isLoading: true,
             isLoadingChart: true,
             errors: [],
-            data: [],
-            statistics: null,
+            transactions: [],
+            charts: [],
+            lastSale: null,
             mpid: null,
             isToggle: false,
             isFilterShow: false,
@@ -104,11 +107,28 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
             }),
             columnHelper.accessor((row) => ({
                 hash: row.algorand_tx_hash,
+            }), {
+                id: "status",
+                cell: (item) =>
+                    <div
+                        className={`table__status table__status-${formatterService.getTransactionStatusColour(item.getValue().hash)}`}>
+                        {formatterService.getTransactionStatusName(item.getValue().hash)}
+                    </div>,
+                header: () => <span>Status</span>,
+            }),
+            columnHelper.accessor((row) => ({
+                hash: row.algorand_tx_hash,
                 link: row.algorand_tx_hash_link
             }), {
                 id: "algorand_tx_hash_link",
-                cell: (item) => <Link href={item.getValue().link} target={'_blank'}
-                                      className="link">{item.getValue().hash}</Link>,
+                cell: (item) => {
+                    return item.getValue().link ? (
+                        <Link href={item.getValue().link} target={'_blank'}
+                              className="link">{item.getValue().hash}</Link>
+                    ) : (
+                        <></>
+                    )
+                },
                 header: () => <span>Tx Hash</span>,
             }),
         ];
@@ -122,7 +142,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     componentDidMount() {
         this.setState({isLoading: true});
         this.getSymbols()
-        this.getStatistics()
+        this.getLastSale()
             .then(() => this.getLastSaleReportingChart())
             .then(() => this.getLastSaleReporting())
             .finally(() => this.setState({isLoading: false}))
@@ -146,8 +166,18 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
             if (isOpen) this.subscribe();
         });
 
-        this.deptByOrderSubscription = websocketService.on<Array<any>>(WebsocketEvent.ALGORAND_DATA_FEED).subscribe((data: Array<any>) => {
-            //
+        this.algorandStatisticsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_STATISTICS).subscribe((data: Array<ILastSale>) => {
+            const lastSale = data[0] || null;
+            this.setState({lastSale: lastSale})
+        });
+
+        this.algorandChartsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_CHARTS).subscribe((data: Array<ILastSale>) => {
+            console.log(data)
+            this.setState({charts: data})
+        });
+
+        this.algorandTransactionsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_TRANSACTIONS).subscribe((data: Array<ITradingView>) => {
+            // console.log('3')
         });
     }
 
@@ -158,25 +188,25 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     unsubscribe() {
         websocketService.unSubscribeOnAlgorandDataFeed(this.props.symbol)
         this.websocketSubscription?.unsubscribe();
-        this.deptByOrderSubscription?.unsubscribe();
+        this.algorandStatisticsSubscription?.unsubscribe();
+        this.algorandChartsSubscription?.unsubscribe();
+        this.algorandTransactionsSubscription?.unsubscribe();
     }
 
-    getStatistics = () => {
+    getLastSale = () => {
         return new Promise((resolve) => {
-            algorandService.getMarketData()
-                .then((res: Array<IMarketStatistics>) => {
-                    const data = res || [];
-                    const statistics = data[0] ?? null
-                    this.setState({statistics: statistics});
-
+            statisticsService.getLastSaleBySymbol(this.props.symbol)
+                .then((res: Array<ILastSale>) => {
+                    const lastSale = res[0] || null;
+                    this.setState({lastSale: lastSale})
                 })
                 .catch((errors: IError) => {
 
                 })
                 .finally(() => {
-                    resolve(true)
+                    resolve(true);
                 });
-        });
+        })
     }
 
     startAutoUpdate = () => {
@@ -206,9 +236,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
 
     getLastSaleReportingChart = () => {
         return new Promise((resolve) => {
-            algorandService.getChartBySymbol(this.props.symbol)
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, undefined)
                 .then((res: Array<ITradingView>) => {
-                    this.charts = res;
+                    this.setState({charts: res})
                 })
                 .catch((errors: IError) => {
 
@@ -241,11 +271,10 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
 
     getLastSaleReporting = () => {
         return new Promise((resolve) => {
-            algorandService.getTransactionBySymbol(this.props.symbol)
+            lastSaleService.getLastSaleReportingBySymbol(this.props.symbol, undefined)
                 .then((res: Array<ILastSale>) => {
                     const data = res || [];
-
-                    this.setState({data: data});
+                    this.setState({transactions: data});
                 })
                 .catch((errors: IError) => {
 
@@ -325,21 +354,21 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                                     <div>
                                         <div>Quantity:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.statistics?.last_quantity) || 0, Number(this.state.statistics?.fractional_lot_size || 0))}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.quantity) || 0, Number(this.state.lastSale?.fractional_lot_size || 0))}</div>
                                     </div>
                                     <div>
                                         <div>Price:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.statistics?.last_price) || 0, decimalPlaces)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.lastSale?.price) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Price Change:</div>
                                         <div
-                                            className={'pl-28'}>{formatterService.formatAndColorNumberValueHTML(this.state.statistics?.price_changed || 0)}</div>
+                                            className={'pl-28'}>{formatterService.formatAndColorNumberValueHTML(this.state.lastSale?.price_changed || 0)}</div>
                                     </div>
                                     <div>
                                         <div>% Change:</div>
-                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.statistics?.percentage_changed || 0)}</div>
+                                        <div>{formatterService.formatAndColorNumberBlockHTML(this.state.lastSale?.percentage_changed || 0)}</div>
                                     </div>
                                     <div>
                                         <div className={'align-items-center d-flex'}>Network:</div>
@@ -362,10 +391,10 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                                     <LoaderBlock/>
                                 ) : (
                                     <>
-                                        {this.charts.length ? (
-                                            <AreaAndBarChart data={this.charts}/>
+                                        {this.state.charts.length ? (
+                                            <AreaAndBarChart data={this.state.charts}/>
                                         ) : (
-                                            <div className="no-chart mb-24">
+                                            <div className="no-chart">
                                                 <NoDataBlock primaryText="No Chart available yet"/>
                                             </div>
                                         )}
@@ -378,7 +407,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                         <div className={'panel'}>
                             <div className={`content__bottom`}>
                                 <Table columns={columns}
-                                       data={this.state.data}
+                                       data={this.state.transactions}
                                        searchPanel={true}
                                        block={this}
                                        editBtn={false}

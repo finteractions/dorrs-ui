@@ -233,6 +233,7 @@ class LastSaleReportingBlock extends React.Component<LastSaleReportingBlockProps
 
                 data.forEach(s => {
                     s.condition = Condition[s.condition as keyof typeof Condition] || ''
+                    s.editable = false;
                 })
 
                 this.setState({data: data});

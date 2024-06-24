@@ -186,6 +186,14 @@ function getSymbolName(symbol: string){
     return symbol.split('-')[0]
 }
 
+function getTransactionStatusColour(value: string | null){
+    return value ? 'approved' : 'pending'
+}
+
+function getTransactionStatusName(value: string | null){
+    return value ? 'Approved' : 'Pending'
+}
+
 
 const formatterService = {
     numberFormat,
@@ -199,7 +207,9 @@ const formatterService = {
     toPlainString,
     formatDateString,
     formatSymbolName,
-    getSymbolName
+    getSymbolName,
+    getTransactionStatusColour,
+    getTransactionStatusName
 }
 
 export default formatterService;

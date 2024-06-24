@@ -6,7 +6,8 @@ const comparison_matrix: Record<string, string> = {
     'WeeklyAndMonthlyReportsBlock': 'weekly_and_monthly_reports',
     'DepthOfBookBlock': 'dob',
     'QuoteBoardBlock': 'quote_board',
-    'DataFeedProvidersBlock': 'data_feed_providers'
+    'DataFeedProvidersBlock': 'data_feed_providers',
+    'AlgorandDataFeedBlock': 'algorand_data_feed'
 }
 
 function getAccessRulesByComponent(component_name: string, access_matrix: any[]) {

@@ -12,7 +12,8 @@ import {Button} from "react-bootstrap";
 import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {IMarketStatistics} from "@/interfaces/i-market-statistics";
-import algorandService from "@/services/algorand/algorand-service";
+import statisticsService from "@/services/statistics/statistics-service";
+import converterService from "@/services/converter/converter-service";
 
 
 interface AlgorandDataFeedBlockState extends IState {
@@ -86,6 +87,13 @@ class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedBlockProps, 
                 ,
                 header: () => <span>Origin</span>,
             }),
+            columnHelper.accessor((row) => ({
+                company_name: row.company_profile?.company_name || '',
+            }), {
+                id: "company_name",
+                cell: (item) => item.getValue().company_name,
+                header: () => <span>Company </span>,
+            }),
             columnHelper.accessor((row) => row.last_price, {
                 id: "last_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
@@ -100,12 +108,7 @@ class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedBlockProps, 
                 id: "percentage_changed",
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
-            }),
-            columnHelper.accessor((row) => row.latest_update, {
-                id: "latest_update",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Updated Date </span>,
-            }),
+            })
         ];
     }
 
@@ -138,9 +141,9 @@ class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedBlockProps, 
     }
 
     getStatistics = () => {
-        algorandService.getMarketData()
+        statisticsService.getMarketData()
             .then((res: Array<IMarketStatistics>) => {
-                const data = res || [];
+                const data = res?.filter(s => s.algorand_application_id) || [];
                 this.setState({data: data});
 
             })
@@ -213,4 +216,4 @@ class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedBlockProps, 
     }
 }
 
-export default portalAccessWrapper(AlgorandDataFeedBlock, 'DataFeedProvidersBlock');
+export default portalAccessWrapper(AlgorandDataFeedBlock, 'AlgorandDataFeedBlock');
