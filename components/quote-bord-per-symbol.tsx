@@ -36,12 +36,14 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps> {
 
     companyProfile: ICompanyProfile | null;
+    symbol: ISymbol | null;
     state: QuoteBoardPerSymbolState;
     statisticsInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: QuoteBoardPerSymbolProps) {
         super(props);
 
+        this.symbol = null;
         this.companyProfile = null;
 
         this.state = {
@@ -165,6 +167,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                     const data = res || [];
 
                     const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
+                    this.symbol = symbol ?? null;
                     this.companyProfile = symbol?.company_profile || null;
                 })
                 .catch((errors: IError) => {
@@ -253,17 +256,27 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                                 )}
                                             </h2>
 
-                                            <span title={'Symbol Profile'}
-                                                  className={'indicator-item'}
-                                                  onClick={() => this.navigate('symbols', 'view')}>
+                                            {this.companyProfile && (
+                                                <span title={'Symbol Profile'}
+                                                      className={'indicator-item'}
+                                                      onClick={() => this.navigate('symbols', 'view')}>
                                                        S
                                                     </span>
+                                            )}
 
                                             <span title={'Asset Profile'}
                                                   className={'indicator-item'}
                                                   onClick={() => this.navigate('asset-profiles', 'view')}>
                                                        P
                                                     </span>
+
+                                            {this.symbol?.algorand_application_id && (
+                                                <span title={'Algorand Data Feed'}
+                                                      className={'indicator-item'}
+                                                      onClick={() => this.navigate('algorand-data-feed')}>
+                                                       A
+                                                    </span>
+                                            )}
 
 
                                         </div>

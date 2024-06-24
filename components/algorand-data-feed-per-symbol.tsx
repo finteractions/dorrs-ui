@@ -28,8 +28,9 @@ interface AlgorandDataFeedPerSymbolState extends IState {
     isLoading: boolean;
     isLoadingChart: boolean;
     errors: string[];
-    transactions: ILastSale[];
+    companyProfile: ICompanyProfile | null,
     lastSale: ILastSale | null;
+    transactions: ILastSale[];
     charts: Array<ITradingView>;
     mpid: string | null;
     isToggle: boolean;
@@ -45,7 +46,6 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPerSymbolProps> {
 
-    companyProfile: ICompanyProfile | null;
     state: AlgorandDataFeedPerSymbolState;
 
     getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
@@ -60,16 +60,15 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     constructor(props: AlgorandDataFeedPerSymbolProps) {
         super(props);
 
-        this.companyProfile = null;
-
         this.state = {
             success: false,
             isLoading: true,
             isLoadingChart: true,
             errors: [],
+            companyProfile: null,
+            lastSale: null,
             transactions: [],
             charts: [],
-            lastSale: null,
             mpid: null,
             isToggle: false,
             isFilterShow: false,
@@ -141,7 +140,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     componentDidMount() {
         this.setState({isLoading: true});
         this.getSymbols()
-        this.getLastSale()
+            .then(() => this.getLastSale())
             .then(() => this.getLastSaleReportingChart())
             .then(() => this.getLastSaleReporting())
             .finally(() => this.setState({isLoading: false}))
@@ -258,7 +257,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                     const data = res || [];
 
                     const symbol = data.find((s: ISymbol) => s.symbol === formatterService.getSymbolName(this.props.symbol));
-                    this.companyProfile = symbol?.company_profile || null;
+                    const companyProfile = symbol?.company_profile ?? null;
+
+                    this.setState({companyProfile: companyProfile});
                 })
                 .catch((errors: IError) => {
 
@@ -331,7 +332,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                                             <h2 className={'view_block_main_title mb-0'}>
                                                 <div className={"company-profile-logo"}>
                                                     <AssetImage alt=''
-                                                                src={this.companyProfile?.logo}
+                                                                src={this.state.companyProfile?.logo}
                                                                 width={60}
                                                                 height={60}/>
                                                 </div>

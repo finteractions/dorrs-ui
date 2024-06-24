@@ -248,6 +248,13 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                        P
                                                     </span>
                                                 )}
+                                                {this.symbol?.algorand_application_id && (
+                                                    <span title={'Algorand Data Feed'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('algorand-data-feed')}>
+                                                       A
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className={'justify-content-end d-flex align-items-center gap-10'}>

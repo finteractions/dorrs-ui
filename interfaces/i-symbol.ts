@@ -68,4 +68,6 @@ export interface ISymbol {
     created_date_time: string;
     fill_out_percentage: number;
     edgar_cik: string;
+
+    algorand_application_id?: string;
 }
