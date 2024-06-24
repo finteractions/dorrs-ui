@@ -105,14 +105,12 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                 cell: (item) => <span className="blue-text">{item.getValue()}</span>,
                 header: () => <span>Universal Transaction ID (UTI)</span>,
             }),
-            columnHelper.accessor((row) => ({
-                hash: row.algorand_tx_hash,
-            }), {
+            columnHelper.accessor((row) => row.status, {
                 id: "status",
                 cell: (item) =>
                     <div
-                        className={`table__status table__status-${formatterService.getTransactionStatusColour(item.getValue().hash)}`}>
-                        {formatterService.getTransactionStatusName(item.getValue().hash)}
+                        className={`table__status table__status-${item.getValue().toString().toLowerCase()}`}>
+                        {item.getValue()}
                     </div>,
                 header: () => <span>Status</span>,
             }),
@@ -135,6 +133,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
 
         tableFilters = [
             {key: 'uti', placeholder: 'UTI'},
+            {key: 'status', placeholder: 'Status'},
             {key: 'algorand_tx_hash', placeholder: 'Tx Hash'},
         ]
     }
@@ -178,7 +177,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
         });
 
         this.algorandTransactionsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_TRANSACTIONS).subscribe((data: Array<ITradingView>) => {
-            // console.log('3')
+
         });
     }
 
@@ -275,6 +274,10 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
             lastSaleService.getLastSaleReportingBySymbol(this.props.symbol, undefined)
                 .then((res: Array<ILastSale>) => {
                     const data = res || [];
+
+                    data.forEach(s => {
+                        s.status = formatterService.getTransactionStatusName(s.algorand_tx_hash || '')
+                    })
                     this.setState({transactions: data});
                 })
                 .catch((errors: IError) => {

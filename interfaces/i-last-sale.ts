@@ -32,4 +32,5 @@ export interface ILastSale {
     algorand_tx_hash_link?: string;
 
     editable?: boolean;
+    status?: string;
 }
