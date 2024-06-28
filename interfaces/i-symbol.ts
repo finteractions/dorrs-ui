@@ -69,5 +69,5 @@ export interface ISymbol {
     fill_out_percentage: number;
     edgar_cik: string;
 
-    algorand_application_id?: string;
+    algorand_last_sale_application_id?: string;
 }

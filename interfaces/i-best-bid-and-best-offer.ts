@@ -24,4 +24,9 @@ export interface IBestBidAndBestOffer {
     user_id?: string;
     company_profile?: ICompanyProfile;
     data_feed_provider_logo: string;
+    algorand_best_bid_and_best_offer_application_id?: string;
+    algorand_best_bid_and_best_offer_application_id_link?: string;
+    algorand_tx_hash?: string;
+    algorand_tx_hash_link?: string;
+    status?: string;
 }

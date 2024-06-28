@@ -8,7 +8,7 @@ interface AreAndBarChartProps {
 
 const defaultColors = {
     light: {
-        backgroundColor: '#a4c3de',
+        backgroundColor: '#d1e2f1',
         barColour: '#1f8ceb',
         borderColor: '#1f8ceb',
         textColour: '#7E8299',
@@ -65,7 +65,7 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                             type: 'line',
                             fill: true,
                             tension: 0.5,
-                            borderWidth: 4,
+                            borderWidth: 2,
                         },],
                     },
                     options: {

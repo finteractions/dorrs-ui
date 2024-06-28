@@ -161,7 +161,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                 cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Offer Qty </span>,
             }),
-            columnHelper.accessor((row) => row.bid_price, {
+            columnHelper.accessor((row) => row.offer_price, {
                 id: "offer_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
@@ -262,9 +262,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
         return new Promise((resolve) => {
             bestBidAndBestOfferService.getBestBidAndBestOfferBySymbol(this.props.symbol)
                 .then((res: Array<IBestBidAndBestOffer>) => {
-                    const data = res?.sort((a, b) => {
-                        return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-                    }) || [];
+                    const data = res || [];
 
                     data.forEach(s => {
                         s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''

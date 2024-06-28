@@ -2074,6 +2074,17 @@ body {
           .content__title_btns {
             margin: 0 0;
           }
+
+          &.mobile {
+            border-bottom: none;
+          }
+
+          @media (min-width: 768px) {
+            &.mobile {
+              padding: 0;
+              border-bottom: 1px solid var(--border-colour-1);
+            }
+          }
         }
 
         .content__bottom {
@@ -4558,3 +4569,14 @@ a.block-link {
 .pl-28 {
   padding-left: 28px;
 }
+
+.flex-1-1-100 {
+  flex: 1 1 100%;
+}
+
+
+//.border-radius-top-0, .flex-panel-box .panel.border-radius-top-0 .panel {
+//  border-top-left-radius: 0!important;
+//  border-top-right-radius: 0!important;
+//
+//}

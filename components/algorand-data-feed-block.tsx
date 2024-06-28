@@ -1,30 +1,16 @@
 import React from 'react';
-import LoaderBlock from "@/components/loader-block";
-import NoDataBlock from "./no-data-block";
-import Table from "@/components/table/table";
-import {createColumnHelper} from "@tanstack/react-table";
-import AssetImage from "@/components/asset-image";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faFilter,
-} from "@fortawesome/free-solid-svg-icons";
-import {Button} from "react-bootstrap";
-import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
-import {IMarketStatistics} from "@/interfaces/i-market-statistics";
-import statisticsService from "@/services/statistics/statistics-service";
-import converterService from "@/services/converter/converter-service";
+import AlgorandDataFeedLastSaleBlock from "@/components/algorand-data-feed-last-sale-block";
+import AlgorandDataFeedBestBidAndBestOfferBlock from "@/components/algorand-data-feed-best-bid_and-best-offer-block";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 
-interface AlgorandDataFeedBlockState extends IState {
-    isLoading: boolean;
-    data: IMarketStatistics[];
-    isToggle: boolean;
-    isFilterShow: boolean;
-    filtersClassName: string;
+interface AlgorandDataFeedBlockState {
+    activeTab: string;
 }
 
-interface AlgorandDataFeedBlockProps extends ICallback {
+interface AlgorandDataFeedProps extends ICallback {
     access: {
         view: boolean
         create: boolean
@@ -32,183 +18,86 @@ interface AlgorandDataFeedBlockProps extends ICallback {
         delete: boolean
     }
 }
-const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
-const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
-const columnHelper = createColumnHelper<any>();
-let columns: any[] = [];
-let tableFilters: Array<ITableFilter> = []
+class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedProps, AlgorandDataFeedBlockState> {
 
-class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedBlockProps, AlgorandDataFeedBlockState> {
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>
 
-    host = `${window.location.protocol}//${window.location.host}`;
-
-    state: AlgorandDataFeedBlockState;
-    errors: Array<string> = new Array<string>();
-    getSymbolsInterval: NodeJS.Timer | number | undefined;
-
-    tableRef: React.RefObject<any> = React.createRef();
-
-    constructor(props: AlgorandDataFeedBlockProps) {
+    constructor(props: AlgorandDataFeedProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.state = {
-            success: false,
-            isLoading: true,
-            data: [],
-            isToggle: false,
-            isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            activeTab: ''
         }
-
-        const host = `${window.location.protocol}//${window.location.host}`;
-
-
-        columns = [
-            columnHelper.accessor((row) => ({
-                symbol: row.symbol_name,
-                image: row.company_profile?.logo
-            }), {
-                id: "symbol",
-                cell: (item) =>
-                    <>
-                        <div onClick={() => {
-                            this.navigate(item.getValue().symbol)
-                        }}
-                             className={`table-image cursor-pointer link`}
-                        >
-                            <div className="table-image-container">
-                                <AssetImage alt='' src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
-                            </div>
-                            {formatterService.formatSymbolName(item.getValue().symbol)}
-                        </div>
-                    </>
-                ,
-                header: () => <span>Origin</span>,
-            }),
-            columnHelper.accessor((row) => ({
-                company_name: row.company_profile?.company_name || '',
-            }), {
-                id: "company_name",
-                cell: (item) => item.getValue().company_name,
-                header: () => <span>Company </span>,
-            }),
-            columnHelper.accessor((row) => row.last_price, {
-                id: "last_price",
-                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
-                header: () => <span>Last Price </span>,
-            }),
-            columnHelper.accessor((row) => row.price_changed, {
-                id: "price_changed",
-                cell: (item) => formatterService.formatAndColorNumberValueHTML(item.getValue()),
-                header: () => <span>Price Change</span>,
-            }),
-            columnHelper.accessor((row) => row.percentage_changed, {
-                id: "percentage_changed",
-                cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
-                header: () => <span>% Change</span>,
-            })
-        ];
     }
 
     componentDidMount() {
-        this.setState({isLoading: true});
-        this.getStatistics();
-        // this.startAutoUpdate();
-        window.addEventListener('click', this.handleClickOutside);
+        const tab = this.context.getSharedData();
+        this.setState({activeTab: tab?.activeTab ?? 'last-sale'})
     }
 
     componentWillUnmount() {
-        this.stopAutoUpdate();
-        window.removeEventListener('click', this.handleClickOutside);
+
     }
 
-    toggleMenu = () => {
-        this.setState({isToggle: !this.state.isToggle})
-    };
-
-    navigate = (symbol: string) => {
-        this.props.onCallback(symbol);
+    onLastSaleCallback = (symbol: string) => {
+        this.props.onCallback('last-sale', symbol)
     }
 
-    startAutoUpdate = () => {
-        this.getSymbolsInterval = setInterval(this.getStatistics, Number(fetchIntervalSec) * 1000);
+    onBestBidAndBestOfferCallback = (symbol: string) => {
+        this.props.onCallback('best-bid-and-best-offer', symbol)
     }
 
-    stopAutoUpdate = () => {
-        if (this.getSymbolsInterval) clearInterval(this.getSymbolsInterval as number);
+    setActiveTab(tab: string) {
+        this.setState({activeTab: tab})
     }
-
-    getStatistics = () => {
-        statisticsService.getMarketData()
-            .then((res: Array<IMarketStatistics>) => {
-                const data = res?.filter(s => s.algorand_application_id) || [];
-                this.setState({data: data});
-
-            })
-            .catch((errors: IError) => {
-
-            })
-            .finally(() => {
-                this.setState({isLoading: false})
-            });
-    }
-
-    handleClickOutside = (event: any) => {
-        const menu = document.querySelector('.filter-menu');
-        if (menu && !menu.contains(event.target)) {
-            this.setState({isToggle: false});
-        }
-    };
-
-    handleShowFilters = () => {
-        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
-            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
-        })
-    };
 
     render() {
         return (
 
             <>
-                <div className="panel">
-                    <div className="content__top">
-                        <div className="content__title">Algorand Data Feed</div>
-                        <div className="content__title_btns content__filter download-buttons justify-content-end">
-                            <Button
-                                variant="link"
-                                className="d-md-none admin-table-btn ripple"
-                                type="button"
-                                onClick={() => this.handleShowFilters()}
-                            >
-                                <FontAwesomeIcon icon={faFilter}/>
-                            </Button>
+                <div className={'flex-panel-box '}>
+                    <div className={'panel'}>
+                        <div className={'content__top'}>
+                            <div className={'content__title'}>Algorand Data Feed</div>
                         </div>
-
-                    </div>
-
-
-                    {this.state.isLoading ? (
-                        <LoaderBlock/>
-                    ) : (
-                        <>
-                            <div className="content__bottom">
-                                {this.state.data.length ? (
-                                    <Table columns={columns}
-                                           data={this.state.data}
-                                           searchPanel={true}
-                                           block={this}
-                                           filters={tableFilters}
-                                           filtersClassName={this.state.filtersClassName}
-                                           ref={this.tableRef}
-                                    />
-                                ) : (
-                                    <NoDataBlock/>
-                                )}
+                        <div className={'content__bottom'}>
+                            <ul className="nav nav-tabs" id="tabs">
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'last-sale' ? 'active' : ''}`}
+                                       id="home-tab" data-bs-toggle="tab" href="#last-sale"
+                                       onClick={() => this.setActiveTab('last-sale')}>Last
+                                        Sale</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'best-bid-and-best-offer' ? 'active' : ''}`}
+                                       id="profile-tab" data-bs-toggle="tab"
+                                       href="#best-bid-and-best-offer"
+                                       onClick={() => this.setActiveTab('best-bid-and-best-offer')}>Best
+                                        Bid And Best Offer</a>
+                                </li>
+                            </ul>
+                            <div className="tab-content w-100">
+                                <div
+                                    className={`tab-pane fade ${this.state.activeTab === 'last-sale' ? 'show active' : ''}`}
+                                    id="last-sale">
+                                    {this.state.activeTab === 'last-sale' && (
+                                        <AlgorandDataFeedLastSaleBlock onCallback={this.onLastSaleCallback}/>
+                                    )}
+                                </div>
+                                <div
+                                    className={`tab-pane fade ${this.state.activeTab === 'best-bid-and-best-offer' ? 'show active' : ''}`}
+                                    id="best-bid-and-best-offer">
+                                    {this.state.activeTab === 'best-bid-and-best-offer' && (
+                                        <AlgorandDataFeedBestBidAndBestOfferBlock
+                                            onCallback={this.onBestBidAndBestOfferCallback}/>
+                                    )}
+                                </div>
                             </div>
-                        </>
-                    )}
+                        </div>
+                    </div>
                 </div>
             </>
 

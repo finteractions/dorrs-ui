@@ -11,7 +11,7 @@ type ChartProps = {
 
 const defaultColors = {
     light: {
-        backgroundColor: '#a4c3de',
+        backgroundColor: '#d1e2f1',
         borderColor: '#1f8ceb',
     },
     dark: {
@@ -50,7 +50,7 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
                                 fill: true,
                                 borderColor: colours.borderColor,
                                 tension: 0.5,
-                                borderWidth: 4,
+                                borderWidth: 2,
                                 backgroundColor: colours.backgroundColor,
                                 pointRadius: 0
                             },

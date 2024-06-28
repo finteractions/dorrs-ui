@@ -3,14 +3,9 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import LoaderBlock from "@/components/loader-block";
 import {useRouter} from "next/router";
 import NoDataBlock from "@/components/no-data-block";
-import {UsaStates} from "usa-states";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
-import {FormFieldOptionType} from "@/enums/form-field-option-type";
 import DataFeedProviderHistoryBlock from "@/components/data-feed-provider-history-block";
 import formatterService from "@/services/formatter/formatter-service";
-import Link from "next/link";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
 
 
 interface DataFeedProviderProps extends ICallback {

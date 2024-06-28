@@ -270,7 +270,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                                        P
                                                     </span>
 
-                                            {this.symbol?.algorand_application_id && (
+                                            {this.symbol?.algorand_last_sale_application_id && (
                                                 <span title={'Algorand Data Feed'}
                                                       className={'indicator-item'}
                                                       onClick={() => this.navigate('algorand-data-feed')}>

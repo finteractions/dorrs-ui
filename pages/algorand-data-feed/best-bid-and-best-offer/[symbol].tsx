@@ -1,8 +1,9 @@
 import React, {ReactElement} from "react"
-import type {NextPageWithLayout} from "../_app";
-import PortalLayout from "../../components/layouts/portal/portal-layout";
 import {useRouter} from "next/router";
-import AlgorandDataFeedPerSymbolBlock from "@/components/algorand-data-feed-per-symbol";
+import {NextPageWithLayout} from "@/pages/_app";
+import PortalLayout from "@/components/layouts/portal/portal-layout";
+import AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock
+    from "@/components/algorand-data-feed-best-bid-and-best-offer-per-symbol";
 
 
 const Symbol: NextPageWithLayout = () => {
@@ -11,7 +12,7 @@ const Symbol: NextPageWithLayout = () => {
     const [symbol, symbolSuffix] = symbolQuery.split(':')
     return (
         <div className="flex-panel-box">
-            <AlgorandDataFeedPerSymbolBlock
+            <AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock
                 symbol={symbol}
             />
         </div>

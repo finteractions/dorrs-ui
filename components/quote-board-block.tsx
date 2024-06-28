@@ -9,7 +9,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import filterService from "@/services/filter/filter";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AssetImage from "@/components/asset-image";
-import {IMarketStatistics} from "@/interfaces/i-market-statistics";
+import {IMarketLastSaleStatistics} from "@/interfaces/i-market-last-sale-statistics";
 import statisticsService from "@/services/statistics/statistics-service";
 import {faPlus, faMinus, faThLarge, faList, faEye, faSortAmountAsc, faSquare} from "@fortawesome/free-solid-svg-icons";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
@@ -23,12 +23,12 @@ import converterService from "@/services/converter/converter-service";
 interface QuoteBoardBlockState extends IState {
     isLoading: boolean;
     errors: string[];
-    data: IMarketStatistics[];
-    dataList: IMarketStatistics[];
-    dataListFull: IMarketStatistics[];
+    data: IMarketLastSaleStatistics[];
+    dataList: IMarketLastSaleStatistics[];
+    dataListFull: IMarketLastSaleStatistics[];
     filterDataList: any;
-    dataWatchList: IMarketStatistics[];
-    dataWatchListFull: IMarketStatistics[];
+    dataWatchList: IMarketLastSaleStatistics[];
+    dataWatchListFull: IMarketLastSaleStatistics[];
     filterDataWatchList: any;
     quoteModeView: string;
     favouriteSymbolList: Array<string>;
@@ -189,8 +189,8 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     }
 
     getMarketStatistics = () => {
-        statisticsService.getMarketData()
-            .then((res: Array<IMarketStatistics>) => {
+        statisticsService.getMarketData('last-sale')
+            .then((res: Array<any>) => {
                 const data = res || [];
                 this.setState({data: data}, () => {
                     this.prepareData();
@@ -258,7 +258,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
         }
     }
 
-    removeFromFavorites = (statistics: IMarketStatistics) => {
+    removeFromFavorites = (statistics: IMarketLastSaleStatistics) => {
         const {favouriteSymbolList} = this.state;
         const updatedFavouriteSymbolList = favouriteSymbolList.filter(item => item !== statistics.symbol_name);
 

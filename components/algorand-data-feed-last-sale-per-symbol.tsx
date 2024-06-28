@@ -11,7 +11,6 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import NoDataBlock from "@/components/no-data-block";
 import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
-import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
 import AssetImage from "@/components/asset-image";
 import {Subscription} from "rxjs";
@@ -19,12 +18,14 @@ import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
 import statisticsService from "@/services/statistics/statistics-service";
 import lastSaleService from "@/services/last-sale/last-sale-service";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
-interface AlgorandDataFeedPerSymbolProps {
+interface AlgorandDataFeedLastSalePerSymbolProps {
     symbol: string;
 }
 
-interface AlgorandDataFeedPerSymbolState extends IState {
+interface AlgorandDataFeedLastSalePerSymbolState extends IState {
     isLoading: boolean;
     isLoadingChart: boolean;
     errors: string[];
@@ -44,9 +45,12 @@ let tableFilters: Array<ITableFilter> = []
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
-class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPerSymbolProps> {
+class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDataFeedLastSalePerSymbolProps> {
 
-    state: AlgorandDataFeedPerSymbolState;
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>
+
+    state: AlgorandDataFeedLastSalePerSymbolState;
 
     getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
 
@@ -57,8 +61,9 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
     private algorandTransactionsSubscription: Subscription | null = null;
     private algorandStatisticsSubscription: Subscription | null = null;
 
-    constructor(props: AlgorandDataFeedPerSymbolProps) {
+    constructor(props: AlgorandDataFeedLastSalePerSymbolProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.state = {
             success: false,
@@ -299,9 +304,10 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
         this.getLastSaleReporting();
     };
 
-    handleMPID = (mpid: string | null) => {
-        this.setState({mpid: mpid})
+    setActiveTab = () => {
+        this.context.setSharedData({activeTab: 'last-sale'})
     }
+
 
     render() {
         return (
@@ -317,6 +323,7 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                                     <i className="icon-chevron-left"/> <Link
                                     className="login__link"
                                     href="/algorand-data-feed"
+                                    onClick={() => this.setActiveTab()}
                                 >Back
                                 </Link>
                                 </p>
@@ -423,8 +430,6 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
                                 />
                             </div>
                         </div>
-
-                        <ModalMPIDInfoBlock mpid={this.state.mpid} onCallback={(value: any) => this.handleMPID(value)}/>
                     </>
                 )}
             </>
@@ -433,4 +438,4 @@ class AlgorandDataFeedPerSymbolBlock extends React.Component<AlgorandDataFeedPer
 
 }
 
-export default AlgorandDataFeedPerSymbolBlock;
+export default AlgorandDataFeedLastSalePerSymbolBlock;

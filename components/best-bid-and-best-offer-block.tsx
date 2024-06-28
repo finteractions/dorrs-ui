@@ -188,7 +188,7 @@ class BestBidAndBestOfferBlock extends React.Component<BestBidAndBestOfferBlockP
                 cell: (item) => formatterService.numberFormat(item.getValue().quantity, item.getValue().decimals),
                 header: () => <span>Offer Qty </span>,
             }),
-            columnHelper.accessor((row) => row.bid_price, {
+            columnHelper.accessor((row) => row.offer_price, {
                 id: "offer_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Offer Price </span>,
