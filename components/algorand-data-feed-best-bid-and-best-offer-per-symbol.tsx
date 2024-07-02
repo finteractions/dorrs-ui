@@ -2,7 +2,6 @@ import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import Link from "next/link";
 import {useRouter} from "next/router";
-import {ILastSale} from "@/interfaces/i-last-sale";
 import {createColumnHelper} from "@tanstack/react-table";
 import formatterService from "@/services/formatter/formatter-service";
 import Table from "@/components/table/table";
@@ -206,18 +205,19 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
             if (isOpen) this.subscribe();
         });
 
-        this.algorandStatisticsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_STATISTICS).subscribe((data: Array<ILastSale>) => {
-            const lastSale = data[0] || null;
-            this.setState({lastSale: lastSale})
+        this.algorandStatisticsSubscription = websocketService.on<Array<IBestBidAndBestOffer>>(WebsocketEvent.ALGORAND_BEST_BID_AND_BEST_OFFER_STATISTICS).subscribe((data: Array<IBestBidAndBestOffer>) => {
+            const bestBidAndBestOffer = data[0] || null;
+            this.setState({bestBidAndBestOffer: bestBidAndBestOffer})
         });
 
-        this.algorandChartsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_CHARTS).subscribe((data: Array<ILastSale>) => {
-            this.setState({charts: data}, () => {
+        this.algorandChartsSubscription = websocketService.on<Array<Array<ITradingView>>>(WebsocketEvent.ALGORAND_BEST_BID_AND_BEST_OFFER_CHARTS).subscribe((data: Array<Array<ITradingView>>) => {
+            const charts = this.state.chart === 'b' ? data[0] : data[1]
+            this.setState({charts: charts}, () => {
                 this.getBBOReporting();
             })
         });
 
-        this.algorandTransactionsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_TRANSACTIONS).subscribe((data: Array<ITradingView>) => {
+        this.algorandTransactionsSubscription = websocketService.on<Array<IBestBidAndBestOffer>>(WebsocketEvent.ALGORAND_LAST_SALE_TRANSACTIONS).subscribe((data: Array<IBestBidAndBestOffer>) => {
 
         });
     }
@@ -488,7 +488,9 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
 
                             <div className={'indicator__item statistics p-20'}>
                                 {this.state.isLoadingChart ? (
-                                    <LoaderBlock/>
+                                    <div className={'flex-1-1-100 justify-content-center'}>
+                                        <LoaderBlock/>
+                                    </div>
                                 ) : (
                                     <>
                                         <div

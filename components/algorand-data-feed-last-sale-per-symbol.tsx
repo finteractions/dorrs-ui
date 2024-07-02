@@ -169,18 +169,18 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
             if (isOpen) this.subscribe();
         });
 
-        this.algorandStatisticsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_STATISTICS).subscribe((data: Array<ILastSale>) => {
+        this.algorandStatisticsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_LAST_SALE_STATISTICS).subscribe((data: Array<ILastSale>) => {
             const lastSale = data[0] || null;
             this.setState({lastSale: lastSale})
         });
 
-        this.algorandChartsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_CHARTS).subscribe((data: Array<ILastSale>) => {
+        this.algorandChartsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_LAST_SALE_CHARTS).subscribe((data: Array<ITradingView>) => {
             this.setState({charts: data}, () => {
                 this.getLastSaleReporting();
             })
         });
 
-        this.algorandTransactionsSubscription = websocketService.on<Array<ITradingView>>(WebsocketEvent.ALGORAND_TRANSACTIONS).subscribe((data: Array<ITradingView>) => {
+        this.algorandTransactionsSubscription = websocketService.on<Array<ILastSale>>(WebsocketEvent.ALGORAND_LAST_SALE_TRANSACTIONS).subscribe((data: Array<ILastSale>) => {
 
         });
     }
@@ -400,7 +400,9 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
 
                             <div className={'indicator__item statistics p-20'}>
                                 {this.state.isLoadingChart ? (
-                                    <LoaderBlock/>
+                                    <div className={'flex-1-1-100 justify-content-center'}>
+                                        <LoaderBlock/>
+                                    </div>
                                 ) : (
                                     <>
                                         {this.state.charts.length ? (
