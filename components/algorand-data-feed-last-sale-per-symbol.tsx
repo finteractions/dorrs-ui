@@ -20,6 +20,7 @@ import statisticsService from "@/services/statistics/statistics-service";
 import lastSaleService from "@/services/last-sale/last-sale-service";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
+import CopyClipboard from "@/components/copy-clipboard";
 
 interface AlgorandDataFeedLastSalePerSymbolProps {
     symbol: string;
@@ -37,6 +38,8 @@ interface AlgorandDataFeedLastSalePerSymbolState extends IState {
     isToggle: boolean;
     isFilterShow: boolean;
     filtersClassName: string;
+    algorandLastSaleApplicationId: string;
+    algorandLastSaleApplicationIdLink: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -77,7 +80,9 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
             mpid: null,
             isToggle: false,
             isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: 'd-none d-md-flex',
+            algorandLastSaleApplicationId: '',
+            algorandLastSaleApplicationIdLink: ''
         }
 
         columns = [
@@ -263,8 +268,14 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
 
                     const symbol = data.find((s: ISymbol) => s.symbol === formatterService.getSymbolName(this.props.symbol));
                     const companyProfile = symbol?.company_profile ?? null;
+                    const algorandLastSaleApplicationId = symbol?.algorand_last_sale_application_id ?? ''
+                    const algorandlastSaleApplicationIdLink = symbol?.algorand_last_sale_application_id_link ?? ''
 
-                    this.setState({companyProfile: companyProfile});
+                    this.setState({
+                        companyProfile: companyProfile,
+                        algorandLastSaleApplicationId: algorandLastSaleApplicationId,
+                        algorandLastSaleApplicationIdLink: algorandlastSaleApplicationIdLink
+                    });
                 })
                 .catch((errors: IError) => {
 
@@ -363,6 +374,32 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
                                     </div>
                                 </div>
                                 <div className={'indicator__item__data'}>
+                                    <div>
+                                        <div>Contract Address:</div>
+                                        <div
+                                            className={'padding-left-60'}>
+                                            <div className={'d-flex align-items-center'}>
+                                                <Link
+                                                    href={this.state.algorandLastSaleApplicationIdLink || ''}
+                                                    target={'_blank'}
+                                                    className="link">{this.state.algorandLastSaleApplicationId ?? ''}</Link>
+                                                <CopyClipboard
+                                                    text={`${this.state.algorandLastSaleApplicationId ?? ''}`}/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>Symbol:</div>
+                                        <div
+                                            className={'padding-left-60'}> {this.props.symbol}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>Currency:</div>
+                                        <div
+                                            className={'padding-left-60'}> USD
+                                        </div>
+                                    </div>
                                     <div>
                                         <div>Quantity:</div>
                                         <div
