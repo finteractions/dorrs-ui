@@ -13,6 +13,8 @@ import formatterService from "@/services/formatter/formatter-service";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {IMarketLastSaleStatistics} from "@/interfaces/i-market-last-sale-statistics";
 import statisticsService from "@/services/statistics/statistics-service";
+import Link from "next/link";
+import CopyClipboard from "@/components/copy-clipboard";
 
 
 interface AlgorandDataFeedLastSaleBlockState extends IState {
@@ -86,6 +88,11 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.digital_asset_category, {
+                id: "digital_asset_category",
+                cell: (item) => item.getValue(),
+                header: () => <span>Category </span>,
+            }),
             columnHelper.accessor((row) => ({
                 company_name: row.company_profile?.company_name || '',
             }), {
@@ -107,7 +114,32 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
                 id: "percentage_changed",
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
-            })
+            }),
+            columnHelper.accessor((row) => row.latest_update, {
+                id: "latest_update",
+                cell: (item) => item.getValue() ? formatterService.dateTimeFormat(item.getValue()) : '-',
+                header: () => <span>Updated Date </span>,
+            }),
+            columnHelper.accessor((row) => ({
+                contract: row.algorand_last_sale_application_id,
+                link: row.algorand_last_sale_application_id_link
+            }), {
+                id: "algorand_tx_hash_link",
+                cell: (item) => {
+                    return item.getValue().link ? (
+                        <div className={'d-flex align-items-center'}>
+                            <Link href={item.getValue().link} target={'_blank'}
+                                  className="link">{item.getValue().contract}</Link>
+                            <CopyClipboard
+                                text={`${item.getValue().contract}`}/>
+                        </div>
+
+                    ) : (
+                        <></>
+                    )
+                },
+                header: () => <span>Contract Address</span>,
+            }),
         ];
     }
 

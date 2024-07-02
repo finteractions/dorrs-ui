@@ -10,7 +10,6 @@ const AlgorandDataFeed: NextPageWithLayout = () => {
     const router = useRouter();
 
     const onCallback = (action: string, symbol: string) => {
-        console.log(action, symbol)
         router.push(`/algorand-data-feed/${action}/${symbol}`)
     }
 

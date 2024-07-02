@@ -112,7 +112,7 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
             }),
             columnHelper.accessor((row) => row.latest_update, {
                 id: "latest_update",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                cell: (item) => item.getValue() ? formatterService.dateTimeFormat(item.getValue()) : '-',
                 header: () => <span>Updated Date </span>,
             }),
             columnHelper.accessor((row) => ({
