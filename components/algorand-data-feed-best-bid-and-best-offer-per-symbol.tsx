@@ -20,7 +20,6 @@ import statisticsService from "@/services/statistics/statistics-service";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import CopyClipboard from "@/components/copy-clipboard";
 import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
-import {QuoteCondition} from "@/enums/quote-condition";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import {Button} from "react-bootstrap";
@@ -46,6 +45,8 @@ interface AlgorandDataFeedBestBidAndBestOfferPerSymbolState extends IState {
     filtersClassName: string;
     chart: string;
     isToggleBidOffer: boolean;
+    algorandBestBidAndBestOfferApplicationId: string;
+    algorandBestBidAndBestOfferApplicationIdLink: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -89,6 +90,8 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
             filtersClassName: 'd-none d-md-flex',
             chart: 'b',
             isToggleBidOffer: false,
+            algorandBestBidAndBestOfferApplicationId: '',
+            algorandBestBidAndBestOfferApplicationIdLink: '',
         }
 
         columns = [
@@ -236,12 +239,6 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
             statisticsService.getBestBidAndBestOfferBySymbol(this.props.symbol)
                 .then((res: Array<IBestBidAndBestOffer>) => {
                     let bestBidAndBestOffer = res[0] || null as any
-
-                    if (bestBidAndBestOffer) {
-                        bestBidAndBestOffer.algorand_best_bid_and_best_offer_application_id = '690717921'
-                        bestBidAndBestOffer.algorand_best_bid_and_best_offer_application_id_link = 'https://testnet.explorer.perawallet.app/application/690717921/'
-                    }
-
                     this.setState({bestBidAndBestOffer: bestBidAndBestOffer})
                 })
                 .catch((errors: IError) => {
@@ -261,12 +258,6 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
                     const data = res?.sort((a, b) => {
                         return Date.parse(b.updated_at) - Date.parse(a.updated_at);
                     }) || [];
-
-                    data.forEach(s => {
-                        s.quote_condition = QuoteCondition[s.quote_condition as keyof typeof QuoteCondition] || ''
-                        s.algorand_tx_hash = 'THPWUE2UWVUEZGNDMARXOP6D3OZGOO7WUMKKV2FGGFWVLPKIIOBA'
-                        s.algorand_tx_hash_link = 'https://testnet.explorer.perawallet.app/tx/THPWUE2UWVUEZGNDMARXOP6D3OZGOO7WUMKKV2FGGFWVLPKIIOBA/'
-                    })
 
                     data.forEach(s => {
                         s.status = formatterService.getTransactionStatusName(s.algorand_tx_hash || '')
@@ -333,8 +324,14 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
 
                     const symbol = data.find((s: ISymbol) => s.symbol === formatterService.getSymbolName(this.props.symbol));
                     const companyProfile = symbol?.company_profile ?? null;
+                    const algorandBestBidAndBestOfferApplicationId = symbol?.algorand_best_bid_and_best_offer_application_id ?? ''
+                    const algorandBestBidAndBestOfferApplicationIdLink = symbol?.algorand_best_bid_and_best_offer_application_id_link ?? ''
 
-                    this.setState({companyProfile: companyProfile});
+                    this.setState({
+                        companyProfile: companyProfile,
+                        algorandBestBidAndBestOfferApplicationId: algorandBestBidAndBestOfferApplicationId,
+                        algorandBestBidAndBestOfferApplicationIdLink: algorandBestBidAndBestOfferApplicationIdLink
+                    });
                 })
                 .catch((errors: IError) => {
 
@@ -429,18 +426,18 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
                                             className={'padding-left-60'}>
                                             <div className={'d-flex align-items-center'}>
                                                 <Link
-                                                    href={this.state.bestBidAndBestOffer?.algorand_best_bid_and_best_offer_application_id_link || ''}
+                                                    href={this.state.algorandBestBidAndBestOfferApplicationIdLink || ''}
                                                     target={'_blank'}
-                                                    className="link">{this.state.bestBidAndBestOffer?.algorand_best_bid_and_best_offer_application_id ?? ''}</Link>
+                                                    className="link">{this.state.algorandBestBidAndBestOfferApplicationId ?? ''}</Link>
                                                 <CopyClipboard
-                                                    text={`${this.state.bestBidAndBestOffer?.algorand_best_bid_and_best_offer_application_id ?? ''}`}/>
+                                                    text={`${this.state.algorandBestBidAndBestOfferApplicationId ?? ''}`}/>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
                                         <div>Symbol:</div>
                                         <div
-                                            className={'padding-left-60'}> {this.state.bestBidAndBestOffer?.symbol_name}
+                                            className={'padding-left-60'}> {this.props.symbol}
                                         </div>
                                     </div>
                                     <div>

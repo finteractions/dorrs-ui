@@ -167,7 +167,7 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
     }
 
     getStatistics = () => {
-        statisticsService.getMarketData('best-bid-and-best-offer')
+        statisticsService.getMarketData<IMarketBestBidAndBestOfferStatistics>('best-bid-and-best-offer')
             .then((res: Array<any>) => {
 
                 const data = res?.filter(s => s.algorand_best_bid_and_best_offer_application_id) || [] as any;

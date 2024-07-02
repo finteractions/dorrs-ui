@@ -189,7 +189,7 @@ class QuoteBoardBlock extends React.Component<QuoteBoardBlockProps, QuoteBoardBl
     }
 
     getMarketStatistics = () => {
-        statisticsService.getMarketData('last-sale')
+        statisticsService.getMarketData<IMarketLastSaleStatistics>('last-sale')
             .then((res: Array<any>) => {
                 const data = res || [];
                 this.setState({data: data}, () => {

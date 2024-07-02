@@ -70,4 +70,7 @@ export interface ISymbol {
     edgar_cik: string;
 
     algorand_last_sale_application_id?: string;
+    algorand_last_sale_application_id_link?: string;
+    algorand_best_bid_and_best_offer_application_id?: string;
+    algorand_best_bid_and_best_offer_application_id_link?: string;
 }

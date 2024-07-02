@@ -140,7 +140,7 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
     }
 
     getStatistics = () => {
-        statisticsService.getMarketData('last-sale')
+        statisticsService.getMarketData<IMarketLastSaleStatistics>('last-sale')
             .then((res: Array<any>) => {
                 const data = res?.filter(s => s.algorand_last_sale_application_id) || [];
                 this.setState({data: data});
