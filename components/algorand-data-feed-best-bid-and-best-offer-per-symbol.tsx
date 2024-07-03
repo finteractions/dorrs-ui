@@ -26,7 +26,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 
-interface AlgorandDataFeedBestBidAndBestOfferPerSymbolProps {
+interface AlgorandDataFeedBestBidAndBestOfferPerSymbolProps extends ICallback{
     symbol: string;
 }
 
@@ -56,9 +56,6 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<AlgorandDataFeedBestBidAndBestOfferPerSymbolProps> {
 
-    static contextType = DataContext;
-    declare context: React.ContextType<typeof DataContext>
-
     state: AlgorandDataFeedBestBidAndBestOfferPerSymbolState;
 
     getBestBidAndBestOfferReportingInterval: NodeJS.Timer | number | undefined;
@@ -70,9 +67,8 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
     private algorandTransactionsSubscription: Subscription | null = null;
     private algorandStatisticsSubscription: Subscription | null = null;
 
-    constructor(props: AlgorandDataFeedBestBidAndBestOfferPerSymbolProps, context: IDataContext<null>) {
+    constructor(props: AlgorandDataFeedBestBidAndBestOfferPerSymbolProps) {
         super(props);
-        this.context = context;
 
         this.state = {
             success: false,
@@ -352,7 +348,8 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
     };
 
     setActiveTab = () => {
-        this.context.setSharedData({activeTab: 'best-bid-and-best-offer'})
+        // this.context.setSharedData({activeTab: 'best-bid-and-best-offer'})
+        this.props.onCallback({activeTab: 'best-bid-and-best-offer'})
     }
 
     toggleBidOfferMenu = () => {
@@ -408,7 +405,7 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
                             </div>
                         </div>
 
-                        <div className={'indicators content__bottom'}>
+                        <div className={'indicators content__bottom p-0'}>
                             <div className={'indicator__item statistics mw-30'}>
                                 <div className="content__top pb-0">
                                     <div className="content__title">Best Bid and Best Offer</div>

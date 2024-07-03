@@ -22,7 +22,7 @@ import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import CopyClipboard from "@/components/copy-clipboard";
 
-interface AlgorandDataFeedLastSalePerSymbolProps {
+interface AlgorandDataFeedLastSalePerSymbolProps extends ICallback{
     symbol: string;
 }
 
@@ -50,9 +50,6 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDataFeedLastSalePerSymbolProps> {
 
-    static contextType = DataContext;
-    declare context: React.ContextType<typeof DataContext>
-
     state: AlgorandDataFeedLastSalePerSymbolState;
 
     getLastSaleReportingInterval: NodeJS.Timer | number | undefined;
@@ -64,9 +61,8 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
     private algorandTransactionsSubscription: Subscription | null = null;
     private algorandStatisticsSubscription: Subscription | null = null;
 
-    constructor(props: AlgorandDataFeedLastSalePerSymbolProps, context: IDataContext<null>) {
+    constructor(props: AlgorandDataFeedLastSalePerSymbolProps) {
         super(props);
-        this.context = context;
 
         this.state = {
             success: false,
@@ -316,7 +312,8 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
     };
 
     setActiveTab = () => {
-        this.context.setSharedData({activeTab: 'last-sale'})
+        // this.context.setSharedData({activeTab: 'last-sale'})
+        this.props.onCallback({activeTab: 'last-sale'})
     }
 
 
@@ -362,7 +359,7 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
                             </div>
                         </div>
 
-                        <div className={'indicators content__bottom'}>
+                        <div className={'indicators content__bottom p-0'}>
                             <div className={'indicator__item statistics mw-30'}>
                                 <div className="content__top pb-0">
                                     <div className="content__title">Last Sale</div>

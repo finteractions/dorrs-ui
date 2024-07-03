@@ -117,7 +117,7 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
             }),
             columnHelper.accessor((row) => row.latest_update, {
                 id: "latest_update",
-                cell: (item) => item.getValue() ? formatterService.dateTimeFormat(item.getValue()) : '-',
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Updated Date </span>,
             }),
             columnHelper.accessor((row) => ({
@@ -127,7 +127,7 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
                 id: "algorand_tx_hash_link",
                 cell: (item) => {
                     return item.getValue().link ? (
-                        <div className={'d-flex align-items-center'}>
+                        <div className={'d-flex align-items-center application-id'}>
                             <Link href={item.getValue().link} target={'_blank'}
                                   className="link">{item.getValue().contract}</Link>
                             <CopyClipboard

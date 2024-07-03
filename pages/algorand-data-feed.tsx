@@ -3,6 +3,7 @@ import type {NextPageWithLayout} from "./_app";
 import PortalLayout from "../components/layouts/portal/portal-layout";
 import {useRouter} from "next/router";
 import AlgorandDataFeedBlock from "@/components/algorand-data-feed-block";
+import AlgorandDataFeedContainer from "@/components/algorand-data-feed-container";
 
 
 const AlgorandDataFeed: NextPageWithLayout = () => {
@@ -15,7 +16,6 @@ const AlgorandDataFeed: NextPageWithLayout = () => {
 
     return (
         <>
-
             <AlgorandDataFeedBlock onCallback={onCallback}/>
         </>
     )
@@ -24,7 +24,10 @@ const AlgorandDataFeed: NextPageWithLayout = () => {
 AlgorandDataFeed.getLayout = function getLayout(page: ReactElement) {
     return (
         <PortalLayout>
-            {page}
+            <AlgorandDataFeedContainer>
+                {page}
+            </AlgorandDataFeedContainer>
+
         </PortalLayout>
     )
 }
