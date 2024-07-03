@@ -22,10 +22,20 @@ import Table from "@/components/table/table";
 import FINRACatRegAForm from "@/components/finra-cat-reg-a-form";
 import SECIssuerForm from "@/components/sec-issuer-form";
 import SECOfferingForm from "@/components/sec-offering-form";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
+import UserPermissionService from "@/services/user/user-permission-service";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
 
 
 interface CompanyProfileProps extends ICallback {
     symbol: string;
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 interface CompanyProfileState extends IState, IModalState {
@@ -43,7 +53,25 @@ interface CompanyProfileState extends IState, IModalState {
     secIssuerData: ISECIssuer[],
     secOfferingData: ISECOffering[],
     formData: IFINRACatRegA | ISECIssuer | ISECOffering | null,
-    filtersClassName: 'd-none d-md-flex'
+    filtersClassName: 'd-none d-md-flex',
+    symbolAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
+    quoteBoardAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
+    algorandDataFeedAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
@@ -62,6 +90,9 @@ let tableSECOfferingFilters: Array<ITableFilter> = []
 
 class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
     symbols: Array<ISymbol> = new Array<ISymbol>();
     state: CompanyProfileState;
     companyProfile: ICompanyProfile | null;
@@ -72,13 +103,29 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     tableSECIssuerRef: React.RefObject<any> = React.createRef();
     tableSECOfferingRef: React.RefObject<any> = React.createRef();
 
-    constructor(props: CompanyProfileProps) {
+    constructor(props: CompanyProfileProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
 
         this.companyProfile = null;
+
+        const symbolAccess = UserPermissionService.getAccessRulesByComponent(
+            'SymbolBlock',
+            this.context.userProfile.access
+        );
+
+        const quoteBoardAccess = UserPermissionService.getAccessRulesByComponent(
+            'QuoteBoardBlock',
+            this.context.userProfile.access
+        );
+
+        const algorandDataFeedAccess = UserPermissionService.getAccessRulesByComponent(
+            'AlgorandDataFeedBlock',
+            this.context.userProfile.access
+        );
 
         this.symbol = null;
         this.state = {
@@ -95,7 +142,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             secIssuerData: [],
             secOfferingData: [],
             formData: null,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: 'd-none d-md-flex',
+            symbolAccess: symbolAccess,
+            quoteBoardAccess: quoteBoardAccess,
+            algorandDataFeedAccess: algorandDataFeedAccess,
         }
 
         finraRegAColumns = [
@@ -475,17 +525,39 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             <h2 className={'view_block_main_title mb-0'}>
                                                                 {this.companyProfile.company_name} ({this.symbol.symbol})</h2>
 
-                                                            <span title={'Quote Board Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('quote-board')}>
-                                                       Q
-                                                    </span>
-
-                                                            <span title={'Symbol Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('symbols', 'view')}>
+                                                            {this.state.symbolAccess.view && this.symbol && (
+                                                                <span title={'Symbol Profile'}
+                                                                      className={'indicator-item'}
+                                                                      onClick={() => this.navigate('symbols', 'view')}>
                                                        S
                                                     </span>
+                                                            )}
+
+                                                            {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                                <span title={'Quote Board Profile'}
+                                                                      className={'indicator-item'}
+                                                                      onClick={() => this.navigate('quote-board')}>
+                                                       Q
+                                                    </span>
+                                                            )}
+
+                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                                <span title={'Algorand Data Feed - Last Sale Profile'}
+                                                                      className={'indicator-item'}
+                                                                      onClick={() => this.navigate('algorand-data-feed/last-sale')}>
+                                                       ALG-LS
+                                                    </span>
+                                                            )}
+
+
+                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                                <span
+                                                                    title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                    className={'indicator-item'}
+                                                                    onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                       ALG-BBO
+                                                    </span>
+                                                            )}
 
                                                             {!this.companyProfile.is_approved && (
                                                                 <div
@@ -525,8 +597,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         {this.companyProfile?.asset_type_description ? (
                                                             <>
                                                                 {this.companyProfile?.asset_type_description.map((description, index) => (
-                                                                    <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                         key={index}>
+                                                                    <div
+                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                        key={index}>
                                                                         {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
                                                                             <div
                                                                                 className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
@@ -537,7 +610,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                                 </div>
                                                                             </div>
                                                                         )}
-                                                                        <div className={'d-flex mb-2'}>{description}</div>
+                                                                        <div
+                                                                            className={'d-flex mb-2'}>{description}</div>
                                                                     </div>
                                                                 ))}
                                                             </>
@@ -997,4 +1071,4 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
 }
 
-export default CompanyProfileBlock;
+export default portalAccessWrapper(CompanyProfileBlock, 'CompanyProfileBlock');

@@ -14,10 +14,20 @@ import DepthOfBookPerSymbolBlock from "@/components/depth-of-book-per-symbol-blo
 import LastSaleReportingPerSymbolBlock from "@/components/last-sale-reporting-per-symbol";
 import BestBidAndBestOfferPerSymbolBlock from "@/components/best-bid-and-best-offer-per-symbol-block";
 import AssetImage from "@/components/asset-image";
+import UserPermissionService from "@/services/user/user-permission-service";
+import {DataContext} from "@/contextes/data-context";
+import {IDataContext} from "@/interfaces/i-data-context";
+import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 
 
 interface QuoteBoardPerSymbolProps extends ICallback {
     symbol: string;
+    access: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    }
 }
 
 interface QuoteBoardPerSymbolState extends IState {
@@ -26,6 +36,24 @@ interface QuoteBoardPerSymbolState extends IState {
     errors: string[];
     lastSale: ILastSale | null;
     bestBidAndBestOffer: IBestBidAndBestOffer | null;
+    companyProfileAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
+    symbolAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
+    algorandDataFeedAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -35,16 +63,35 @@ const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps> {
 
+    static contextType = DataContext;
+    declare context: React.ContextType<typeof DataContext>;
+
     companyProfile: ICompanyProfile | null;
     symbol: ISymbol | null;
     state: QuoteBoardPerSymbolState;
     statisticsInterval: NodeJS.Timer | number | undefined;
 
-    constructor(props: QuoteBoardPerSymbolProps) {
+    constructor(props: QuoteBoardPerSymbolProps, context: IDataContext<null>) {
         super(props);
+        this.context = context;
 
         this.symbol = null;
         this.companyProfile = null;
+
+        const symbolAccess = UserPermissionService.getAccessRulesByComponent(
+            'SymbolBlock',
+            this.context.userProfile.access
+        );
+
+        const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
+            'CompanyProfileBlock',
+            this.context.userProfile.access
+        );
+
+        const algorandDataFeedAccess = UserPermissionService.getAccessRulesByComponent(
+            'AlgorandDataFeedBlock',
+            this.context.userProfile.access
+        );
 
         this.state = {
             success: false,
@@ -53,6 +100,9 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
             errors: [],
             lastSale: null,
             bestBidAndBestOffer: null,
+            symbolAccess: symbolAccess,
+            companyProfileAccess: companyProfileAccess,
+            algorandDataFeedAccess: algorandDataFeedAccess,
         }
 
 
@@ -256,7 +306,7 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                                 )}
                                             </h2>
 
-                                            {this.companyProfile && (
+                                            {this.state.symbolAccess.view && this.symbol && (
                                                 <span title={'Symbol Profile'}
                                                       className={'indicator-item'}
                                                       onClick={() => this.navigate('symbols', 'view')}>
@@ -264,17 +314,27 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                                                     </span>
                                             )}
 
-                                            <span title={'Asset Profile'}
-                                                  className={'indicator-item'}
-                                                  onClick={() => this.navigate('asset-profiles', 'view')}>
+                                            {this.state.companyProfileAccess.view && this.companyProfile && (
+                                                <span title={'Asset Profile'}
+                                                      className={'indicator-item'}
+                                                      onClick={() => this.navigate('asset-profiles', 'view')}>
                                                        P
                                                     </span>
+                                            )}
 
-                                            {this.symbol?.algorand_last_sale_application_id && (
-                                                <span title={'Algorand Data Feed'}
+                                            {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                <span title={'Algorand Data Feed - Last Sale'}
                                                       className={'indicator-item'}
-                                                      onClick={() => this.navigate('algorand-data-feed')}>
-                                                       A
+                                                      onClick={() => this.navigate('algorand-data-feed/last-sale')}>
+                                                       ALG-LS
+                                                    </span>
+                                            )}
+
+                                            {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                <span title={'Algorand Data Feed - Best Bid And Best Offer'}
+                                                      className={'indicator-item'}
+                                                      onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                       ALG-BBO
                                                     </span>
                                             )}
 
@@ -413,4 +473,4 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
 
 }
 
-export default QuoteBoardPerSymbolBlock;
+export default portalAccessWrapper(QuoteBoardPerSymbolBlock, 'QuoteBoardBlock');

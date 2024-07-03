@@ -46,7 +46,19 @@ interface SymbolInfoState extends IState, IModalState {
         create: boolean
         edit: boolean
         delete: boolean
-    },
+    };
+    quoteBoardAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
+    algorandDataFeedAccess: {
+        view: boolean
+        create: boolean
+        edit: boolean
+        delete: boolean
+    };
     modalTitle: string;
     formAction: string;
     symbol: ISymbol | null;
@@ -75,6 +87,16 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
             this.context.userProfile.access
         );
 
+        const quoteBoardAccess = UserPermissionService.getAccessRulesByComponent(
+            'QuoteBoardBlock',
+            this.context.userProfile.access
+        );
+
+        const algorandDataFeedAccess = UserPermissionService.getAccessRulesByComponent(
+            'AlgorandDataFeedBlock',
+            this.context.userProfile.access
+        );
+
 
         this.companyProfile = null;
         this.symbol = null;
@@ -87,6 +109,8 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
             formCompanyAction: 'add',
             usaStates: usaStatesList,
             companyProfileAccess: companyProfileAccess,
+            quoteBoardAccess: quoteBoardAccess,
+            algorandDataFeedAccess: algorandDataFeedAccess,
             modalTitle: '',
             formAction: 'edit',
             symbol: null,
@@ -149,7 +173,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     openModal = (mode: string) => {
         if (mode === 'edit') {
-           this.navigate('symbols', 'edit')
+            this.navigate('symbols', 'edit')
         } else {
             this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
             this.cancelCompanyForm();
@@ -233,28 +257,42 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                                     width={60}
                                                                     height={60}/>
                                                     </div>
-                                                    {this.symbol.security_name} ({this.symbol.symbol})</h2>
+                                                    {this.symbol.security_name} ({this.symbol.symbol})
+                                                </h2>
 
-                                                <span title={'Quote Board Profile'}
-                                                      className={'indicator-item'}
-                                                      onClick={() => this.navigate('quote-board')}>
-                                                       Q
-                                                    </span>
 
-                                                {this.symbol?.company_profile && (
+                                                {this.state.companyProfileAccess.view && this.state.companyProfileAccess.view && this.symbol?.company_profile && (
                                                     <span title={'Asset Profile'}
                                                           className={'indicator-item'}
                                                           onClick={() => this.navigate('asset-profiles', 'view')}>
                                                        P
                                                     </span>
                                                 )}
-                                                {/*{this.symbol?.algorand_last_sale_application_id && (*/}
-                                                {/*    <span title={'Algorand Data Feed'}*/}
-                                                {/*          className={'indicator-item'}*/}
-                                                {/*          onClick={() => this.navigate('algorand-data-feed')}>*/}
-                                                {/*       A*/}
-                                                {/*    </span>*/}
-                                                {/*)}*/}
+
+                                                {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                    <span title={'Quote Board Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('quote-board')}>
+                                                       Q
+                                                    </span>
+                                                )}
+
+                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                    <span title={'Algorand Data Feed - Last Sale Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('algorand-data-feed/last-sale')}>
+                                                       ALG-LS
+                                                    </span>
+                                                )}
+
+
+                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                    <span title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                       ALG-BBO
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className={'justify-content-end d-flex align-items-center gap-10'}>

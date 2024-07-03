@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {DataContext} from "@/contextes/data-context";
+import {useRouter} from "next/router";
 
 type ProfileContainerProps = {
     children: React.ReactNode
@@ -8,15 +9,21 @@ type ProfileContainerProps = {
 export default function AlgorandDataFeedContainer({children}: ProfileContainerProps) {
     const [activeTab, setActiveTab] = useState<string>('last-sale');
     const dataContext = useContext(DataContext);
+    const router = useRouter();
+
     const setTab = (tab: string) => {
         setActiveTab(tab);
         dataContext.setSharedData({activeTab: tab});
-        window.dispatchEvent(new Event("algorandNavigate"));
     };
 
     const handleTab = (values: any) => {
         const tab = values.detail.activeTab
         setTab(tab)
+    }
+
+    const handleBack = (tab: string) => {
+        setTab(tab);
+        window.dispatchEvent(new Event("algorandNavigate"));
     }
 
     useEffect(() => {
@@ -28,6 +35,16 @@ export default function AlgorandDataFeedContainer({children}: ProfileContainerPr
             window.addEventListener('handleTab', handleTab);
         };
     }, []);
+
+    useEffect(() => {
+        console.log("Current path:", router.pathname);
+        const pathes = router.pathname.split('/')
+        console.log(pathes)
+        if(pathes[2]){
+            setTab(pathes[2])
+        }
+        // You can add more logic here based on the current path
+    }, [router.pathname]);
 
 
     return (
@@ -44,14 +61,14 @@ export default function AlgorandDataFeedContainer({children}: ProfileContainerPr
                         <li className="nav-item">
                             <a className={`nav-link ${activeTab === 'last-sale' ? 'active' : ''}`}
                                id="home-tab" data-bs-toggle="tab" href="#last-sale"
-                               onClick={() => setTab('last-sale')}>Last
+                               onClick={() => handleBack('last-sale')}>Last
                                 Sale</a>
                         </li>
                         <li className="nav-item">
                             <a className={`nav-link ${activeTab === 'best-bid-and-best-offer' ? 'active' : ''}`}
                                id="profile-tab" data-bs-toggle="tab"
                                href="#best-bid-and-best-offer"
-                               onClick={() => setTab('best-bid-and-best-offer')}>Best
+                               onClick={() => handleBack('best-bid-and-best-offer')}>Best
                                 Bid And Best Offer</a>
                         </li>
                     </ul>
