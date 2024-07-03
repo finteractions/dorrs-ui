@@ -37,13 +37,12 @@ export default function AlgorandDataFeedContainer({children}: ProfileContainerPr
     }, []);
 
     useEffect(() => {
-        console.log("Current path:", router.pathname);
         const pathes = router.pathname.split('/')
-        console.log(pathes)
+
         if(pathes[2]){
             setTab(pathes[2])
         }
-        // You can add more logic here based on the current path
+
     }, [router.pathname]);
 
 

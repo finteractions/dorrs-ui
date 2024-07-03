@@ -20,7 +20,7 @@ import ModalLastSaleReportingHistoryBlock from "@/components/modal-last-sale-rep
 import InputMPIDField from "@/components/mpid-field";
 import converterService from "@/services/converter/converter-service";
 import {getGlobalConfig} from "@/utils/global-config";
-import {faAddressCard, faBroom, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faBroom} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
@@ -190,6 +190,10 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
 
     isAdd(): boolean {
         return ['add', 'edit'].includes(this.props.action);
+    }
+
+    isEdit(): boolean {
+        return ['edit'].includes(this.props.action);
     }
 
     componentDidMount() {
@@ -406,14 +410,14 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                     <div className="input">
                                                         <div className="input__title">Quantity <i>*</i></div>
                                                         <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                             <Field
                                                                 name="quantity"
                                                                 id="quantity"
                                                                 type="text"
                                                                 className="input__text"
                                                                 placeholder="Type Quantity"
-                                                                disabled={isSubmitting || this.isShow()}
+                                                                disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                 component={NumericInputField}
                                                                 decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                             />
@@ -424,14 +428,14 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                     <div className="input">
                                                         <div className="input__title">Price <i>*</i></div>
                                                         <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                             <Field
                                                                 name="price"
                                                                 id="price"
                                                                 type="text"
                                                                 className="input__text"
                                                                 placeholder="Type Price"
-                                                                disabled={isSubmitting || this.isShow()}
+                                                                disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                 component={NumericInputField}
                                                                 decimalScale={decimalPlaces}
                                                             />
