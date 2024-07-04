@@ -92,8 +92,12 @@ function formatAndColorNumberValueHTML(input: string | number, decimals = Number
         className = 'stay';
     }
 
-    return (<span className={className}><span style={sign == '' ? {width: 0} : {}}
-                                              className={'sign'}>{sign}</span><span>{formattedNumber}</span></span>);
+    return (
+        <span>
+            <span className={className}><span style={sign == '' ? {width: 10} : {}}
+                                              className={'sign'}>{sign}</span><span>{formattedNumber}</span></span>
+        </span>
+    );
 }
 
 function formatAndColorTickIndicationValueHTML(tickIndication: string) {
@@ -116,8 +120,10 @@ function formatAndColorTickIndicationValueHTML(tickIndication: string) {
     }
 
     return (
-        <span className={className}>
-            <span className={'sign'}>{icon}</span>
+        <span className={'span-flex'}>
+            <span className={className}>
+                <span className={'sign'}>{icon}</span>
+            </span>
         </span>
     );
 }
@@ -146,9 +152,11 @@ function formatAndColorNumberBlockHTML(input: string | number, percentageSign = 
     }
 
     return (
-        <span className={className}>
-            <span className={'sign'}>{icon}</span> <span>{formattedNumber}{percentageSign ? '%' : ''}</span>
-        </span>
+        <span className={'span-flex'}>
+            <span className={className}>
+                <span className={'sign'}>{icon}</span> <span>{formattedNumber}{percentageSign ? '%' : ''}</span>
+             </span>
+       </span>
     );
 }
 
@@ -182,15 +190,15 @@ function formatSymbolName(symbol: string) {
     return symbol.replace('-', ' / ')
 }
 
-function getSymbolName(symbol: string){
+function getSymbolName(symbol: string) {
     return symbol.split('-')[0]
 }
 
-function getTransactionStatusColour(value: string | null){
+function getTransactionStatusColour(value: string | null) {
     return value ? 'approved' : 'pending'
 }
 
-function getTransactionStatusName(value: string | null){
+function getTransactionStatusName(value: string | null) {
     return value ? 'Approved' : 'Pending'
 }
 
