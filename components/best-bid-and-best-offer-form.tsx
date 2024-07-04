@@ -252,6 +252,10 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
         return ['add', 'edit'].includes(this.props.action);
     }
 
+    isEdit(): boolean {
+        return ['edit'].includes(this.props.action);
+    }
+
     componentDidMount() {
         this.getSymbols();
     }
@@ -486,14 +490,14 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                             <div className="input">
                                                                 <div className="input__title">Bid Qty <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="bid_quantity"
                                                                         id="bid_quantity"
                                                                         type="text"
                                                                         className="input__text"
                                                                         placeholder="Type Bid Qty"
-                                                                        disabled={isSubmitting || this.isShow()}
+                                                                        disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                         component={NumericInputField}
                                                                         decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                                     />
@@ -504,14 +508,14 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                             <div className="input">
                                                                 <div className="input__title">Bid Price <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="bid_price"
                                                                         id="bid_price"
                                                                         type="text"
                                                                         className="input__text"
                                                                         placeholder="Type Bid Price"
-                                                                        disabled={isSubmitting || this.isShow()}
+                                                                        disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                         component={NumericInputField}
                                                                         decimalScale={decimalPlaces}
                                                                     />
@@ -584,14 +588,14 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                             <div className="input">
                                                                 <div className="input__title">Offer Qty <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="offer_quantity"
                                                                         id="offer_quantity"
                                                                         type="text"
                                                                         className="input__text"
                                                                         placeholder="Type Offer Qty"
-                                                                        disabled={isSubmitting || this.isShow()}
+                                                                        disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                         component={NumericInputField}
                                                                         decimalScale={converterService.getDecimals(symbol?.fractional_lot_size)}
                                                                     />
@@ -602,14 +606,14 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                             <div className="input">
                                                                 <div className="input__title">Offer Price <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.isEdit()) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="offer_price"
                                                                         id="offer_price"
                                                                         type="text"
                                                                         className="input__text"
                                                                         placeholder="Type Offer Price"
-                                                                        disabled={isSubmitting || this.isShow()}
+                                                                        disabled={isSubmitting || this.isShow() || this.isEdit()}
                                                                         component={NumericInputField}
                                                                         decimalScale={decimalPlaces}
                                                                     />
