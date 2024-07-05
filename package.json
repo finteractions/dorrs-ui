@@ -53,6 +53,7 @@
     "react-dates": "^21.8.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
+    "react-fast-marquee": "^1.6.5",
     "react-input-mask": "^2.0.4",
     "react-number-format": "^5.2.1",
     "react-otp-input": "^3.0.2",

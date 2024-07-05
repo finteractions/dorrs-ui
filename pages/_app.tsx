@@ -53,9 +53,11 @@ function App({Component, pageProps}: AppPropsWithLayout) {
 async function loadZone(Component: NextPageWithLayout): Promise<void> {
 
     const styleImports: Promise<void>[] = [];
-    console.log(Component?.layoutName)
+
     switch (Component?.layoutName) {
         case "PublicLayout":
+            styleImports.push(import(("@/styles/light.scss")));
+            styleImports.push(import(("@/styles/dark.scss")));
             styleImports.push(import(("@/styles/public.scss")));
             break;
         case "HomeLayout":

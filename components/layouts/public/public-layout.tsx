@@ -11,20 +11,21 @@ function PublicLayout({children}: HomeLayoutProps) {
 
     useEffect(() => {
         initializeGoogleTagManager(process.env.GTM_CODE);
+        const root = document.documentElement;
+
+        document.documentElement.classList.add('light');
     }, []);
 
     return (
         <>
             <div className="public-container">
-                <div className="login__right">
-                    <div className="login__wrapper">
+                <div className="public-container-block">
+                    <div className="public-container-wrapper">
                         <HomeLogo/>
-                        <div className="link__block">
+                        <div className="public-container-link-block">
                             <Link className="mb-24 login__link" href="/">Get back to Home</Link>
                         </div>
-                        <div className="login__block">
-                            {children}
-                        </div>
+                        {children}
                     </div>
                 </div>
             </div>
