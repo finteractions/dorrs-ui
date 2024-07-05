@@ -4,7 +4,7 @@ import '@/styles/fonts/fonts.css'
 
 import '@/styles/icon.scss'
 import '@/styles/custom.scss'
-// import "@/styles/home.scss"
+import "@/styles/home.scss"
 
 import {ReactElement, ReactNode} from 'react';
 import type {NextPage} from 'next';
@@ -16,15 +16,15 @@ import {Router} from 'next/router';
 import {config} from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import {AuthAdminProvider} from "@/contextes/auth-admin-context";
-import {Elements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 config.autoAddCss = false
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode;
     layoutName: string,
-    logo?: string | null
+    logo?:string | null
 };
 
 type AppPropsWithLayout<P = {}, IP = P> = AppProps<P> & {
@@ -43,7 +43,7 @@ function App({Component, pageProps}: AppPropsWithLayout) {
         <AuthUserProvider>
             <AuthAdminProvider>
                 <Elements stripe={stripePromise}>
-                    {getLayout(<Component {...pageProps} />)}
+                {getLayout(<Component {...pageProps} />)}
                 </Elements>
             </AuthAdminProvider>
         </AuthUserProvider>
@@ -55,15 +55,11 @@ async function loadZone(Component: NextPageWithLayout): Promise<void> {
     const styleImports: Promise<void>[] = [];
 
     switch (Component?.layoutName) {
-        case "PublicLayout":
-            styleImports.push(import(("@/styles/light.scss")));
-            styleImports.push(import(("@/styles/dark.scss")));
-            styleImports.push(import(("@/styles/public.scss")));
-            break;
         case "HomeLayout":
             styleImports.push(import(("@/styles/home.scss")));
             break;
         case "PortalLayout":
+        case "PublicLayout":
             styleImports.push(import(("@/styles/light.scss")));
             styleImports.push(import(("@/styles/dark.scss")));
             styleImports.push(import(("@/styles/portal.scss")));

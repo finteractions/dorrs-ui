@@ -7,16 +7,16 @@ import formatterService from "@/services/formatter/formatter-service";
 import AssetImage from "@/components/asset-image";
 import Marquee from "react-fast-marquee";
 
-interface QuoteBoardBlockState extends IState {
+interface TickerBlockState extends IState {
     isLoading: boolean;
     errors: string[];
     data: IMarketLastSaleStatistics[];
 }
 
-class TickerBlock extends React.Component<{}, QuoteBoardBlockState> {
+class TickerBlock extends React.Component<{}, TickerBlockState> {
 
     host = '';
-    state: QuoteBoardBlockState;
+    state: TickerBlockState;
 
     constructor(props: {}) {
         super(props);
@@ -31,8 +31,7 @@ class TickerBlock extends React.Component<{}, QuoteBoardBlockState> {
 
     componentDidMount() {
         this.host = `${window.location.protocol}//${window.location.host}`
-        this.setState({isLoading: true});
-        this.getMarketStatistics();
+        this.setState({isLoading: true}, () => this.getMarketStatistics());
     }
 
     componentWillUnmount() {
@@ -41,9 +40,8 @@ class TickerBlock extends React.Component<{}, QuoteBoardBlockState> {
 
     getMarketStatistics = () => {
         publicDashboardService.getTickerData()
-            .then((res: Array<any>) => {
+            .then((res: Array<IMarketLastSaleStatistics>) => {
                 const data = res || [];
-                console.log(data)
                 this.setState({data: data})
             })
             .catch((errors: IError) => {
@@ -57,49 +55,42 @@ class TickerBlock extends React.Component<{}, QuoteBoardBlockState> {
 
     render() {
         return (
-            <>
+            <div className={'mt-4'}>
 
                 {this.state.isLoading ? (
                     <LoaderBlock/>
                 ) : (
                     <>
                         {this.state.data.length ? (
-                            <div className={'indicators'}>
+                            <div className={'indicators-dashboard'}>
                                 <Marquee pauseOnHover={true}>
                                     {this.state.data.map(item => (
                                         <div key={item.symbol_name}
-                                             className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                             className={`indicator__item-dashboard ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
 
                                             <div className={'table-image image-28 mix-blend-mode-multiple-img'}>
                                                 <AssetImage alt=''
                                                             src={item.company_profile?.logo}
-                                                            width={28} height={28}/>
+                                                            width={30} height={30}/>
                                             </div>
                                             <div>
-                                                <div className={'indicator__item__data'}>
+                                                <div className={'indicator__item__data-dashboard'}>
                                                     <div className={'fw-bold'}>{item.symbol_name}</div>
                                                     <div> {formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
                                                 </div>
                                                 <div
                                                     className={'flex-1-1-100 text-overflow'}>{item.digital_asset_category || '-'}</div>
                                             </div>
-
                                         </div>
                                     ))}
-
                                 </Marquee>
-
-
-
-
                             </div>
                         ) : (
                             <NoDataBlock/>
                         )}
                     </>
                 )}
-
-            </>
+            </div>
         );
     }
 

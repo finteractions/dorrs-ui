@@ -2,6 +2,13 @@ import React, {useEffect} from "react";
 import Link from "next/link";
 import {initializeGoogleTagManager} from '@/js/googleTagManager';
 import HomeLogo from "@/components/layouts/home/home-logo";
+import websocketService from "@/services/websocket/websocket-service";
+import {ThemeProvider} from "next-themes";
+import {DataProvider} from "@/contextes/data-context";
+import ScrollToTop from "@/components/layouts/scroll-to-top";
+import PublicLayoutWrapper from "@/components/layouts/public/public-layout-wrapper";
+import publicGuard from "@/guards/public-guard";
+import authUserGuard from "@/guards/auth-user-guard";
 
 type HomeLayoutProps = {
     children: React.ReactNode
@@ -10,28 +17,25 @@ type HomeLayoutProps = {
 function PublicLayout({children}: HomeLayoutProps) {
 
     useEffect(() => {
-        initializeGoogleTagManager(process.env.GTM_CODE);
-        const root = document.documentElement;
+        import('bootstrap/dist/js/bootstrap.bundle.min.js');
 
-        document.documentElement.classList.add('light');
-    }, []);
+        return () => {
+            websocketService.closeWebSocket(false);
+        };
+    }, [])
 
     return (
         <>
-            <div className="public-container">
-                <div className="public-container-block">
-                    <div className="public-container-wrapper">
-                        <HomeLogo/>
-                        <div className="public-container-link-block">
-                            <Link className="mb-24 login__link" href="/">Get back to Home</Link>
-                        </div>
+            <ThemeProvider attribute="class">
+                <DataProvider>
+                    <PublicLayoutWrapper>
                         {children}
-                    </div>
-                </div>
-            </div>
-
+                    </PublicLayoutWrapper>
+                </DataProvider>
+            </ThemeProvider>
+            <ScrollToTop/>
         </>
     );
 }
 
-export default PublicLayout
+export default publicGuard(PublicLayout);
