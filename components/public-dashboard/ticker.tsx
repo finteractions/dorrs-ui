@@ -6,6 +6,9 @@ import NoDataBlock from "@/components/no-data-block";
 import formatterService from "@/services/formatter/formatter-service";
 import AssetImage from "@/components/asset-image";
 import Marquee from "react-fast-marquee";
+import {Subscription} from "rxjs";
+import websocketService from "@/services/websocket/websocket-service";
+import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
 
 interface TickerBlockState extends IState {
     isLoading: boolean;
@@ -17,6 +20,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
 
     host = '';
     state: TickerBlockState;
+    private subscription: Subscription | null = null;
 
     constructor(props: {}) {
         super(props);
@@ -31,18 +35,27 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
 
     componentDidMount() {
         this.host = `${window.location.protocol}//${window.location.host}`
-        this.setState({isLoading: true}, () => this.getMarketStatistics());
+        this.setState({isLoading: true}, () => {
+            this.getMarketStatistics();
+            this.subscriptions();
+        });
     }
 
     componentWillUnmount() {
+        this.subscription?.unsubscribe();
+    }
 
+    subscriptions(): void {
+        this.subscription = websocketService.on<Array<IMarketLastSaleStatistics>>(WebsocketEvent.DASHBOARD_TICKER).subscribe((data: Array<IMarketLastSaleStatistics>) => {
+            this.handleData(data);
+        });
     }
 
     getMarketStatistics = () => {
         publicDashboardService.getTickerData()
             .then((res: Array<IMarketLastSaleStatistics>) => {
                 const data = res || [];
-                this.setState({data: data})
+                this.handleData(data);
             })
             .catch((errors: IError) => {
 
@@ -50,6 +63,10 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
             .finally(() => {
                 this.setState({isLoading: false})
             });
+    }
+
+    handleData = (data: Array<IMarketLastSaleStatistics>) => {
+        this.setState({data: data})
     }
 
 

@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
-import PortalSidebar from "@/components/layouts/portal/sidebar/portal-sidebar";
-import { useResizeDetector } from "react-resize-detector";
-import { SidebarOverlay } from "@/components/layouts/backend/sidebar/sidebar";
-import PortalHeader from "@/components/layouts/portal/portal-header";
+import React, {useCallback, useEffect, useState} from "react";
+import {useResizeDetector} from "react-resize-detector";
 import PublicHeader from "@/components/layouts/public/public-header";
+import publicWrapper from "@/wrappers/public-wrapper";
 
 type PortalLayoutProps = {
     children: React.ReactNode;
 };
 
-function PublicLayoutWrapper({ children }: PortalLayoutProps) {
+function PublicLayoutWrapper({children}: PortalLayoutProps) {
     const [isShowSidebar, setIsShowSidebar] = useState(false);
 
     // Show status for md screen and above
@@ -60,7 +58,7 @@ function PublicLayoutWrapper({ children }: PortalLayoutProps) {
         };
     }, []);
 
-    const { ref } = useResizeDetector({ onResize });
+    const {ref} = useResizeDetector({onResize});
 
     // On first time load only
     useEffect(() => {
@@ -80,9 +78,9 @@ function PublicLayoutWrapper({ children }: PortalLayoutProps) {
 
     return (
         <div className="portal">
-            <div ref={ref} className="position-absolute w-100" />
+            <div ref={ref} className="position-absolute w-100"/>
             <div className={"wrapper d-flex flex-column min-vh-100"}>
-                <PublicHeader toggleSidebar={toggleIsShowSidebar} />
+                <PublicHeader toggleSidebar={toggleIsShowSidebar}/>
                 <div className="content">
                     <div className="container-fluid">{children}</div>
                 </div>
@@ -91,4 +89,4 @@ function PublicLayoutWrapper({ children }: PortalLayoutProps) {
     );
 }
 
-export default PublicLayoutWrapper
+export default publicWrapper(PublicLayoutWrapper);

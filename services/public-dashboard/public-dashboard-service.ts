@@ -940,6 +940,24 @@ class PublicDashboardService extends BaseService {
             }, 1000)
         })
     }
+
+    public async getCompanyProfile(): Promise<Array<IDashboardCompanyProfile>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardCompanyProfile>>>(`${this.PATH}company_profile/`, {})).data;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    [
+                        {
+                            "average_market_cap": "550000000",
+                            "total_market_cap": "10000",
+                            "number_of_companies": "27"
+                        },
+                    ] as any
+                )
+            }, 1000)
+        })
+    }
 }
 
 const publicDashboardService = new PublicDashboardService();

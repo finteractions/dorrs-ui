@@ -101,6 +101,22 @@ class WebSocketService extends BaseService {
         this.sendMessage(message)
     }
 
+
+    public subscribeOnDashboard(): void {
+        const message = {
+            type: WebsocketEvent.SUBSCRIBE_DASHBOARD,
+        }
+        this.sendMessage(message)
+    }
+
+    public unSubscribeOnDashboard(): void {
+        const message = {
+            type: WebsocketEvent.UNSUBSCRIBE_DASHBOARD
+        }
+
+        this.sendMessage(message)
+    }
+
     public on<T>(event: string): Observable<T> {
         if (event) {
             return this.messagesSubject.asObservable().pipe(

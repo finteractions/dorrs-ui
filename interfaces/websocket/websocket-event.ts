@@ -14,6 +14,13 @@ export const WebsocketEvent = {
     // Best Bid And Best Offer
     ALGORAND_BEST_BID_AND_BEST_OFFER_CHARTS: 'algorand-best-bid-and-best-offer-charts',
     ALGORAND_BEST_BID_AND_BEST_OFFER_TRANSACTIONS: 'algorand-best-bid-and-best-offer-transactions',
-    ALGORAND_BEST_BID_AND_BEST_OFFER_STATISTICS: 'algorand-best-bid-and-best-offer-statistics'
+    ALGORAND_BEST_BID_AND_BEST_OFFER_STATISTICS: 'algorand-best-bid-and-best-offer-statistics',
+
+    // Public Dashboard
+    SUBSCRIBE_DASHBOARD: 'subscribe-dashboard',
+    UNSUBSCRIBE_DASHBOARD: 'unsubscribe-dashboard',
+    DASHBOARD_TICKER: 'dashboard-ticker',
+    DASHBOARD_SYMBOL_REGISTRY: 'dashboard-symbol-registry',
+    DASHBOARD_COMPANY_PROFILE: 'dashboard-company-profile'
 
 }

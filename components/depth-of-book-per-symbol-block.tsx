@@ -31,7 +31,6 @@ import converterService from "@/services/converter/converter-service";
 import AssetImage from "@/components/asset-image";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
-import {boolean} from "yup";
 import {Subscription} from "rxjs";
 
 interface DepthOfBookPerSymbolProps {
