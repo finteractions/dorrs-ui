@@ -11,9 +11,11 @@ import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 
 interface TOP5ActiveSymbolsBlockState extends IState {
-    isLoading: boolean;
+    isLoadingTOP5ActiveSymbols: boolean;
+    isLoadingTOP5PercentageGains: boolean;
     errors: string[];
     dataActiveSymbols: Array<IDashboardTOP5ActiveSymbols>;
+    dataPercentageGains: Array<IDashboardTOP5PercentageChange>;
     activeTab: string | null;
 }
 
@@ -23,21 +25,27 @@ const pageLength = 5
 const columnHelperTOP5ActiveSymbols = createColumnHelper<any>();
 let columnsTOP5ActiveSymbols: any[] = [];
 
+const columnHelperTOP5PercentageGains = createColumnHelper<any>();
+let columnsTOP5PercentageGains: any[] = [];
+
 class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockState> {
 
     state: TOP5ActiveSymbolsBlockState;
     private subscription: Subscription | null = null;
 
     tableRefTOP5ActiveSymbols: React.RefObject<any> = React.createRef();
+    tableRefTOP5PercentageGains: React.RefObject<any> = React.createRef();
 
     constructor(props: {}) {
         super(props);
 
         this.state = {
             success: false,
-            isLoading: true,
+            isLoadingTOP5ActiveSymbols: true,
+            isLoadingTOP5PercentageGains: true,
             errors: [],
             dataActiveSymbols: [],
+            dataPercentageGains: [],
             activeTab: 'active-symbols'
         }
 
@@ -67,59 +75,93 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.total_volume, {
                 id: "total_volume",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), 0)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), 0),
                 header: () => <span>Total Volume</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.avg_sale_price, {
                 id: "avg_sale_price",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Avg. Sale Price</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.best_bid_price, {
                 id: "best_bid_price",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Highest Bid</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.best_offer_price, {
                 id: "best_offer_price",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Lowest Offer</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.total_bid_volume, {
                 id: "total_bid_volume",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Total Bid Vol</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.total_offer_volume, {
                 id: "total_offer_volume",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Total Ask Vol</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.spread_price, {
                 id: "spread_price",
-                cell: (item) =>
-                    <span className='blue-text'>{formatterService.numberFormat(item.getValue(), decimalPlaces)}</span>
-                ,
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Bid-Ask Spread</span>,
+            }),
+        ];
+
+        //     Table: Percentage Gains
+
+        columnsTOP5PercentageGains = [
+            columnHelperTOP5PercentageGains.accessor((row) => ({
+                symbol: row.symbol_name,
+                image: row.logo,
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <>
+                        <div className={`table-image`}
+                        >
+                            <div className="table-image-container">
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                            </div>
+                            {item.getValue().symbol}
+                        </div>
+                    </>
+                ,
+                header: () => <span>Symbol</span>,
+            }),
+            columnHelperTOP5PercentageGains.accessor((row) => row.company_name, {
+                id: "company_name",
+                cell: (item) => item.getValue()
+                ,
+                header: () => <span>Company Name</span>,
+            }),
+            columnHelperTOP5PercentageGains.accessor((row) => row.percentage_changed, {
+                id: "percentage_changed",
+                cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
+                header: () => <span>% Change</span>,
+            }),
+            columnHelperTOP5PercentageGains.accessor((row) => row.volume, {
+                id: "volume",
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
+                header: () => <span>Volume</span>,
+            }),
+            columnHelperTOP5PercentageGains.accessor((row) => row.last_trade_price, {
+                id: "last_trade_price",
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
+                header: () => <span>Last Trade Price</span>,
             }),
         ];
     }
 
     componentDidMount() {
-        this.setState({isLoading: true}, () => {
-            this.getTop5ActiveSymbols();
+        this.setState({isLoadingTOP5ActiveSymbols: true, isLoadingTOP5PercentageGains: true}, () => {
+            this.getTop5ActiveSymbols()
+                .then(() => this.getTop5PercentageGains())
+
             this.subscriptions();
         });
     }
@@ -141,22 +183,50 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
     }
 
     getTop5ActiveSymbols = () => {
-        publicDashboardService.getTOP5ActiveSymbols()
-            .then((res: Array<IDashboardTOP5ActiveSymbols>) => {
-                const data = res || [];
-                this.handleTOP5ActiveSymbolsData(data);
-            })
-            .catch((errors: IError) => {
+        return new Promise(resolve => {
+            publicDashboardService.getTOP5ActiveSymbols('active_symbols')
+                .then((res: Array<IDashboardTOP5ActiveSymbols>) => {
+                    const data = res || [];
+                    this.handleTOP5ActiveSymbolsData(data);
+                })
+                .catch((errors: IError) => {
 
+                })
+                .finally(() => {
+                    this.setState({isLoadingTOP5ActiveSymbols: false}, () => resolve(true))
+                });
+        })
+    }
+
+    getTop5PercentageGains = () => {
+        return new Promise(resolve => {
+            return new Promise(resolve => {
+                publicDashboardService.getTOP5Percentage('percentage_gains')
+                    .then((res: Array<IDashboardTOP5PercentageChange>) => {
+                        const data = res || [];
+                        this.handleTOP5PercentageGailnsData(data);
+                    })
+                    .catch((errors: IError) => {
+
+                    })
+                    .finally(() => {
+                        this.setState({isLoadingTOP5PercentageGains: false}, () => resolve(true))
+                    });
             })
-            .finally(() => {
-                this.setState({isLoading: false})
-            });
+        })
     }
 
     handleTOP5ActiveSymbolsData = (data: Array<IDashboardTOP5ActiveSymbols>) => {
         this.setState({
             dataActiveSymbols: data ?? [],
+        })
+    }
+
+    handleTOP5PercentageGailnsData = (data: Array<IDashboardTOP5PercentageChange>) => {
+        data.sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
+
+        this.setState({
+            dataPercentageGains: data ?? [],
         })
     }
 
@@ -175,46 +245,48 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
 
                         </div>
                     </div>
-                    {this.state.isLoading ? (
-                        <LoaderBlock/>
-                    ) : (
-                        <div className={'indicator__item__data'}>
-                            <div className={'w-100'}>
-                                <ul className="nav nav-tabs w-100" id="tabs">
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${this.state.activeTab === 'active-symbols' ? 'active' : ''}`}
-                                           data-bs-toggle="tab"
-                                           href="#active-symbols"
-                                           onClick={() => this.setActiveTab('active-symbols')}>Active Symbols</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${this.state.activeTab === 'percentage-gains' ? 'active' : ''}`}
-                                           data-bs-toggle="tab"
-                                           href="#percentage-gains"
-                                           onClick={() => this.setActiveTab('percentage-gains')}>Percentage
-                                            Gains</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${this.state.activeTab === 'percentage-losses' ? 'active' : ''}`}
-                                           data-bs-toggle="tab"
-                                           href="#percentage-losses"
-                                           onClick={() => this.setActiveTab('percentage-losses')}>Percentage
-                                            Losses</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className={`nav-link ${this.state.activeTab === 'trade-volumes' ? 'active' : ''}`}
-                                           data-bs-toggle="tab"
-                                           href="#trade-volumes"
-                                           onClick={() => this.setActiveTab('trade-volumes')}>Percentage
-                                            Losses</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div className="tab-content w-100">
-                                <div
-                                    className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'active-symbols' ? 'show active' : ''}`}
-                                    id="active-symbols">
-                                    {this.state.dataActiveSymbols.length ? (
+                    <div className={'indicator__item__data'}>
+                        <div className={'w-100'}>
+                            <ul className="nav nav-tabs w-100" id="tabs">
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'active-symbols' ? 'active' : ''}`}
+                                       data-bs-toggle="tab"
+                                       href="#active-symbols"
+                                       aria-disabled={this.state.isLoadingTOP5ActiveSymbols}
+                                       onClick={() => this.setActiveTab('active-symbols')}>Active Symbols</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'percentage-gains' ? 'active' : ''}`}
+                                       data-bs-toggle="tab"
+                                       aria-disabled={this.state.isLoadingTOP5PercentageGains}
+                                       href="#percentage-gains"
+                                       onClick={() => this.setActiveTab('percentage-gains')}>Percentage
+                                        Gains</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'percentage-losses' ? 'active' : ''}`}
+                                       data-bs-toggle="tab"
+                                       href="#percentage-losses"
+                                       onClick={() => this.setActiveTab('percentage-losses')}>Percentage
+                                        Losses</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={`nav-link ${this.state.activeTab === 'trade-volumes' ? 'active' : ''}`}
+                                       data-bs-toggle="tab"
+                                       href="#trade-volumes"
+                                       onClick={() => this.setActiveTab('trade-volumes')}>Trade Volumes</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="tab-content w-100">
+                            <div
+                                className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'active-symbols' ? 'show active' : ''}`}
+                                id="active-symbols">
+
+                                {this.state.isLoadingTOP5ActiveSymbols ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    this.state.dataActiveSymbols.length ? (
                                         <Table columns={columnsTOP5ActiveSymbols}
                                                pageLength={pageLength}
                                                data={this.state.dataActiveSymbols}
@@ -229,27 +301,46 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                                         <div className={'flex-column'}>
                                             <NoDataBlock/>
                                         </div>
-                                    )}
+                                    )
+                                )}
 
-                                </div>
-                                <div
-                                    className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'percentage-gains' ? 'show active' : ''}`}
-                                    id="percentage-gains">
-                                    IN DEVELOPMENT
-                                </div>
-                                <div
-                                    className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'percentage-losses' ? 'show active' : ''}`}
-                                    id="percentage-losses">
-                                    IN DEVELOPMENT
-                                </div>
-                                <div
-                                    className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'trade-volumes' ? 'show active' : ''}`}
-                                    id="trade-volumes">
-                                    IN DEVELOPMENT
-                                </div>
+                            </div>
+                            <div
+                                className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'percentage-gains' ? 'show active' : ''}`}
+                                id="percentage-gains">
+                                {this.state.isLoadingTOP5PercentageGains ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    this.state.dataPercentageGains.length ? (
+                                        <Table columns={columnsTOP5PercentageGains}
+                                               pageLength={pageLength}
+                                               data={this.state.dataPercentageGains}
+                                               searchPanel={false}
+                                               block={this}
+                                               viewBtn={false}
+                                               editBtn={false}
+                                               deleteBtn={false}
+                                               ref={this.tableRefTOP5PercentageGains}
+                                        />
+                                    ) : (
+                                        <div className={'flex-column'}>
+                                            <NoDataBlock/>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                            <div
+                                className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'percentage-losses' ? 'show active' : ''}`}
+                                id="percentage-losses">
+                                IN DEVELOPMENT
+                            </div>
+                            <div
+                                className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'trade-volumes' ? 'show active' : ''}`}
+                                id="trade-volumes">
+                                IN DEVELOPMENT
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </>
         );

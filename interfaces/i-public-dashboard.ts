@@ -44,3 +44,12 @@ interface IDashboardTOP5ActiveSymbols {
     total_offer_volume: string;
     spread_price: string;
 }
+
+interface IDashboardTOP5PercentageChange {
+    symbol_name: string;
+    logo: string | null;
+    company_name: string;
+    percentage_changed: string;
+    volume: string;
+    last_trade_price: string;
+}

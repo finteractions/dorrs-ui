@@ -1077,6 +1077,65 @@ class PublicDashboardService extends BaseService {
             }, 1000)
         })
     }
+
+    public async getTOP5Percentage(type?: string): Promise<Array<IDashboardTOP5PercentageChange>> {
+        let queryString = "";
+        if (type) {
+            queryString += `?type=${type}`;
+        }
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardTOP5ActiveSymbols>>>(`${this.PATH}market_data_top/${queryString}`, {})).data;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    [
+                        {
+                            "symbol_name": "TEST",
+                            "logo": "/media/company_profile_logo/logo.jpg",
+                            "company_name": "DORRS",
+                            "percentage_changed": "+0.6",
+                            "volume":"450000",
+                            "last_trade_price":"195.66",
+                        },
+                        {
+                            "symbol_name": "TESTA",
+                            "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
+                            "company_name": "DORRS",
+                            "percentage_changed": "+1.98",
+                            "volume":"12952",
+                            "last_trade_price":"145.21",
+                        },
+                        {
+                            "symbol_name": "TESTB",
+                            "logo": "/media/company_profile_logo/signature_3.png",
+                            "company_name": "DORRS",
+                            "percentage_changed": "+25.63",
+                            "volume":"785000",
+                            "last_trade_price":"10000",
+                        },
+                        {
+                            "symbol_name": "TESTD",
+                            "logo": "/media/company_profile_logo/logo.png",
+                            "company_name": "DORRS",
+                            "percentage_changed": "+14.78",
+                            "volume":"8563.21",
+                            "last_trade_price":"145.61",
+                        },
+                        {
+                            "symbol_name": "WRWER",
+                            "logo": "/media/company_profile_logo/rainstart01.png",
+                            "company_name": "DORRS",
+                            "percentage_changed": "+3",
+                            "volume":"741.36",
+                            "last_trade_price":"11.24",
+                        }
+
+
+                    ] as any
+                )
+            }, 1000)
+        })
+    }
 }
 
 const publicDashboardService = new PublicDashboardService();
