@@ -14,10 +14,12 @@ interface TOP5ActiveSymbolsBlockState extends IState {
     isLoadingTOP5ActiveSymbols: boolean;
     isLoadingTOP5PercentageGains: boolean;
     isLoadingTOP5PercentageLosses: boolean;
+    isLoadingTOP5TradeVolumes: boolean;
     errors: string[];
     dataActiveSymbols: Array<IDashboardTOP5ActiveSymbols>;
     dataPercentageGains: Array<IDashboardTOP5PercentageChange>;
     dataPercentageLosses: Array<IDashboardTOP5PercentageChange>;
+    dataTradeVolumes: Array<IDashboardTOP5PercentageChange>;
     activeTab: string | null;
 }
 
@@ -33,14 +35,21 @@ let columnsTOP5PercentageGains: any[] = [];
 const columnHelperTOP5PercentageLosses = createColumnHelper<any>();
 let columnsTOP5PercentageLosses: any[] = [];
 
+const columnHelperTOP5TradeVolumes = createColumnHelper<any>();
+let columnsTOP5TradeVolumes: any[] = [];
+
 class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockState> {
 
     state: TOP5ActiveSymbolsBlockState;
-    private subscription: Subscription | null = null;
+    private subscriptionOnTOP5ActiveSymbols: Subscription | null = null;
+    private subscriptionOnTOP5PercentageGains: Subscription | null = null;
+    private subscriptionOnTOP5PercentageLoses: Subscription | null = null;
+    private subscriptionOnTOP5TradeVolumes: Subscription | null = null;
 
     tableRefTOP5ActiveSymbols: React.RefObject<any> = React.createRef();
     tableRefTOP5PercentageGains: React.RefObject<any> = React.createRef();
     tableRefTOP5PercentageLosses: React.RefObject<any> = React.createRef();
+    tableRefTOP5TradeVolumes: React.RefObject<any> = React.createRef();
 
     constructor(props: {}) {
         super(props);
@@ -50,10 +59,12 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             isLoadingTOP5ActiveSymbols: true,
             isLoadingTOP5PercentageGains: true,
             isLoadingTOP5PercentageLosses: true,
+            isLoadingTOP5TradeVolumes: true,
             errors: [],
             dataActiveSymbols: [],
             dataPercentageGains: [],
             dataPercentageLosses: [],
+            dataTradeVolumes: [],
             activeTab: 'active-symbols'
         }
 
@@ -119,7 +130,6 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
         ];
 
         //     Table: Percentage Gains
-
         columnsTOP5PercentageGains = [
             columnHelperTOP5PercentageGains.accessor((row) => ({
                 symbol: row.symbol_name,
@@ -165,7 +175,6 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
         ];
 
         //     Table: Percentage Gains
-
         columnsTOP5PercentageLosses = [
             columnHelperTOP5PercentageLosses.accessor((row) => ({
                 symbol: row.symbol_name,
@@ -209,6 +218,51 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 header: () => <span>Last Trade Price</span>,
             }),
         ];
+
+        //     Table: Trade Volumes
+        columnsTOP5TradeVolumes = [
+            columnHelperTOP5TradeVolumes.accessor((row) => ({
+                symbol: row.symbol_name,
+                image: row.logo,
+            }), {
+                id: "symbol",
+                cell: (item) =>
+                    <>
+                        <div className={`table-image`}
+                        >
+                            <div className="table-image-container">
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
+                            </div>
+                            {item.getValue().symbol}
+                        </div>
+                    </>
+                ,
+                header: () => <span>Symbol</span>,
+            }),
+            columnHelperTOP5TradeVolumes.accessor((row) => row.company_name, {
+                id: "company_name",
+                cell: (item) => item.getValue()
+                ,
+                header: () => <span>Company Name</span>,
+            }),
+            columnHelperTOP5TradeVolumes.accessor((row) => row.percentage_changed, {
+                id: "percentage_changed",
+                cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
+                header: () => <span>% Change</span>,
+            }),
+            columnHelperTOP5TradeVolumes.accessor((row) => row.volume, {
+                id: "volume",
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
+                header: () => <span>Volume</span>,
+            }),
+            columnHelperTOP5TradeVolumes.accessor((row) => row.last_trade_price, {
+                id: "last_trade_price",
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
+                header: () => <span>Last Trade Price</span>,
+            }),
+        ];
     }
 
     componentDidMount() {
@@ -216,13 +270,17 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             this.getTop5ActiveSymbols()
                 .then(() => this.getTop5PercentageGains())
                 .then(() => this.getTop5PercentageLosses())
+                .then(() => this.getTop5TradeVolumes())
 
             this.subscriptions();
         });
     }
 
     componentWillUnmount() {
-        this.subscription?.unsubscribe();
+        this.subscriptionOnTOP5ActiveSymbols?.unsubscribe();
+        this.subscriptionOnTOP5PercentageGains?.unsubscribe();
+        this.subscriptionOnTOP5PercentageLoses?.unsubscribe();
+        this.subscriptionOnTOP5TradeVolumes?.unsubscribe();
     }
 
     setActiveTab = (tab: string) => {
@@ -232,8 +290,20 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
     }
 
     subscriptions(): void {
-        this.subscription = websocketService.on<Array<IDashboardTOP5ActiveSymbols>>(WebsocketEvent.DASHBOARD_TOP5_ACTIVE_SYMBOLS).subscribe((data: Array<IDashboardTOP5ActiveSymbols>) => {
+        this.subscriptionOnTOP5ActiveSymbols = websocketService.on<Array<IDashboardTOP5ActiveSymbols>>(WebsocketEvent.DASHBOARD_TOP5_ACTIVE_SYMBOLS).subscribe((data: Array<IDashboardTOP5ActiveSymbols>) => {
             this.handleTOP5ActiveSymbolsData(data);
+        });
+
+        this.subscriptionOnTOP5PercentageGains = websocketService.on<Array<IDashboardTOP5PercentageChange>>(WebsocketEvent.DASHBOARD_TOP5_PERCENTAGE_GAINS).subscribe((data: Array<IDashboardTOP5PercentageChange>) => {
+            this.handleTOP5PercentageGainsData(data);
+        });
+
+        this.subscriptionOnTOP5PercentageLoses = websocketService.on<Array<IDashboardTOP5PercentageChange>>(WebsocketEvent.DASHBOARD_TOP5_PERCENTAGE_LOSSES).subscribe((data: Array<IDashboardTOP5PercentageChange>) => {
+            this.handleTOP5PercentageLossesData(data);
+        });
+
+        this.subscriptionOnTOP5TradeVolumes = websocketService.on<Array<IDashboardTOP5PercentageChange>>(WebsocketEvent.DASHBOARD_TOP5_TRADE_VOLUMES).subscribe((data: Array<IDashboardTOP5PercentageChange>) => {
+            this.handleTOP5TradeVolumesData(data);
         });
     }
 
@@ -285,6 +355,22 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
         })
     }
 
+    getTop5TradeVolumes = () => {
+        return new Promise(resolve => {
+            publicDashboardService.getTOP5Percentage('trade_volumes')
+                .then((res: Array<IDashboardTOP5PercentageChange>) => {
+                    const data = res || [];
+                    this.handleTOP5TradeVolumesData(data);
+                })
+                .catch((errors: IError) => {
+
+                })
+                .finally(() => {
+                    this.setState({isLoadingTOP5TradeVolumes: false}, () => resolve(true))
+                });
+        })
+    }
+
     handleTOP5ActiveSymbolsData = (data: Array<IDashboardTOP5ActiveSymbols>) => {
         this.setState({
             dataActiveSymbols: data ?? [],
@@ -307,6 +393,14 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
         })
     }
 
+    handleTOP5TradeVolumesData = (data: Array<IDashboardTOP5PercentageChange>) => {
+        data.sort((a, b) => Number(b.volume) - Number(a.volume))
+
+        this.setState({
+            dataTradeVolumes: data ?? [],
+        })
+    }
+
 
     render() {
         return (
@@ -314,7 +408,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             <>
                 <div className={'indicator__item statistics'}>
                     <div className="content__top pb-0">
-                        <div className="content__title">TOP-5 Entities</div>
+                        <div className="content__title">TOP-{pageLength} Entities</div>
                     </div>
 
                     <div>
@@ -343,6 +437,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                                 <li className="nav-item">
                                     <a className={`nav-link ${this.state.activeTab === 'percentage-losses' ? 'active' : ''}`}
                                        data-bs-toggle="tab"
+                                       aria-disabled={this.state.isLoadingTOP5PercentageLosses}
                                        href="#percentage-losses"
                                        onClick={() => this.setActiveTab('percentage-losses')}>Percentage
                                         Losses</a>
@@ -364,16 +459,20 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                                     <LoaderBlock/>
                                 ) : (
                                     this.state.dataActiveSymbols.length ? (
-                                        <Table columns={columnsTOP5ActiveSymbols}
-                                               pageLength={pageLength}
-                                               data={this.state.dataActiveSymbols}
-                                               searchPanel={false}
-                                               block={this}
-                                               viewBtn={false}
-                                               editBtn={false}
-                                               deleteBtn={false}
-                                               ref={this.tableRefTOP5ActiveSymbols}
-                                        />
+                                       <>
+                                           <Table columns={columnsTOP5ActiveSymbols}
+                                                  pageLength={pageLength}
+                                                  data={this.state.dataActiveSymbols}
+                                                  searchPanel={false}
+                                                  block={this}
+                                                  viewBtn={false}
+                                                  editBtn={false}
+                                                  deleteBtn={false}
+                                                  ref={this.tableRefTOP5ActiveSymbols}
+                                           />
+                                       </>
+
+
                                     ) : (
                                         <div className={'flex-column'}>
                                             <NoDataBlock/>
@@ -433,7 +532,26 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                             <div
                                 className={`indicator__item__data tab-pane fade ${this.state.activeTab === 'trade-volumes' ? 'show active' : ''}`}
                                 id="trade-volumes">
-                                IN DEVELOPMENT
+                                {this.state.isLoadingTOP5TradeVolumes ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    this.state.dataTradeVolumes.length ? (
+                                        <Table columns={columnsTOP5TradeVolumes}
+                                               pageLength={pageLength}
+                                               data={this.state.dataTradeVolumes}
+                                               searchPanel={false}
+                                               block={this}
+                                               viewBtn={false}
+                                               editBtn={false}
+                                               deleteBtn={false}
+                                               ref={this.tableRefTOP5TradeVolumes}
+                                        />
+                                    ) : (
+                                        <div className={'flex-column'}>
+                                            <NoDataBlock/>
+                                        </div>
+                                    )
+                                )}
                             </div>
                         </div>
                     </div>

@@ -36,6 +36,7 @@ interface IDashboardBlockchainDataBestBidAndBestOffer {
 interface IDashboardTOP5ActiveSymbols {
     symbol_name: string;
     logo: string | null;
+    company_name: string;
     total_volume: string;
     avg_sale_price: string;
     best_bid_price: string;
@@ -53,3 +54,5 @@ interface IDashboardTOP5PercentageChange {
     volume: string;
     last_trade_price: string;
 }
+
+
