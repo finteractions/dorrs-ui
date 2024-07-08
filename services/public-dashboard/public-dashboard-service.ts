@@ -1018,6 +1018,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TEST",
                             "logo": "/media/company_profile_logo/logo.jpg",
+                            "company_name":"DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1029,6 +1030,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTA",
                             "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
+                            "company_name":"DORRS",
                             "total_volume": "500",
                             "avg_sale_price": "18.87",
                             "best_bid_price": "19.09",
@@ -1040,6 +1042,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTB",
                             "logo": "/media/company_profile_logo/signature_3.png",
+                            "company_name":"DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1051,6 +1054,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTD",
                             "logo": "/media/company_profile_logo/logo.png",
+                            "company_name":"DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1062,6 +1066,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "WRWER",
                             "logo": "/media/company_profile_logo/rainstart01.png",
+                            "company_name":"DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",

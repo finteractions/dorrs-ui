@@ -92,6 +92,12 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelperTOP5PercentageGains.accessor((row) => row.company_name, {
+                id: "company_name",
+                cell: (item) => item.getValue()
+                ,
+                header: () => <span>Company Name</span>,
+            }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.total_volume, {
                 id: "total_volume",
                 cell: (item) => formatterService.numberFormat(item.getValue(), 0),
