@@ -21,6 +21,7 @@ export const WebsocketEvent = {
     UNSUBSCRIBE_DASHBOARD: 'unsubscribe-dashboard',
     DASHBOARD_TICKER: 'dashboard-ticker',
     DASHBOARD_SYMBOL_REGISTRY: 'dashboard-symbol-registry',
-    DASHBOARD_COMPANY_PROFILE: 'dashboard-company-profile'
+    DASHBOARD_COMPANY_PROFILE: 'dashboard-company-profile',
+    DASHBOARD_MARKET_SUMMARY: 'dashboard-market-summary',
 
 }

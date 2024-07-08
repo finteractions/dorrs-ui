@@ -67,41 +67,38 @@ class CompanyProfileBlock extends React.Component<{}, CompanyProfileBlockState> 
     render() {
         return (
             <>
+                <div className={'indicator__item statistics'}>
+                    <div className="content__top pb-0">
+                        <div className="content__title">Company Profile</div>
+                    </div>
 
-                {this.state.isLoading ? (
-                    <LoaderBlock/>
-                ) : (
-                    <>
-                        <div className={'indicator__item statistics'}>
-                            <div className="content__top pb-0">
-                                <div className="content__title">Company Profile</div>
-                            </div>
+                    <div>
+                        <div>
 
+                        </div>
+                    </div>
+                    {this.state.isLoading ? (
+                        <LoaderBlock/>
+                    ) : (
+                        <div className={'indicator__item__data'}>
                             <div>
-                                <div>
-
-                                </div>
+                                <div>Average Market Cap:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.average_market_cap) || 0, 4)}</div>
                             </div>
-                            <div className={'indicator__item__data'}>
-                                <div>
-                                    <div>Average Market Cap:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.average_market_cap) || 0, 4)}</div>
-                                </div>
-                                <div>
-                                    <div>Total Market Cap:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_market_cap) || 0, 4)}</div>
-                                </div>
-                                <div>
-                                    <div>Number of Companies:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.number_of_companies) || 0, 0)}</div>
-                                </div>
+                            <div>
+                                <div>Total Market Cap:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_market_cap) || 0, 4)}</div>
+                            </div>
+                            <div>
+                                <div>Number of Companies:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.number_of_companies) || 0, 0)}</div>
                             </div>
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
             </>
         );
     }

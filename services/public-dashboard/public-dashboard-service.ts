@@ -949,9 +949,31 @@ class PublicDashboardService extends BaseService {
                 resolve(
                     [
                         {
-                            "average_market_cap": "550000000",
+                            "average_market_cap": "550000",
                             "total_market_cap": "10000",
                             "number_of_companies": "27"
+                        },
+                    ] as any
+                )
+            }, 1000)
+        })
+    }
+
+    public async getMarketSummary(): Promise<Array<IDashboardMarketSummary>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardMarketSummary>>>(`${this.PATH}market_summary/`, {})).data;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    [
+                        {
+                            "total_volume": "550000",
+                            "avg_sale_price": "100.63",
+                            "best_bid_price": "204.05",
+                            "best_offer_price": "98.21",
+                            "total_bid_volume": "120000",
+                            "total_offer_volume": "185000",
+                            "spread_price": "0.1",
                         },
                     ] as any
                 )

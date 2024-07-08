@@ -68,41 +68,38 @@ class SymbolRegistryBlock extends React.Component<{}, SymbolRegistryBlockState> 
     render() {
         return (
             <>
+                <div className={'indicator__item statistics'}>
+                    <div className="content__top pb-0">
+                        <div className="content__title">Symbol Registry</div>
+                    </div>
 
-                {this.state.isLoading ? (
-                    <LoaderBlock/>
-                ) : (
-                    <>
-                        <div className={'indicator__item statistics'}>
-                            <div className="content__top pb-0">
-                                <div className="content__title">Symbol Registry</div>
-                            </div>
+                    <div>
+                        <div>
 
+                        </div>
+                    </div>
+                    {this.state.isLoading ? (
+                        <LoaderBlock/>
+                    ) : (
+                        <div className={'indicator__item__data'}>
                             <div>
-                                <div>
-
-                                </div>
+                                <div>Total Symbols:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_symbols) || 0, 0)}</div>
                             </div>
-                            <div className={'indicator__item__data'}>
-                                <div>
-                                    <div>Total Symbols:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_symbols) || 0, 0)}</div>
-                                </div>
-                                <div>
-                                    <div>Total Companies:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_companies) || 0, 0)}</div>
-                                </div>
-                                <div>
-                                    <div>Unique Industries:</div>
-                                    <div
-                                        className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.unique_industries) || 0, 0)}</div>
-                                </div>
+                            <div>
+                                <div>Total Companies:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_companies) || 0, 0)}</div>
+                            </div>
+                            <div>
+                                <div>Unique Industries:</div>
+                                <div
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.unique_industries) || 0, 0)}</div>
                             </div>
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
             </>
         );
     }
