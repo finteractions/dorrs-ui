@@ -1021,10 +1021,10 @@ class PublicDashboardService extends BaseService {
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
-                            "best_offer_price":"204.05",
-                            "total_bid_volume":"1256.33",
-                            "total_offer_volume":"3562.88",
-                            "spread_price":"0.3"
+                            "best_offer_price": "204.05",
+                            "total_bid_volume": "1256.33",
+                            "total_offer_volume": "3562.88",
+                            "spread_price": "0.3"
                         },
                         {
                             "symbol_name": "TESTA",
@@ -1032,10 +1032,10 @@ class PublicDashboardService extends BaseService {
                             "total_volume": "500",
                             "avg_sale_price": "18.87",
                             "best_bid_price": "19.09",
-                            "best_offer_price":"52.05",
-                            "total_bid_volume":"745.85",
-                            "total_offer_volume":"256.3",
-                            "spread_price":"0.1"
+                            "best_offer_price": "52.05",
+                            "total_bid_volume": "745.85",
+                            "total_offer_volume": "256.3",
+                            "spread_price": "0.1"
                         },
                         {
                             "symbol_name": "TESTB",
@@ -1043,10 +1043,10 @@ class PublicDashboardService extends BaseService {
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
-                            "best_offer_price":"204.05",
-                            "total_bid_volume":"1256.33",
-                            "total_offer_volume":"3562.88",
-                            "spread_price":"0.3"
+                            "best_offer_price": "204.05",
+                            "total_bid_volume": "1256.33",
+                            "total_offer_volume": "3562.88",
+                            "spread_price": "0.3"
                         },
                         {
                             "symbol_name": "TESTD",
@@ -1054,10 +1054,10 @@ class PublicDashboardService extends BaseService {
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
-                            "best_offer_price":"204.05",
-                            "total_bid_volume":"1256.33",
-                            "total_offer_volume":"3562.88",
-                            "spread_price":"0.3"
+                            "best_offer_price": "204.05",
+                            "total_bid_volume": "1256.33",
+                            "total_offer_volume": "3562.88",
+                            "spread_price": "0.3"
                         },
                         {
                             "symbol_name": "WRWER",
@@ -1065,10 +1065,10 @@ class PublicDashboardService extends BaseService {
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
-                            "best_offer_price":"204.05",
-                            "total_bid_volume":"1256.33",
-                            "total_offer_volume":"3562.88",
-                            "spread_price":"0.3"
+                            "best_offer_price": "204.05",
+                            "total_bid_volume": "1256.33",
+                            "total_offer_volume": "3562.88",
+                            "spread_price": "0.3"
                         }
 
 
@@ -1085,56 +1085,116 @@ class PublicDashboardService extends BaseService {
         }
         // return (await apiWebBackendService.get<IResponse<Array<IDashboardTOP5ActiveSymbols>>>(`${this.PATH}market_data_top/${queryString}`, {})).data;
 
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve(
-                    [
-                        {
-                            "symbol_name": "TEST",
-                            "logo": "/media/company_profile_logo/logo.jpg",
-                            "company_name": "DORRS",
-                            "percentage_changed": "+0.6",
-                            "volume":"450000",
-                            "last_trade_price":"195.66",
-                        },
-                        {
-                            "symbol_name": "TESTA",
-                            "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
-                            "company_name": "DORRS",
-                            "percentage_changed": "+1.98",
-                            "volume":"12952",
-                            "last_trade_price":"145.21",
-                        },
-                        {
-                            "symbol_name": "TESTB",
-                            "logo": "/media/company_profile_logo/signature_3.png",
-                            "company_name": "DORRS",
-                            "percentage_changed": "+25.63",
-                            "volume":"785000",
-                            "last_trade_price":"10000",
-                        },
-                        {
-                            "symbol_name": "TESTD",
-                            "logo": "/media/company_profile_logo/logo.png",
-                            "company_name": "DORRS",
-                            "percentage_changed": "+14.78",
-                            "volume":"8563.21",
-                            "last_trade_price":"145.61",
-                        },
-                        {
-                            "symbol_name": "WRWER",
-                            "logo": "/media/company_profile_logo/rainstart01.png",
-                            "company_name": "DORRS",
-                            "percentage_changed": "+3",
-                            "volume":"741.36",
-                            "last_trade_price":"11.24",
-                        }
+        if (type && type === 'percentage_gains') {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(
+                        [
+                            {
+                                "symbol_name": "TEST",
+                                "logo": "/media/company_profile_logo/logo.jpg",
+                                "company_name": "DORRS",
+                                "percentage_changed": "+0.6",
+                                "volume": "450000",
+                                "last_trade_price": "195.66",
+                            },
+                            {
+                                "symbol_name": "TESTA",
+                                "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "+1.98",
+                                "volume": "12952",
+                                "last_trade_price": "145.21",
+                            },
+                            {
+                                "symbol_name": "TESTB",
+                                "logo": "/media/company_profile_logo/signature_3.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "+25.63",
+                                "volume": "785000",
+                                "last_trade_price": "10000",
+                            },
+                            {
+                                "symbol_name": "TESTD",
+                                "logo": "/media/company_profile_logo/logo.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "+14.78",
+                                "volume": "8563.21",
+                                "last_trade_price": "145.61",
+                            },
+                            {
+                                "symbol_name": "WRWER",
+                                "logo": "/media/company_profile_logo/rainstart01.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "+3",
+                                "volume": "741.36",
+                                "last_trade_price": "11.24",
+                            }
 
 
-                    ] as any
-                )
-            }, 1000)
-        })
+                        ] as any
+                    )
+                }, 1000)
+            })
+        } else if (type && type === 'percentage_losses') {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(
+                        [
+                            {
+                                "symbol_name": "TEST",
+                                "logo": "/media/company_profile_logo/logo.jpg",
+                                "company_name": "DORRS",
+                                "percentage_changed": "-0.6",
+                                "volume": "1246",
+                                "last_trade_price": "85.36",
+                            },
+                            {
+                                "symbol_name": "TESTA",
+                                "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "-15",
+                                "volume": "12596",
+                                "last_trade_price": "745.36",
+                            },
+                            {
+                                "symbol_name": "TESTB",
+                                "logo": "/media/company_profile_logo/signature_3.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "-1.5",
+                                "volume": "1452",
+                                "last_trade_price": "11.25",
+                            },
+                            {
+                                "symbol_name": "TESTD",
+                                "logo": "/media/company_profile_logo/logo.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "-41.22",
+                                "volume": "741.69",
+                                "last_trade_price": "92.42",
+                            },
+                            {
+                                "symbol_name": "WRWER",
+                                "logo": "/media/company_profile_logo/rainstart01.png",
+                                "company_name": "DORRS",
+                                "percentage_changed": "-9",
+                                "volume": "21000",
+                                "last_trade_price": "145.36",
+                            }
+
+
+                        ] as any
+                    )
+                }, 1000)
+            })
+        } else {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve([])
+                }, 1000)
+            })
+        }
+
     }
 }
 
