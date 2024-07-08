@@ -24,5 +24,6 @@ export const WebsocketEvent = {
     DASHBOARD_COMPANY_PROFILE: 'dashboard-company-profile',
     DASHBOARD_MARKET_DATA_SUMMARY: 'dashboard-market-data-summary',
     DASHBOARD_BLOCKCHAIN_DATA: 'dashboard-blockchain-data',
+    DASHBOARD_TOP5_ACTIVE_SYMBOLS: 'dashboard-top5-active-symbols',
 
 }

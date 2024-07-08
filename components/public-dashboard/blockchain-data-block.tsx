@@ -30,7 +30,7 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
             errors: [],
             dataLastSale: null,
             dataBestBidAndBestOffer: null,
-            activeTab: null
+            activeTab: 'last-sale'
         }
     }
 
@@ -38,7 +38,6 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
         this.setState({isLoading: true}, () => {
             this.getBlockchainData();
             this.subscriptions();
-            this.setActiveTab('last-sale');
         });
     }
 
@@ -47,11 +46,13 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
     }
 
     setActiveTab = (tab: string) => {
-        this.setState({activeTab: tab})
+        if (this.state.activeTab !== tab) {
+            this.setState({activeTab: tab});
+        }
     }
 
     subscriptions(): void {
-        this.subscription = websocketService.on<Array<IDashboardBlockchainDataLastSale>>(WebsocketEvent.DASHBOARD_MARKET_DATA_SUMMARY).subscribe((data: Array<IDashboardBlockchainDataLastSale>) => {
+        this.subscription = websocketService.on<Array<IDashboardBlockchainDataLastSale>>(WebsocketEvent.DASHBOARD_BLOCKCHAIN_DATA).subscribe((data: Array<IDashboardBlockchainDataLastSale>) => {
             this.handleData(data);
         });
     }
@@ -100,13 +101,13 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
                                 <ul className="nav nav-tabs w-100" id="tabs">
                                     <li className="nav-item">
                                         <a className={`nav-link ${this.state.activeTab === 'last-sale' ? 'active' : ''}`}
-                                           id="home-tab" data-bs-toggle="tab" href="#last-sale"
+                                           data-bs-toggle="tab" href="#last-sale"
                                            onClick={() => this.setActiveTab('last-sale')}>Last
                                             Sale</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className={`nav-link ${this.state.activeTab === 'best-bid-and-best-offer' ? 'active' : ''}`}
-                                           id="profile-tab" data-bs-toggle="tab"
+                                           data-bs-toggle="tab"
                                            href="#best-bid-and-best-offer"
                                            onClick={() => this.setActiveTab('best-bid-and-best-offer')}>Best
                                             Bid And Best Offer</a>

@@ -32,3 +32,15 @@ interface IDashboardBlockchainDataBestBidAndBestOffer {
     best_bid_price: string;
     best_offer_price: string;
 }
+
+interface IDashboardTOP5ActiveSymbols {
+    symbol_name: string;
+    logo: string | null;
+    total_volume: string;
+    avg_sale_price: string;
+    best_bid_price: string;
+    best_offer_price: string;
+    total_bid_volume: string;
+    total_offer_volume: string;
+    spread_price: string;
+}

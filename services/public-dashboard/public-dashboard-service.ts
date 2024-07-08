@@ -1003,6 +1003,80 @@ class PublicDashboardService extends BaseService {
             }, 1000)
         })
     }
+
+    public async getTOP5ActiveSymbols(type?: string): Promise<Array<IDashboardTOP5ActiveSymbols>> {
+        let queryString = "";
+        if (type) {
+            queryString += `?type=${type}`;
+        }
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardTOP5ActiveSymbols>>>(`${this.PATH}market_data_top/${queryString}`, {})).data;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    [
+                        {
+                            "symbol_name": "TEST",
+                            "logo": "/media/company_profile_logo/logo.jpg",
+                            "total_volume": "5000",
+                            "avg_sale_price": "140.33",
+                            "best_bid_price": "200.00",
+                            "best_offer_price":"204.05",
+                            "total_bid_volume":"1256.33",
+                            "total_offer_volume":"3562.88",
+                            "spread_price":"0.3"
+                        },
+                        {
+                            "symbol_name": "TESTA",
+                            "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
+                            "total_volume": "500",
+                            "avg_sale_price": "18.87",
+                            "best_bid_price": "19.09",
+                            "best_offer_price":"52.05",
+                            "total_bid_volume":"745.85",
+                            "total_offer_volume":"256.3",
+                            "spread_price":"0.1"
+                        },
+                        {
+                            "symbol_name": "TESTB",
+                            "logo": "/media/company_profile_logo/signature_3.png",
+                            "total_volume": "5000",
+                            "avg_sale_price": "140.33",
+                            "best_bid_price": "200.00",
+                            "best_offer_price":"204.05",
+                            "total_bid_volume":"1256.33",
+                            "total_offer_volume":"3562.88",
+                            "spread_price":"0.3"
+                        },
+                        {
+                            "symbol_name": "TESTD",
+                            "logo": "/media/company_profile_logo/logo.png",
+                            "total_volume": "5000",
+                            "avg_sale_price": "140.33",
+                            "best_bid_price": "200.00",
+                            "best_offer_price":"204.05",
+                            "total_bid_volume":"1256.33",
+                            "total_offer_volume":"3562.88",
+                            "spread_price":"0.3"
+                        },
+                        {
+                            "symbol_name": "WRWER",
+                            "logo": "/media/company_profile_logo/rainstart01.png",
+                            "total_volume": "5000",
+                            "avg_sale_price": "140.33",
+                            "best_bid_price": "200.00",
+                            "best_offer_price":"204.05",
+                            "total_bid_volume":"1256.33",
+                            "total_offer_volume":"3562.88",
+                            "spread_price":"0.3"
+                        }
+
+
+                    ] as any
+                )
+            }, 1000)
+        })
+    }
 }
 
 const publicDashboardService = new PublicDashboardService();
