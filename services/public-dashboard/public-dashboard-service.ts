@@ -959,8 +959,8 @@ class PublicDashboardService extends BaseService {
         })
     }
 
-    public async getMarketSummary(): Promise<Array<IDashboardMarketSummary>> {
-        // return (await apiWebBackendService.get<IResponse<Array<IDashboardMarketSummary>>>(`${this.PATH}market_summary/`, {})).data;
+    public async getMarketData(): Promise<Array<IDashboardMarketDataSummary>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardMarketDataSummary>>>(`${this.PATH}market_data/`, {})).data;
 
         return new Promise(resolve => {
             setTimeout(() => {
@@ -974,6 +974,29 @@ class PublicDashboardService extends BaseService {
                             "total_bid_volume": "120000",
                             "total_offer_volume": "185000",
                             "spread_price": "0.1",
+                        },
+                    ] as any
+                )
+            }, 1000)
+        })
+    }
+
+    public async getBlockchainData(): Promise<Array<IDashboardBlockchainDataLastSale>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardBlockchainData>>>(`${this.PATH}blockchain_data/`, {})).data;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    [
+                        {
+                            "total_volume": "550000",
+                            "avg_amount": "12500",
+                        },
+                        {
+                            "total_volume": "47000",
+                            "avg_amount": "7500",
+                            "best_bid_price": "100.05",
+                            "best_offer_price": "104.21",
                         },
                     ] as any
                 )

@@ -11,7 +11,7 @@ interface IDashboardCompanyProfile {
     number_of_companies: string;
 }
 
-interface IDashboardMarketSummary {
+interface IDashboardMarketDataSummary {
     total_volume: string;
     avg_sale_price: string;
     best_bid_price: string;
@@ -19,4 +19,16 @@ interface IDashboardMarketSummary {
     total_bid_volume: string;
     total_offer_volume: string;
     spread_price: string;
+}
+
+interface IDashboardBlockchainDataLastSale {
+    total_volume: string;
+    avg_amount: string;
+}
+
+interface IDashboardBlockchainDataBestBidAndBestOffer {
+    total_volume: string;
+    avg_amount: string;
+    best_bid_price: string;
+    best_offer_price: string;
 }

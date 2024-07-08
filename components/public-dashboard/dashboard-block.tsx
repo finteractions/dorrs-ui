@@ -5,6 +5,7 @@ import TickerBlock from "@/components/public-dashboard/ticker-block";
 import SymbolRegistryBlock from "@/components/public-dashboard/symbol-registry-block";
 import CompanyProfileBlock from "@/components/public-dashboard/company-profile-block";
 import MarketDataSummaryBlock from "@/components/public-dashboard/marke-data-summary-block";
+import BlockchainDataBlock from "@/components/public-dashboard/blockchain-data-block";
 
 
 class DashboardBlock extends React.Component {
@@ -49,22 +50,7 @@ class DashboardBlock extends React.Component {
                     <SymbolRegistryBlock/>
                     <CompanyProfileBlock/>
                     <MarketDataSummaryBlock/>
-                    <div className={'indicator__item statistics'}>
-                        <div className="content__top pb-0">
-                            <div className="content__title">Blockchain Data</div>
-                        </div>
-
-                        <div>
-                            <div>
-
-                            </div>
-                        </div>
-
-                            <div className={'indicator__item__data'}>
-
-                            </div>
-
-                    </div>
+                    <BlockchainDataBlock/>
                 </div>
             </>
         );

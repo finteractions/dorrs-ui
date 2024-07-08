@@ -9,7 +9,7 @@ import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
 interface MarketDataSummaryBlockState extends IState {
     isLoading: boolean;
     errors: string[];
-    data: IDashboardMarketSummary | null;
+    data: IDashboardMarketDataSummary | null;
 }
 
 class MarketDataSummaryBlock extends React.Component<{}, MarketDataSummaryBlockState> {
@@ -40,14 +40,14 @@ class MarketDataSummaryBlock extends React.Component<{}, MarketDataSummaryBlockS
     }
 
     subscriptions(): void {
-        this.subscription = websocketService.on<Array<IDashboardMarketSummary>>(WebsocketEvent.DASHBOARD_MARKET_SUMMARY).subscribe((data: Array<IDashboardMarketSummary>) => {
+        this.subscription = websocketService.on<Array<IDashboardMarketDataSummary>>(WebsocketEvent.DASHBOARD_MARKET_DATA_SUMMARY).subscribe((data: Array<IDashboardMarketDataSummary>) => {
             this.handleData(data);
         });
     }
 
     getMarketSummary = () => {
-        publicDashboardService.getMarketSummary()
-            .then((res: Array<IDashboardMarketSummary>) => {
+        publicDashboardService.getMarketData()
+            .then((res: Array<IDashboardMarketDataSummary>) => {
                 const data = res || [];
                 this.handleData(data);
             })
@@ -59,7 +59,7 @@ class MarketDataSummaryBlock extends React.Component<{}, MarketDataSummaryBlockS
             });
     }
 
-    handleData = (data: Array<IDashboardMarketSummary>) => {
+    handleData = (data: Array<IDashboardMarketDataSummary>) => {
         this.setState({data: data[0] ?? null})
     }
 

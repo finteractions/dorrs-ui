@@ -80,7 +80,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
                     <>
                         {this.state.data.length ? (
                             <div className={'indicators-dashboard'}>
-                                <Marquee pauseOnHover={true}>
+                                <Marquee>
                                     {this.state.data.map(item => (
                                         <div key={item.symbol_name}
                                              className={`indicator__item-dashboard ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
