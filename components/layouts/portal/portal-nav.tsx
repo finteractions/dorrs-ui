@@ -106,7 +106,7 @@ const PortalNav = () => {
                         </Dropdown>
                     </>
                 ) : (
-                    <>
+                    <div className={'d-flex gap-10'}>
                         <Link className=" b-btn ripple d-flex align-items-center align-self-center"
                               href={'/registration'}
                         ><span>Registration</span>
@@ -115,7 +115,7 @@ const PortalNav = () => {
                               href={'/login'}
                         ><span>Login</span>
                         </Link>
-                    </>
+                    </div>
                 )}
 
             </Nav>

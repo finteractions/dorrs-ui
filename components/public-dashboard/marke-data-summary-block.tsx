@@ -12,6 +12,8 @@ interface MarketDataSummaryBlockState extends IState {
     data: IDashboardMarketDataSummary | null;
 }
 
+const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
+
 class MarketDataSummaryBlock extends React.Component<{}, MarketDataSummaryBlockState> {
 
     state: MarketDataSummaryBlockState;
@@ -85,37 +87,37 @@ class MarketDataSummaryBlock extends React.Component<{}, MarketDataSummaryBlockS
                             <div>
                                 <div>Total Volume:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_volume) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_volume) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Avg. Sale Price:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.avg_sale_price) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.avg_sale_price) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Highest Bid:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.best_bid_price) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.best_bid_price) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Lowest Offer:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.best_offer_price) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.best_offer_price) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Total Bid Vol:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_bid_volume) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_bid_volume) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Total Ask Vol:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_offer_volume) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_offer_volume) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Bid-Ask Spread:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.spread_price) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.spread_price) || 0, decimalPlaces)}</div>
                             </div>
                         </div>
                     )}

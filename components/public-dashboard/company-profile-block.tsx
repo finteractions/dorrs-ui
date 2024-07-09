@@ -12,6 +12,8 @@ interface CompanyProfileBlockState extends IState {
     data: IDashboardCompanyProfile | null;
 }
 
+const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
+
 class CompanyProfileBlock extends React.Component<{}, CompanyProfileBlockState> {
 
     state: CompanyProfileBlockState;
@@ -84,12 +86,12 @@ class CompanyProfileBlock extends React.Component<{}, CompanyProfileBlockState> 
                             <div>
                                 <div>Average Market Cap:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.average_market_cap) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.average_market_cap) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Total Market Cap:</div>
                                 <div
-                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_market_cap) || 0, 4)}</div>
+                                    className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.data?.total_market_cap) || 0, decimalPlaces)}</div>
                             </div>
                             <div>
                                 <div>Number of Companies:</div>

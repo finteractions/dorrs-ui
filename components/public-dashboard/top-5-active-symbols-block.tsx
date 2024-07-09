@@ -23,7 +23,7 @@ interface TOP5ActiveSymbolsBlockState extends IState {
     activeTab: string | null;
 }
 
-const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
 const pageLength = 5
 
 const columnHelperTOP5ActiveSymbols = createColumnHelper<any>();
@@ -37,6 +37,8 @@ let columnsTOP5PercentageLosses: any[] = [];
 
 const columnHelperTOP5TradeVolumes = createColumnHelper<any>();
 let columnsTOP5TradeVolumes: any[] = [];
+
+
 
 class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockState> {
 
@@ -100,7 +102,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.total_volume, {
                 id: "total_volume",
-                cell: (item) => formatterService.numberFormat(item.getValue(), 0),
+                cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Total Volume</span>,
             }),
             columnHelperTOP5ActiveSymbols.accessor((row) => row.avg_sale_price, {

@@ -5,8 +5,6 @@ import formatterService from "@/services/formatter/formatter-service";
 import {Subscription} from "rxjs";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
-import AlgorandDataFeedLastSaleBlock from "@/components/algorand-data-feed-last-sale-block";
-import AlgorandDataFeedBestBidAndBestOfferBlock from "@/components/algorand-data-feed-best-bid_and-best-offer-block";
 
 interface BlockchainBlockState extends IState {
     isLoading: boolean;
@@ -15,6 +13,8 @@ interface BlockchainBlockState extends IState {
     dataBestBidAndBestOffer: IDashboardBlockchainDataBestBidAndBestOffer | null;
     activeTab: string | null;
 }
+
+const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
 
 class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
 
@@ -121,12 +121,12 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
                                     <div>
                                         <div>Total Tx Volume:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataLastSale?.total_volume) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataLastSale?.total_volume) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Avg. Tx Amount:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataLastSale?.avg_amount) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataLastSale?.avg_amount) || 0, decimalPlaces)}</div>
                                     </div>
                                 </div>
                                 <div
@@ -135,22 +135,22 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
                                     <div>
                                         <div>Total Tx Volume:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.total_volume) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.total_volume) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Avg. Tx Amount:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.avg_amount) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.avg_amount) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Highest Bid:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.best_bid_price) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.best_bid_price) || 0, decimalPlaces)}</div>
                                     </div>
                                     <div>
                                         <div>Lowest Offer:</div>
                                         <div
-                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.best_offer_price) || 0, 4)}</div>
+                                            className={'padding-left-60'}>{formatterService.numberFormat(Number(this.state.dataBestBidAndBestOffer?.best_offer_price) || 0, decimalPlaces)}</div>
                                     </div>
                                 </div>
                             </div>
