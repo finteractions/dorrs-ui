@@ -55,4 +55,11 @@ interface IDashboardTOP5PercentageChange {
     last_trade_price: string;
 }
 
+interface IDashboardHeatMapAndPerformance {
+    sector_name: string;
+    percentage_changed: string;
+    total_market_cap: string;
+    number_of_companies: string;
+}
+
 

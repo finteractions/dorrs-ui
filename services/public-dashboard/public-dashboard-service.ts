@@ -1,6 +1,8 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {IMarketLastSaleStatistics} from "@/interfaces/i-market-last-sale-statistics";
+import {MarketSector} from "@/enums/market-sector";
+import React from "react";
 
 class PublicDashboardService extends BaseService {
 
@@ -1018,7 +1020,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TEST",
                             "logo": "/media/company_profile_logo/logo.jpg",
-                            "company_name":"DORRS",
+                            "company_name": "DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1030,7 +1032,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTA",
                             "logo": "/media/company_profile_logo/Screenshot_6_klMaKVW.png",
-                            "company_name":"DORRS",
+                            "company_name": "DORRS",
                             "total_volume": "500",
                             "avg_sale_price": "18.87",
                             "best_bid_price": "19.09",
@@ -1042,7 +1044,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTB",
                             "logo": "/media/company_profile_logo/signature_3.png",
-                            "company_name":"DORRS",
+                            "company_name": "DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1054,7 +1056,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "TESTD",
                             "logo": "/media/company_profile_logo/logo.png",
-                            "company_name":"DORRS",
+                            "company_name": "DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1066,7 +1068,7 @@ class PublicDashboardService extends BaseService {
                         {
                             "symbol_name": "WRWER",
                             "logo": "/media/company_profile_logo/rainstart01.png",
-                            "company_name":"DORRS",
+                            "company_name": "DORRS",
                             "total_volume": "5000",
                             "avg_sale_price": "140.33",
                             "best_bid_price": "200.00",
@@ -1251,6 +1253,35 @@ class PublicDashboardService extends BaseService {
             })
         }
 
+    }
+
+
+    public async getHeatMap(): Promise<Array<IDashboardHeatMapAndPerformance>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDashboardHeatMapAndPerformance>>>(`${this.PATH}heat_map/`, {})).data;
+
+        const data: any = []
+
+        {
+            Object.values(MarketSector).map((type) => {
+                const randomPercentageChanged = (Math.random() * (0.7 - (-0.5)) + (-0.5)).toFixed(2);
+                const randomTotalMarketCap = Math.floor(Math.random() * (50000 - 25000 + 1)) + 25000;
+                const randomNumberOfCompanies = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
+
+                data.push({
+                    "sector_name": type,
+                    "percentage_changed": randomPercentageChanged,
+                    "total_market_cap": randomTotalMarketCap,
+                    "number_of_companies": randomNumberOfCompanies
+                })
+            })
+        }
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(
+                    data as any
+                )
+            }, 1000)
+        })
     }
 }
 
