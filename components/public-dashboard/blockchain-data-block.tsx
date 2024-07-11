@@ -15,11 +15,14 @@ interface BlockchainBlockState extends IState {
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
 
     state: BlockchainBlockState;
-    private subscription: Subscription | null = null;
+    private subscriptionLastSale: Subscription | null = null;
+    private subscriptionBestBidAndBestOffer: Subscription | null = null;
+    getDataInterval: NodeJS.Timer | number | undefined;
 
     constructor(props: {}) {
         super(props);
@@ -36,13 +39,17 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
 
     componentDidMount() {
         this.setState({isLoading: true}, () => {
-            this.getBlockchainData();
+            this.getBlockchainDataLastSale()
+                .then(() => this.getBlockchainDataBestBidAndBestOffer())
             this.subscriptions();
+            this.startAutoUpdate();
         });
     }
 
     componentWillUnmount() {
-        this.subscription?.unsubscribe();
+        this.stopAutoUpdate();
+        this.subscriptionLastSale?.unsubscribe();
+        this.subscriptionBestBidAndBestOffer?.unsubscribe();
     }
 
     setActiveTab = (tab: string) => {
@@ -52,32 +59,68 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
     }
 
     subscriptions(): void {
-        this.subscription = websocketService.on<Array<IDashboardBlockchainDataLastSale>>(WebsocketEvent.DASHBOARD_BLOCKCHAIN_DATA).subscribe((data: Array<IDashboardBlockchainDataLastSale>) => {
-            this.handleData(data);
+        this.subscriptionLastSale = websocketService.on<Array<IDashboardBlockchainDataLastSale>>(WebsocketEvent.DASHBOARD_BLOCKCHAIN_DATA_LAST_SALE).subscribe((data: Array<IDashboardBlockchainDataLastSale>) => {
+            this.handleLastSaleData(data);
+        });
+        this.subscriptionBestBidAndBestOffer = websocketService.on<Array<IDashboardBlockchainDataBestBidAndBestOffer>>(WebsocketEvent.DASHBOARD_BLOCKCHAIN_DATA_BEST_BID_AND_BEST_OFFER).subscribe((data: Array<IDashboardBlockchainDataBestBidAndBestOffer>) => {
+            this.handleBestBidAndBestOfferData(data);
         });
     }
 
-    getBlockchainData = () => {
-        publicDashboardService.getBlockchainData()
-            .then((res: Array<IDashboardBlockchainDataLastSale>) => {
-                const data = res || [];
-                this.handleData(data);
-            })
-            .catch((errors: IError) => {
+    getBlockchainDataLastSale = () => {
+        return new Promise(resolve => {
+            publicDashboardService.getBlockchainData<IDashboardBlockchainDataLastSale>('last_sale')
+                .then((res: Array<IDashboardBlockchainDataLastSale>) => {
+                    const data = res || [];
+                    this.handleLastSaleData(data);
+                })
+                .catch((errors: IError) => {
 
-            })
-            .finally(() => {
-                this.setState({isLoading: false})
-            });
-    }
-
-    handleData = (data: Array<any>) => {
-        this.setState({
-            dataLastSale: data[0] ?? null,
-            dataBestBidAndBestOffer: data[1] ?? null,
+                })
+                .finally(() => {
+                    this.setState({isLoading: false})
+                    resolve(true)
+                });
         })
     }
 
+    getBlockchainDataBestBidAndBestOffer = () => {
+        return new Promise(resolve => {
+            publicDashboardService.getBlockchainData<IDashboardBlockchainDataBestBidAndBestOffer>('best_bid_and_best_offer')
+                .then((res: Array<IDashboardBlockchainDataBestBidAndBestOffer>) => {
+                    const data = res || [];
+                    this.handleBestBidAndBestOfferData(data);
+                })
+                .catch((errors: IError) => {
+
+                })
+                .finally(() => {
+                    this.setState({isLoading: false})
+                    resolve(true)
+                });
+        })
+    }
+
+    handleLastSaleData = (data: Array<any>) => {
+        console.log(data)
+        this.setState({
+            dataLastSale: data[0] ?? null
+        })
+    }
+
+    handleBestBidAndBestOfferData = (data: Array<any>) => {
+        this.setState({
+            dataBestBidAndBestOffer: data[0] ?? null,
+        })
+    }
+
+    startAutoUpdate = () => {
+        this.getDataInterval = setInterval(() => this.getBlockchainDataLastSale().then(() => this.getBlockchainDataBestBidAndBestOffer()), Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate = () => {
+        if (this.getDataInterval) clearInterval(this.getDataInterval as number);
+    }
 
     render() {
         return (

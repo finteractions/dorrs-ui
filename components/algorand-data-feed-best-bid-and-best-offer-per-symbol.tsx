@@ -19,8 +19,6 @@ import statisticsService from "@/services/statistics/statistics-service";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import CopyClipboard from "@/components/copy-clipboard";
 import bestBidAndBestOfferService from "@/services/bbo/best-bid-and-best-offer-service";
-import {DataContext} from "@/contextes/data-context";
-import {IDataContext} from "@/interfaces/i-data-context";
 import {Button} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";

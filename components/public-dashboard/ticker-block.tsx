@@ -72,8 +72,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
 
     render() {
         return (
-            <div className={'mt-4'}>
-
+            <>
                 {this.state.isLoading ? (
                     <LoaderBlock/>
                 ) : (
@@ -87,7 +86,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
 
                                             <div className={'table-image image-28 mix-blend-mode-multiple-img'}>
                                                 <AssetImage alt=''
-                                                            src={item.company_profile?.logo}
+                                                            src={item?.logo}
                                                             width={30} height={30}/>
                                             </div>
                                             <div>
@@ -107,7 +106,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
                         )}
                     </>
                 )}
-            </div>
+            </>
         );
     }
 

@@ -39,7 +39,6 @@ const columnHelperTOP5TradeVolumes = createColumnHelper<any>();
 let columnsTOP5TradeVolumes: any[] = [];
 
 
-
 class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockState> {
 
     state: TOP5ActiveSymbolsBlockState;
@@ -96,7 +95,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5PercentageGains.accessor((row) => row.company_name, {
                 id: "company_name",
-                cell: (item) => item.getValue()
+                cell: (item) => item.getValue() || '-'
                 ,
                 header: () => <span>Company Name</span>,
             }),
@@ -161,7 +160,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5PercentageGains.accessor((row) => row.company_name, {
                 id: "company_name",
-                cell: (item) => item.getValue()
+                cell: (item) => item.getValue() || '-'
                 ,
                 header: () => <span>Company Name</span>,
             }),
@@ -170,13 +169,13 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
             }),
-            columnHelperTOP5PercentageGains.accessor((row) => row.volume, {
-                id: "volume",
+            columnHelperTOP5PercentageGains.accessor((row) => row.last_quantity, {
+                id: "last_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Volume</span>,
             }),
-            columnHelperTOP5PercentageGains.accessor((row) => row.last_trade_price, {
-                id: "last_trade_price",
+            columnHelperTOP5PercentageGains.accessor((row) => row.last_price, {
+                id: "last_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Last Trade Price</span>,
             }),
@@ -206,7 +205,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5PercentageLosses.accessor((row) => row.company_name, {
                 id: "company_name",
-                cell: (item) => item.getValue()
+                cell: (item) => item.getValue() || '-'
                 ,
                 header: () => <span>Company Name</span>,
             }),
@@ -215,13 +214,13 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
             }),
-            columnHelperTOP5PercentageLosses.accessor((row) => row.volume, {
-                id: "volume",
+            columnHelperTOP5PercentageLosses.accessor((row) => row.last_quantity, {
+                id: "last_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Volume</span>,
             }),
-            columnHelperTOP5PercentageLosses.accessor((row) => row.last_trade_price, {
-                id: "last_trade_price",
+            columnHelperTOP5PercentageLosses.accessor((row) => row.last_price, {
+                id: "last_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Last Trade Price</span>,
             }),
@@ -251,7 +250,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             }),
             columnHelperTOP5TradeVolumes.accessor((row) => row.company_name, {
                 id: "company_name",
-                cell: (item) => item.getValue()
+                cell: (item) => item.getValue() || '-'
                 ,
                 header: () => <span>Company Name</span>,
             }),
@@ -260,13 +259,13 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Change</span>,
             }),
-            columnHelperTOP5TradeVolumes.accessor((row) => row.volume, {
-                id: "volume",
+            columnHelperTOP5TradeVolumes.accessor((row) => row.last_quantity, {
+                id: "last_quantity",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Volume</span>,
             }),
-            columnHelperTOP5TradeVolumes.accessor((row) => row.last_trade_price, {
-                id: "last_trade_price",
+            columnHelperTOP5TradeVolumes.accessor((row) => row.last_price, {
+                id: "last_price",
                 cell: (item) => formatterService.numberFormat(item.getValue(), decimalPlaces),
                 header: () => <span>Last Trade Price</span>,
             }),
@@ -279,7 +278,6 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                 .then(() => this.getTop5PercentageGains())
                 .then(() => this.getTop5PercentageLosses())
                 .then(() => this.getTop5TradeVolumes())
-
             this.subscriptions();
         });
     }
@@ -317,7 +315,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
 
     getTop5ActiveSymbols = () => {
         return new Promise(resolve => {
-            publicDashboardService.getTOP5ActiveSymbols('active_symbols')
+            publicDashboardService.getTOP5<IDashboardTOP5ActiveSymbols>('active_symbols')
                 .then((res: Array<IDashboardTOP5ActiveSymbols>) => {
                     const data = res || [];
                     this.handleTOP5ActiveSymbolsData(data);
@@ -333,7 +331,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
 
     getTop5PercentageGains = () => {
         return new Promise(resolve => {
-            publicDashboardService.getTOP5Percentage('percentage_gains')
+            publicDashboardService.getTOP5<IDashboardTOP5PercentageChange>('percentage_gains')
                 .then((res: Array<IDashboardTOP5PercentageChange>) => {
                     const data = res || [];
                     this.handleTOP5PercentageGainsData(data);
@@ -349,7 +347,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
 
     getTop5PercentageLosses = () => {
         return new Promise(resolve => {
-            publicDashboardService.getTOP5Percentage('percentage_losses')
+            publicDashboardService.getTOP5<IDashboardTOP5PercentageChange>('percentage_losses')
                 .then((res: Array<IDashboardTOP5PercentageChange>) => {
                     const data = res || [];
                     this.handleTOP5PercentageLossesData(data);
@@ -365,7 +363,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
 
     getTop5TradeVolumes = () => {
         return new Promise(resolve => {
-            publicDashboardService.getTOP5Percentage('trade_volumes')
+            publicDashboardService.getTOP5<IDashboardTOP5PercentageChange>('trade_volumes')
                 .then((res: Array<IDashboardTOP5PercentageChange>) => {
                     const data = res || [];
                     this.handleTOP5TradeVolumesData(data);
@@ -402,7 +400,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
     }
 
     handleTOP5TradeVolumesData = (data: Array<IDashboardTOP5PercentageChange>) => {
-        data.sort((a, b) => Number(b.volume) - Number(a.volume))
+        data.sort((a, b) => Number(b.last_quantity) - Number(a.last_quantity))
 
         this.setState({
             dataTradeVolumes: data ?? [],
@@ -467,18 +465,18 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                                     <LoaderBlock/>
                                 ) : (
                                     this.state.dataActiveSymbols.length ? (
-                                       <>
-                                           <Table columns={columnsTOP5ActiveSymbols}
-                                                  pageLength={pageLength}
-                                                  data={this.state.dataActiveSymbols}
-                                                  searchPanel={false}
-                                                  block={this}
-                                                  viewBtn={false}
-                                                  editBtn={false}
-                                                  deleteBtn={false}
-                                                  ref={this.tableRefTOP5ActiveSymbols}
-                                           />
-                                       </>
+                                        <>
+                                            <Table columns={columnsTOP5ActiveSymbols}
+                                                   pageLength={pageLength}
+                                                   data={this.state.dataActiveSymbols}
+                                                   searchPanel={false}
+                                                   block={this}
+                                                   viewBtn={false}
+                                                   editBtn={false}
+                                                   deleteBtn={false}
+                                                   ref={this.tableRefTOP5ActiveSymbols}
+                                            />
+                                        </>
 
 
                                     ) : (

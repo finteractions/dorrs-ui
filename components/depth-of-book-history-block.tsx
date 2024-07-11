@@ -258,13 +258,7 @@ class DepthOfBookHistoryBlock extends React.Component<DepthOfBookHistoryBlockPro
     }
 
     closeModal(): void {
-        if (!this.state.isClose && this.state.formAction !== 'view') {
-            this.setState({isClose: !this.state.isClose}, () => {
-                this.state.isClose
-            })
-        } else {
-            this.cancel();
-        }
+        this.cancel();
     }
 
     cancel = () => {

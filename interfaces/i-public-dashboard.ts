@@ -51,12 +51,12 @@ interface IDashboardTOP5PercentageChange {
     logo: string | null;
     company_name: string;
     percentage_changed: string;
-    volume: string;
-    last_trade_price: string;
+    last_quantity: string;
+    last_price: string;
 }
 
 interface IDashboardHeatMapAndPerformance {
-    sector_name: string;
+    market_sector: string;
     percentage_changed: string;
     total_market_cap: string;
     number_of_companies: string;

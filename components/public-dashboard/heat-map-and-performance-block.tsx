@@ -56,7 +56,7 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
     }
 
     subscriptions(): void {
-        this.subscriptionOnHeatMap = websocketService.on<Array<IDashboardHeatMapAndPerformance>>(WebsocketEvent.DASHBOARD_HEAT_MAP_AND_PERFORMANCE).subscribe((data: Array<IDashboardHeatMapAndPerformance>) => {
+        this.subscriptionOnHeatMap = websocketService.on<Array<IDashboardHeatMapAndPerformance>>(WebsocketEvent.DASHBOARD_HEAT_MAP).subscribe((data: Array<IDashboardHeatMapAndPerformance>) => {
             this.handleHeatMapData(data);
         });
     }
@@ -132,11 +132,11 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                     .slice()
                                                     .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
                                                     .map(item => (
-                                                        <div key={item.sector_name}
+                                                        <div key={item.market_sector}
                                                              className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
                                                             <div className={'gap-10 justify-content-between'}>
                                                                 <div
-                                                                    className={`table-image bold`}>{item.sector_name}
+                                                                    className={`table-image bold`}>{item.market_sector}
                                                                 </div>
                                                             </div>
                                                             <div className={'indicator__item__data'}>
@@ -166,12 +166,12 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                 {this.state.dataHeatMap
                                                     .sort((a, b) => Number(b.total_market_cap) - Number(a.total_market_cap))
                                                     .map(item => (
-                                                    <div key={item.sector_name}
+                                                    <div key={item.market_sector}
                                                          className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
 
                                                         <div className={''}>
                                                             <div
-                                                                className={`table-image  bold`}>{item.sector_name}
+                                                                className={`table-image  bold`}>{item.market_sector}
                                                             </div>
                                                         </div>
 

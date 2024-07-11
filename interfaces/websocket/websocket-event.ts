@@ -23,11 +23,12 @@ export const WebsocketEvent = {
     DASHBOARD_SYMBOL_REGISTRY: 'dashboard-symbol-registry',
     DASHBOARD_COMPANY_PROFILE: 'dashboard-company-profile',
     DASHBOARD_MARKET_DATA_SUMMARY: 'dashboard-market-data-summary',
-    DASHBOARD_BLOCKCHAIN_DATA: 'dashboard-blockchain-data',
+    DASHBOARD_BLOCKCHAIN_DATA_LAST_SALE: 'dashboard-blockchain-data-last-sale',
+    DASHBOARD_BLOCKCHAIN_DATA_BEST_BID_AND_BEST_OFFER: 'dashboard-blockchain-data-best-bid-and-best-offer',
     DASHBOARD_TOP5_ACTIVE_SYMBOLS: 'dashboard-top5-active-symbols',
     DASHBOARD_TOP5_PERCENTAGE_GAINS: 'dashboard-top5-percentage-gains',
     DASHBOARD_TOP5_PERCENTAGE_LOSSES: 'dashboard-top5-percentage-losses',
     DASHBOARD_TOP5_TRADE_VOLUMES: 'dashboard-top5-trade-volumes',
-    DASHBOARD_HEAT_MAP_AND_PERFORMANCE: 'dashboard-heat-map-amd-performance',
+    DASHBOARD_HEAT_MAP: 'dashboard-heat-map',
 
 }
