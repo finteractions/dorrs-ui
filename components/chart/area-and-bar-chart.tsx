@@ -124,7 +124,10 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                             },
                             tooltip: {
                                 displayColors: false
-                            }
+                            },
+                            datalabels: {
+                                display: false,
+                            },
                         },
 
                     },

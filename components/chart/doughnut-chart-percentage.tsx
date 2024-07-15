@@ -97,7 +97,9 @@ const DoughnutChartPercentage: React.FC<ChartProps> = ({
                             tooltip: {
                                 enabled: false,
                             },
-
+                            datalabels: {
+                                display: false,
+                            },
                             // @ts-ignore
                             customCenterText: {
                                 text: `${formatterService.numberFormat(data[0], 0)}${isPercentageSign ? '%' : ''}`,

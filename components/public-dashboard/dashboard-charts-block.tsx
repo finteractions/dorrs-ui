@@ -1,28 +1,24 @@
 import React from 'react';
 import publicDashboardService from "@/services/public-dashboard/public-dashboard-service";
 import LoaderBlock from "@/components/loader-block";
-import formatterService from "@/services/formatter/formatter-service";
 import {Subscription} from "rxjs";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
-import {createColumnHelper} from "@tanstack/react-table";
-import AssetImage from "@/components/asset-image";
-import Table from "@/components/table/table";
-import NoDataBlock from "@/components/no-data-block";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import DoughnutChart from "@/components/chart/doughnut-chart";
+import LinearChartMultiple from "@/components/chart/linear-chart-multiple";
 
 interface DashboardChartBlockState extends IState {
     isLoadingHeatMap: boolean;
     errors: string[];
     dataHeatMap: Array<IDashboardHeatMapAndPerformance>;
+    dataHeatMapChart: { labels: Array<string>, dataset: Array<any> };
 }
 
 class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState> {
 
     state: DashboardChartBlockState;
     private subscriptionOnHeatMap: Subscription | null = null;
+    private subscriptionOnHeatMapChart: Subscription | null = null;
 
     constructor(props: {}) {
         super(props);
@@ -32,23 +28,30 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
             isLoadingHeatMap: true,
             errors: [],
             dataHeatMap: [],
+            dataHeatMapChart: {labels: [], dataset: []}
         }
     }
 
     componentDidMount() {
         this.setState({isLoadingHeatMap: true}, async () => {
             await this.getHeatMap()
+                .then(() => this.getHeatMapChart())
             this.subscriptions();
         });
     }
 
     componentWillUnmount() {
         this.subscriptionOnHeatMap?.unsubscribe();
+        this.subscriptionOnHeatMapChart?.unsubscribe();
     }
 
     subscriptions(): void {
         this.subscriptionOnHeatMap = websocketService.on<Array<IDashboardHeatMapAndPerformance>>(WebsocketEvent.DASHBOARD_HEAT_MAP).subscribe((data: Array<IDashboardHeatMapAndPerformance>) => {
             this.handleHeatMapData(data);
+        });
+
+        this.subscriptionOnHeatMap = websocketService.on<Array<IDashboardHeatMapAndPerformanceChart>>(WebsocketEvent.DASHBOARD_HEAT_MAP_CHART).subscribe((data: Array<IDashboardHeatMapAndPerformanceChart>) => {
+            this.handleHeatMapChartData(data)
         });
     }
 
@@ -58,6 +61,22 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
                 .then((res: Array<IDashboardHeatMapAndPerformance>) => {
                     const data = res || [];
                     this.handleHeatMapData(data);
+                })
+                .catch((errors: IError) => {
+
+                })
+                .finally(() => {
+                    resolve(true)
+                });
+        })
+    }
+
+    getHeatMapChart = () => {
+        return new Promise(resolve => {
+            publicDashboardService.getHeatMapChart()
+                .then((res: Array<IDashboardHeatMapAndPerformanceChart>) => {
+                    const data = res || [];
+                    this.handleHeatMapChartData(data);
                 })
                 .catch((errors: IError) => {
 
@@ -74,15 +93,34 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
         })
     }
 
+    handleHeatMapChartData = (data: Array<IDashboardHeatMapAndPerformanceChart>) => {
+        const labels = new Set<string>();
+        const datasets: any = [];
+
+        data.forEach((s, idx) => {
+            s.data.forEach(k => labels.add(k.date));
+            datasets.push(
+                {
+                    label: s.market_sector,
+                    data: s.data.map(k => k.market_cap),
+                    backgroundColor: this.getBackgroundColour(idx),
+                    borderColor: this.getBackgroundColour(idx),
+                }
+            )
+        })
+
+        this.setState({dataHeatMapChart: {labels: Array.from(labels), dataset: datasets}})
+    }
+
     getBackgroundColour(index: number) {
         const colours: any = {
             0: '#34cb68',
             1: '#cb3d34',
-            2: '#3d7da2',
-            3: '#b8bec5',
-            4: '#FFA800',
-            5: '#7da1ff',
-            6: '#ff6384',
+            2: '#FFA800',
+            3: '#1f8ceb',
+            4: '#7da1ff',
+            5: '#ff6384',
+            6: '#b8bec5',
         }
 
         return colours[index] || '#000'
@@ -92,8 +130,20 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
         return (
             <>
 
-                <div className={'indicator__item statistics'}>
-                    <div className={'content__bottom justify-content-center'}>IN DEVELOPMENT</div>
+                <div className={'indicator__item statistics flex-column'}>
+                    <div className="content__top pb-0">
+                        <div className="content__title">Total Market Cap</div>
+                    </div>
+                    <div className={'content__bottom justify-content-center'}>
+                        {this.state.isLoadingHeatMap ? (
+                            <LoaderBlock/>
+                        ) : (
+                            <LinearChartMultiple
+                                labels={this.state.dataHeatMapChart.labels}
+                                datasets={this.state.dataHeatMapChart.dataset}
+                            />
+                        )}
+                    </div>
                 </div>
                 <div className={'indicator__item statistics flex-column max-width-700'}>
                     <div className="content__top pb-0">
@@ -109,6 +159,7 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
                                     title={''}
                                     width={320}
                                     isLegend={true}
+                                    isDataLabel={true}
                                     labelName={'Total Market Cap'}
                                     labels={this.state.dataHeatMap.map(s => s.market_sector)}
                                     data={this.state.dataHeatMap.map(s => Number(s.total_market_cap))}

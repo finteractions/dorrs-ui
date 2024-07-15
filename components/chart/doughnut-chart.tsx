@@ -1,6 +1,7 @@
 import React, {useEffect, useRef} from "react";
-import {Chart, ChartType, ChartData, ChartOptions} from 'chart.js/auto';
+import {Chart} from 'chart.js/auto';
 import NoDataBlock from "@/components/no-data-block";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 type ChartProps = {
     labels: string[];
@@ -10,6 +11,7 @@ type ChartProps = {
     labelName?: string;
     width?: number;
     isLegend?: boolean;
+    isDataLabel?: boolean;
 };
 
 const DoughnutChart: React.FC<ChartProps> = ({
@@ -19,7 +21,8 @@ const DoughnutChart: React.FC<ChartProps> = ({
                                                  title,
                                                  labelName,
                                                  width = 200,
-                                                 isLegend = true
+                                                 isLegend = true,
+                                                 isDataLabel = false
                                              }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const chartRef = useRef<Chart<'doughnut', number[], string> | null>(null);
@@ -33,6 +36,12 @@ const DoughnutChart: React.FC<ChartProps> = ({
         isLegend: boolean = true
     ) => {
         Chart.defaults.font.family = '"PT Serif", serif';
+        Chart.register(ChartDataLabels);
+
+        const hexToRgba = (hex: string, alpha: number) => {
+            const [r, g, b] = hex.match(/\w\w/g)!.map(x => parseInt(x, 16));
+            return `rgba(${r},${g},${b},${alpha})`;
+        };
 
         return new Chart<'doughnut', number[], string>(ctx, {
             type: 'doughnut',
@@ -42,7 +51,8 @@ const DoughnutChart: React.FC<ChartProps> = ({
                     {
                         label: labelName ? ` ${labelName}` : ` Count`,
                         data: data,
-                        backgroundColor: backgroundColors,
+                        backgroundColor: backgroundColors.map(s => hexToRgba(s, 1)),
+                        borderColor: backgroundColors,
                     },
                 ],
             },
@@ -55,14 +65,21 @@ const DoughnutChart: React.FC<ChartProps> = ({
                 },
                 responsive: true,
                 maintainAspectRatio: false,
+                aspectRatio: 1,
                 plugins: {
+                    datalabels: {
+                        display: isDataLabel,
+                        formatter: (value, ctx) => {
+                            const total = data.reduce((acc, val) => acc + val, 0);
+                            const percentage = ((value * 100) / total).toFixed(2) + '%';
+                            return `${percentage}`;
+                        },
+                        color: '#fff',
+                        backgroundColor: '#404040',
+                    },
                     legend: {
                         display: isLegend,
                         position: "right",
-                        labels: {
-                            padding: 20,
-                            color: isDarkTheme() ? '#00000' : '#ececec'
-                        },
                     },
                 },
             },
@@ -74,14 +91,20 @@ const DoughnutChart: React.FC<ChartProps> = ({
     };
 
     const handleResize = () => {
-        setTimeout(() => {
-            if (chartRef.current) {
+        if (chartRef.current) {
+            chartRef.current.destroy();
+        }
+
+        if (canvasRef.current) {
+            const ctx = canvasRef.current.getContext('2d');
+            if (ctx) {
+                chartRef.current = drawChart(ctx, labels, data, backgroundColors, labelName, isLegend);
                 const isSmallScreen = window.innerWidth < 720;
                 chartRef.current.options.plugins!.legend!.position = isSmallScreen ? 'top' : 'right';
-                chartRef.current.options.plugins!.legend!.labels!.color = !isDarkTheme() ? '#00000' : '#ececec'
+                chartRef.current.options.plugins!.legend!.labels!.color = !isDarkTheme() ? '#00000' : '#ececec';
                 chartRef.current.update();
             }
-        })
+        }
     };
 
     useEffect(() => {

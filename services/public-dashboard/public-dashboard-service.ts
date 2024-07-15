@@ -1,8 +1,6 @@
 import BaseService from "@/services/base/base-service";
 import apiWebBackendService from "@/services/web-backend/web-backend-api-service";
 import {IMarketLastSaleStatistics} from "@/interfaces/i-market-last-sale-statistics";
-import {MarketSector} from "@/enums/market-sector";
-import React from "react";
 
 class PublicDashboardService extends BaseService {
 
@@ -47,6 +45,10 @@ class PublicDashboardService extends BaseService {
 
     public async getHeatMap(): Promise<Array<IDashboardHeatMapAndPerformance>> {
         return (await apiWebBackendService.get<IResponse<Array<IDashboardHeatMapAndPerformance>>>(`${this.PATH}heat_map/`, {})).data;
+    }
+
+    public async getHeatMapChart(): Promise<Array<IDashboardHeatMapAndPerformanceChart>> {
+        return (await apiWebBackendService.get<IResponse<Array<IDashboardHeatMapAndPerformanceChart>>>(`${this.PATH}heat_map_chart/`, {})).data;
     }
 }
 

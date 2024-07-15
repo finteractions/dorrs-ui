@@ -62,4 +62,12 @@ interface IDashboardHeatMapAndPerformance {
     number_of_companies: string;
 }
 
+interface IDashboardHeatMapAndPerformanceChart {
+    market_sector: string;
+    data: Array<IDashboardHeatMapAndPerformanceChartPoint>
+}
 
+interface IDashboardHeatMapAndPerformanceChartPoint {
+    date: string;
+    market_cap: string;
+}

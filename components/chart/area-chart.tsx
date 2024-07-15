@@ -78,6 +78,9 @@ const AreaChart: React.FC<ChartProps> = ({labels, data, title}) => {
                             tooltip: {
                                 displayColors: false,
                             },
+                            datalabels: {
+                                display: false,
+                            },
                         },
                         scales: {
                             x: {

@@ -30,5 +30,6 @@ export const WebsocketEvent = {
     DASHBOARD_TOP5_PERCENTAGE_LOSSES: 'dashboard-top5-percentage-losses',
     DASHBOARD_TOP5_TRADE_VOLUMES: 'dashboard-top5-trade-volumes',
     DASHBOARD_HEAT_MAP: 'dashboard-heat-map',
+    DASHBOARD_HEAT_MAP_CHART: 'dashboard-heat-map-chart',
 
 }
