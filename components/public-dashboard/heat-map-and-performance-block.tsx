@@ -66,7 +66,6 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
             publicDashboardService.getHeatMap()
                 .then((res: Array<IDashboardHeatMapAndPerformance>) => {
                     const data = res || [];
-                    console.log(data)
                     this.handleHeatMapData(data);
                 })
                 .catch((errors: IError) => {

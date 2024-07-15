@@ -3648,6 +3648,10 @@ body {
           flex: 1;
           max-width: unset;
 
+          &.max-width-700 {
+            max-width: 700px;
+          }
+
           &.mw-30 {
             max-width: 30%;
           }
@@ -4722,4 +4726,30 @@ a.block-link {
     overflow-x: hidden;
   }
 
+  .dashboard__chart__panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 25px;
+    column-gap: 25px;
+
+    .dashboard__chart {
+      //flex: 0 0 400px;
+      //max-width: 400px;
+      flex: 1 0 30%;
+      display: flex;
+      flex-direction: column;
+      //justify-content: center;
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      padding: 30px 30px 0 30px;
+
+      .chart {
+        height: 100%;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
 }

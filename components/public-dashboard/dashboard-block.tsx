@@ -8,6 +8,7 @@ import MarketDataSummaryBlock from "@/components/public-dashboard/marke-data-sum
 import BlockchainDataBlock from "@/components/public-dashboard/blockchain-data-block";
 import TOP5ActiveSymbolsBlock from "@/components/public-dashboard/top-5-active-symbols-block";
 import HeatMapAndPerformanceBlock from "@/components/public-dashboard/heat-map-and-performance-block";
+import DashboardChartsBlock from "@/components/public-dashboard/dashboard-charts-block";
 
 
 class DashboardBlock extends React.Component {
@@ -53,6 +54,9 @@ class DashboardBlock extends React.Component {
                     <CompanyProfileBlock/>
                     <MarketDataSummaryBlock/>
                     <BlockchainDataBlock/>
+                </div>
+                <div className={'indicators content__bottom mt-4'}>
+                    <DashboardChartsBlock/>
                 </div>
                 <div className={'indicators content__bottom mt-4'}>
                     <TOP5ActiveSymbolsBlock/>

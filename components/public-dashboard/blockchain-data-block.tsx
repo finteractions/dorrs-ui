@@ -102,7 +102,6 @@ class BlockchainDataBlock extends React.Component<{}, BlockchainBlockState> {
     }
 
     handleLastSaleData = (data: Array<any>) => {
-        console.log(data)
         this.setState({
             dataLastSale: data[0] ?? null
         })
