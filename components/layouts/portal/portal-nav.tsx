@@ -8,7 +8,7 @@ import userService from "@/services/user/user-service";
 import LoaderBlock from "@/components/loader-block";
 import {Dropdown, Nav, NavItem} from "react-bootstrap";
 import {faUser, faBuilding} from "@fortawesome/free-regular-svg-icons";
-import {faPowerOff} from "@fortawesome/free-solid-svg-icons";
+import {faArrowRightToBracket, faGauge, faPowerOff, faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import ThemeToggle from "@/components/layouts/portal/theme-toggle";
@@ -107,13 +107,28 @@ const PortalNav = () => {
                     </>
                 ) : (
                     <div className={'d-flex gap-10'}>
-                        <Link className=" b-btn ripple d-flex align-items-center align-self-center"
+                        <Link className="d-none d-md-flex b-btn ripple d-flex align-items-center align-self-center"
                               href={'/registration'}
                         ><span>Registration</span>
                         </Link>
-                        <Link className=" b-btn ripple d-flex align-items-center align-self-center"
+                        <Link
+                            className={'d-md-none b-btn ripple d-flex align-items-center align-self-center'}
+                            type="button"
+                            href={'/registration'}
+                        >
+                            <FontAwesomeIcon icon={faUserPlus}/>
+                        </Link>
+
+                        <Link className="d-none d-md-flex b-btn ripple d-flex align-items-center align-self-center"
                               href={'/login'}
                         ><span>Login</span>
+                        </Link>
+                        <Link
+                            className={'d-md-none b-btn ripple d-flex align-items-center align-self-center'}
+                            type="button"
+                            href={'/login'}
+                        >
+                            <FontAwesomeIcon icon={faArrowRightToBracket}/>
                         </Link>
                     </div>
                 )}

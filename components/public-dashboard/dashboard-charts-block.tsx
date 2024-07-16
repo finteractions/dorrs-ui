@@ -130,7 +130,7 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
         return (
             <>
 
-                <div className={'indicator__item statistics flex-column'}>
+                <div className={'indicator__item statistics flex-column d-block'}>
                     <div className="content__top pb-0">
                         <div className="content__title">Total Market Cap</div>
                     </div>

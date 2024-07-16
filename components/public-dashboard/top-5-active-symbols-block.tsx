@@ -51,6 +51,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
     tableRefTOP5PercentageGains: React.RefObject<any> = React.createRef();
     tableRefTOP5PercentageLosses: React.RefObject<any> = React.createRef();
     tableRefTOP5TradeVolumes: React.RefObject<any> = React.createRef();
+    host: string = '';
 
     constructor(props: {}) {
         super(props);
@@ -69,8 +70,6 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
             activeTab: 'active-symbols'
         }
 
-        const host = `${window.location.protocol}//${window.location.host}`;
-
         //     Table: Active Symbols
         columnsTOP5ActiveSymbols = [
             columnHelperTOP5ActiveSymbols.accessor((row) => ({
@@ -84,7 +83,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                         >
                             <div className="table-image-container">
                                 <AssetImage alt=''
-                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {item.getValue().symbol}
@@ -149,7 +148,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                         >
                             <div className="table-image-container">
                                 <AssetImage alt=''
-                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {item.getValue().symbol}
@@ -194,7 +193,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                         >
                             <div className="table-image-container">
                                 <AssetImage alt=''
-                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {item.getValue().symbol}
@@ -239,7 +238,7 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
                         >
                             <div className="table-image-container">
                                 <AssetImage alt=''
-                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {item.getValue().symbol}
@@ -273,6 +272,8 @@ class TOP5ActiveSymbolsBlock extends React.Component<{}, TOP5ActiveSymbolsBlockS
     }
 
     componentDidMount() {
+        this.host = `${window.location.protocol}//${window.location.host}`;
+
         this.setState({isLoadingTOP5ActiveSymbols: true, isLoadingTOP5PercentageGains: true}, () => {
             this.getTop5ActiveSymbols()
                 .then(() => this.getTop5PercentageGains())

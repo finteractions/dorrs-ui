@@ -4267,7 +4267,7 @@ body {
       color: var(--colour-gray);
     }
 
-    span.bg-stay, div.bg-stay-block:not(.indicator__item) {
+    span.bg-stay, div.bg-stay-block:not(.indicator__item), div.bg-stay-block.bg-colour {
       background-color: var(--bg-gray);
     }
 
@@ -4441,6 +4441,7 @@ html.dark {
   display: inline-block;
   width: 60px;
   height: 30px;
+  top: 5px;
 }
 
 .theme-toggle-checkbox {
@@ -4752,5 +4753,24 @@ a.block-link {
       }
     }
   }
+}
 
+.sidebar-mob {
+  background: var(--background-colour);
+  max-width: 100px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid rgba(113, 132, 148, .5);
+
+  .b-logo img {
+    max-width: 136px;
+    height: 25px;
+    -o-object-fit: contain;
+    object-fit: contain;
+  }
+}
+
+.flex-wrap-important {
+  flex-wrap: wrap !important;
 }

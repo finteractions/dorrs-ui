@@ -132,7 +132,7 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                     .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
                                                     .map(item => (
                                                         <div key={item.market_sector}
-                                                             className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                                             className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}>
                                                             <div className={'gap-10 justify-content-between'}>
                                                                 <div
                                                                     className={`table-image bold`}>{item.market_sector}
@@ -166,7 +166,7 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                     .sort((a, b) => Number(b.total_market_cap) - Number(a.total_market_cap))
                                                     .map(item => (
                                                     <div key={item.market_sector}
-                                                         className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
+                                                         className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}>
 
                                                         <div className={''}>
                                                             <div
