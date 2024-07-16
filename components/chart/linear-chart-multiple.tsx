@@ -118,6 +118,7 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
                         },
                         ticks: {
                             autoSkip: false,
+                            align: 'inner',
                             callback: function (value, index) {
                                 return uniqueLabels[index] !== '' ? uniqueLabels[index] : '';
                             },
@@ -196,7 +197,7 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
                 {datasets.every(dataset => dataset.data.every(value => value === 0)) ? (
                     <NoDataBlock primaryText="No Chart available yet"/>
                 ) : (
-                    <canvas ref={canvasRef}></canvas>
+                    <canvas style={{zIndex: 99999}} ref={canvasRef}></canvas>
                 )}
             </div>
         </>
