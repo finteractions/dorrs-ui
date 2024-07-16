@@ -117,7 +117,10 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
                             color: isDarkTheme() ? '#ececec' : '#000000'
                         },
                         ticks: {
-                            align: 'center',
+                            autoSkip: false,
+                            callback: function (value, index) {
+                                return uniqueLabels[index] !== '' ? uniqueLabels[index] : '';
+                            },
                             maxRotation: 0,
                             minRotation: 0,
                             color: isDarkTheme() ? '#ececec' : '#000000'
