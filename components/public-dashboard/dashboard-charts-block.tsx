@@ -114,10 +114,10 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
 
     getBackgroundColour(index: number) {
         const colours: any = {
-            0: '#34cb68',
-            1: '#cb3d34',
-            2: '#FFA800',
-            3: '#1f8ceb',
+            0: '#1f8ceb',
+            1: '#34cb68',
+            2: '#cb3d34',
+            3: '#FFA800',
             4: '#7da1ff',
             5: '#ff6384',
             6: '#b8bec5',
