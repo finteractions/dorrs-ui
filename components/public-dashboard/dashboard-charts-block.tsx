@@ -145,7 +145,7 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
                         )}
                     </div>
                 </div>
-                <div className={'indicator__item statistics flex-column max-width-700'}>
+                <div className={'indicator__item statistics flex-column d-block max-width-700'}>
                     <div className="content__top pb-0">
                         <div className="content__title">Total Market Cap</div>
                     </div>

@@ -3649,7 +3649,9 @@ body {
           max-width: unset;
 
           &.max-width-700 {
-            max-width: 700px;
+            @media (min-width: 1369px) {
+              max-width: 700px;
+            }
           }
 
           &.mw-30 {
