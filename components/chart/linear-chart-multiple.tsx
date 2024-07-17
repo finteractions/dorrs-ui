@@ -196,7 +196,7 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
                  style={{
                      display: 'flex',
                      justifyContent: 'center',
-                     height: datasets.every(dataset => dataset.data.every(value => value === 0)) ? '320px' : 'auto',
+                     height: datasets.every(dataset => dataset.data.every(value => value === 0)) ? 'auto' : '320px',
                      width: '100%'
                  }}>
                 {datasets.every(dataset => dataset.data.every(value => value === 0)) ? (
