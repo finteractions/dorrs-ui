@@ -193,7 +193,12 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
     return (
         <>
             <div className={'chart mb-4'}
-                 style={{display: 'flex', justifyContent: 'center', height: '320px', width: '100%'}}>
+                 style={{
+                     display: 'flex',
+                     justifyContent: 'center',
+                     height: datasets.every(dataset => dataset.data.every(value => value === 0)) ? '320px' : 'auto',
+                     width: '100%'
+                 }}>
                 {datasets.every(dataset => dataset.data.every(value => value === 0)) ? (
                     <NoDataBlock primaryText="No Chart available yet"/>
                 ) : (
