@@ -190,9 +190,10 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data: ISymbol[] = res?.sort((a, b) => {
-                    return a.symbol.localeCompare(b.symbol);
-                }).filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus)) || [];
+                let data = res || [];
+                data = data.filter(s => !s.symbol_id)
+
+                data = data.filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus))
 
                 this.symbols = data;
             })

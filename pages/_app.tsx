@@ -1,7 +1,7 @@
 import '@/styles/globals.scss'
 import '@/styles/font-face.scss'
 import '@/styles/fonts/fonts.css'
-
+import 'react-dates/lib/css/_datepicker.css';
 import '@/styles/icon.scss'
 import '@/styles/custom.scss'
 import "@/styles/home.scss"

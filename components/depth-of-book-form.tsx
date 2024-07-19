@@ -149,9 +149,10 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                this.symbols = res?.sort((a, b) => {
-                    return a.symbol.localeCompare(b.symbol);
-                }).filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus)) || [];
+                let data = res || [];
+                data = data.filter(s => !s.symbol_id)
+
+                this.symbols = data.filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus))
             })
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});

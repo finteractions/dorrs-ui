@@ -73,4 +73,19 @@ export interface ISymbol {
     algorand_last_sale_application_id_link?: string;
     algorand_best_bid_and_best_offer_application_id?: string;
     algorand_best_bid_and_best_offer_application_id_link?: string;
+
+    // Topology
+    company_profile_id: number | null;
+    symbol_id: number | null;
+    master_symbol_name?: string  | null;
+
+    spv_name: string;
+    fund_manager: string;
+    investment_objective: string;
+    sec_filing: string;
+    sec_description: string[];
+    sec_images: string[];
+    sec_image_tmp?: string;
+    sec_files: string[];
+    sec_file_tmp?: string;
 }

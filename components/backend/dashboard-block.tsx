@@ -3,11 +3,11 @@ import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
 import {IUserDetail} from "@/interfaces/i-user-detail";
-import DoughnutChart from "@/components/chart/doughnut-chart";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {IOrder} from "@/interfaces/i-order";
 import {OrderStatus} from "@/enums/order-status";
 import {IChartStatistics} from "@/interfaces/i-chart-statistics";
+import DoughnutChartV2 from "@/components/chart/doughnut-chart-v2";
 
 
 interface DashboardBlockState {
@@ -193,7 +193,7 @@ class DashboardBlock extends React.Component<{}> {
                             {this.state.loadingUsers ? (
                                 <LoaderBlock/>
                             ) : (
-                                <DoughnutChart
+                                <DoughnutChartV2
                                     labels={Object.keys(this.state.userStatusCount)}
                                     data={Object.values(this.state.userStatusCount)}
                                     title="User Status"
@@ -206,7 +206,7 @@ class DashboardBlock extends React.Component<{}> {
                             {this.state.loadingUsers ? (
                                 <LoaderBlock/>
                             ) : (
-                                <DoughnutChart
+                                <DoughnutChartV2
                                     labels={Object.keys(this.state.emailVerifiedCount)}
                                     data={Object.values(this.state.emailVerifiedCount)}
                                     title="User Email Confirmation"
@@ -219,7 +219,7 @@ class DashboardBlock extends React.Component<{}> {
                             {this.state.loadingSymbols ? (
                                 <LoaderBlock/>
                             ) : (
-                                <DoughnutChart
+                                <DoughnutChartV2
                                     labels={Object.keys(this.state.symbolCount)}
                                     data={Object.values(this.state.symbolCount)}
                                     title="Symbols"
@@ -232,7 +232,7 @@ class DashboardBlock extends React.Component<{}> {
                             {this.state.loadingOrders ? (
                                 <LoaderBlock/>
                             ) : (
-                                <DoughnutChart
+                                <DoughnutChartV2
                                     labels={Object.keys(this.state.orderCount)}
                                     data={Object.values(this.state.orderCount)}
                                     title="Depth of Book"
@@ -245,7 +245,7 @@ class DashboardBlock extends React.Component<{}> {
                             {this.state.loadingMemberDistribution ? (
                                 <LoaderBlock/>
                             ) : (
-                                <DoughnutChart
+                                <DoughnutChartV2
                                     labels={Object.keys(this.state.membershipDistributionCount)}
                                     data={Object.values(this.state.membershipDistributionCount)}
                                     title="Membership Distribution"

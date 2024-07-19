@@ -26,7 +26,7 @@ const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
 const allowedImageExt = ['png', 'jpg', 'jpeg']
 const allowedFileSizeMB = 5
-const allowedFileSize = allowedImageFileSizeMB * 1024 * 1024;
+const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
 const allowedFileExt = ['pdf']
 
 const selectedCountry = 'US';
@@ -297,7 +297,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         return new Promise(resolve => {
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
-                    const data = res || [];
+                    let data = res || [];
+                    data = data.filter(s => !s.symbol_id)
 
                     data.forEach(s => {
                         s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;

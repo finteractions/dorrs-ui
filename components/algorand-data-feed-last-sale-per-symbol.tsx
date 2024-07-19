@@ -260,7 +260,8 @@ class AlgorandDataFeedLastSalePerSymbolBlock extends React.Component<AlgorandDat
         return new Promise((resolve) => {
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
-                    const data = res || [];
+                    let data = res || [];
+                    data = data.filter(s => !s.symbol_id)
 
                     const symbol = data.find((s: ISymbol) => s.symbol === formatterService.getSymbolName(this.props.symbol));
                     const companyProfile = symbol?.company_profile ?? null;

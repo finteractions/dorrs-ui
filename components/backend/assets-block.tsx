@@ -343,10 +343,11 @@ class AssetsBlock extends React.Component<{}> {
                 </div>
 
                 <Modal isOpen={this.state.isOpenModal}
+                       className={`big_modal`}
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-                    {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
+                    {((this.state.formAction === 'edit' || this.state.formAction === 'view') && !this.state.formData?.symbol_id) && (
                         <div className="modal__navigate">
                             <div className="modal__navigate__title">Asset Profile:</div>
 

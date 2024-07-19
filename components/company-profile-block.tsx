@@ -10,8 +10,6 @@ import Modal from "@/components/modal";
 import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 import formatterService from "@/services/formatter/formatter-service";
-import {FormFieldOptionType, FormFieldOptionType2} from "@/enums/form-field-option-type";
-import fileService from "@/services/file/file-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUpRightFromSquare, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
@@ -248,7 +246,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
         return new Promise(resolve => {
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
-                    const data = res || [];
+                    let data = res || [];
+                    data = data.filter(s => !s.symbol_id)
 
                     data.forEach(s => {
                         s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -693,8 +692,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     ) : (
                                                         <>not filled</>
                                                     )}
-
-
                                                 </div>
                                             </div>
                                             <div id={'company_address'} className={'panel'}>

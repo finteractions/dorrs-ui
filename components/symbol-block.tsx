@@ -257,7 +257,8 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data = res || [];
+                let data = res || [];
+                data = data.filter(s => !s.symbol_id)
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -470,7 +471,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                     <div className="modal__navigate">
                                         {(this.state.companyProfileAccess.create ||
                                             this.state.companyProfileAccess.edit ||
-                                            this.state.companyProfileAccess.view) && (
+                                            this.state.companyProfileAccess.view)  && (
                                             <div className="modal__navigate__title">Asset Profile:</div>
                                         )}
 

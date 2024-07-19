@@ -19,10 +19,10 @@ import Link from "next/link";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import Select from "react-select";
 import NumericInputField from "@/components/numeric-input-field";
-import {SingleDatePicker} from "react-dates";
+import 'react-dates/initialize';
+import {SingleDatePicker} from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
 import moment from "moment/moment";
-import {FormFieldOptionType, FormFieldOptionType2, getFormFieldOptionTypeName} from "@/enums/form-field-option-type";
-import fileService from "@/services/file/file-service";
 import {AssetType} from "@/enums/asset-type";
 import AssetImage from "@/components/asset-image";
 

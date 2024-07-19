@@ -134,6 +134,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
             adminService.getAssets()
                 .then((res: ISymbol[]) => {
                     let data = res || [];
+                    data = data.filter(s => !s.symbol_id)
                     data = data.filter(s => s.is_approved).filter(s => !this.state.orderGeneratorSymbols.includes(s.symbol))
 
                     this.setState({symbols: data});

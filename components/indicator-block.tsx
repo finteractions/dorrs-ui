@@ -147,7 +147,8 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
     getSymbols = () => {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
-                const data = res || [];
+                let data = res || [];
+                data = data.filter(s => !s.symbol_id)
                 this.symbols = data.filter(s => s.is_approved)
 
             })
@@ -192,7 +193,14 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
     }
 
     cancel = () => {
-        this.setState({isOpenModal: false, formType: '', symbol: null, isOverrideComponent: true, formAction: 'add', isClose: false});
+        this.setState({
+            isOpenModal: false,
+            formType: '',
+            symbol: null,
+            isOverrideComponent: true,
+            formAction: 'add',
+            isClose: false
+        });
     }
 
     onCallback = async (values: any, step: boolean) => {
