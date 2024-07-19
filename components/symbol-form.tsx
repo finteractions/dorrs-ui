@@ -899,7 +899,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                 label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
                                                                             }))}
                                                                             onChange={(selectedOption: any) => {
-                                                                                console.log(selectedOption)
                                                                                 setFieldValue('symbol_id', selectedOption?.value || null);
                                                                             }}
                                                                             value={

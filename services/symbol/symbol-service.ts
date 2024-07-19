@@ -11,8 +11,13 @@ class SymbolService extends BaseService {
         super();
     }
 
-    public async getSymbols(): Promise<Array<ISymbol>> {
-        return (await apiWebBackendService.get<IResponse<Array<ISymbol>>>(`${this.PATH}user_assets/`, {}, this.getUserAccessToken())).data;
+    public async getSymbols(symbol?: string | null): Promise<Array<ISymbol>> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `?symbol=${symbol}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<Array<ISymbol>>>(`${this.PATH}user_assets/${queryString}`, {}, this.getUserAccessToken())).data;
     }
 
     public createSymbol(data: any): Promise<any> {

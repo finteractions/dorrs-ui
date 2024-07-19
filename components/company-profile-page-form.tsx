@@ -768,7 +768,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                         className={'input__btns gap-20'}
                                                                                                         key={index}>
                                                                                                         <div
-                                                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                            className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                             {!this.isShow() && values.asset_type_images[index] && (
                                                                                                                 <div
                                                                                                                     key={index}
@@ -871,7 +871,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                 className={'input__btns gap-20'}
                                                                                                 key={index}>
                                                                                                 <div
-                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                     {!this.isShow() && values.issuer_profile_images[index] && (
                                                                                                         <div key={index}
                                                                                                              className="mb-2 d-flex">
@@ -910,7 +910,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                                 />
                                                                                                 <div
-                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                     {!this.isShow() && values.issuer_profile_files[index] && (
                                                                                                         <div key={index}
                                                                                                              className="mb-2 d-flex">

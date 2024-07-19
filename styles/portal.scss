@@ -3049,6 +3049,12 @@ body {
               min-height: 25px;
               margin-top: auto;
             }
+
+            .content__filter {
+              .input__wrap {
+                border-bottom: unset;
+              }
+            }
           }
 
           .input__box {
@@ -4778,4 +4784,8 @@ a.block-link {
 
 .flex-wrap-important {
   flex-wrap: wrap !important;
+}
+
+.margin-top-unset {
+  margin-top: unset !important;
 }

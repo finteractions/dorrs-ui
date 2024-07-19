@@ -21,6 +21,7 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import {IDataContext} from "@/interfaces/i-data-context";
 import AssetImage from "@/components/asset-image";
 import Link from "next/link";
+import SubSymbolBlock from "@/components/sub-symbol-block";
 
 
 interface SymbolInfoProps extends ICallback {
@@ -271,6 +272,10 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
     navigate = (mode: string, option?: string) => {
         this.props.onCallback(this.props.symbol, mode, option);
+    }
+
+    onCallbackSubSymbol = (symbol: any, mode: string) => {
+        this.props.onCallback(symbol, 'symbols', mode,);
     }
 
     render() {
@@ -631,6 +636,22 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.edgar_cik || 'not filled'}</div>
                                                     </div>
+
+                                                    {!this.symbol?.symbol_id && (
+                                                        <>
+                                                            <div className={'input__box full'}>
+                                                                <h4 className={''}>Symbols</h4>
+                                                            </div>
+                                                            <div className={'input__box full'}>
+                                                                <SubSymbolBlock
+                                                                    isDashboard={false}
+                                                                    symbol={this.props.symbol}
+                                                                    onCallback={this.onCallbackSubSymbol}
+                                                                />
+                                                            </div>
+                                                        </>
+                                                    )}
+
                                                 </div>
                                             </div>
                                         </div>
@@ -729,11 +750,9 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                         </Modal>
 
                     </>
-                )
-                }
+                )}
             </>
-        )
-            ;
+        );
     }
 
 }

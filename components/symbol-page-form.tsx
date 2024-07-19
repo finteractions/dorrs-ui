@@ -1111,7 +1111,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                 className={'input__btns gap-20'}
                                                                                                 key={index}>
                                                                                                 <div
-                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                     {!this.isShow() && values.sec_images[index] && (
                                                                                                         <div
                                                                                                             key={index}
@@ -1151,7 +1151,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                                 />
                                                                                                 <div
-                                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'} pb-0`}>
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                     {!this.isShow() && values.sec_files[index] && (
                                                                                                         <div
                                                                                                             key={index}
