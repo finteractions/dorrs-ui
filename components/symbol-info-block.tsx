@@ -132,7 +132,6 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                data = data.filter(s => !s.symbol_id)
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -304,38 +303,41 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                     {this.symbol.security_name} ({this.symbol.symbol})
                                                 </h2>
 
-
-                                                {this.state.companyProfileAccess.view && this.state.companyProfileAccess.view && this.symbol?.company_profile && (
-                                                    <span title={'Asset Profile'}
-                                                          className={'indicator-item'}
-                                                          onClick={() => this.navigate('asset-profiles', 'view')}>
+                                                {!this.symbol.symbol_id && (
+                                                    <>
+                                                        {this.state.companyProfileAccess.view && this.state.companyProfileAccess.view && this.symbol?.company_profile && (
+                                                            <span title={'Asset Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('asset-profiles', 'view')}>
                                                        P
                                                     </span>
-                                                )}
+                                                        )}
 
-                                                {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
-                                                    <span title={'Quote Board Profile'}
-                                                          className={'indicator-item'}
-                                                          onClick={() => this.navigate('quote-board')}>
+                                                        {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                            <span title={'Quote Board Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('quote-board')}>
                                                        Q
                                                     </span>
-                                                )}
+                                                        )}
 
-                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
-                                                    <span title={'Algorand Data Feed - Last Sale Profile'}
-                                                          className={'indicator-item'}
-                                                          onClick={() => this.navigate('algorand-data-feed/last-sale')}>
+                                                        {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                            <span title={'Algorand Data Feed - Last Sale Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('algorand-data-feed/last-sale')}>
                                                        ALG-LS
                                                     </span>
-                                                )}
+                                                        )}
 
 
-                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                    <span title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
-                                                          className={'indicator-item'}
-                                                          onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                        {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                            <span title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                  className={'indicator-item'}
+                                                                  onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
                                                        ALG-BBO
                                                     </span>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </div>
@@ -391,80 +393,84 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             className={'input__wrap'}>{this.symbol.master_symbol_name || 'not filled'}</div>
                                                     </div>
 
+                                                    <div className={'d-none'}>
+                                                        <div className={'input__box full'}>
+                                                            <h4 className={''}>Details</h4>
+                                                        </div>
 
-                                                    <div className={'input__box full'}>
-                                                        <h4 className={''}>Details</h4>
-                                                    </div>
+                                                        <div className={'input__box'}>
+                                                            <div className={'input__title'}>SPV Name</div>
+                                                            <div
+                                                                className={'input__wrap'}>{this.symbol.spv_name || 'not filled'}</div>
+                                                        </div>
 
-                                                    <div className={'input__box'}>
-                                                        <div className={'input__title'}>SPV Name</div>
-                                                        <div
-                                                            className={'input__wrap'}>{this.symbol.spv_name || 'not filled'}</div>
-                                                    </div>
+                                                        <div className={'input__box'}>
+                                                            <div className={'input__title'}>Fund Manager</div>
+                                                            <div
+                                                                className={'input__wrap'}>{this.symbol.fund_manager || 'not filled'}</div>
+                                                        </div>
 
-                                                    <div className={'input__box'}>
-                                                        <div className={'input__title'}>Fund Manager</div>
-                                                        <div
-                                                            className={'input__wrap'}>{this.symbol.fund_manager || 'not filled'}</div>
-                                                    </div>
+                                                        <div className={'input__box'}>
+                                                            <div className={'input__title'}>Investment Objective</div>
+                                                            <div
+                                                                className={'input__wrap'}>{this.symbol.investment_objective || 'not filled'}</div>
+                                                        </div>
 
-                                                    <div className={'input__box'}>
-                                                        <div className={'input__title'}>Investment Objective</div>
-                                                        <div
-                                                            className={'input__wrap'}>{this.symbol.investment_objective || 'not filled'}</div>
-                                                    </div>
+                                                        <div className={'input__box'}>
+                                                            <div className={'input__title'}>SEC Filing</div>
+                                                            <div
+                                                                className={'input__wrap'}>{this.symbol.sec_filing || 'not filled'}</div>
+                                                        </div>
 
-                                                    <div className={'input__box'}>
-                                                        <div className={'input__title'}>SEC Filing</div>
-                                                        <div
-                                                            className={'input__wrap'}>{this.symbol.sec_filing || 'not filled'}</div>
-                                                    </div>
+                                                        <div className={'input__box full'}>
+                                                            <h4 className={''}>SEC Documents</h4>
+                                                        </div>
 
-                                                    <div className={'input__box full'}>
-                                                        <h4 className={''}>SEC Documents</h4>
-                                                    </div>
-
-                                                    <div className={'content__bottom'}>
-                                                        {this.symbol?.sec_description ? (
-                                                            <>
-                                                                {this.symbol.sec_description.map((description, index) => (
-                                                                    <>
-                                                                        <div
-                                                                            className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                            key={index}>
-                                                                            {this.symbol?.sec_images && this.symbol?.sec_images[index] && (
-                                                                                <div
-                                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                        <div className={'content__bottom'}>
+                                                            {this.symbol?.sec_description ? (
+                                                                <>
+                                                                    {this.symbol.sec_description.map((description, index) => (
+                                                                        <>
+                                                                            <div
+                                                                                className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                                key={index}>
+                                                                                {this.symbol?.sec_images && this.symbol?.sec_images[index] && (
                                                                                     <div
-                                                                                        className={'logo p-0 align-items-baseline '}>
-                                                                                        <img
-                                                                                            src={this.symbol?.sec_images[index]}/>
+                                                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                        <div
+                                                                                            className={'logo p-0 align-items-baseline '}>
+                                                                                            <img
+                                                                                                src={this.symbol?.sec_images[index]}/>
+                                                                                        </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            )}
-                                                                            <div className={'d-flex mb-2 flex-column'}>
-                                                                                <p className={'w-100 mb-1'}>{description}</p>
-                                                                                {this.symbol?.sec_files && this.symbol?.sec_files[index] && (
-                                                                                    <p className={'w-100 mb-1'}><Link
-                                                                                        className={'link info-panel-title-link'}
-                                                                                        href={`${this.host}${this.symbol?.sec_files[index]}`}
-                                                                                        target={'_blank'}>
-                                                                                        File {' '}
-                                                                                        <FontAwesomeIcon
-                                                                                            className="nav-icon"
-                                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                                    </Link></p>
                                                                                 )}
+                                                                                <div
+                                                                                    className={'d-flex mb-2 flex-column'}>
+                                                                                    <p className={'w-100 mb-1'}>{description}</p>
+                                                                                    {this.symbol?.sec_files && this.symbol?.sec_files[index] && (
+                                                                                        <p className={'w-100 mb-1'}>
+                                                                                            <Link
+                                                                                                className={'link info-panel-title-link'}
+                                                                                                href={`${this.host}${this.symbol?.sec_files[index]}`}
+                                                                                                target={'_blank'}>
+                                                                                                File {' '}
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                            </Link></p>
+                                                                                    )}
 
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                    </>
-                                                                ))}
-                                                            </>
-                                                        ) : (
-                                                            <>not filled</>
-                                                        )}
+                                                                        </>
+                                                                    ))}
+                                                                </>
+                                                            ) : (
+                                                                <>not filled</>
+                                                            )}
+                                                        </div>
                                                     </div>
+
                                                     {/*------------------*/}
                                                     <div className={'input__box full'}>
                                                         <h4 className={''}>Symbol Information</h4>
@@ -636,26 +642,34 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.edgar_cik || 'not filled'}</div>
                                                     </div>
-
-                                                    {!this.symbol?.symbol_id && (
-                                                        <>
-                                                            <div className={'input__box full'}>
-                                                                <h4 className={''}>Symbols</h4>
-                                                            </div>
-                                                            <div className={'input__box full'}>
-                                                                <SubSymbolBlock
-                                                                    isDashboard={false}
-                                                                    symbol={this.props.symbol}
-                                                                    onCallback={this.onCallbackSubSymbol}
-                                                                />
-                                                            </div>
-                                                        </>
-                                                    )}
-
                                                 </div>
                                             </div>
                                         </div>
                                     </>
+                                </div>
+
+                                <div className={'profile__right'}>
+                                    <div className={'profile__right-wrap-full'}>
+                                        <div className={'profile__panel'}>
+                                            <div className={'profile__info__panel view__input__box'}>
+                                                {!this.symbol?.symbol_id && (
+                                                    <>
+                                                        <div className={'input__box full'}>
+                                                            <h4 className={''}>Symbols</h4>
+                                                        </div>
+                                                        <div className={'input__box full'}>
+                                                            <SubSymbolBlock
+                                                                isDashboard={false}
+                                                                symbol={this.props.symbol}
+                                                                onCallback={this.onCallbackSubSymbol}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

@@ -343,7 +343,7 @@ class AssetsBlock extends React.Component<{}> {
                 </div>
 
                 <Modal isOpen={this.state.isOpenModal}
-                       className={`big_modal`}
+                       className={this.state.formAction !== 'delete' ? `big_modal` : ``}
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >

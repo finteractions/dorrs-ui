@@ -1014,230 +1014,232 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-                                                <div className={'input'}>
-                                                    <h4 className={'input__group__title'}>Details:</h4>
+                                               <div className={'d-none'}>
+                                                   <div className={'input'}>
+                                                       <h4 className={'input__group__title'}>Details:</h4>
 
-                                                    <div className="input">
-                                                        <div
-                                                            className="input__title">SPV
-                                                            Name
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                            <Field
-                                                                name="spv_name"
-                                                                id="spv_name"
-                                                                type="text"
-                                                                className="input__text no-bg"
-                                                                placeholder="Type SPV Name"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage
-                                                                name="spv_name"
-                                                                component="div"
-                                                                className="error-message"/>
-                                                        </div>
-                                                    </div>
-                                                    <div className="input">
-                                                        <div
-                                                            className="input__title">Fund
-                                                            Manager
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                            <Field
-                                                                name="fund_manager"
-                                                                id="fund_manager"
-                                                                type="text"
-                                                                className="input__text no-bg"
-                                                                placeholder="Type Fund Manager"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage
-                                                                name="fund_manager"
-                                                                component="div"
-                                                                className="error-message"/>
-                                                        </div>
-                                                    </div>
+                                                       <div className="input">
+                                                           <div
+                                                               className="input__title">SPV
+                                                               Name
+                                                           </div>
+                                                           <div
+                                                               className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                               <Field
+                                                                   name="spv_name"
+                                                                   id="spv_name"
+                                                                   type="text"
+                                                                   className="input__text no-bg"
+                                                                   placeholder="Type SPV Name"
+                                                                   disabled={isSubmitting || this.isShow()}
+                                                               />
+                                                               <ErrorMessage
+                                                                   name="spv_name"
+                                                                   component="div"
+                                                                   className="error-message"/>
+                                                           </div>
+                                                       </div>
+                                                       <div className="input">
+                                                           <div
+                                                               className="input__title">Fund
+                                                               Manager
+                                                           </div>
+                                                           <div
+                                                               className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                               <Field
+                                                                   name="fund_manager"
+                                                                   id="fund_manager"
+                                                                   type="text"
+                                                                   className="input__text no-bg"
+                                                                   placeholder="Type Fund Manager"
+                                                                   disabled={isSubmitting || this.isShow()}
+                                                               />
+                                                               <ErrorMessage
+                                                                   name="fund_manager"
+                                                                   component="div"
+                                                                   className="error-message"/>
+                                                           </div>
+                                                       </div>
 
-                                                    <div className="input">
-                                                        <div
-                                                            className="input__title">Investment
-                                                            Objective
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                            <Field
-                                                                name="investment_objective"
-                                                                id="investment_objective"
-                                                                type="text"
-                                                                className="input__text no-bg"
-                                                                placeholder="Type Investment Objective"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage
-                                                                name="investment_objective"
-                                                                component="div"
-                                                                className="error-message"/>
-                                                        </div>
-                                                    </div>
+                                                       <div className="input">
+                                                           <div
+                                                               className="input__title">Investment
+                                                               Objective
+                                                           </div>
+                                                           <div
+                                                               className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                               <Field
+                                                                   name="investment_objective"
+                                                                   id="investment_objective"
+                                                                   type="text"
+                                                                   className="input__text no-bg"
+                                                                   placeholder="Type Investment Objective"
+                                                                   disabled={isSubmitting || this.isShow()}
+                                                               />
+                                                               <ErrorMessage
+                                                                   name="investment_objective"
+                                                                   component="div"
+                                                                   className="error-message"/>
+                                                           </div>
+                                                       </div>
 
-                                                    <div className="input">
-                                                        <div
-                                                            className="input__title">SEC
-                                                            Filing
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                            <Field
-                                                                name="sec_filing"
-                                                                id="sec_filing"
-                                                                render={({field}: FieldProps<any>) => (
-                                                                    <InputMask
-                                                                        {...field}
-                                                                        mask="9999-9999-99"
-                                                                        placeholder="Type SEC Filing"
-                                                                        className="input__text"
-                                                                        disabled={isSubmitting || this.isShow()}
-                                                                    />
-                                                                )}
-                                                            />
-                                                            <ErrorMessage
-                                                                name="sec_filing"
-                                                                component="div"
-                                                                className="error-message"/>
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-
-                                                <div className="input__title input__btns">
-                                                    <h4 className="input__group__title">SEC
-                                                        Documents:</h4>
-                                                    <button
-                                                        type="button"
-                                                        className='border-grey-btn ripple'
-                                                        disabled={isSubmitting || this.isShow()}
-                                                        onClick={() => {
-                                                            const updatedDescriptions = [...values.sec_description, ''];
-                                                            const index = updatedDescriptions.length - 1 || 0
-                                                            setFieldValue('sec_description', updatedDescriptions);
-                                                            this.handleSecImageChange(null, index);
-                                                            this.handleSecFileChange(null, index);
-                                                        }}
-                                                    >
-                                                        <FontAwesomeIcon className="nav-icon"
-                                                                         icon={faPlus}/>
-                                                    </button>
-                                                </div>
+                                                       <div className="input">
+                                                           <div
+                                                               className="input__title">SEC
+                                                               Filing
+                                                           </div>
+                                                           <div
+                                                               className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                               <Field
+                                                                   name="sec_filing"
+                                                                   id="sec_filing"
+                                                                   render={({field}: FieldProps<any>) => (
+                                                                       <InputMask
+                                                                           {...field}
+                                                                           mask="9999-9999-99"
+                                                                           placeholder="Type SEC Filing"
+                                                                           className="input__text"
+                                                                           disabled={isSubmitting || this.isShow()}
+                                                                       />
+                                                                   )}
+                                                               />
+                                                               <ErrorMessage
+                                                                   name="sec_filing"
+                                                                   component="div"
+                                                                   className="error-message"/>
+                                                           </div>
+                                                       </div>
 
 
-                                                <div className="input">
-                                                    <div
-                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
-                                                        <div className="officer-input">
-                                                            {values.sec_description.map((description, index) => (
-                                                                <>
-                                                                    <div
-                                                                        className={'input__btns gap-20'}
-                                                                        key={index}>
-                                                                        <div className={'input__wrap'}>
-                                                                            {!this.isShow() && values.sec_images[index] && (
-                                                                                <div key={index}
-                                                                                     className="mb-2 d-flex">
-                                                                                    <Link
-                                                                                        className={'link info-panel-title-link'}
-                                                                                        href={`${this.host}${values.sec_images[index]}`}
-                                                                                        target={'_blank'}>
-                                                                                        Image
-                                                                                        #{index + 1} {' '}
-                                                                                        <FontAwesomeIcon
-                                                                                            className="nav-icon"
-                                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                                    </Link>
-                                                                                </div>
-                                                                            )}
-                                                                            <input
-                                                                                id={`sec_tmp.${index}`}
-                                                                                name={`sec_tmp.${index}`}
-                                                                                type="file"
-                                                                                accept={'.' + allowedImageExt.join(',.')}
-                                                                                className="input__file"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onChange={(event) => {
-                                                                                    setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                    this.handleSecImageChange(event, index);
-                                                                                }}
-                                                                            />
-                                                                        </div>
-                                                                        <Field
-                                                                            name={`sec_description.${index}`}
-                                                                            as="textarea"
-                                                                            rows={4}
-                                                                            className="input__textarea"
-                                                                            placeholder={''}
-                                                                            disabled={isSubmitting || this.isShow()}
-                                                                        />
-                                                                        <div className={'input__wrap'}>
-                                                                            {!this.isShow() && values.sec_files[index] && (
-                                                                                <div key={index}
-                                                                                     className="mb-2 d-flex">
-                                                                                    <Link
-                                                                                        className={'link info-panel-title-link'}
-                                                                                        href={`${this.host}${values.sec_files[index]}`}
-                                                                                        target={'_blank'}>
-                                                                                        File
-                                                                                        #{index + 1} {' '}
-                                                                                        <FontAwesomeIcon
-                                                                                            className="nav-icon"
-                                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                                    </Link>
-                                                                                </div>
-                                                                            )}
-                                                                            <input
-                                                                                id={`sec_file_tmp.${index}`}
-                                                                                name={`sec_file_tmp.${index}`}
-                                                                                type="file"
-                                                                                accept={'.' + allowedFileExt.join(',.')}
-                                                                                className="input__file"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onChange={(event) => {
-                                                                                    setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                    this.handleSecFileChange(event, index);
-                                                                                }}
-                                                                            />
-                                                                        </div>
-                                                                        <button
-                                                                            disabled={isSubmitting || values.sec_description.length < 2}
-                                                                            type="button"
-                                                                            className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
-                                                                            onClick={() => {
-                                                                                const updatedDescriptions = [...values.sec_description];
-                                                                                updatedDescriptions.splice(index, 1);
-                                                                                setFieldValue('sec_description', updatedDescriptions);
-                                                                                this.handleSecImageRemove(index)
-                                                                                this.handleSecFileRemove(index)
-                                                                            }}
-                                                                        >
-                                                                            <FontAwesomeIcon
-                                                                                className="nav-icon"
-                                                                                icon={faMinus}/>
-                                                                        </button>
-                                                                    </div>
-                                                                    {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
-                                                                        <div
-                                                                            className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
-                                                                    )}
-                                                                    {errors.sec_file_tmp && errors.sec_file_tmp[index] && (
-                                                                        <div
-                                                                            className="error-message input__btns">{errors.sec_file_tmp[index].toString()}</div>
-                                                                    )}
-                                                                </>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                   </div>
+
+                                                   <div className="input__title input__btns">
+                                                       <h4 className="input__group__title">SEC
+                                                           Documents:</h4>
+                                                       <button
+                                                           type="button"
+                                                           className='border-grey-btn ripple'
+                                                           disabled={isSubmitting || this.isShow()}
+                                                           onClick={() => {
+                                                               const updatedDescriptions = [...values.sec_description, ''];
+                                                               const index = updatedDescriptions.length - 1 || 0
+                                                               setFieldValue('sec_description', updatedDescriptions);
+                                                               this.handleSecImageChange(null, index);
+                                                               this.handleSecFileChange(null, index);
+                                                           }}
+                                                       >
+                                                           <FontAwesomeIcon className="nav-icon"
+                                                                            icon={faPlus}/>
+                                                       </button>
+                                                   </div>
+
+
+                                                   <div className="input">
+                                                       <div
+                                                           className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                           <div className="officer-input">
+                                                               {values.sec_description.map((description, index) => (
+                                                                   <>
+                                                                       <div
+                                                                           className={'input__btns gap-20'}
+                                                                           key={index}>
+                                                                           <div className={'input__wrap'}>
+                                                                               {!this.isShow() && values.sec_images[index] && (
+                                                                                   <div key={index}
+                                                                                        className="mb-2 d-flex">
+                                                                                       <Link
+                                                                                           className={'link info-panel-title-link'}
+                                                                                           href={`${this.host}${values.sec_images[index]}`}
+                                                                                           target={'_blank'}>
+                                                                                           Image
+                                                                                           #{index + 1} {' '}
+                                                                                           <FontAwesomeIcon
+                                                                                               className="nav-icon"
+                                                                                               icon={faArrowUpRightFromSquare}/>
+                                                                                       </Link>
+                                                                                   </div>
+                                                                               )}
+                                                                               <input
+                                                                                   id={`sec_tmp.${index}`}
+                                                                                   name={`sec_tmp.${index}`}
+                                                                                   type="file"
+                                                                                   accept={'.' + allowedImageExt.join(',.')}
+                                                                                   className="input__file"
+                                                                                   disabled={isSubmitting || this.isShow()}
+                                                                                   onChange={(event) => {
+                                                                                       setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                       this.handleSecImageChange(event, index);
+                                                                                   }}
+                                                                               />
+                                                                           </div>
+                                                                           <Field
+                                                                               name={`sec_description.${index}`}
+                                                                               as="textarea"
+                                                                               rows={4}
+                                                                               className="input__textarea"
+                                                                               placeholder={''}
+                                                                               disabled={isSubmitting || this.isShow()}
+                                                                           />
+                                                                           <div className={'input__wrap'}>
+                                                                               {!this.isShow() && values.sec_files[index] && (
+                                                                                   <div key={index}
+                                                                                        className="mb-2 d-flex">
+                                                                                       <Link
+                                                                                           className={'link info-panel-title-link'}
+                                                                                           href={`${this.host}${values.sec_files[index]}`}
+                                                                                           target={'_blank'}>
+                                                                                           File
+                                                                                           #{index + 1} {' '}
+                                                                                           <FontAwesomeIcon
+                                                                                               className="nav-icon"
+                                                                                               icon={faArrowUpRightFromSquare}/>
+                                                                                       </Link>
+                                                                                   </div>
+                                                                               )}
+                                                                               <input
+                                                                                   id={`sec_file_tmp.${index}`}
+                                                                                   name={`sec_file_tmp.${index}`}
+                                                                                   type="file"
+                                                                                   accept={'.' + allowedFileExt.join(',.')}
+                                                                                   className="input__file"
+                                                                                   disabled={isSubmitting || this.isShow()}
+                                                                                   onChange={(event) => {
+                                                                                       setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                       this.handleSecFileChange(event, index);
+                                                                                   }}
+                                                                               />
+                                                                           </div>
+                                                                           <button
+                                                                               disabled={isSubmitting || values.sec_description.length < 2}
+                                                                               type="button"
+                                                                               className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
+                                                                               onClick={() => {
+                                                                                   const updatedDescriptions = [...values.sec_description];
+                                                                                   updatedDescriptions.splice(index, 1);
+                                                                                   setFieldValue('sec_description', updatedDescriptions);
+                                                                                   this.handleSecImageRemove(index)
+                                                                                   this.handleSecFileRemove(index)
+                                                                               }}
+                                                                           >
+                                                                               <FontAwesomeIcon
+                                                                                   className="nav-icon"
+                                                                                   icon={faMinus}/>
+                                                                           </button>
+                                                                       </div>
+                                                                       {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
+                                                                           <div
+                                                                               className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
+                                                                       )}
+                                                                       {errors.sec_file_tmp && errors.sec_file_tmp[index] && (
+                                                                           <div
+                                                                               className="error-message input__btns">{errors.sec_file_tmp[index].toString()}</div>
+                                                                       )}
+                                                                   </>
+                                                               ))}
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
 
                                                 <div className="input">
                                                     <h4 className="input__group__title">Company Address:</h4>
@@ -1895,70 +1897,72 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                         </div>
                                     </div>
 
-                                    <div className="view_block full_block">
-                                        <div className="view_block_body">
-                                            <div className="view_block_title">Details</div>
-                                            <div className="ver">
-                                                <div className="view_block_sub_title">SPV Name</div>
-                                                <div
-                                                    className="">{this.state.formInitialValues?.spv_name || 'not filled'}</div>
-                                            </div>
-                                            <div className="ver">
-                                                <div className="view_block_sub_title">Fund Manager</div>
-                                                <div
-                                                    className="">{this.state.formInitialValues?.fund_manager || 'not filled'}</div>
-                                            </div>
-                                            <div className="ver">
-                                                <div className="view_block_sub_title">Investment Objective</div>
-                                                <div
-                                                    className="">{this.state.formInitialValues?.investment_objective || 'not filled'}</div>
-                                            </div>
-                                            <div className="ver">
-                                                <div className="view_block_sub_title">SEC Filing</div>
-                                                <div
-                                                    className="">{this.state.formInitialValues?.sec_filing || 'not filled'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   <div className={'d-none'}>
+                                       <div className="view_block full_block">
+                                           <div className="view_block_body">
+                                               <div className="view_block_title">Details</div>
+                                               <div className="ver">
+                                                   <div className="view_block_sub_title">SPV Name</div>
+                                                   <div
+                                                       className="">{this.state.formInitialValues?.spv_name || 'not filled'}</div>
+                                               </div>
+                                               <div className="ver">
+                                                   <div className="view_block_sub_title">Fund Manager</div>
+                                                   <div
+                                                       className="">{this.state.formInitialValues?.fund_manager || 'not filled'}</div>
+                                               </div>
+                                               <div className="ver">
+                                                   <div className="view_block_sub_title">Investment Objective</div>
+                                                   <div
+                                                       className="">{this.state.formInitialValues?.investment_objective || 'not filled'}</div>
+                                               </div>
+                                               <div className="ver">
+                                                   <div className="view_block_sub_title">SEC Filing</div>
+                                                   <div
+                                                       className="">{this.state.formInitialValues?.sec_filing || 'not filled'}</div>
+                                               </div>
+                                           </div>
+                                       </div>
 
-                                    <div className="view_block full_block">
-                                        <div className="view_block_body">
-                                            <div
-                                                className="view_block_title">SEC Documents
-                                            </div>
-                                            {this.state.formInitialValues?.sec_description.map((description, index) => (
-                                                <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
-                                                     key={index}>
-                                                    {this.state.formInitialValues?.sec_images && this.state.formInitialValues?.sec_images[index] && (
-                                                        <div
-                                                            className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                            <div className={'logo p-0 align-items-baseline '}>
-                                                                <img
-                                                                    src={this.state.formInitialValues?.sec_images[index]}/>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    <div className={'d-flex mb-2'}>{description}</div>
-                                                    {this.state.formInitialValues?.sec_files && this.state.formInitialValues?.sec_files[index] && (
-                                                        <div
-                                                            className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                            <div className={'logo p-0 align-items-baseline '}>
-                                                                <Link
-                                                                    className={'link info-panel-title-link'}
-                                                                    href={`${this.host}${this.state.formInitialValues?.sec_files[index]}`}
-                                                                    target={'_blank'}>
-                                                                    File #{index + 1} {' '}
-                                                                    <FontAwesomeIcon
-                                                                        className="nav-icon"
-                                                                        icon={faArrowUpRightFromSquare}/>
-                                                                </Link>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
+                                       <div className="view_block full_block">
+                                           <div className="view_block_body">
+                                               <div
+                                                   className="view_block_title">SEC Documents
+                                               </div>
+                                               {this.state.formInitialValues?.sec_description.map((description, index) => (
+                                                   <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                        key={index}>
+                                                       {this.state.formInitialValues?.sec_images && this.state.formInitialValues?.sec_images[index] && (
+                                                           <div
+                                                               className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                               <div className={'logo p-0 align-items-baseline '}>
+                                                                   <img
+                                                                       src={this.state.formInitialValues?.sec_images[index]}/>
+                                                               </div>
+                                                           </div>
+                                                       )}
+                                                       <div className={'d-flex mb-2'}>{description}</div>
+                                                       {this.state.formInitialValues?.sec_files && this.state.formInitialValues?.sec_files[index] && (
+                                                           <div
+                                                               className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                               <div className={'logo p-0 align-items-baseline '}>
+                                                                   <Link
+                                                                       className={'link info-panel-title-link'}
+                                                                       href={`${this.host}${this.state.formInitialValues?.sec_files[index]}`}
+                                                                       target={'_blank'}>
+                                                                       File #{index + 1} {' '}
+                                                                       <FontAwesomeIcon
+                                                                           className="nav-icon"
+                                                                           icon={faArrowUpRightFromSquare}/>
+                                                                   </Link>
+                                                               </div>
+                                                           </div>
+                                                       )}
+                                                   </div>
+                                               ))}
+                                           </div>
+                                       </div>
+                                   </div>
 
                                     <div className="view_block">
                                         <div className="view_block_body">

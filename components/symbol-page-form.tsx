@@ -576,7 +576,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                data = data.filter(s => !s.symbol_id)
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -956,7 +955,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                         classNamePrefix="select__react"
                                                                                         isDisabled={(isSubmitting || this.isShow())}
                                                                                         isClearable={true}
-                                                                                        isSearchable={true}
+                                                                                        isSearchable={false}
                                                                                         options={Object.values(this.masterSymbols).map((item) => (this.renderOption(item)))}
                                                                                         onChange={(selectedOption: any) => {
                                                                                             setFieldValue('symbol_id', selectedOption?.value || null);
@@ -976,238 +975,242 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                     )}
 
 
-                                                                    <div
-                                                                        className={'input__box full'}>
-                                                                        <h4 className={'input__group__title'}>Details:</h4>
-                                                                    </div>
-
-                                                                    <div className="input__box">
+                                                                    <div className={'d-none'}>
                                                                         <div
-                                                                            className="input__title">SPV
-                                                                            Name
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="spv_name"
-                                                                                id="spv_name"
-                                                                                type="text"
-                                                                                className="input__text no-bg"
-                                                                                placeholder="Type SPV Name"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="spv_name"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div
-                                                                            className="input__title">Fund
-                                                                            Manager
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="fund_manager"
-                                                                                id="fund_manager"
-                                                                                type="text"
-                                                                                className="input__text no-bg"
-                                                                                placeholder="Type Fund Manager"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="fund_manager"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div
-                                                                            className="input__title">Investment
-                                                                            Objective
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="investment_objective"
-                                                                                id="investment_objective"
-                                                                                type="text"
-                                                                                className="input__text no-bg"
-                                                                                placeholder="Type Investment Objective"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="investment_objective"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div
-                                                                            className="input__title">SEC
-                                                                            Filing
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="sec_filing"
-                                                                                id="sec_filing"
-                                                                                render={({field}: FieldProps<any>) => (
-                                                                                    <InputMask
-                                                                                        {...field}
-                                                                                        mask="9999-9999-99"
-                                                                                        placeholder="Type SEC Filing"
-                                                                                        className="input__text"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                    />
-                                                                                )}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="sec_filing"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <div className={'input__btns'}>
-                                                                            <h4 className="input__group__title">SEC
-                                                                                Documents:</h4>
-                                                                            <button
-                                                                                type="button"
-                                                                                className={`border-grey-btn ripple  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}
-                                                                                onClick={() => {
-                                                                                    const updatedDescriptions = [...values.sec_description, ''];
-                                                                                    const index = updatedDescriptions.length - 1 || 0
-                                                                                    setFieldValue('sec_description', updatedDescriptions);
-                                                                                    this.handleSecImageChange(null, index);
-                                                                                    this.handleSecFileChange(null, index);
-                                                                                }}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faPlus}/>
-                                                                            </button>
+                                                                            className={'input__box full d-none'}>
+                                                                            <h4 className={'input__group__title'}>Details:</h4>
                                                                         </div>
 
-                                                                    </div>
-                                                                    <div className={'input__box full'}>
-                                                                        <div className="input">
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">SPV
+                                                                                Name
+                                                                            </div>
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <div
-                                                                                    className="officer-input">
-                                                                                    {values.sec_description.map((description, index) => (
-                                                                                        <React.Fragment  key={index}>
-                                                                                            <div
-                                                                                                className={'input__btns gap-20'}>
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                    {!this.isShow() && values.sec_images[index] && (
-                                                                                                        <div
-                                                                                                            key={index}
-                                                                                                            className="mb-2 d-flex">
-                                                                                                            <Link
-                                                                                                                className={'link info-panel-title-link'}
-                                                                                                                href={`${this.host}${values.sec_images[index]}`}
-                                                                                                                target={'_blank'}>
-                                                                                                                Image
-                                                                                                                #{index + 1} {' '}
-                                                                                                                <FontAwesomeIcon
-                                                                                                                    className="nav-icon"
-                                                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                                            </Link>
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                    <input
-                                                                                                        id={`sec_image_tmp.${index}`}
-                                                                                                        name={`sec_image_tmp.${index}`}
-                                                                                                        type="file"
-                                                                                                        accept={'.' + allowedImageExt.join(',.')}
-                                                                                                        className={`input__file`}
-                                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                                        onChange={(event) => {
-                                                                                                            setFieldValue(`sec_image_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                            this.handleSecImageChange(event, index);
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-
-                                                                                                <Field
-                                                                                                    name={`sec_description.${index}`}
-                                                                                                    as="textarea"
-                                                                                                    rows={4}
-                                                                                                    className="input__textarea"
-                                                                                                    placeholder={''}
-                                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                                />
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                    {!this.isShow() && values.sec_files[index] && (
-                                                                                                        <div
-                                                                                                            key={index}
-                                                                                                            className="mb-2 d-flex">
-                                                                                                            <Link
-                                                                                                                className={'link info-panel-title-link'}
-                                                                                                                href={`${this.host}${values.sec_files[index]}`}
-                                                                                                                target={'_blank'}>
-                                                                                                                File
-                                                                                                                {' '}
-                                                                                                                <FontAwesomeIcon
-                                                                                                                    className="nav-icon"
-                                                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                                            </Link>
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                    <input
-                                                                                                        id={`sec_file_tmp.${index}`}
-                                                                                                        name={`sec_file_tmp.${index}`}
-                                                                                                        type="file"
-                                                                                                        accept={'.' + allowedFileExt.join(',.')}
-                                                                                                        className={`input__file`}
-                                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                                        onChange={(event) => {
-                                                                                                            setFieldValue(`sec_file_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                            this.handleSecFileChange(event, index);
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-
-                                                                                                <button
-                                                                                                    disabled={isSubmitting || values.sec_description.length < 2}
-                                                                                                    type="button"
-                                                                                                    className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
-                                                                                                    onClick={() => {
-                                                                                                        const updatedDescriptions = [...values.sec_description];
-                                                                                                        updatedDescriptions.splice(index, 1);
-                                                                                                        setFieldValue('sec_description', updatedDescriptions);
-                                                                                                        this.handleSecImageRemove(index)
-                                                                                                        this.handleSecFileRemove(index)
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <FontAwesomeIcon
-                                                                                                        className="nav-icon"
-                                                                                                        icon={faMinus}/>
-                                                                                                </button>
-                                                                                            </div>
-                                                                                            {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
-                                                                                                <div
-                                                                                                    className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
-                                                                                            )}
-                                                                                        </React.Fragment>
-                                                                                    ))}
-                                                                                </div>
+                                                                                <Field
+                                                                                    name="spv_name"
+                                                                                    id="spv_name"
+                                                                                    type="text"
+                                                                                    className="input__text no-bg"
+                                                                                    placeholder="Type SPV Name"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="spv_name"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
                                                                             </div>
                                                                         </div>
 
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Fund
+                                                                                Manager
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="fund_manager"
+                                                                                    id="fund_manager"
+                                                                                    type="text"
+                                                                                    className="input__text no-bg"
+                                                                                    placeholder="Type Fund Manager"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="fund_manager"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Investment
+                                                                                Objective
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="investment_objective"
+                                                                                    id="investment_objective"
+                                                                                    type="text"
+                                                                                    className="input__text no-bg"
+                                                                                    placeholder="Type Investment Objective"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="investment_objective"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">SEC
+                                                                                Filing
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="sec_filing"
+                                                                                    id="sec_filing"
+                                                                                    render={({field}: FieldProps<any>) => (
+                                                                                        <InputMask
+                                                                                            {...field}
+                                                                                            mask="9999-9999-99"
+                                                                                            placeholder="Type SEC Filing"
+                                                                                            className="input__text"
+                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                        />
+                                                                                    )}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="sec_filing"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="input__box full">
+                                                                            <div className={'input__btns'}>
+                                                                                <h4 className="input__group__title">SEC
+                                                                                    Documents:</h4>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}
+                                                                                    onClick={() => {
+                                                                                        const updatedDescriptions = [...values.sec_description, ''];
+                                                                                        const index = updatedDescriptions.length - 1 || 0
+                                                                                        setFieldValue('sec_description', updatedDescriptions);
+                                                                                        this.handleSecImageChange(null, index);
+                                                                                        this.handleSecFileChange(null, index);
+                                                                                    }}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faPlus}/>
+                                                                                </button>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className={'input__box full'}>
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <div
+                                                                                        className="officer-input">
+                                                                                        {values.sec_description.map((description, index) => (
+                                                                                            <React.Fragment  key={index}>
+                                                                                                <div
+                                                                                                    className={'input__btns gap-20'}>
+                                                                                                    <div
+                                                                                                        className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                        {!this.isShow() && values.sec_images[index] && (
+                                                                                                            <div
+                                                                                                                key={index}
+                                                                                                                className="mb-2 d-flex">
+                                                                                                                <Link
+                                                                                                                    className={'link info-panel-title-link'}
+                                                                                                                    href={`${this.host}${values.sec_images[index]}`}
+                                                                                                                    target={'_blank'}>
+                                                                                                                    Image
+                                                                                                                    #{index + 1} {' '}
+                                                                                                                    <FontAwesomeIcon
+                                                                                                                        className="nav-icon"
+                                                                                                                        icon={faArrowUpRightFromSquare}/>
+                                                                                                                </Link>
+                                                                                                            </div>
+                                                                                                        )}
+                                                                                                        <input
+                                                                                                            id={`sec_image_tmp.${index}`}
+                                                                                                            name={`sec_image_tmp.${index}`}
+                                                                                                            type="file"
+                                                                                                            accept={'.' + allowedImageExt.join(',.')}
+                                                                                                            className={`input__file`}
+                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                            onChange={(event) => {
+                                                                                                                setFieldValue(`sec_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                this.handleSecImageChange(event, index);
+                                                                                                            }}
+                                                                                                        />
+                                                                                                    </div>
+
+                                                                                                    <Field
+                                                                                                        name={`sec_description.${index}`}
+                                                                                                        as="textarea"
+                                                                                                        rows={4}
+                                                                                                        className="input__textarea"
+                                                                                                        placeholder={''}
+                                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                                    />
+                                                                                                    <div
+                                                                                                        className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                        {!this.isShow() && values.sec_files[index] && (
+                                                                                                            <div
+                                                                                                                key={index}
+                                                                                                                className="mb-2 d-flex">
+                                                                                                                <Link
+                                                                                                                    className={'link info-panel-title-link'}
+                                                                                                                    href={`${this.host}${values.sec_files[index]}`}
+                                                                                                                    target={'_blank'}>
+                                                                                                                    File
+                                                                                                                    {' '}
+                                                                                                                    <FontAwesomeIcon
+                                                                                                                        className="nav-icon"
+                                                                                                                        icon={faArrowUpRightFromSquare}/>
+                                                                                                                </Link>
+                                                                                                            </div>
+                                                                                                        )}
+                                                                                                        <input
+                                                                                                            id={`sec_file_tmp.${index}`}
+                                                                                                            name={`sec_file_tmp.${index}`}
+                                                                                                            type="file"
+                                                                                                            accept={'.' + allowedFileExt.join(',.')}
+                                                                                                            className={`input__file`}
+                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                            onChange={(event) => {
+                                                                                                                setFieldValue(`sec_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                this.handleSecFileChange(event, index);
+                                                                                                            }}
+                                                                                                        />
+                                                                                                    </div>
+
+                                                                                                    <button
+                                                                                                        disabled={isSubmitting || values.sec_description.length < 2}
+                                                                                                        type="button"
+                                                                                                        className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
+                                                                                                        onClick={() => {
+                                                                                                            const updatedDescriptions = [...values.sec_description];
+                                                                                                            updatedDescriptions.splice(index, 1);
+                                                                                                            setFieldValue('sec_description', updatedDescriptions);
+                                                                                                            this.handleSecImageRemove(index)
+                                                                                                            this.handleSecFileRemove(index)
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <FontAwesomeIcon
+                                                                                                            className="nav-icon"
+                                                                                                            icon={faMinus}/>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
+                                                                                                    <div
+                                                                                                        className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
+                                                                                                )}
+                                                                                            </React.Fragment>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                        </div>
 
                                                                     </div>
+
+
 
                                                                     <div className={'input__box full'}>
                                                                         <h4 className={'input__group__title'}>Symbol
