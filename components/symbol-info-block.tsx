@@ -331,9 +331,10 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
 
                                                         {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                            <span title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                            <span
+                                                                title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                className={'indicator-item'}
+                                                                onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
                                                        ALG-BBO
                                                     </span>
                                                         )}
@@ -648,29 +649,27 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                     </>
                                 </div>
 
-                                <div className={'profile__right'}>
-                                    <div className={'profile__right-wrap-full'}>
-                                        <div className={'profile__panel'}>
-                                            <div className={'profile__info__panel view__input__box'}>
-                                                {!this.symbol?.symbol_id && (
-                                                    <>
-                                                        <div className={'input__box full'}>
-                                                            <h4 className={''}>Symbols</h4>
-                                                        </div>
-                                                        <div className={'input__box full'}>
-                                                            <SubSymbolBlock
-                                                                isDashboard={false}
-                                                                symbol={this.props.symbol}
-                                                                onCallback={this.onCallbackSubSymbol}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
+                                {!this.symbol?.symbol_id && (
+                                    <div className={'profile__right'}>
+                                        <div className={'profile__right-wrap-full'}>
+                                            <div className={'profile__panel'}>
+                                                <div className={'profile__info__panel view__input__box'}>
+                                                    <div className={'input__box full'}>
+                                                        <h4 className={''}>Symbols</h4>
+                                                    </div>
+                                                    <div className={'input__box full'}>
+                                                        <SubSymbolBlock
+                                                            isDashboard={false}
+                                                            symbol={this.props.symbol}
+                                                            onCallback={this.onCallbackSubSymbol}
+                                                        />
+                                                    </div>
 
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                         ) : (
