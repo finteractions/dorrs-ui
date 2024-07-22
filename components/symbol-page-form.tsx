@@ -632,8 +632,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
             this.cancelCompanyForm();
         }
-
-
     }
 
     closeModal(): void {

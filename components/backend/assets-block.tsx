@@ -383,7 +383,7 @@ class AssetsBlock extends React.Component<{}> {
                 </Modal>
 
                 <Modal isOpen={this.state.isOpenCompanyModal}
-                       className={this.state.formCompanyAction === 'view' ? 'big_modal' : ''}
+                       className={'big_modal'}
                        onClose={() => this.cancelCompanyForm()}
                        title={this.modalCompanyTitle(this.state.formCompanyAction)}
                 >

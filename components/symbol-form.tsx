@@ -1019,6 +1019,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     <button
                                                                         type="button"
                                                                         className='border-grey-btn ripple'
+                                                                        disabled={isSubmitting || this.isShow()}
                                                                         onClick={() => {
                                                                             const updatedDescriptions = [...values.sec_description, ''];
                                                                             const index = updatedDescriptions.length - 1 || 0
@@ -1064,7 +1065,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                                 type="file"
                                                                                                 accept={'.' + allowedImageExt.join(',.')}
                                                                                                 className="input__file"
-                                                                                                disabled={isSubmitting}
+                                                                                                disabled={isSubmitting || this.isShow()}
                                                                                                 onChange={(event) => {
                                                                                                     setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                     this.handleSecImageChange(event, index);
@@ -1101,7 +1102,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                                 type="file"
                                                                                                 accept={'.' + allowedFileExt.join(',.')}
                                                                                                 className="input__file"
-                                                                                                disabled={isSubmitting}
+                                                                                                disabled={isSubmitting || this.isShow()}
                                                                                                 onChange={(event) => {
                                                                                                     setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                     this.handleSecFileChange(event, index);

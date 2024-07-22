@@ -50,4 +50,15 @@ export interface ICompanyProfile {
     logo_tmp?: string;
     symbol_data?: ISymbol;
     company_profile_status?: string;
+
+    // Topology
+    spv_name: string;
+    fund_manager: string;
+    investment_objective: string;
+    sec_filing: string;
+    sec_description: string[];
+    sec_images: string[];
+    sec_image_tmp?: string;
+    sec_files: string[];
+    sec_file_tmp?: string;
 }

@@ -10,7 +10,7 @@ import {UsaStates} from "usa-states";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import * as Yup from "yup";
-import {ErrorMessage, Field, Form, Formik} from "formik";
+import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment/moment";
 import NumericInputField from "@/components/numeric-input-field";
@@ -21,6 +21,7 @@ import PhoneInputField from "@/components/phone-input-field";
 import Select from "react-select";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import 'react-dates/initialize';
+import InputMask from "react-input-mask";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -74,7 +75,32 @@ const formSchema = Yup.object().shape({
             .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
                 if (!value) return true;
                 return value.size <= allowedFileSize;
-            }))
+            })),
+    spv_name: Yup.string().label('SPV Name'),
+    fund_manager: Yup.string().label('Fund Manager'),
+    investment_objective: Yup.string().label('Investment Objective'),
+    sec_filing: Yup.string().label('SEC Filing'),
+    sec_image_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('sec_image_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('sec_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedImageFileSize;
+            }),
+    ),
+    sec_file_tmp: Yup.array().of(
+        Yup.mixed()
+            .test('sec_file_tmp', `File is not a valid. Only ${allowedFileExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
+                if (!value) return true;
+                return allowedFileExt.includes(value.name.split('.').pop().toLowerCase());
+            })
+            .test('sec_file_tmp', `File is too large. Maximum size: ${allowedFileSizeMB} MB`, (value: any) => {
+                if (!value) return true;
+                return value.size <= allowedFileSize;
+            })),
 });
 
 interface CompanyProfilePageFormProps extends ICallback {
@@ -97,6 +123,8 @@ interface CompanyProfilePageFormState extends IState {
     selectedIssuerProfileImages: File[] | null;
     selectedIssuerProfileFiles: File[] | null;
     focusedInitialOfferingDate: any;
+    selectedSecImages: File[] | null;
+    selectedSecFiles: File[] | null;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
@@ -133,6 +161,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             selectedIssuerProfileImages: [],
             selectedIssuerProfileFiles: [],
             focusedInitialOfferingDate: null,
+
+            selectedSecFiles: [],
+            selectedSecImages: []
         }
 
         this.formRef = React.createRef();
@@ -196,6 +227,27 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             initialData.issuer_profile_files = [];
         }
 
+        try {
+            const sec_description = JSON.parse(initialData.sec_description.toString());
+            initialData.sec_description = sec_description;
+        } catch (error) {
+            initialData.sec_description = [""];
+        }
+
+        try {
+            const sec_images = JSON.parse(initialData.sec_images.toString().replace(/'/g, '"'));
+            initialData.sec_images = sec_images;
+        } catch (error) {
+            initialData.sec_images = [];
+        }
+
+        try {
+            const sec_files = JSON.parse(initialData.sec_files.toString().replace(/'/g, '"'));
+            initialData.sec_files = sec_files;
+        } catch (error) {
+            initialData.sec_files = [];
+        }
+
 
         const initialValues: {
             symbol: string;
@@ -234,6 +286,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             issuer_profile_description: string[];
             issuer_profile_images: string[];
             issuer_profile_files: string[];
+            spv_name: string;
+            fund_manager: string;
+            investment_objective: string;
+            sec_filing: string;
+            sec_description: string[];
+            sec_images: string[];
+            sec_files: string[];
         } = {
             symbol: initialData?.symbol || this.props.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
@@ -271,6 +330,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             us_reporting: initialData?.us_reporting || '',
             edgar_cik: initialData?.edgar_cik || '',
             logo: initialData?.logo || '',
+            spv_name: initialData?.spv_name || '',
+            fund_manager: initialData?.fund_manager || '',
+            investment_objective: initialData?.investment_objective || '',
+            sec_filing: initialData?.sec_filing || '',
+            sec_description: initialData?.sec_description || [""],
+            sec_images: initialData?.sec_images || [],
+            sec_files: initialData?.sec_files || [],
         };
 
         const selectedAssetTypeImages = initialData.asset_type_images as any
@@ -353,24 +419,30 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     }) => {
         this.setState({errorMessages: null});
 
+        const data = {...values};
+
         const formData = new FormData();
-        for (const [key, value] of Object.entries(values)) {
-            formData.append(key, value);
+        for (const [key, value] of Object.entries(data)) {
+            formData.append(key, value as any);
         }
 
         formData.delete('asset_type_description');
-        const asset_type_description = values.asset_type_description;
+        const asset_type_description = data.asset_type_description;
         formData.append('asset_type_description', JSON.stringify(asset_type_description));
 
         formData.delete('issuer_profile_description');
-        const issuer_profile_description = values.issuer_profile_description;
+        const issuer_profile_description = data.issuer_profile_description;
         formData.append('issuer_profile_description', JSON.stringify(issuer_profile_description));
 
-        const officerValues = values.company_officers_and_contacts;
+        const officerValues = data.company_officers_and_contacts;
         formData.append('company_officers_and_contacts', JSON.stringify(officerValues));
 
-        const directorsValues = values.board_of_directors;
+        const directorsValues = data.board_of_directors;
         formData.append('board_of_directors', JSON.stringify(directorsValues));
+
+        formData.delete('sec_description');
+        const sec_description = data.sec_description;
+        formData.append('sec_description', JSON.stringify(sec_description));
 
         formData.delete('logo');
         formData.delete('logo_tmp');
@@ -380,6 +452,10 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         formData.delete('issuer_profile_image_tmp');
         formData.delete('issuer_profile_files');
         formData.delete('issuer_profile_file_tmp');
+        formData.delete('sec_images');
+        formData.delete('sec_image_tmp');
+        formData.delete('sec_files');
+        formData.delete('sec_file_tmp');
 
 
         if (this.state.selectedFile) {
@@ -401,6 +477,18 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         if (this.state.selectedIssuerProfileFiles && this.state.selectedIssuerProfileFiles.length > 0) {
             for (const file of Array.from(this.state.selectedIssuerProfileFiles)) {
                 formData.append('issuer_profile_files[]', file);
+            }
+        }
+
+        if (this.state.selectedSecImages && this.state.selectedSecImages.length > 0) {
+            for (const file of Array.from(this.state.selectedSecImages)) {
+                formData.append('sec_images[]', file);
+            }
+        }
+
+        if (this.state.selectedSecFiles && this.state.selectedSecFiles.length > 0) {
+            for (const file of Array.from(this.state.selectedSecFiles)) {
+                formData.append('sec_files[]', file);
             }
         }
 
@@ -436,20 +524,43 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         this.setState({selectedFile: selectedFile});
     };
 
-    // handleFileAssetLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const selectedFile = event.target?.files?.[0] || null;
-    //     this.setState({selectedFileAssetTypeLogo: selectedFile});
-    // };
-    //
-    // handleFileIssuerProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const selectedFile = event.target?.files?.[0] || null;
-    //     this.setState({selectedFileIssuerProfileImage: selectedFile});
-    // };
-    //
-    // handleFileIssuerProfileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const selectedFile = event.target?.files?.[0] || null;
-    //     this.setState({selectedFileIssuerProfileFile: selectedFile});
-    // };
+    handleSecImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedSecImages || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedSecImages: updatedFiles} as CompanyProfilePageFormState;
+        });
+    };
+
+
+    handleSecImageRemove = (index: number) => {
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles = (prevState.selectedSecImages || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedSecImages: updatedFiles};
+        });
+    };
+
+    handleSecFileChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
+        const selectedFile = event?.target?.files ? event.target.files[0] : null;
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles: (File | null)[] = [...(prevState.selectedSecFiles || [])];
+            updatedFiles[index] = selectedFile;
+            return {selectedSecFiles: updatedFiles} as CompanyProfilePageFormState;
+        });
+    };
+
+
+    handleSecFileRemove = (index: number) => {
+        this.setState((prevState: CompanyProfilePageFormState) => {
+            const updatedFiles = (prevState.selectedSecFiles || []).filter((_, idx) => {
+                return idx !== index;
+            });
+            return {selectedSecFiles: updatedFiles};
+        });
+    };
 
     handleAssetTypeImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
@@ -763,10 +874,10 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                         <div className="officer-input">
                                                                                             {values.asset_type_description.map((description, index) => (
-                                                                                                <>
+                                                                                                <React.Fragment
+                                                                                                    key={index}>
                                                                                                     <div
-                                                                                                        className={'input__btns gap-20'}
-                                                                                                        key={index}>
+                                                                                                        className={'input__btns gap-20'}>
                                                                                                         <div
                                                                                                             className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                             {!this.isShow() && values.asset_type_images[index] && (
@@ -827,7 +938,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                         <div
                                                                                                             className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
                                                                                                     )}
-                                                                                                </>
+                                                                                                </React.Fragment>
                                                                                             ))}
                                                                                         </div>
                                                                                     </div>
@@ -962,6 +1073,240 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                     className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
                                                                                             )}
                                                                                         </>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                    </div>
+
+                                                                    <div
+                                                                        className={'input__box full'}>
+                                                                        <h4 className={'input__group__title'}>Details:</h4>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">SPV
+                                                                            Name
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="spv_name"
+                                                                                id="spv_name"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type SPV Name"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage
+                                                                                name="spv_name"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Fund
+                                                                            Manager
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="fund_manager"
+                                                                                id="fund_manager"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Fund Manager"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage
+                                                                                name="fund_manager"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Investment
+                                                                            Objective
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="investment_objective"
+                                                                                id="investment_objective"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Investment Objective"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage
+                                                                                name="investment_objective"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">SEC
+                                                                            Filing
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="sec_filing"
+                                                                                id="sec_filing"
+                                                                                render={({field}: FieldProps<any>) => (
+                                                                                    <InputMask
+                                                                                        {...field}
+                                                                                        mask="9999-9999-99"
+                                                                                        placeholder="Type SEC Filing"
+                                                                                        className="input__text"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                )}
+                                                                            />
+                                                                            <ErrorMessage
+                                                                                name="sec_filing"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box full">
+                                                                        <div className={'input__btns'}>
+                                                                            <h4 className="input__group__title">SEC
+                                                                                Documents:</h4>
+                                                                            <button
+                                                                                type="button"
+                                                                                className={`border-grey-btn ripple  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}
+                                                                                onClick={() => {
+                                                                                    const updatedDescriptions = [...values.sec_description, ''];
+                                                                                    const index = updatedDescriptions.length - 1 || 0
+                                                                                    setFieldValue('sec_description', updatedDescriptions);
+                                                                                    this.handleSecImageChange(null, index);
+                                                                                    this.handleSecFileChange(null, index);
+                                                                                }}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <FontAwesomeIcon
+                                                                                    className="nav-icon"
+                                                                                    icon={faPlus}/>
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div className={'input__box full'}>
+                                                                        <div className="input">
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <div
+                                                                                    className="officer-input">
+                                                                                    {values.sec_description.map((description, index) => (
+                                                                                        <React.Fragment key={index}>
+                                                                                            <div
+                                                                                                className={'input__btns gap-20'}>
+                                                                                                <div
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                    {!this.isShow() && values.sec_images[index] && (
+                                                                                                        <div
+                                                                                                            key={index}
+                                                                                                            className="mb-2 d-flex">
+                                                                                                            <Link
+                                                                                                                className={'link info-panel-title-link'}
+                                                                                                                href={`${this.host}${values.sec_images[index]}`}
+                                                                                                                target={'_blank'}>
+                                                                                                                Image
+                                                                                                                #{index + 1} {' '}
+                                                                                                                <FontAwesomeIcon
+                                                                                                                    className="nav-icon"
+                                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                                            </Link>
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                    <input
+                                                                                                        id={`sec_image_tmp.${index}`}
+                                                                                                        name={`sec_image_tmp.${index}`}
+                                                                                                        type="file"
+                                                                                                        accept={'.' + allowedImageExt.join(',.')}
+                                                                                                        className={`input__file`}
+                                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                                        onChange={(event) => {
+                                                                                                            setFieldValue(`sec_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                            this.handleSecImageChange(event, index);
+                                                                                                        }}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                                <Field
+                                                                                                    name={`sec_description.${index}`}
+                                                                                                    as="textarea"
+                                                                                                    rows={4}
+                                                                                                    className="input__textarea"
+                                                                                                    placeholder={''}
+                                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                                />
+                                                                                                <div
+                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                    {!this.isShow() && values.sec_files[index] && (
+                                                                                                        <div
+                                                                                                            key={index}
+                                                                                                            className="mb-2 d-flex">
+                                                                                                            <Link
+                                                                                                                className={'link info-panel-title-link'}
+                                                                                                                href={`${this.host}${values.sec_files[index]}`}
+                                                                                                                target={'_blank'}>
+                                                                                                                File
+                                                                                                                {' '}
+                                                                                                                <FontAwesomeIcon
+                                                                                                                    className="nav-icon"
+                                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                                            </Link>
+                                                                                                        </div>
+                                                                                                    )}
+                                                                                                    <input
+                                                                                                        id={`sec_file_tmp.${index}`}
+                                                                                                        name={`sec_file_tmp.${index}`}
+                                                                                                        type="file"
+                                                                                                        accept={'.' + allowedFileExt.join(',.')}
+                                                                                                        className={`input__file`}
+                                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                                        onChange={(event) => {
+                                                                                                            setFieldValue(`sec_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                            this.handleSecFileChange(event, index);
+                                                                                                        }}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                                <button
+                                                                                                    disabled={isSubmitting || values.sec_description.length < 2}
+                                                                                                    type="button"
+                                                                                                    className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
+                                                                                                    onClick={() => {
+                                                                                                        const updatedDescriptions = [...values.sec_description];
+                                                                                                        updatedDescriptions.splice(index, 1);
+                                                                                                        setFieldValue('sec_description', updatedDescriptions);
+                                                                                                        this.handleSecImageRemove(index)
+                                                                                                        this.handleSecFileRemove(index)
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faMinus}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                            {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
+                                                                                                <div
+                                                                                                    className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
+                                                                                            )}
+                                                                                        </React.Fragment>
                                                                                     ))}
                                                                                 </div>
                                                                             </div>

@@ -323,8 +323,34 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             }
                         }
 
+                        if (typeof s.company_profile?.sec_description === 'string') {
+                            try {
+                                const sec_description = JSON.parse(s.sec_description.toString());
+                                s.sec_description = sec_description;
+                            } catch (error) {
+                                s.sec_description = [""];
+                            }
+                        }
 
+                        if (typeof s.company_profile?.sec_images === 'string') {
+                            try {
+                                const sec_images = JSON.parse(s.sec_images.toString().replace(/'/g, '"'));
+                                s.sec_images = sec_images;
+                            } catch (error) {
+                                s.sec_images = [];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.sec_files === 'string') {
+                            try {
+                                const sec_files = JSON.parse(s.sec_files.toString().replace(/'/g, '"'));
+                                s.sec_files = sec_files;
+                            } catch (error) {
+                                s.sec_files = [];
+                            }
+                        }
                     });
+
 
                     this.symbols = data;
                     const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
@@ -504,7 +530,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
     }
 
     onCallbackSubSymbol = (symbol: any, mode: string, option?: string) => {
-        console.log(symbol, mode, option)
         this.props.onCallback(symbol, 'symbols', true, mode);
     }
 
@@ -650,6 +675,94 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
                                                 </div>
                                             </div>
+                                            <div id={'company_profile_data'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Details</div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div className={'view_panel'}>
+                                                        <div className="view_block">
+                                                            <div className="view_block_body">
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title mt-0">SPV Name
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.spv_name || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Fund Manager
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.fund_manager || 'not filled'}</div>
+                                                                </div>
+
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">Investment
+                                                                        Objective
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.investment_objective || 'not filled'}</div>
+                                                                </div>
+                                                                <div className="ver">
+                                                                    <div className="view_block_sub_title">SEC Filing
+                                                                    </div>
+                                                                    <div
+                                                                        className="">{this.companyProfile.sec_filing || 'not filled'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div id={'asset_type_additional'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div
+                                                        className={'content__title'}>SEC Documents
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    {this.companyProfile?.sec_description ? (
+                                                        <>
+                                                            {this.companyProfile?.sec_description.map((description, index) => (
+                                                                <>
+                                                                    <div
+                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                        key={index}>
+                                                                        {this.companyProfile?.sec_images && this.companyProfile?.sec_images[index] && (
+                                                                            <div
+                                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                <div
+                                                                                    className={'logo p-0 align-items-baseline '}>
+                                                                                    <img
+                                                                                        src={this.companyProfile?.sec_images[index]}/>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className={'d-flex mb-2 flex-column'}>
+                                                                            <p className={'w-100 mb-1'}>{description}</p>
+                                                                            {this.companyProfile?.sec_files && this.companyProfile?.sec_files[index] && (
+                                                                                <p className={'w-100 mb-1'}><Link
+                                                                                    className={'link info-panel-title-link'}
+                                                                                    href={`${this.host}${this.companyProfile?.sec_files[index]}`}
+                                                                                    target={'_blank'}>
+                                                                                    File {' '}
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faArrowUpRightFromSquare}/>
+                                                                                </Link></p>
+                                                                            )}
+
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            ))}
+                                                        </>
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
+                                                </div>
+                                            </div>
                                             <div id={'asset_type_additional'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div
@@ -661,10 +774,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     {this.companyProfile?.issuer_profile_description ? (
                                                         <>
                                                             {this.companyProfile?.issuer_profile_description.map((description, index) => (
-                                                                <>
+                                                                <React.Fragment key={index}>
                                                                     <div
-                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                        key={index}>
+                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}>
                                                                         {this.companyProfile?.issuer_profile_images && this.companyProfile?.issuer_profile_images[index] && (
                                                                             <div
                                                                                 className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
@@ -691,7 +803,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
                                                                         </div>
                                                                     </div>
-                                                                </>
+                                                                </React.Fragment>
                                                             ))}
                                                         </>
                                                     ) : (
