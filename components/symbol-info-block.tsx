@@ -275,7 +275,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
     }
 
     onCallbackSubSymbol = (symbol: any, mode: string) => {
-        this.props.onCallback(symbol, 'symbols', mode,);
+        this.props.onCallback(symbol, 'symbols', mode);
     }
 
     render() {

@@ -24,6 +24,7 @@ import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import UserPermissionService from "@/services/user/user-permission-service";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
+import SubSymbolBlock from "@/components/sub-symbol-block";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -500,7 +501,11 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
     navigate = (mode: string, option?: string) => {
         this.props.onCallback(this.props.symbol, mode, true, option);
-        // this.props.onCallback(this.props.symbol, mode, option);
+    }
+
+    onCallbackSubSymbol = (symbol: any, mode: string, option?: string) => {
+        console.log(symbol, mode, option)
+        this.props.onCallback(symbol, 'symbols', true, mode);
     }
 
     render() {
@@ -1007,6 +1012,19 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     ) : (
                                                         <NoDataBlock/>
                                                     )}
+                                                </div>
+                                            </div>
+
+                                            <div id={'symbols'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Symbols
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <SubSymbolBlock
+                                                        isDashboard={false}
+                                                        symbol={this.props.symbol}
+                                                        onCallback={this.onCallbackSubSymbol}/>
                                                 </div>
                                             </div>
                                         </>

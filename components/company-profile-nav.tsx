@@ -109,6 +109,12 @@ let MENU_LIST: Array<Menus> = [
         icon: '/img/pd-ico.svg',
         alt: 'FINRA CAT'
     },
+    {
+        text: 'Symbols',
+        to: "symbols",
+        icon: '/img/pd-ico.svg',
+        alt: 'Symbols'
+    },
 
 ]
 

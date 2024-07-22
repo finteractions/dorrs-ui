@@ -300,22 +300,6 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
         this.cancelCompanyForm()
     };
 
-    downloadSymbolsCSV = () => {
-        if (this.tableRef.current) {
-            symbolService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
-                downloadFile.CSV('symbols', res);
-            })
-        }
-    }
-
-    downloadSymbolsXLSX = () => {
-        if (this.tableRef.current) {
-            symbolService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
-                downloadFile.XLSX('symbols', res);
-            })
-        }
-    }
-
     handleClickOutside = (event: any) => {
         const menu = document.querySelector('.filter-menu');
         if (menu && !menu.contains(event.target)) {

@@ -1106,10 +1106,9 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 <div
                                                                                     className="officer-input">
                                                                                     {values.sec_description.map((description, index) => (
-                                                                                        <>
+                                                                                        <React.Fragment  key={index}>
                                                                                             <div
-                                                                                                className={'input__btns gap-20'}
-                                                                                                key={index}>
+                                                                                                className={'input__btns gap-20'}>
                                                                                                 <div
                                                                                                     className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
                                                                                                     {!this.isShow() && values.sec_images[index] && (
@@ -1203,7 +1202,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                 <div
                                                                                                     className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
                                                                                             )}
-                                                                                        </>
+                                                                                        </React.Fragment>
                                                                                     ))}
                                                                                 </div>
                                                                             </div>
