@@ -345,7 +345,7 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
                                    block={this}
                                    editBtn={true}
                                    viewBtn={true}
-                                   deleteBtn={true}
+                                   deleteBtn={false}
                                    filters={tableFilters}
                                    filtersClassName={this.state.filtersClassName}
                                    access={this.props.access}

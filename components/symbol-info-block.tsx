@@ -675,7 +675,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                 <div className="modal__navigate">
                                     {(this.state.companyProfileAccess.create ||
                                         this.state.companyProfileAccess.edit ||
-                                        this.state.companyProfileAccess.view) && (
+                                        this.state.companyProfileAccess.view) && !this.state.symbol?.symbol_id && (
                                         <div className="modal__navigate__title">Asset Profile:</div>
                                     )}
 
