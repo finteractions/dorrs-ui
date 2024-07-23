@@ -715,7 +715,8 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
     renderOption = (item: ISymbol) => (
         {
-            value: item.id,
+            value: item.symbol,
+            id: item.id,
             label: (
                 <div
                     className={'flex-panel-box'}>
@@ -947,18 +948,18 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 <div
                                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
-                                                                                        name="symbol_id"
-                                                                                        id="symbol_id"
+                                                                                        name="symbol_tmp"
+                                                                                        id="symbol_tmp"
                                                                                         as={Select}
                                                                                         className="b-select-search"
                                                                                         placeholder="Select Underlying Symbol"
                                                                                         classNamePrefix="select__react"
                                                                                         isDisabled={(isSubmitting || this.isShow())}
                                                                                         isClearable={true}
-                                                                                        isSearchable={false}
+                                                                                        isSearchable={true}
                                                                                         options={Object.values(this.masterSymbols).map((item) => (this.renderOption(item)))}
                                                                                         onChange={(selectedOption: any) => {
-                                                                                            setFieldValue('symbol_id', selectedOption?.value || null);
+                                                                                            setFieldValue('symbol_id', selectedOption?.id || null);
                                                                                         }}
                                                                                         value={
                                                                                             Object.values(this.masterSymbols).filter(i => i.id === values.symbol_id).map((item) => (this.renderOption(item)))?.[0] || null
@@ -1103,7 +1104,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     <div
                                                                                         className="officer-input">
                                                                                         {values.sec_description.map((description, index) => (
-                                                                                            <React.Fragment  key={index}>
+                                                                                            <React.Fragment key={index}>
                                                                                                 <div
                                                                                                     className={'input__btns gap-20'}>
                                                                                                     <div
@@ -1209,7 +1210,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                         </div>
 
                                                                     </div>
-
 
 
                                                                     <div className={'input__box full'}>

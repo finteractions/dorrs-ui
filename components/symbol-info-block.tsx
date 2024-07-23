@@ -188,7 +188,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                 const masterSymbol = this.symbols.find(s => s.id === symbol?.symbol_id!);
 
                 if (symbol && masterSymbol) {
-                    symbol.master_symbol_name = `${masterSymbol?.company_profile?.company_name || ''} ${masterSymbol?.symbol}` ?? null;
+                    symbol.master_symbol_name = `${masterSymbol?.security_name || ''} (${masterSymbol?.symbol})` ?? null;
                 }
 
                 this.symbol = symbol || null;

@@ -38,6 +38,7 @@ import {ExemptedOfferingType} from "@/enums/exempted-offering-type";
 import Link from "next/link";
 import Select from "react-select";
 import InputMask from "react-input-mask";
+import AssetImage from "@/components/asset-image";
 
 
 const allowedImageFileSizeMB = 1
@@ -627,6 +628,33 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         });
     };
 
+    renderOption = (item: ISymbol) => (
+        {
+            value: item.symbol,
+            id: item.id,
+            label: (
+                <div
+                    className={'flex-panel-box'}>
+                    <div
+                        className={'panel'}>
+                        <div
+                            className={'content__bottom d-flex justify-content-between font-size-18'}>
+                            <div
+                                className={'view_block_main_title'}>
+                                <AssetImage
+                                    alt=''
+                                    src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                    width={28}
+                                    height={28}/>
+                                {item.security_name} ({item.symbol})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ),
+        }
+    );
+
     render() {
         let action = this.props.action;
         action = action === 'delete' && this.props.isAdmin ? 'deleteAdmin' : action;
@@ -885,27 +913,21 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     <div
                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <Field
-                                                                            name="symbol_id"
-                                                                            id="symbol_id"
+                                                                            name="symbol_tmp"
+                                                                            id="symbol_tmp"
                                                                             as={Select}
-                                                                            isClearable={true}
-                                                                            isSearchable={false}
                                                                             className="b-select-search"
-                                                                            placeholder="Select the Underlying Symbol"
+                                                                            placeholder="Select Underlying Symbol"
                                                                             classNamePrefix="select__react"
-                                                                            isDisabled={isSubmitting || this.isShow()}
-                                                                            options={Object.values(this.masterSymbols).map((item) => ({
-                                                                                value: item.id,
-                                                                                label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
-                                                                            }))}
+                                                                            isDisabled={(isSubmitting || this.isShow())}
+                                                                            isClearable={true}
+                                                                            isSearchable={true}
+                                                                            options={Object.values(this.masterSymbols).map((item) => (this.renderOption(item)))}
                                                                             onChange={(selectedOption: any) => {
-                                                                                setFieldValue('symbol_id', selectedOption?.value || null);
+                                                                                setFieldValue('symbol_id', selectedOption?.id || null);
                                                                             }}
                                                                             value={
-                                                                                Object.values(this.masterSymbols).filter(i => i.id === values.symbol_id).map((item) => ({
-                                                                                    value: item.symbol,
-                                                                                    label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
-                                                                                }))?.[0] || null
+                                                                                Object.values(this.masterSymbols).filter(i => i.id === values.symbol_id).map((item) => (this.renderOption(item)))?.[0] || null
                                                                             }
                                                                         />
                                                                         <ErrorMessage
