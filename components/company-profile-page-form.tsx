@@ -421,6 +421,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         const data = {...values};
 
+        data.total_shares_outstanding = data.total_shares_outstanding.replace(',', '')
+        data.price_per_share = data.price_per_share.replace(',', '')
+
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
             formData.append(key, value as any);

@@ -325,28 +325,31 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
                         if (typeof s.company_profile?.sec_description === 'string') {
                             try {
-                                const sec_description = JSON.parse(s.sec_description.toString());
-                                s.sec_description = sec_description;
+                                const str = (s.company_profile.sec_description as string).toString()
+                                const sec_description = JSON.parse(str);
+                                s.company_profile.sec_description = sec_description;
                             } catch (error) {
-                                s.sec_description = [""];
+                                s.company_profile.sec_description = [""];
                             }
                         }
 
                         if (typeof s.company_profile?.sec_images === 'string') {
                             try {
-                                const sec_images = JSON.parse(s.sec_images.toString().replace(/'/g, '"'));
-                                s.sec_images = sec_images;
+                                const str = (s.company_profile.sec_images as string).toString();
+                                const sec_images = JSON.parse(str.replace(/'/g, '"'));
+                                s.company_profile.sec_images = sec_images;
                             } catch (error) {
-                                s.sec_images = [];
+                                s.company_profile.sec_images = [];
                             }
                         }
 
                         if (typeof s.company_profile?.sec_files === 'string') {
                             try {
-                                const sec_files = JSON.parse(s.sec_files.toString().replace(/'/g, '"'));
-                                s.sec_files = sec_files;
+                                const str = (s.company_profile.sec_files as string).toString()
+                                const sec_files = JSON.parse(str.replace(/'/g, '"'));
+                                s.company_profile.sec_files = sec_files;
                             } catch (error) {
-                                s.sec_files = [];
+                                s.company_profile.sec_files = [];
                             }
                         }
                     });
