@@ -71,6 +71,14 @@ const MENU_LIST: MenuItem[] = [
         permission_key: 'security'
     },
     {
+        text: 'Asset Profiles',
+        href: "/asset-profiles",
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
+        submenus: [],
+        onlyAdmin: false,
+        permission_key: 'company_profile'
+    },
+    {
         text: 'Last Sale Reporting',
         href: "/last-sale-reporting",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
@@ -93,14 +101,6 @@ const MENU_LIST: MenuItem[] = [
         submenus: [],
         onlyAdmin: false,
         permission_key: 'dob'
-    },
-    {
-        text: 'Asset Profiles',
-        href: "/asset-profiles",
-        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
-        submenus: [],
-        onlyAdmin: false,
-        permission_key: 'company_profile'
     },
     {
         text: 'Weekly and Monthly Reports',

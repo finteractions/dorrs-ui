@@ -89,6 +89,12 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
+        text: 'Asset Profiles',
+        href: "/backend/asset-profiles",
+        icon: faFolderOpen,
+        submenus: []
+    },
+    {
         text: 'Last Sale Reporting',
         href: "/backend/last-sales",
         icon: faHandshake,
@@ -104,12 +110,6 @@ const MENU_LIST: MenuItem[] = [
         text: 'Orders',
         href: "/backend/orders",
         icon: faList,
-        submenus: []
-    },
-    {
-        text: 'Asset Profiles',
-        href: "/backend/asset-profiles",
-        icon: faFolderOpen,
         submenus: []
     },
     {
