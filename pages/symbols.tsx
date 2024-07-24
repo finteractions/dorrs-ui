@@ -1,5 +1,7 @@
 import React, {ReactElement} from "react"
-import SymbolBlock from "@/components/symbol-block";;
+import SymbolBlock from "@/components/symbol-block";
+
+;
 import PortalLayout from "@/components/layouts/portal/portal-layout";
 import {NextPageWithLayout} from "@/pages/_app";
 import {useRouter} from "next/router";
@@ -9,12 +11,17 @@ const Symbols: NextPageWithLayout = () => {
 
     const router = useRouter();
 
-    const onCallback = (symbol: string, mode?: string) => {
-        let queryString = "";
-        if (mode) {
-            queryString += `/${mode}`;
+    const onCallback = (symbol: string, mode?: string, option?: string) => {
+        if (!option) {
+            let queryString = "";
+            if (mode) {
+                queryString += `/${mode}`;
+            }
+            router.push(`/symbols/${symbol}${queryString}`)
+        } else {
+            router.push(`/${option}/${mode}`)
         }
-        router.push(`/symbols/${symbol}${queryString}`)
+
     }
 
     return (

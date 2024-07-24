@@ -918,7 +918,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <div className="officer-input">
                                                             {values.issuer_profile_description.map((description, index) => (
-                                                                <>
+                                                                <React.Fragment key={index}>
                                                                     <div
                                                                         className={'input__btns gap-20'}
                                                                         key={index}>
@@ -1011,7 +1011,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                         <div
                                                                             className="error-message input__btns">{errors.issuer_profile_file_tmp[index].toString()}</div>
                                                                     )}
-                                                                </>
+                                                                </React.Fragment>
                                                             ))}
                                                         </div>
                                                     </div>

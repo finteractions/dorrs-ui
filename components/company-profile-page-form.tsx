@@ -980,7 +980,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                 <div className="officer-input">
                                                                                     {values.issuer_profile_description.map((description, index) => (
-                                                                                        <>
+                                                                                        <React.Fragment key={index}>
                                                                                             <div
                                                                                                 className={'input__btns gap-20'}
                                                                                                 key={index}>
@@ -1075,7 +1075,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                 <div
                                                                                                     className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
                                                                                             )}
-                                                                                        </>
+                                                                                        </React.Fragment>
                                                                                     ))}
                                                                                 </div>
                                                                             </div>

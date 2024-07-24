@@ -203,12 +203,29 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
-            columnHelper.accessor((row) => row.company_profile_status, {
+            columnHelper.accessor((row) => ({
+                company_profile_status: row.company_profile_status,
+                symbol: row.symbol,
+            }), {
                 id: "company_profile_status",
                 cell: (item) =>
-                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
-                        {item.getValue()}
-                    </div>
+                    <>
+                        {item.getValue().company_profile_status ? (
+                            <div
+                                className={`table__status table__status-${item.getValue().company_profile_status.toLowerCase()}`}>
+                                {item.getValue().company_profile_status}
+                            </div>
+                        ) : (
+                            <Button
+                                variant="link"
+                                className="admin-table-btn ripple"
+                                type="button"
+                                onClick={() => this.navigateToAssetProfile(item.getValue().symbol)}
+                            >
+                                <FontAwesomeIcon icon={faPlus}/>
+                            </Button>
+                        )}
+                    </>
                 ,
                 header: () => <span>Asset Profile Status</span>,
             }),
@@ -268,7 +285,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
 
-                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-'
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : ''
                 });
 
                 this.setState({data: data});
@@ -368,6 +385,11 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
         })
     };
+
+    navigateToAssetProfile = (symbol: string) => {
+        this.context.setSharedData({symbol: symbol})
+        this.props.onCallback(symbol, 'add', 'asset-profiles')
+    }
 
     render() {
         return (
@@ -471,7 +493,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                                     <div className="modal__navigate">
                                         {(this.state.companyProfileAccess.create ||
                                             this.state.companyProfileAccess.edit ||
-                                            this.state.companyProfileAccess.view)  && (
+                                            this.state.companyProfileAccess.view) && (
                                             <div className="modal__navigate__title">Asset Profile:</div>
                                         )}
 
