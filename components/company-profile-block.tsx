@@ -25,6 +25,7 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import SubSymbolBlock from "@/components/sub-symbol-block";
+import AssetImage from "@/components/asset-image";
 
 
 interface CompanyProfileProps extends ICallback {
@@ -554,10 +555,12 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'d-flex gap-10 w-100'}>
                                                         <div
                                                             className={'title d-flex align-items-center gap-20 w-100 info-mob'}>
-                                                            <div className={'d-flex align-items-center justify-content-center gap-20 '}>
+                                                            <div
+                                                                className={'d-flex align-items-center justify-content-center gap-20 '}>
                                                                 <h2 className={'view_block_main_title mb-0'}>
-                                                                    {this.companyProfile.company_name}</h2>
-                                                                {!this.companyProfile.is_approved && (
+                                                                    {this.companyProfile.company_name}
+                                                                </h2>
+                                                                {!this.companyProfile.is_approved && this.props.access.edit && (
                                                                     <>
                                                                         <button
                                                                             className={`d-none d-md-block b-btn ripple`}
@@ -577,13 +580,15 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             </div>
                                                             <div
                                                                 className="content__title_btns content__filter download-buttons justify-content-end">
-                                                                    <>
-                                                                        <div className="d-flex gap-10 title-mob">
-                                                                            <div className={'d-flex bold'}>{this.symbol?.security_name} ({this.symbol?.symbol})</div>
-                                                                            <div
-                                                                                className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
-                                                                        </div>
-                                                                    </>
+
+                                                                <div className="d-flex gap-10 title-mob">
+                                                                    <div
+                                                                        className={'d-flex bold'}>{this.symbol?.security_name} ({this.symbol?.symbol})
+                                                                    </div>
+                                                                    <div
+                                                                        className={`font-weight-normal d-flex table__status table__status-${this.symbol?.status.toLowerCase()}`}>{this.symbol?.status}</div>
+                                                                </div>
+
                                                                 {this.state.symbolAccess.view && this.symbol && (
                                                                     <span title={'Symbol Profile'}
                                                                           className={'indicator-item cursor-pointer'}

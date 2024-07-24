@@ -22,6 +22,8 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import AssetImage from "@/components/asset-image";
 import Link from "next/link";
 import SubSymbolBlock from "@/components/sub-symbol-block";
+import Image from "next/image";
+import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 
 
 interface SymbolInfoProps extends ICallback {
@@ -290,89 +292,99 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                 <div className={'panel d-flex justify-content-between align-items-center'}>
                                     <div
                                         className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
-                                        <div className={'d-flex gap-10 '}>
+                                        <div className={'d-flex gap-10 w-100'}>
                                             <div
-                                                className={'cursor-pointer title d-flex align-items-center gap-10'}>
-                                                <h2 className={'view_block_main_title mb-0'}>
-                                                    <div className={"company-profile-logo"}>
-                                                        <AssetImage alt=''
-                                                                    src={this.companyProfile?.logo}
-                                                                    width={60}
-                                                                    height={60}/>
+                                                className={'title d-flex align-items-center gap-20 w-100 info-mob'}>
+                                                <div
+                                                    className={'d-flex align-items-center justify-content-center gap-20 info-mob'}>
+                                                    <div className={'d-flex align-items-center justify-content-center gap-20'}>
+                                                        <h2 className={'view_block_main_title mb-0'}>
+                                                            {this.symbol.security_name} ({this.symbol.symbol})
+                                                        </h2>
+                                                        {this.props.access.edit && (
+                                                            <>
+                                                                <button className="d-none d-md-block b-btn ripple"
+                                                                        disabled={this.state.isLoading}
+                                                                        onClick={() => this.openModal('edit')}>Edit
+                                                                </button>
+                                                                <Button
+                                                                    variant="link"
+                                                                    className="d-md-none admin-table-btn ripple"
+                                                                    type="button"
+                                                                    onClick={() => this.openModal('edit')}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faEdit}/>
+                                                                </Button>
+                                                            </>
+                                                        )}
                                                     </div>
-                                                    {this.symbol.security_name} ({this.symbol.symbol})
-                                                </h2>
 
-                                                {!this.symbol.symbol_id && (
-                                                    <>
-                                                        {this.state.companyProfileAccess.view && this.state.companyProfileAccess.view && this.symbol?.company_profile && (
-                                                            <span title={'Asset Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('asset-profiles', 'view')}>
-                                                       P
-                                                    </span>
+                                                    {!this.symbol.symbol_id && (
+                                                        <div className={'d-flex align-items-center justify-content-center gap-10'}>
+                                                            {this.state.companyProfileAccess.view && this.state.companyProfileAccess.view && this.symbol?.company_profile && (
+                                                                <span title={'Asset Profile'}
+                                                                      className={'indicator-item cursor-pointer'}
+                                                                      onClick={() => this.navigate('asset-profiles', 'view')}>P</span>
+                                                            )}
+
+                                                            {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                                <span title={'Quote Board Profile'}
+                                                                      className={'indicator-item cursor-pointer'}
+                                                                      onClick={() => this.navigate('quote-board')}>Q</span>
+                                                            )}
+
+                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                                <span
+                                                                    title={'Algorand Data Feed - Last Sale Profile'}
+                                                                    className={'indicator-item cursor-pointer'}
+                                                                    onClick={() => this.navigate('algorand-data-feed/last-sale')}>ALG-LS</span>
+                                                            )}
+
+
+                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                                <span
+                                                                    title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                    className={'indicator-item cursor-pointer'}
+                                                                    onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>ALG-BBO</span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div
+                                                    className="content__title_btns content__filter download-buttons justify-content-end">
+                                                    <div
+                                                        className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                        {this.symbol?.company_profile && (
+                                                            <>
+                                                                <div className="d-flex gap-10 d-flex justify-content-center align-items-center">
+                                                                    <div className={'d-flex bold'}>Asset Profile:</div>
+                                                                    <div
+                                                                        className={`gap-10 font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>
+                                                                        <div>{this.symbol?.company_profile?.status}</div>
+                                                                        <div>
+
+                                                                            {this.symbol?.fill_out_percentage == 100.00 ? (
+                                                                                <Image src="/img/check-ok.svg" width={28} height={42} alt="Check"/>
+                                                                            ) : (
+                                                                                <DoughnutChartPercentage
+                                                                                    percentage={this.symbol?.fill_out_percentage}
+                                                                                    width={40}
+                                                                                    height={40}
+                                                                                    fontSize={12}
+                                                                                    isAdmin={false}
+                                                                                />
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </>
                                                         )}
-
-                                                        {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
-                                                            <span title={'Quote Board Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('quote-board')}>
-                                                       Q
-                                                    </span>
-                                                        )}
-
-                                                        {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
-                                                            <span title={'Algorand Data Feed - Last Sale Profile'}
-                                                                  className={'indicator-item'}
-                                                                  onClick={() => this.navigate('algorand-data-feed/last-sale')}>
-                                                       ALG-LS
-                                                    </span>
-                                                        )}
-
-
-                                                        {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                            <span
-                                                                title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
-                                                                className={'indicator-item'}
-                                                                onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
-                                                       ALG-BBO
-                                                    </span>
-                                                        )}
-                                                    </>
-                                                )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className={'justify-content-end d-flex align-items-center gap-10'}>
-                                            {this.symbol?.company_profile && (
-                                                <>
-                                                    <div className="d-flex gap-10">
-                                                        <div className={'d-flex bold'}>Asset Profile:</div>
-                                                        <div
-                                                            className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
-                                                    </div>
-                                                </>
-                                            )}
-                                            <div>
-                                                {this.props.access.edit && (
-                                                    <>
-                                                        <button className="d-none d-md-block b-btn ripple"
-                                                                disabled={this.state.isLoading}
-                                                                onClick={() => this.openModal('edit')}>Edit
-                                                        </button>
-                                                        <Button
-                                                            variant="link"
-                                                            className="d-md-none admin-table-btn ripple"
-                                                            type="button"
-                                                            onClick={() => this.openModal('edit')}
-                                                        >
-                                                            <FontAwesomeIcon icon={faEdit}/>
-                                                        </Button>
-                                                    </>
 
-                                                )}
-                                            </div>
-
-                                        </div>
                                     </div>
 
                                 </div>
