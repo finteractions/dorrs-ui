@@ -4793,3 +4793,23 @@ a.block-link {
 .margin-top-unset {
   margin-top: unset !important;
 }
+
+@media(max-width: 1366px) {
+  .info-mob {
+    flex-direction: column;
+
+    > .content__title_btns {
+      display: block !important;
+    }
+
+    .title-mob {
+      justify-content: center;
+    }
+
+    .table__status {
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
+    }
+  }
+}

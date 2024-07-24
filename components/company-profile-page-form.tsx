@@ -417,12 +417,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
+
         this.setState({errorMessages: null});
 
         const data = {...values};
 
-        data.total_shares_outstanding = data.total_shares_outstanding.replace(',', '')
-        data.price_per_share = data.price_per_share.replace(',', '')
+        data.total_shares_outstanding = data.total_shares_outstanding.toString().replace(',', '')
+        data.price_per_share = data.price_per_share.toString().replace(',', '')
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -509,6 +510,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             }).finally(() => {
                 setSubmitting(false);
             });
+
     };
 
     isShow(): boolean {
@@ -1889,7 +1891,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           className="error-message"/>
                                                                         </div>
                                                                     </div>
-
 
                                                                     {this.state.action !== 'view' && (
                                                                         <div className="input__box full">

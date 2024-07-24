@@ -347,8 +347,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
         const data = {...values};
 
-        data.total_shares_outstanding = data.total_shares_outstanding.replace(',', '')
-        data.price_per_share = data.price_per_share.replace(',', '')
+        data.total_shares_outstanding = data.total_shares_outstanding.toString().replace(',', '')
+        data.price_per_share = data.price_per_share.toString().replace(',', '')
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {

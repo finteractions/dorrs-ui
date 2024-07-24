@@ -553,63 +553,64 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
                                                     <div className={'d-flex gap-10 w-100'}>
                                                         <div
-                                                            className={'cursor-pointer title d-flex align-items-center gap-10 w-100'}>
-                                                            <h2 className={'view_block_main_title mb-0'}>
-                                                                {this.companyProfile.company_name} ({this.symbol.symbol})</h2>
+                                                            className={'title d-flex align-items-center gap-20 w-100 info-mob'}>
+                                                            <div className={'d-flex align-items-center justify-content-center gap-20 '}>
+                                                                <h2 className={'view_block_main_title mb-0'}>
+                                                                    {this.companyProfile.company_name}</h2>
+                                                                {!this.companyProfile.is_approved && (
+                                                                    <>
+                                                                        <button
+                                                                            className={`d-none d-md-block b-btn ripple`}
+                                                                            onClick={() => this.openCompanyModal('edit')}
+                                                                        >Edit
+                                                                        </button>
+                                                                        <Button
+                                                                            variant="link"
+                                                                            className="d-md-none admin-table-btn ripple"
+                                                                            type="button"
+                                                                            onClick={() => this.openCompanyModal('edit')}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faEdit}/>
+                                                                        </Button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                            <div
+                                                                className="content__title_btns content__filter download-buttons justify-content-end">
+                                                                    <>
+                                                                        <div className="d-flex gap-10 title-mob">
+                                                                            <div className={'d-flex bold'}>{this.symbol?.security_name} ({this.symbol?.symbol})</div>
+                                                                            <div
+                                                                                className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
+                                                                        </div>
+                                                                    </>
+                                                                {this.state.symbolAccess.view && this.symbol && (
+                                                                    <span title={'Symbol Profile'}
+                                                                          className={'indicator-item cursor-pointer'}
+                                                                          onClick={() => this.navigate('symbols', 'view')}>S</span>
+                                                                )}
 
-                                                            {this.state.symbolAccess.view && this.symbol && (
-                                                                <span title={'Symbol Profile'}
-                                                                      className={'indicator-item'}
-                                                                      onClick={() => this.navigate('symbols', 'view')}>
-                                                       S
-                                                    </span>
-                                                            )}
+                                                                {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                                    <span title={'Quote Board Profile'}
+                                                                          className={'indicator-item cursor-pointer'}
+                                                                          onClick={() => this.navigate('quote-board')}>Q</span>
+                                                                )}
 
-                                                            {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
-                                                                <span title={'Quote Board Profile'}
-                                                                      className={'indicator-item'}
-                                                                      onClick={() => this.navigate('quote-board')}>
-                                                       Q
-                                                    </span>
-                                                            )}
-
-                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
-                                                                <span title={'Algorand Data Feed - Last Sale Profile'}
-                                                                      className={'indicator-item'}
-                                                                      onClick={() => this.navigate('algorand-data-feed/last-sale')}>
-                                                       ALG-LS
-                                                    </span>
-                                                            )}
+                                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                                    <span
+                                                                        title={'Algorand Data Feed - Last Sale Profile'}
+                                                                        className={'indicator-item cursor-pointer'}
+                                                                        onClick={() => this.navigate('algorand-data-feed/last-sale')}>ALG-LS</span>
+                                                                )}
 
 
-                                                            {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                                <span
-                                                                    title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
-                                                                    className={'indicator-item'}
-                                                                    onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
-                                                       ALG-BBO
-                                                    </span>
-                                                            )}
-
-                                                            {!this.companyProfile.is_approved && (
-                                                                <div
-                                                                    className="content__title_btns content__filter download-buttons justify-content-end">
-
-                                                                    <button
-                                                                        className={`d-none d-md-block b-btn ripple`}
-                                                                        onClick={() => this.openCompanyModal('edit')}
-                                                                    >Edit
-                                                                    </button>
-                                                                    <Button
-                                                                        variant="link"
-                                                                        className="d-md-none admin-table-btn ripple"
-                                                                        type="button"
-                                                                        onClick={() => this.openCompanyModal('edit')}
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faEdit}/>
-                                                                    </Button>
-                                                                </div>
-                                                            )}
+                                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                                    <span
+                                                                        title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                        className={'indicator-item cursor-pointer'}
+                                                                        onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>ALG-BBO</span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -695,13 +696,15 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             <div className="view_block">
                                                                 <div className="view_block_body">
                                                                     <div className="ver">
-                                                                        <div className="view_block_sub_title mt-0">SPV Name
+                                                                        <div className="view_block_sub_title mt-0">SPV
+                                                                            Name
                                                                         </div>
                                                                         <div
                                                                             className="">{this.companyProfile.spv_name || 'not filled'}</div>
                                                                     </div>
                                                                     <div className="ver">
-                                                                        <div className="view_block_sub_title">Fund Manager
+                                                                        <div className="view_block_sub_title">Fund
+                                                                            Manager
                                                                         </div>
                                                                         <div
                                                                             className="">{this.companyProfile.fund_manager || 'not filled'}</div>
@@ -736,7 +739,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         {this.companyProfile?.sec_description ? (
                                                             <>
                                                                 {this.companyProfile?.sec_description.map((description, index) => (
-                                                                    <>
+                                                                    <React.Fragment key={index}>
                                                                         <div
                                                                             className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
                                                                             key={index}>
@@ -766,7 +769,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
                                                                             </div>
                                                                         </div>
-                                                                    </>
+                                                                    </React.Fragment>
                                                                 ))}
                                                             </>
                                                         ) : (
