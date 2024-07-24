@@ -11,11 +11,11 @@ import Select from "react-select";
 import {createColumnHelper} from "@tanstack/react-table";
 import Modal from "@/components/modal";
 
-interface OrderGeneratorState {
+interface BestBidAndBestOfferGeneratorState {
     isLoading: boolean;
     symbols: ISymbol[];
-    isOrderGeneratorEnable: boolean,
-    orderGeneratorSymbols: Array<string>,
+    isBestBidAndBestOfferGeneratorEnable: boolean,
+    bestBidAndBestOfferGeneratorSymbols: Array<string>,
     errors: string[];
     formInitialValues: {},
     isOpenModal: boolean,
@@ -33,14 +33,14 @@ const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
-class OrderGeneratorBlock extends React.Component<{}> {
-    state: OrderGeneratorState;
+class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
+    state: BestBidAndBestOfferGeneratorState;
     formRef: RefObject<any>;
 
     constructor(props: {}) {
         super(props);
 
-        const initialValues: IOrderGenerator = {
+        const initialValues: IBestBidAndBestOfferGenerator = {
             symbol: '',
             is_enable: false,
             symbol_tmp: ''
@@ -51,8 +51,8 @@ class OrderGeneratorBlock extends React.Component<{}> {
             symbols: [],
             errors: [],
             formInitialValues: initialValues,
-            isOrderGeneratorEnable: false,
-            orderGeneratorSymbols: [],
+            isBestBidAndBestOfferGeneratorEnable: false,
+            bestBidAndBestOfferGeneratorSymbols: [],
             isOpenModal: false,
             isDeleting: false,
             isClearing: false,
@@ -75,8 +75,8 @@ class OrderGeneratorBlock extends React.Component<{}> {
     }
 
     async load() {
-        await this.getOrderGeneratorStatus()
-            .then(() => this.getOrderGeneratorSymbols())
+        await this.getBestBidAndBestOfferStatus()
+            .then(() => this.getBestBidAndBestOfferSymbols())
             .then(() => this.getSymbols())
             .finally(async () => {
                 if (this.formRef.current) {
@@ -84,7 +84,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                     this.setState({isLoading: false});
 
                     setTimeout(async () => {
-                        await this.formRef.current.setFieldValue('is_enable', this.state.isOrderGeneratorEnable)
+                        await this.formRef.current.setFieldValue('is_enable', this.state.isBestBidAndBestOfferGeneratorEnable)
                             .then(async () => await this.formRef.current.setFieldTouched('is_enable', false, true))
                     })
 
@@ -94,12 +94,12 @@ class OrderGeneratorBlock extends React.Component<{}> {
             })
     }
 
-    getOrderGeneratorSymbols = () => {
+    getBestBidAndBestOfferSymbols = () => {
         return new Promise(resolve => {
-            adminService.getOrderGeneratorSymbols()
+            adminService.getBestBidAndBestOfferGeneratorSymbols()
                 .then((res: Array<string>) => {
                     res.sort();
-                    this.setState({orderGeneratorSymbols: res})
+                    this.setState({bestBidAndBestOfferGeneratorSymbols: res})
                 })
                 .catch((errors: IError) => {
                     this.setState({errors: errors.messages});
@@ -110,14 +110,14 @@ class OrderGeneratorBlock extends React.Component<{}> {
         })
     }
 
-    getOrderGeneratorStatus = () => {
+    getBestBidAndBestOfferStatus = () => {
         return new Promise(resolve => {
-            adminService.getOrderGeneratorStatus()
+            adminService.getBestBidAndBestOfferGeneratorStatus()
                 .then((res: Array<{ status: boolean }>) => {
 
                     const status = res[0].status;
-                    if (this.state.isOrderGeneratorEnable !== status) {
-                        this.setState({isOrderGeneratorEnable: status})
+                    if (this.state.isBestBidAndBestOfferGeneratorEnable !== status) {
+                        this.setState({isBestBidAndBestOfferGeneratorEnable: status})
                     }
                 })
                 .catch((errors: IError) => {
@@ -135,7 +135,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                 .then((res: ISymbol[]) => {
                     let data = res || [];
                     data = data.filter(s => !s.symbol_id)
-                    data = data.filter(s => s.is_approved).filter(s => !this.state.orderGeneratorSymbols.includes(s.symbol))
+                    data = data.filter(s => s.is_approved).filter(s => !this.state.bestBidAndBestOfferGeneratorSymbols.includes(s.symbol))
 
                     this.setState({symbols: data});
                 })
@@ -148,14 +148,14 @@ class OrderGeneratorBlock extends React.Component<{}> {
         })
     }
 
-    handleSubmit = async (values: IOrderGenerator, {setSubmitting}: {
+    handleSubmit = async (values: IBestBidAndBestOfferGenerator, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         setSubmitting(true)
         const body = {
             symbol: values.symbol
         }
-        await adminService.addOrderGeneratorSymbol(body)
+        await adminService.addBestBidAndBestOfferGeneratorSymbol(body)
             .then((res: Array<string>) => {
 
             })
@@ -178,7 +178,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
         const body = {
             is_enable: isEnable
         }
-        await adminService.setOrderGeneratorStatus(body)
+        await adminService.setBestBidAndBestOfferGeneratorStatus(body)
             .then(((res: any) => {
 
             }))
@@ -202,7 +202,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
     handleDelete = async (symbol: string | null) => {
         this.setState({isDeleting: true});
 
-        await adminService.deleteOrderGeneratorSymbol(symbol ?? '')
+        await adminService.deleteBestBidAndBestOfferGeneratorSymbol(symbol ?? '')
             .then(((res: any) => {
 
             }))
@@ -225,7 +225,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
 
     clear = async () => {
         this.setState({isClearing: true})
-        await adminService.deleteOrderGeneratorOrders()
+        await adminService.deleteBestBidAndBestOfferGeneratorLastSales()
             .then(((res: any) => {
 
             }))
@@ -243,7 +243,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                 <div className="user section">
                     <div className={'approve-form'}>
                         <div className={'approve-form-text'}>
-                            Depth of Book Generator
+                            Best Bid and Best Offer Generator
                         </div>
                     </div>
 
@@ -253,8 +253,8 @@ class OrderGeneratorBlock extends React.Component<{}> {
                     <div className={`w-100 ${this.state.isLoading ? 'd-none' : ''}`}>
                         <div className={'form-panel'}>
                             <div>
-                                <Formik<IOrderGenerator>
-                                    initialValues={this.state.formInitialValues as IOrderGenerator}
+                                <Formik<IBestBidAndBestOfferGenerator>
+                                    initialValues={this.state.formInitialValues as IBestBidAndBestOfferGenerator}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
                                     innerRef={this.formRef}
@@ -278,11 +278,11 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                         <Field
                                                             type="checkbox"
                                                             name="is_enable"
-                                                            id="is_enable"
+                                                            id="is_enable_best_bid_and_best_offer_generator"
                                                             disabled={isSubmitting}
                                                             onClick={(e: React.ChangeEvent<HTMLInputElement>) => this.handleStatusChangeSubmit(e, setFieldValue, {setSubmitting})}
                                                         />
-                                                        <label htmlFor="is_enable">
+                                                        <label htmlFor="is_enable_best_bid_and_best_offer_generator">
                                                             <span></span><i> Enable
                                                         </i>
                                                         </label>
@@ -291,7 +291,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                     </div>
                                                 </div>
                                                 <div className="input">
-                                                    <div className="input__title">Clear all generated Orders</div>
+                                                    <div className="input__title">Clear all generated BBOs</div>
                                                     <div
                                                         className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                         <div>
@@ -356,10 +356,10 @@ class OrderGeneratorBlock extends React.Component<{}> {
 
                                 </div>
 
-                                {this.state.orderGeneratorSymbols.length ? (
+                                {this.state.bestBidAndBestOfferGeneratorSymbols.length ? (
                                     <Table columns={columns}
                                            pageLength={pageLength}
-                                           data={this.state.orderGeneratorSymbols}
+                                           data={this.state.bestBidAndBestOfferGeneratorSymbols}
                                            searchPanel={true}
                                            block={this}
                                            viewBtn={false}
@@ -407,4 +407,4 @@ class OrderGeneratorBlock extends React.Component<{}> {
     }
 }
 
-export default OrderGeneratorBlock;
+export default BestBidAndBestOfferGeneratorBlock;

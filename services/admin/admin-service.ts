@@ -48,7 +48,7 @@ class AdminService extends BaseService {
     }
 
     public addUser(data: any): Promise<any> {
-        return apiWebBackendService.post(`${this.PATH}users/`, data,{}, this.getAdminToken())
+        return apiWebBackendService.post(`${this.PATH}users/`, data, {}, this.getAdminToken())
     }
 
     public async approveUser(user_id: string, is_approved: boolean, comment: string): Promise<IResponseApi> {
@@ -467,6 +467,33 @@ class AdminService extends BaseService {
 
     public async deleteLastSaleGeneratorLastSales(): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/last_sale_generator/clear/`, {}, {}, this.getAdminToken());
+    }
+
+    // Best Bid And Best Offer Generator
+    public async getBestBidAndBestOfferGeneratorStatus(): Promise<Array<{ status: boolean }>> {
+        return (await apiWebBackendService.get<IResponse<Array<{
+            status: boolean
+        }>>>(`${this.PATH}tools/bbo_generator/status/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async setBestBidAndBestOfferGeneratorStatus(data: any): Promise<IResponseApi> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/bbo_generator/status/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getBestBidAndBestOfferGeneratorSymbols(): Promise<Array<string>> {
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, {}, this.getUserAccessToken())).data;
+    }
+
+    public async addBestBidAndBestOfferGeneratorSymbol(data: any): Promise<Array<string>> {
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+    }
+
+    public async deleteBestBidAndBestOfferGeneratorSymbol(symbol: string): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}tools/bbo_generator/symbols/${symbol}/`, {}, {}, this.getAdminToken());
+    }
+
+    public async deleteBestBidAndBestOfferGeneratorLastSales(): Promise<IResponseApi> {
+        return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/bbo_generator/clear/`, {}, {}, this.getAdminToken());
     }
 
     //********************** //

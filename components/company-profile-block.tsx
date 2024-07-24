@@ -678,92 +678,94 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
                                                 </div>
                                             </div>
-                                            <div id={'company_profile_data'} className={'panel'}>
-                                                <div className={'content__top'}>
-                                                    <div className={'content__title'}>Details</div>
-                                                </div>
-                                                <div className={'content__bottom'}>
-                                                    <div className={'view_panel'}>
-                                                        <div className="view_block">
-                                                            <div className="view_block_body">
-                                                                <div className="ver">
-                                                                    <div className="view_block_sub_title mt-0">SPV Name
+                                            <div className={'d-none'}>
+                                                <div id={'company_profile_data'} className={'panel'}>
+                                                    <div className={'content__top'}>
+                                                        <div className={'content__title'}>Details</div>
+                                                    </div>
+                                                    <div className={'content__bottom'}>
+                                                        <div className={'view_panel'}>
+                                                            <div className="view_block">
+                                                                <div className="view_block_body">
+                                                                    <div className="ver">
+                                                                        <div className="view_block_sub_title mt-0">SPV Name
+                                                                        </div>
+                                                                        <div
+                                                                            className="">{this.companyProfile.spv_name || 'not filled'}</div>
                                                                     </div>
-                                                                    <div
-                                                                        className="">{this.companyProfile.spv_name || 'not filled'}</div>
-                                                                </div>
-                                                                <div className="ver">
-                                                                    <div className="view_block_sub_title">Fund Manager
+                                                                    <div className="ver">
+                                                                        <div className="view_block_sub_title">Fund Manager
+                                                                        </div>
+                                                                        <div
+                                                                            className="">{this.companyProfile.fund_manager || 'not filled'}</div>
                                                                     </div>
-                                                                    <div
-                                                                        className="">{this.companyProfile.fund_manager || 'not filled'}</div>
-                                                                </div>
 
-                                                                <div className="ver">
-                                                                    <div className="view_block_sub_title">Investment
-                                                                        Objective
+                                                                    <div className="ver">
+                                                                        <div className="view_block_sub_title">Investment
+                                                                            Objective
+                                                                        </div>
+                                                                        <div
+                                                                            className="">{this.companyProfile.investment_objective || 'not filled'}</div>
                                                                     </div>
-                                                                    <div
-                                                                        className="">{this.companyProfile.investment_objective || 'not filled'}</div>
-                                                                </div>
-                                                                <div className="ver">
-                                                                    <div className="view_block_sub_title">SEC Filing
+                                                                    <div className="ver">
+                                                                        <div className="view_block_sub_title">SEC Filing
+                                                                        </div>
+                                                                        <div
+                                                                            className="">{this.companyProfile.sec_filing || 'not filled'}</div>
                                                                     </div>
-                                                                    <div
-                                                                        className="">{this.companyProfile.sec_filing || 'not filled'}</div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                </div>
-                                            </div>
-                                            <div id={'asset_type_additional'} className={'panel'}>
-                                                <div className={'content__top'}>
-                                                    <div
-                                                        className={'content__title'}>SEC Documents
                                                     </div>
                                                 </div>
-                                                <div className={'content__bottom'}>
-                                                    {this.companyProfile?.sec_description ? (
-                                                        <>
-                                                            {this.companyProfile?.sec_description.map((description, index) => (
-                                                                <>
-                                                                    <div
-                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
-                                                                        key={index}>
-                                                                        {this.companyProfile?.sec_images && this.companyProfile?.sec_images[index] && (
-                                                                            <div
-                                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                <div id={'asset_type_additional'} className={'panel'}>
+                                                    <div className={'content__top'}>
+                                                        <div
+                                                            className={'content__title'}>SEC Documents
+                                                        </div>
+                                                    </div>
+                                                    <div className={'content__bottom'}>
+                                                        {this.companyProfile?.sec_description ? (
+                                                            <>
+                                                                {this.companyProfile?.sec_description.map((description, index) => (
+                                                                    <>
+                                                                        <div
+                                                                            className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                            key={index}>
+                                                                            {this.companyProfile?.sec_images && this.companyProfile?.sec_images[index] && (
                                                                                 <div
-                                                                                    className={'logo p-0 align-items-baseline '}>
-                                                                                    <img
-                                                                                        src={this.companyProfile?.sec_images[index]}/>
+                                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                    <div
+                                                                                        className={'logo p-0 align-items-baseline '}>
+                                                                                        <img
+                                                                                            src={this.companyProfile?.sec_images[index]}/>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        )}
-                                                                        <div className={'d-flex mb-2 flex-column'}>
-                                                                            <p className={'w-100 mb-1'}>{description}</p>
-                                                                            {this.companyProfile?.sec_files && this.companyProfile?.sec_files[index] && (
-                                                                                <p className={'w-100 mb-1'}><Link
-                                                                                    className={'link info-panel-title-link'}
-                                                                                    href={`${this.host}${this.companyProfile?.sec_files[index]}`}
-                                                                                    target={'_blank'}>
-                                                                                    File {' '}
-                                                                                    <FontAwesomeIcon
-                                                                                        className="nav-icon"
-                                                                                        icon={faArrowUpRightFromSquare}/>
-                                                                                </Link></p>
                                                                             )}
+                                                                            <div className={'d-flex mb-2 flex-column'}>
+                                                                                <p className={'w-100 mb-1'}>{description}</p>
+                                                                                {this.companyProfile?.sec_files && this.companyProfile?.sec_files[index] && (
+                                                                                    <p className={'w-100 mb-1'}><Link
+                                                                                        className={'link info-panel-title-link'}
+                                                                                        href={`${this.host}${this.companyProfile?.sec_files[index]}`}
+                                                                                        target={'_blank'}>
+                                                                                        File {' '}
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                    </Link></p>
+                                                                                )}
 
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                </>
-                                                            ))}
-                                                        </>
-                                                    ) : (
-                                                        <>not filled</>
-                                                    )}
+                                                                    </>
+                                                                ))}
+                                                            </>
+                                                        ) : (
+                                                            <>not filled</>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id={'asset_type_additional'} className={'panel'}>
