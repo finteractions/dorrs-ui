@@ -11,7 +11,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 import formatterService from "@/services/formatter/formatter-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faEdit, faEye, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
 import formService from "@/services/form/form-service";
 import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
@@ -596,11 +596,18 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                     className="content__title_btns content__filter download-buttons justify-content-end">
 
                                                                     <button
-                                                                        className={`b-btn ripple`}
+                                                                        className={`d-none d-md-block b-btn ripple`}
                                                                         onClick={() => this.openCompanyModal('edit')}
                                                                     >Edit
                                                                     </button>
-
+                                                                    <Button
+                                                                        variant="link"
+                                                                        className="d-md-none admin-table-btn ripple"
+                                                                        type="button"
+                                                                        onClick={() => this.openCompanyModal('edit')}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faEdit}/>
+                                                                    </Button>
                                                                 </div>
                                                             )}
                                                         </div>

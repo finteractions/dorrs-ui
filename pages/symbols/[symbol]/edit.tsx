@@ -9,12 +9,16 @@ const Edit: NextPageWithLayout = () => {
     const router = useRouter();
     const symbol = router.query.symbol as string;
 
-    const onCallback = (symbol: string, mode?: string) => {
-        let queryString = "";
-        if (mode) {
-            queryString += `/${mode}`;
+    const onCallback = (symbol: string, mode?: string, option?: string) => {
+        if (!option) {
+            let queryString = "";
+            if (mode) {
+                queryString += `/${mode}`;
+            }
+            router.push(`/symbols/${symbol}${queryString}`)
+        } else {
+            router.push(`/${option}/${mode}`)
         }
-        router.push(`/symbols/${symbol}${queryString}`)
     }
 
     return (

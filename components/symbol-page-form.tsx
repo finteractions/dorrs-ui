@@ -41,6 +41,7 @@ import Select from "react-select";
 
 import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
+import {Button} from "react-bootstrap";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -740,6 +741,11 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         }
     );
 
+    navigateToAssetProfile = () => {
+        this.context.setSharedData({symbol: this.symbol?.symbol})
+        this.props.onCallback(this.symbol?.symbol, 'add', 'asset-profiles')
+    }
+
 
     render() {
         return (
@@ -765,6 +771,36 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                         <h2 className={'view_block_main_title'}>
                                                             {this.symbol?.security_name} ({this.symbol?.symbol})
                                                         </h2>
+
+                                                        <div
+                                                            className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                            {this.symbol?.company_profile ? (
+                                                                <>
+                                                                    <div className="d-flex gap-10">
+                                                                        <div className={'d-flex bold'}>Asset Profile:
+                                                                        </div>
+                                                                        <div
+                                                                            className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
+                                                                    </div>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <button
+                                                                        className={`d-none d-md-block b-btn ripple`}
+                                                                        onClick={() => this.navigateToAssetProfile()}
+                                                                    >Add Asset Profile
+                                                                    </button>
+                                                                    <Button
+                                                                        variant="link"
+                                                                        className="d-md-none admin-table-btn ripple"
+                                                                        type="button"
+                                                                        onClick={() => this.navigateToAssetProfile()}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faPlus}/>
+                                                                    </Button>
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

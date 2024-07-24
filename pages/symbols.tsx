@@ -21,7 +21,6 @@ const Symbols: NextPageWithLayout = () => {
         } else {
             router.push(`/${option}/${mode}`)
         }
-
     }
 
     return (
