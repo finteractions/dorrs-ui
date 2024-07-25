@@ -27,6 +27,7 @@ import {ILastSale} from "@/interfaces/i-last-sale";
 import {getGlobalConfig} from "@/utils/global-config";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
+import formatterService from "@/services/formatter/formatter-service";
 
 
 const formSchema = Yup.object().shape({
@@ -532,6 +533,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <SingleDatePicker
                                                                             numberOfMonths={1}
+                                                                            renderMonthElement={formatterService.renderMonthElement}
                                                                             date={values.bid_date ? moment(values.bid_date) : moment()}
                                                                             onDateChange={date => setFieldValue('bid_date', date?.format('YYYY-MM-DD').toString())}
                                                                             focused={this.state.focusedInputBidDate}
@@ -632,6 +634,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <SingleDatePicker
                                                                             numberOfMonths={1}
+                                                                            renderMonthElement={formatterService.renderMonthElement}
                                                                             date={values.offer_date ? moment(values.offer_date) : moment()}
                                                                             onDateChange={date => setFieldValue('offer_date', date?.format('YYYY-MM-DD').toString())}
                                                                             focused={this.state.focusedInputOfferDate}

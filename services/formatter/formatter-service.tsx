@@ -3,12 +3,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faArrowUp,
     faArrowDown,
-    faArrowsV,
-    faLinesLeaning,
-    faLineChart,
     faMinus
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import moment, {Moment} from 'moment';
+
 
 function numberFormat(
     number: number | undefined,
@@ -202,6 +201,56 @@ function getTransactionStatusName(value: string | null) {
     return value ? 'Approved' : 'Pending'
 }
 
+function renderMonthElement({month, onMonthSelect, onYearSelect}: {
+    month: Moment;
+    onMonthSelect: (currentMonth: Moment, newMonth: string) => void;
+    onYearSelect: (currentMonth: Moment, newYear: string) => void;
+}) {
+    return (
+        <div style={{display: 'flex', justifyContent: 'center', padding: '0 40px', height: '33px', marginTop: '-5px'}}>
+            <div style={{flex: 1}}>
+                <select
+                    className={'b-select'}
+                    style={{
+                        fontWeight: '600',
+                        border: "none",
+                        padding: '0 8px',
+                        backgroundPosition: 'right -4px center',
+                        backgroundSize: '18px'
+                    }}
+                    value={month.month()}
+                    onChange={(e) => onMonthSelect(month, e.target.value)}
+                >
+                    {moment.months().map((label, value) => (
+                        <option value={value} key={value}>
+                            {label}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div style={{flex: 1}}>
+                <select
+                    className={'b-select'}
+                    style={{
+                        fontWeight: '600',
+                        border: "none",
+                        padding: '0 8px',
+                        backgroundSize: '18px'
+                    }}
+                    value={month.year()}
+                    onChange={(e) => onYearSelect(month, e.target.value)}
+                >
+                    {Array.from({length: 100}, (_, i) => moment().year() - 50 + i).map((year) => (
+                        <option value={year} key={year}>
+                            {year}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        </div>
+    );
+}
+
 
 const formatterService = {
     numberFormat,
@@ -217,7 +266,8 @@ const formatterService = {
     formatSymbolName,
     getSymbolName,
     getTransactionStatusColour,
-    getTransactionStatusName
+    getTransactionStatusName,
+    renderMonthElement
 }
 
 export default formatterService;

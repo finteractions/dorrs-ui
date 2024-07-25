@@ -766,6 +766,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         className={`input__wrap`}>
                                                                         <SingleDatePicker
                                                                             numberOfMonths={1}
+                                                                            renderMonthElement={formatterService.renderMonthElement}
                                                                             date={values.date_entered_change ? moment(values.date_entered_delete) : null}
                                                                             onDateChange={date => setFieldValue('date_entered_delete', date?.format('YYYY-MM-DD').toString())}
                                                                             focused={this.state.focusedInputDateEntered}
@@ -812,6 +813,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         className={`input__wrap`}>
                                                                         <SingleDatePicker
                                                                             numberOfMonths={1}
+                                                                            renderMonthElement={formatterService.renderMonthElement}
                                                                             date={values.date_effective_delete ? moment(values.date_effective_delete) : null}
                                                                             onDateChange={date => setFieldValue('date_effective_delete', date?.format('YYYY-MM-DD').toString())}
                                                                             focused={this.state.focusedInputDateEffectiveDelete}
@@ -1237,6 +1239,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                     className={`input__wrap`}>
                                                                                     <SingleDatePicker
                                                                                         numberOfMonths={1}
+                                                                                        renderMonthElement={formatterService.renderMonthElement}
                                                                                         date={values.date_entered_change ? moment(values.date_entered_change) : null}
                                                                                         onDateChange={date => setFieldValue('date_entered_change', date?.format('YYYY-MM-DD').toString())}
                                                                                         focused={this.state.focusedInputDateEntered}
@@ -1287,6 +1290,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                     className={`input__wrap`}>
                                                                                     <SingleDatePicker
                                                                                         numberOfMonths={1}
+                                                                                        renderMonthElement={formatterService.renderMonthElement}
                                                                                         date={values.date_effective_change ? moment(values.date_effective_change) : null}
                                                                                         onDateChange={date => setFieldValue('date_effective_change', date?.format('YYYY-MM-DD').toString())}
                                                                                         focused={this.state.focusedInputDateEffective}

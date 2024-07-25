@@ -22,6 +22,7 @@ import converterService from "@/services/converter/converter-service";
 import {getGlobalConfig} from "@/utils/global-config";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import formatterService from "@/services/formatter/formatter-service";
 
 
 const formSchema = Yup.object().shape({
@@ -452,6 +453,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                 <SingleDatePicker
                                                                     numberOfMonths={1}
+                                                                    renderMonthElement={formatterService.renderMonthElement}
                                                                     date={values.date ? moment(values.date) : moment()}
                                                                     onDateChange={date => setFieldValue('date', date?.format('YYYY-MM-DD').toString())}
                                                                     focused={this.state.focusedInput}

@@ -22,6 +22,7 @@ import Select from "react-select";
 import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import 'react-dates/initialize';
 import InputMask from "react-input-mask";
+import formatterService from "@/services/formatter/formatter-service";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -770,6 +771,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                             <SingleDatePicker
                                                                                 numberOfMonths={1}
+                                                                                renderMonthElement={formatterService.renderMonthElement}
                                                                                 date={values.initial_offering_date ? moment(values.initial_offering_date) : null}
                                                                                 onDateChange={date => setFieldValue('initial_offering_date', date?.format('YYYY-MM-DD').toString())}
                                                                                 focused={this.state.focusedInitialOfferingDate}

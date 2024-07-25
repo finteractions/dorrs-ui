@@ -385,6 +385,7 @@ class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingF
 
                                                         <SingleDatePicker
                                                             numberOfMonths={1}
+                                                            renderMonthElement={formatterService.renderMonthElement}
                                                             date={values.sale_date ? moment(values.sale_date) : null}
                                                             onDateChange={date => setFieldValue('sale_date', date?.format('YYYY-MM-DD').toString())}
                                                             focused={this.state.focusedDate}
