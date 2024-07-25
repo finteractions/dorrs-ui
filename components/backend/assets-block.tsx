@@ -93,6 +93,13 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Name </span>,
             }),
+            columnHelper.accessor((row) => ({
+                count: row.linked_symbol_count === 0 ? null : row.linked_symbol_count,
+            }), {
+                id: "linked_symbol_count",
+                cell: (item) => item.getValue().count,
+                header: () => <span>S </span>,
+            }),
             columnHelper.accessor((row) => row.cusip, {
                 id: "cusip",
                 cell: (item) => item.getValue(),
@@ -187,10 +194,10 @@ class AssetsBlock extends React.Component<{}> {
     getAssets = () => {
         adminService.getAssets()
             .then((res: ISymbol[]) => {
-                const data = res?.sort((a, b) => {
+                let data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
-
+                data = data.filter(s => !s.symbol_id)
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
                     s.reason_change_status = !!s.reason_change

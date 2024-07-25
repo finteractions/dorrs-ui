@@ -147,6 +147,13 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => ({
+                count: row.linked_symbol_count === 0 ? null : row.linked_symbol_count,
+            }), {
+                id: "linked_symbol_count",
+                cell: (item) => item.getValue().count,
+                header: () => <span>S </span>,
+            }),
             columnHelper.accessor((row) => row.cusip, {
                 id: "cusip",
                 cell: (item) =>

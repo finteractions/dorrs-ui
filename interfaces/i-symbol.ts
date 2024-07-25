@@ -77,7 +77,7 @@ export interface ISymbol {
     // Topology
     company_profile_id: number | null;
     symbol_id: number | null;
-    master_symbol_name?: string  | null;
+    master_symbol_name?: string | null;
 
     spv_name: string;
     fund_manager: string;
@@ -88,4 +88,6 @@ export interface ISymbol {
     sec_image_tmp?: string;
     sec_files: string[];
     sec_file_tmp?: string;
+
+    linked_symbol_count?: number | null
 }
