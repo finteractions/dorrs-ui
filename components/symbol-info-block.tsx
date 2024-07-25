@@ -443,7 +443,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             {this.symbol?.sec_description ? (
                                                                 <>
                                                                     {this.symbol.sec_description.map((description, index) => (
-                                                                        <>
+                                                                        <React.Fragment key={index}>
                                                                             <div
                                                                                 className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
                                                                                 key={index}>
@@ -475,7 +475,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
                                                                                 </div>
                                                                             </div>
-                                                                        </>
+                                                                        </React.Fragment>
                                                                     ))}
                                                                 </>
                                                             ) : (

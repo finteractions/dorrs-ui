@@ -106,6 +106,7 @@ const formSchema = Yup.object().shape({
                 if (!value) return true;
                 return value.size <= allowedFileSize;
             })),
+    email: Yup.string().email("Invalid email").label('Email Address')
 });
 
 interface CompanyProfileFormState extends IState {
@@ -240,6 +241,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             state: string;
             zip_code: string;
             country: string;
+            email: string;
             phone: string;
             web_address: string;
             sic_industry_classification: string;
@@ -289,6 +291,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             state: initialData?.state || '',
             zip_code: initialData?.zip_code || '',
             country: initialData?.country || selectedCountry,
+            email: initialData?.email || '',
             phone: initialData?.phone || '',
             web_address: initialData?.web_address || '',
             sic_industry_classification: initialData?.sic_industry_classification || '',
@@ -1373,6 +1376,26 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
 
                                                     <div className="input">
+                                                        <div className="input__title">Email
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                            <Field
+                                                                name="email"
+                                                                id="email"
+                                                                type="email"
+                                                                className="input__text"
+                                                                placeholder="Type an Email Address"
+                                                                autoComplete="username"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage name="email"
+                                                                          component="div"
+                                                                          className="error-message"/>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="input">
                                                         <div className="input__title">Phone
                                                         </div>
                                                         <div
@@ -1823,8 +1846,27 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                         <div className="view_block_body">
                                             <div className="view_block_title">Company Address</div>
                                             <div>{[this.state.formInitialValues?.street_address_1, this.state.formInitialValues?.street_address_2, this.state.formInitialValues?.city, this.state.formInitialValues?.zip_code, this.state.formInitialValues?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
-                                            <div className="mt-2">{this.state.formInitialValues?.phone}</div>
-                                            <div className="mt-2">{this.state.formInitialValues?.web_address}</div>
+                                            {this.state.formInitialValues?.email && (
+                                                <div className="mt-2">
+                                                    <Link className={'link'}
+                                                          href={`mailto:${this.state.formInitialValues?.email}`}>{this.state.formInitialValues?.email}</Link>
+                                                </div>
+                                            )}
+                                            {this.state.formInitialValues?.phone && (
+                                                <div className="mt-2">
+                                                    <Link className={'link'}
+                                                          href={`tel:${this.state.formInitialValues?.phone}`}>{this.state.formInitialValues?.phone}</Link>
+                                                </div>
+                                            )}
+                                            {this.state.formInitialValues?.web_address && (
+                                                <div className="mt-2">
+                                                    <Link className={'link'}
+                                                          href={formatterService.getURL(this.state.formInitialValues?.web_address)}
+                                                          target={'_blank'}>
+                                                        {this.state.formInitialValues?.web_address}
+                                                    </Link>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="view_block">

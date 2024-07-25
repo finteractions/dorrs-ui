@@ -25,6 +25,7 @@ export interface ICompanyProfile {
     zip_code: string;
     country: string;
     phone: string;
+    email: string;
     web_address: string;
     sic_industry_classification: string;
     incorporation_information: string;

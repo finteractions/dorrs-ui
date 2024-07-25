@@ -23,7 +23,6 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import ModalBestBidAndBestOfferHistoryBlock from "@/components/modal-best-bid-and-best-offer-history-block";
 import InputMPIDField from "@/components/mpid-field";
 import converterService from "@/services/converter/converter-service";
-import {ILastSale} from "@/interfaces/i-last-sale";
 import {getGlobalConfig} from "@/utils/global-config";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";

@@ -256,7 +256,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         const usaStates = new UsaStates();
         const usaStatesList = usaStates.states;
 
-
         const companyProfileAccess = UserPermissionService.getAccessRulesByComponent(
             'CompanyProfileBlock',
             this.context.userProfile.access
@@ -292,8 +291,13 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     }
 
     initForm(data?: ISymbol) {
-        const initialTime = moment().format('HH:mm');
         const initialData = data || {} as ISymbol;
+
+        const currentDateTime = new Date();
+        const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+        const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+        const initialTime = `${currentHour}:${currentMinute}`;
+        const initialDate = moment().format('YYYY-MM-DD').toString();
 
         try {
             const sec_description = JSON.parse(initialData.sec_description.toString());
@@ -418,7 +422,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             date_entered_change: initialData?.date_entered_change || moment().format('YYYY-MM-DD'),
             time_entered_change: initialData?.time_entered_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
-            date_effective_change: initialData?.date_effective_change || '',
+            date_effective_change: initialData?.date_effective_change || initialDate,
             time_effective_change: initialData?.time_effective_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
             new_symbol: initialData?.new_symbol || '',
@@ -564,7 +568,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(data.symbol, 'view');
+                this.props.onCallback(data.new_symbol || data.symbol, 'view');
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -923,7 +927,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     id="reason_delete"
                                                                                     as="textarea"
                                                                                     rows="3"
-                                                                                    className="input__text no-bgarea"
+                                                                                    className="input__textarea no-bgarea"
                                                                                     placeholder="Type delete reason"
                                                                                     disabled={isSubmitting}
                                                                                 />
@@ -1299,6 +1303,9 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             className='border-grey-btn ripple'
                                                                                             onClick={() => {
                                                                                                 setFieldValue('is_change', true);
+                                                                                                setFieldValue('new_symbol', values.symbol);
+                                                                                                setFieldValue('new_security_name', values.security_name);
+                                                                                                this.handleNewSymbol(values.symbol, setFieldValue)
                                                                                             }}
                                                                                         >
                                                                                             <FontAwesomeIcon
@@ -1471,7 +1478,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             id="reason_change"
                                                                                             as="textarea"
                                                                                             rows="3"
-                                                                                            className="input__text no-bgarea"
+                                                                                            className="input__textarea no-bgarea"
                                                                                             placeholder="Type change reason"
                                                                                             disabled={isSubmitting}
                                                                                         />

@@ -251,6 +251,10 @@ function renderMonthElement({month, onMonthSelect, onYearSelect}: {
     );
 }
 
+function getURL(uri: string): string {
+    return uri.startsWith('http') ? uri : `http://${uri}`;
+}
+
 
 const formatterService = {
     numberFormat,
@@ -267,7 +271,8 @@ const formatterService = {
     getSymbolName,
     getTransactionStatusColour,
     getTransactionStatusName,
-    renderMonthElement
+    renderMonthElement,
+    getURL
 }
 
 export default formatterService;

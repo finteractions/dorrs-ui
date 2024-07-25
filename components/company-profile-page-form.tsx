@@ -102,6 +102,7 @@ const formSchema = Yup.object().shape({
                 if (!value) return true;
                 return value.size <= allowedFileSize;
             })),
+    email: Yup.string().email("Invalid email").label('Email Address')
 });
 
 interface CompanyProfilePageFormProps extends ICallback {
@@ -267,6 +268,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             state: string;
             zip_code: string;
             country: string;
+            email: string;
             phone: string;
             web_address: string;
             sic_industry_classification: string;
@@ -315,6 +317,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             state: initialData?.state || '',
             zip_code: initialData?.zip_code || '',
             country: initialData?.country || selectedCountry,
+            email: initialData?.email || '',
             phone: initialData?.phone || '',
             web_address: initialData?.web_address || '',
             sic_industry_classification: initialData?.sic_industry_classification || '',
@@ -1468,6 +1471,26 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     ))}
                                                                             </Field>
                                                                             <ErrorMessage name="country"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Email
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="email"
+                                                                                id="email"
+                                                                                type="email"
+                                                                                className="input__text"
+                                                                                placeholder="Type an Email Address"
+                                                                                autoComplete="username"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="email"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>

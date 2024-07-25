@@ -549,7 +549,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                 <div className="flex-panel-box scrollable">
                                     {this.companyProfile ? (
                                         <>
-                                            <div id={'name'} className={'panel d-flex justify-content-between align-items-center'}>
+                                            <div id={'name'}
+                                                 className={'panel d-flex justify-content-between align-items-center'}>
                                                 <div
                                                     className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
                                                     <div className={'d-flex gap-10 w-100'}>
@@ -837,13 +838,22 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{[this.companyProfile.street_address_1, this.companyProfile.street_address_2, this.companyProfile.city, this.companyProfile.zip_code, this.companyProfile.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                                    {this.companyProfile.email && (
+                                                        <div className="mt-2">
+                                                            <Link className={'link'}
+                                                                href={`mailto:${this.companyProfile.email}`}>{this.companyProfile.email}</Link>
+                                                        </div>
+                                                    )}
                                                     {this.companyProfile.phone && (
-                                                        <div className="mt-2">{this.companyProfile.phone}</div>
+                                                        <div className="mt-2">
+                                                            <Link className={'link'}
+                                                                href={`tel:${this.companyProfile.phone}`}>{this.companyProfile.phone}</Link>
+                                                        </div>
                                                     )}
                                                     {this.companyProfile.web_address && (
                                                         <div className="mt-2">
                                                             <Link className={'link'}
-                                                                  href={`http://${this.companyProfile.web_address}`}
+                                                                  href={formatterService.getURL(this.companyProfile.web_address)}
                                                                   target={'_blank'}>
                                                                 {this.companyProfile.web_address}
                                                             </Link>
