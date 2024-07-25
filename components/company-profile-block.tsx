@@ -911,7 +911,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                         Employees
                                                                     </div>
                                                                     <div
-                                                                        className="">{this.companyProfile.number_of_employees || 'not filled'}</div>
+                                                                        className="">{this.companyProfile.number_of_employees ? formatterService.numberFormat(Number(this.companyProfile.number_of_employees)) : 'not filled'}</div>
                                                                 </div>
                                                             </div>
                                                         </div>
