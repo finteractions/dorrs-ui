@@ -546,10 +546,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                     <>
                         {this.symbol ? (
                             <>
-                                <div className="flex-panel-box">
+                                <div className="flex-panel-box scrollable">
                                     {this.companyProfile ? (
                                         <>
-                                            <div className={'panel d-flex justify-content-between align-items-center'}>
+                                            <div id={'name'} className={'panel d-flex justify-content-between align-items-center'}>
                                                 <div
                                                     className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
                                                     <div className={'d-flex gap-10 w-100'}>
@@ -783,7 +783,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id={'asset_type_additional'} className={'panel'}>
+                                            <div id={'issuer_profile'} className={'panel'}>
                                                 <div className={'content__top'}>
                                                     <div
                                                         className={'content__title'}>Issuer
@@ -1162,7 +1162,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                         </>
 
                                     ) : (
-                                        <div className={'panel'}>
+                                        <div id={'name'} className={'panel'}>
                                             <div
                                                 className={'content__bottom flex flex-1 justify-content-center text-center'}>
                                                 <div className="mb-24 w-100">This is Asset Profile

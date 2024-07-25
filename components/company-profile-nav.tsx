@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import {Link} from 'react-scroll';
 import Image from "next/image"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -13,6 +13,12 @@ interface Menus {
 }
 
 let MENU_LIST: Array<Menus> = [
+    {
+        text: 'Name',
+        to: "name",
+        icon: '/img/pd-ico.svg',
+        alt: 'name'
+    },
     {
         text: 'Asset Type',
         to: "asset_type",
@@ -36,6 +42,12 @@ let MENU_LIST: Array<Menus> = [
         to: "price_per_share",
         icon: '/img/pd-ico.svg',
         alt: 'Price Per Shar'
+    },
+    {
+        text: 'Issuer Profile',
+        to: "issuer_profile",
+        icon: '/img/pd-ico.svg',
+        alt: 'Issuer Profile'
     },
     {
         text: 'Company Address',
@@ -120,16 +132,43 @@ let MENU_LIST: Array<Menus> = [
 
 const CompanyProfileNav = () => {
     const offset = () => -95;
-    const [activeMenu, setActiveMenu] = useState<string>("company_address");
+    const [activeMenu, setActiveMenu] = useState<string>("name");
     const [isOpen, setIsOpen] = useState(false);
     const handleClick = (to: string) => {
         setActiveMenu(to);
         toggleMenu()
     }
 
+    const handleScroll = () => {
+        const panelBox = document.querySelector('.flex-panel-box.scrollable');
+
+        if (panelBox) {
+            const childDivs = Array.from(panelBox.children).filter(child => child.id);
+
+            const currentTopDiv = childDivs.reduce<{ id: string | null, offset: number }>((closest, div) => {
+                const box = div.getBoundingClientRect();
+                const offset = Math.abs(box.top) + (-95);
+                return offset < Math.abs(closest.offset) ? {id: div.id, offset} : closest;
+            }, {id: null, offset: Number.POSITIVE_INFINITY}).id;
+
+            if (currentTopDiv && MENU_LIST.map(s => s.to).includes(currentTopDiv)) {
+                setActiveMenu(currentTopDiv)
+            }
+        }
+    }
+
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        }
+    }, [])
 
     const NavItem = ({text, to, icon, alt}: any) => {
         return (
