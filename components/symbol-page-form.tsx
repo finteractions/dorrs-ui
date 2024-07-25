@@ -440,7 +440,43 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             edgar_cik: initialData?.edgar_cik || '',
         };
 
-        this.setState({formInitialValues: initialValues})
+        this.setState({formInitialValues: initialValues}, () => {
+            this.requiredFields();
+        })
+    }
+
+    requiredFields = () => {
+        const titles = document.querySelectorAll<HTMLDivElement>('.input__title');
+
+        titles.forEach(title => {
+            if (title.querySelector('i')) {
+                const wrap = title.nextElementSibling as HTMLDivElement;
+                if (wrap && wrap.classList.contains('input__wrap')) {
+                    const inputs = wrap.querySelectorAll<HTMLInputElement>('.input__text');
+                    inputs.forEach(input => {
+                        if (!input.disabled) {
+                            input.classList.add('required')
+                        }
+                    });
+                    const selects = wrap.querySelectorAll<HTMLSelectElement>('.b-select');
+                    selects.forEach(select => {
+                        if (!select.disabled) {
+                            select.classList.add('required')
+                        }
+                    });
+
+                    const datePickers = wrap.querySelectorAll<HTMLInputElement>('.DateInput_input ');
+                    datePickers.forEach(picker => {
+                        if (!picker.disabled) {
+                            const parent = picker.closest('.SingleDatePickerInput');
+                            if (parent) {
+                                parent.classList.add('required');
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     componentDidMount() {
@@ -1306,6 +1342,9 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                 setFieldValue('new_symbol', values.symbol);
                                                                                                 setFieldValue('new_security_name', values.security_name);
                                                                                                 this.handleNewSymbol(values.symbol, setFieldValue)
+                                                                                                setTimeout(() => {
+                                                                                                    this.requiredFields()
+                                                                                                })
                                                                                             }}
                                                                                         >
                                                                                             <FontAwesomeIcon

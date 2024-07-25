@@ -49,6 +49,9 @@ body {
       color: var(--form-colour) !important;
     }
 
+    .required {
+      border: 1px solid var(--error-colour)!important;
+    }
   }
 }
 
@@ -75,6 +78,10 @@ html.dark {
 
         &::placeholder {
           color: var(--form-colour-placeholder) !important;
+        }
+
+        &.required {
+          border: 1px solid var(--error-colour)!important;
         }
       }
 
@@ -207,7 +214,11 @@ html.dark {
       color: var(--text-colour-2) !important;
       border: 1px solid var(--background-colour) !important;
     }
+    .required {
+      border: 1px solid var(--error-colour)!important;
+    }
   }
 }
+
 
 
