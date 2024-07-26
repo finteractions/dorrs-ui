@@ -39,6 +39,7 @@ import Link from "next/link";
 import Select from "react-select";
 import InputMask from "react-input-mask";
 import AssetImage from "@/components/asset-image";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const allowedImageFileSizeMB = 1
@@ -679,6 +680,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                     innerRef={this.formRef}
                                 >
                                     {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema, values, errors);
+
                                         return (
                                             <Form id="bank-form">
                                                 {this.props.isAdmin && (
@@ -915,8 +918,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     <div
                                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                         <Field
-                                                                            name="symbol_tmp"
-                                                                            id="symbol_tmp"
+                                                                            name="underlying_symbol"
+                                                                            id="underlying_symbol"
                                                                             as={Select}
                                                                             className="b-select-search"
                                                                             placeholder="Select Underlying Symbol"

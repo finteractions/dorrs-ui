@@ -40,7 +40,6 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
     initialValues: ProfileChangePasswordFormFields;
     formRef: RefObject<any>;
 
-
     constructor(props: {}) {
         super(props);
 
@@ -127,7 +126,9 @@ class ProfileChangePasswordForm extends React.Component<{}, ProfileChangePasswor
                             onSubmit={this.handleSubmit}
                             innerRef={this.formRef}
                         >
-                            {({isSubmitting, isValid, dirty, errors, touched}) => {
+                            {({isSubmitting, isValid, dirty, errors, touched, values}) => {
+                                formValidator.requiredFields(formSchema, values, errors);
+
                                 return (
                                     <Form>
                                         <div className="input">

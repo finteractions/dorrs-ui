@@ -1,4 +1,8 @@
 .backend {
+  --error-colour: #CB3D34;
+  --error-colour: #CB3D34;
+  --border-colour-2: #c5cacf;
+
   h1, h2, h3, h4, h5, h6 {
     margin: 0 0 30px;
     font-weight: 600;
@@ -246,6 +250,14 @@
     &:active, &:focus {
       background: #053060
     }
+
+    &:disabled {
+      background: var(--border-colour-2);
+      color: var(--text-colour-8);
+      border: 1px solid var(--border-colour-2);
+      opacity: 1;
+    }
+
   }
 
   .b-btn-border {

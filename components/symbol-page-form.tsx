@@ -19,7 +19,7 @@ import * as Yup from "yup";
 import {getLotSize} from "@/enums/lot-size";
 import dsinService from "@/services/dsin/dsin-service";
 import {FormStatus, getApprovedFormStatus, getBuildableFormStatuses} from "@/enums/form-status";
-import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
+import {ErrorMessage, Field, FieldProps, Form, Formik, FormikErrors} from "formik";
 import moment from 'moment';
 import 'moment-timezone';
 import 'react-dates/initialize';
@@ -42,6 +42,7 @@ import Select from "react-select";
 import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
 import {Button} from "react-bootstrap";
+import formValidator from "@/services/form-validator/form-validator";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -171,11 +172,11 @@ const formSchema = Yup.object().shape({
     }),
     new_symbol: Yup.string().when('is_change', {
         is: (is_change: boolean) => is_change,
-        then: (schema) => schema.required('Required')
+        then: (schema) => schema.min(2).max(5).required('Required').label('Symbol')
     }),
     new_security_name: Yup.string().when('is_change', {
         is: (is_change: boolean) => is_change,
-        then: (schema) => schema.required('Required')
+        then: (schema) => schema.min(3).max(50).required('Required').label('Security Name')
     }),
     reason_change: Yup.string(),
     is_delete: Yup.boolean(),
@@ -440,43 +441,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             edgar_cik: initialData?.edgar_cik || '',
         };
 
-        this.setState({formInitialValues: initialValues}, () => {
-            this.requiredFields();
-        })
-    }
-
-    requiredFields = () => {
-        const titles = document.querySelectorAll<HTMLDivElement>('.input__title');
-
-        titles.forEach(title => {
-            if (title.querySelector('i')) {
-                const wrap = title.nextElementSibling as HTMLDivElement;
-                if (wrap && wrap.classList.contains('input__wrap')) {
-                    const inputs = wrap.querySelectorAll<HTMLInputElement>('.input__text');
-                    inputs.forEach(input => {
-                        if (!input.disabled) {
-                            input.classList.add('required')
-                        }
-                    });
-                    const selects = wrap.querySelectorAll<HTMLSelectElement>('.b-select');
-                    selects.forEach(select => {
-                        if (!select.disabled) {
-                            select.classList.add('required')
-                        }
-                    });
-
-                    const datePickers = wrap.querySelectorAll<HTMLInputElement>('.DateInput_input ');
-                    datePickers.forEach(picker => {
-                        if (!picker.disabled) {
-                            const parent = picker.closest('.SingleDatePickerInput');
-                            if (parent) {
-                                parent.classList.add('required');
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        this.setState({formInitialValues: initialValues})
     }
 
     componentDidMount() {
@@ -786,7 +751,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         this.props.onCallback(this.symbol?.symbol, 'add', 'asset-profiles')
     }
 
-
     render() {
         return (
             <>
@@ -801,6 +765,8 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                             innerRef={this.formRef}
                         >
                             {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                formValidator.requiredFields(formSchema, values, errors);
+
                                 return (
                                     <Form id="bank-form">
                                         <div className="flex-panel-box">
@@ -1025,8 +991,8 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 <div
                                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
-                                                                                        name="symbol_tmp"
-                                                                                        id="symbol_tmp"
+                                                                                        name="underlying_symbol"
+                                                                                        id="underlying_symbol"
                                                                                         as={Select}
                                                                                         className="b-select-search"
                                                                                         placeholder="Select Underlying Symbol"
@@ -1342,9 +1308,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                 setFieldValue('new_symbol', values.symbol);
                                                                                                 setFieldValue('new_security_name', values.security_name);
                                                                                                 this.handleNewSymbol(values.symbol, setFieldValue)
-                                                                                                setTimeout(() => {
-                                                                                                    this.requiredFields()
-                                                                                                })
                                                                                             }}
                                                                                         >
                                                                                             <FontAwesomeIcon

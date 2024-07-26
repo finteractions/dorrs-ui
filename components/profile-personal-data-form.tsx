@@ -34,11 +34,11 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedFileSize;
         }),
-    country: Yup.string().required("Required"),
-    city: Yup.string().required("Required"),
-    state: Yup.string().required("Required"),
-    address: Yup.string().required("Required"),
-    house_number: Yup.string().required("Required"),
+    country: Yup.string().required("Required").label('Country'),
+    city: Yup.string().required("Required").label('City'),
+    state: Yup.string().required("Required").label('State'),
+    address: Yup.string().required("Required").label('Address'),
+    house_number: Yup.string().required("Required").label('Building / Apartment'),
 });
 
 let initialValues = {
@@ -199,7 +199,9 @@ class ProfilePersonalDataForm extends React.Component<{
                                                 onSubmit={this.handleSubmit}
                                                 enableReinitialize={true}
                                             >
-                                                {({isSubmitting, isValid, dirty, setFieldValue, errors}) => {
+                                                {({isSubmitting, isValid, dirty, setFieldValue, errors, values,}) => {
+                                                    formValidator.requiredFields(formSchema, values, errors);
+
                                                     return (
                                                         <Form className={"profile__panel"}>
                                                             <div className='profile__image__input'>

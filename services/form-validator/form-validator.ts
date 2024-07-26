@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import YupPassword from 'yup-password';
 import * as Yup from "yup";
 import {ISchema} from "yup";
+import {FormikErrors} from "formik";
 
 YupPassword(yup) // extend yup
 
@@ -57,6 +58,64 @@ const castFormValues = (values: any, schema: Yup.ObjectSchema<any>) => {
     return values;
 };
 
+const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: FormikErrors<any>) => {
+    setTimeout(() => {
+        document.querySelectorAll('.required')
+            .forEach(s => s.classList.remove('required'))
+
+        const requiredFieldsAll: string[] = [];
+
+        Object.keys(schema.fields).forEach(key => {
+            const hasRequired = !(schema.fields[key] as any).spec.optional && !values[key]
+
+            if (hasRequired) requiredFieldsAll.push(key)
+        })
+
+        const requiredFieldsToFill = Object.keys(errors)
+
+        const requiredFields = requiredFieldsToFill.length === 0 ? requiredFieldsAll : requiredFieldsToFill
+
+        requiredFields.forEach(field => {
+            const el = document.querySelector<any>(`[name="${field}"]`);
+            const el_tmp = document.querySelector<any>(`[name="${field}_tmp"]`);
+
+            if (el && !el.disabled) {
+                const tagName = el.tagName.toLowerCase();
+
+                switch (tagName) {
+                    case 'select':
+                        if (el.classList.contains('b-select')) el.classList.add('required')
+                        break;
+                    default:
+                        if (el.classList.contains('DateInput_input ')) {
+                            const parent = el.closest('.SingleDatePickerInput');
+                            if (parent) {
+                                parent.classList.add('required');
+                            }
+                        } else {
+
+                            if (el.type == 'hidden') {
+
+                                const parent = el.closest('.b-select-search')
+                                if (parent) {
+                                    const el = parent.querySelector('.select__react__control');
+                                    if (el) el.classList.add('required');
+                                }
+                            } else {
+                                el.classList.add('required');
+                            }
+                        }
+                }
+            }
+
+            if (el && el_tmp && !values[field]) {
+                const previousEl = el_tmp.previousElementSibling
+                if (previousEl && previousEl.classList.contains('select__react__control')) previousEl.classList.add('required')
+            }
+        })
+    },)
+}
+
 
 const FormValidator = {
     firstNameField,
@@ -64,7 +123,8 @@ const FormValidator = {
     passwordField,
     confirmPasswordField,
     phoneNumberField,
-    castFormValues
+    castFormValues,
+    requiredFields
 }
 
 export default FormValidator

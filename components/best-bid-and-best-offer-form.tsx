@@ -27,6 +27,7 @@ import {getGlobalConfig} from "@/utils/global-config";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
 import formatterService from "@/services/formatter/formatter-service";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const formSchema = Yup.object().shape({
@@ -185,6 +186,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             } catch (ignored) {
             }
         }
+        await this.formRef.current.setFieldTouched('quote_condition', false, true)
     }
 
     getSymbols = () => {
@@ -203,7 +205,8 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             .finally(() => {
                 !this.isAdd()
                     ?
-                    this.setState({isLoadingForm: false, isLoadingHistory: false, isLoading: false})
+                    this.setState({isLoadingForm: false, isLoadingHistory: false, isLoading: false}, () => {
+                    })
                     :
                     this.setState({isLoadingForm: false}, () => this.setLoading());
             });
@@ -222,16 +225,12 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
     }) => {
         this.setState({errorMessages: null});
 
-        let data = values;
-
-        data.bid_quantity = data.bid_quantity.replace(/,/g, '');
-        data.bid_price = data.bid_price.replace(/,/g, '');
-        data.offer_quantity = data.offer_quantity.replace(/,/g, '');
-        data.offer_price = data.offer_price.replace(/,/g, '');
+        let data = {...values};
+        data = formValidator.castFormValues(data, formSchema);
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            bboSaleService.updateBestBidAndBestOffer(values, this.props.data?.id || 0) :
-            bboSaleService.createBestBidAndBestOffer(values);
+            bboSaleService.updateBestBidAndBestOffer(data, this.props.data?.id || 0) :
+            bboSaleService.createBestBidAndBestOffer(data);
 
         await request
             .then(((res: any) => {
@@ -341,11 +340,9 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
             const keys = this.formRef.current?.touched || {}
 
             if (Object.keys(keys).length > 0 && values) {
-                values.bid_quantity = values.bid_quantity.replace(/,/g, '');
-                values.bid_price = values.bid_price.replace(/,/g, '');
-                values.offer_quantity = values.offer_quantity.replace(/,/g, '');
-                values.offer_price = values.offer_price.replace(/,/g, '');
-                localStorage.setItem(PATH, JSON.stringify(values))
+                let data = {...values};
+                data = formValidator.castFormValues(data, formSchema)
+                localStorage.setItem(PATH, JSON.stringify(data))
             }
         } else {
             localStorage.removeItem(PATH)
@@ -382,9 +379,11 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                               values,
                                               errors,
                                               touched,
-                                              setTouched
+                                              setFieldTouched
                                           }) => {
                                             const symbol = this.symbols.find(s => s.symbol === values.symbol);
+
+                                            formValidator.requiredFields(formSchema, values, errors);
 
                                             return (
                                                 <Form className={`quote_condition_${values.quote_condition} w-100`}>

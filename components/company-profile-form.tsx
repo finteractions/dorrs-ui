@@ -26,6 +26,7 @@ import moment from "moment/moment";
 import {AssetType} from "@/enums/asset-type";
 import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const allowedImageFileSizeMB = 1
@@ -106,7 +107,16 @@ const formSchema = Yup.object().shape({
                 if (!value) return true;
                 return value.size <= allowedFileSize;
             })),
-    email: Yup.string().email("Invalid email").label('Email Address')
+    email: Yup.string().email("Invalid email").label('Email Address'),
+    total_shares_outstanding: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Total Shares Outstanding').label('Total Shares Outstanding'),
+    price_per_share: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Price Per Share').label('Price Per Share'),
+    number_of_employees: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Number of Employees').label('Number of Employees'),
 });
 
 interface CompanyProfileFormState extends IState {
@@ -348,11 +358,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     }) => {
         this.setState({errorMessages: null});
 
-        const data = {...values};
-
-        data.total_shares_outstanding = data.total_shares_outstanding.replace(/,/g, '')
-        data.price_per_share = data.price_per_share.replace(/,/g, '')
-        data.number_of_employees = data.number_of_employees.replace(/,/g, '')
+        let data = {...values};
+        data = formValidator.castFormValues(data, formSchema);
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -583,6 +590,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+
+                                        formValidator.requiredFields(formSchema, values, errors);
+
                                         return (
                                             <Form id="company-profile-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (
@@ -1308,7 +1318,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                                     {this.state.selectedCountry === selectedCountry && (
                                                         <div className="input">
-                                                            <div className="input__title">State <i>*</i></div>
+                                                            <div className="input__title">State </div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                 <Field

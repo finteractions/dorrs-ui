@@ -16,6 +16,7 @@ import Select from "react-select";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
 import AlertBlock from "@/components/alert-block";
 import CopyClipboard from "@/components/copy-clipboard";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const formSchema = Yup.object().shape({
@@ -23,23 +24,23 @@ const formSchema = Yup.object().shape({
         Object.values(AccountType),
         'Invalid Type of Account'
     )
-        .required('Required'),
+        .required('Required').label('Account Type '),
     user_type: Yup.mixed<UserType>()
         .oneOf(
             Object.values(UserType),
             'Invalid Type'
         )
-        .required('Required'),
+        .required('Required').label('User Type '),
     first_name: FormValidator.firstNameField,
     last_name: FormValidator.lastNameField,
     email:
         Yup.string()
             .email("Invalid email")
-            .required("Required"),
+            .required("Required").label('Email'),
     password1: FormValidator.passwordField,
     password2: FormValidator.confirmPasswordField('password1'),
-    mobile_number: FormValidator.phoneNumberField,
-    data_feed_providers: Yup.array().of(Yup.string()).min(1, 'Required'),
+    mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
+    data_feed_providers: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Data Feed Providers'),
     email_verified: Yup.boolean().label('Email Verified'),
 });
 
@@ -120,6 +121,8 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
 
     componentDidMount() {
         this.getDataFeedProviders()
+
+        this.formRef?.current.setFieldTouched('data_feed_providers')
     }
 
     getDataFeedProviders() {
@@ -188,6 +191,8 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
 
         setFieldValue('password1', password)
         setFieldValue('password2', password)
+        this.formRef?.current?.setFieldTouched('password1', false)
+        this.formRef?.current?.setFieldTouched('password2', false)
 
     }
 
@@ -204,6 +209,8 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                         innerRef={this.formRef}
                     >
                         {({isSubmitting, isValid, values, setFieldValue, errors}) => {
+                            formValidator.requiredFields(formSchema, values, errors);
+
                             return (
                                 <>
                                     {!this.state.success ? (
@@ -318,7 +325,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
 
                                                 <div className="input">
                                                     <div className="input__title">
-                                                        Password Confirmation<i>*</i>
+                                                        Password Confirmation
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${this.state.showPasswordConfirm ? "active" : ""}`}>
@@ -444,10 +451,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                                                 label: value
                                                             })) || []}
                                                         />
-                                                        <ErrorMessage
-                                                            name="data_feed_providers"
-                                                            component="div"
-                                                            className="error-message"/>
+
                                                     </div>
                                                 </div>
 

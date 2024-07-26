@@ -23,13 +23,14 @@ import {getGlobalConfig} from "@/utils/global-config";
 import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const formSchema = Yup.object().shape({
-    action: Yup.string().required('Required'),
-    origin: Yup.string().min(3).max(8).required('Required'),
-    symbol: Yup.string().required('Required'),
-    quote_condition: Yup.string().required('Required'),
+    action: Yup.string().required('Required').label('Action'),
+    origin: Yup.string().min(3).max(8).required('Required').label('Origin'),
+    symbol: Yup.string().required('Required').label('Symbol'),
+    quote_condition: Yup.string().required('Required').label('Quote Condition'),
     mpid: Yup.string().min(3).max(12).required('Required').label('MPID'),
     side: Yup.string().required('Required').label('Side'),
     quantity: Yup.number().transform((value, originalValue) => {
@@ -177,10 +178,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
     handleSubmit = async (values: IOrder, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null});
 
-        let data = values;
-
-        data.quantity = data.quantity.replace(/,/g, '');
-        data.price = data.price.replace(/,/g, '');
+        let data = {...values};
+        data = formValidator.castFormValues(data, formSchema);
 
         await ordersService.placeOrder(data)
             .then(((res: any) => {
@@ -243,9 +242,9 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
             const keys = this.formRef.current?.touched || {}
 
             if (Object.keys(keys).length > 0 && values) {
-                values.quantity = values.quantity.replace(/,/g, '');
-                values.price = values.price.replace(/,/g, '');
-                localStorage.setItem(PATH, JSON.stringify(values))
+                let data = {...values};
+                data = formValidator.castFormValues(data, formSchema)
+                localStorage.setItem(PATH, JSON.stringify(data))
             }
         } else {
             localStorage.removeItem(PATH)
@@ -287,6 +286,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                               errors
                                           }) => {
                                             const symbol = this.symbols.find(s => s.symbol === values.symbol);
+
+                                            formValidator.requiredFields(formSchema, values, errors);
 
                                             return (
                                                 <Form className={`w-100`}>

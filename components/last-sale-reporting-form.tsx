@@ -23,23 +23,24 @@ import {getGlobalConfig} from "@/utils/global-config";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const formSchema = Yup.object().shape({
-    origin: Yup.string().min(3).max(8).required('Required'),
-    symbol: Yup.string().required('Required'),
-    symbol_suffix: Yup.string().min(2).max(3),
-    condition: Yup.string().required('Required'),
+    origin: Yup.string().min(3).max(8).required('Required').label('Origin'),
+    symbol: Yup.string().required('Required').label('Symbol'),
+    symbol_suffix: Yup.string().min(2).max(3).label('Symbol suffix'),
+    condition: Yup.string().required('Required').label('Condition'),
     mpid: Yup.string().min(3).max(12).required('Required').label('MPID'),
-    tick_indication: Yup.string().required('Required'),
+    tick_indication: Yup.string().required('Required').label('Tick Indication'),
     quantity: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
-    }).typeError('Invalid price').min(0).required('Required'),
+    }).typeError('Invalid price').min(0).required('Required').label('Quantity'),
     price: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
-    }).min(0).required('Required'),
-    time: Yup.string().required('Required'),
-    date: Yup.string().required('Required'),
+    }).min(0).required('Required').label('Price'),
+    time: Yup.string().required('Required').label('Time'),
+    date: Yup.string().required('Required').label('Date'),
 });
 
 interface LastSaleReportingState extends IState {
@@ -164,15 +165,12 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
     handleSubmit = async (values: ILastSale, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
         this.setState({errorMessages: null});
 
-        let data = values;
-
-        data.quantity = data.quantity.replace(/,/g, '');
-        data.price = data.price.replace(/,/g, '');
-        // data.date = moment(values.date).format('YYYY-MM-DD');
+        let data = {...values};
+        data = formValidator.castFormValues(data, formSchema);
 
         const request: Promise<any> = this.props.action == 'edit' ?
-            lastSaleService.updateLastSaleReporting(values, this.props.data?.id || 0) :
-            lastSaleService.createLastSaleReporting(values);
+            lastSaleService.updateLastSaleReporting(data, this.props.data?.id || 0) :
+            lastSaleService.createLastSaleReporting(data);
 
         await request
             .then(((res: any) => {
@@ -249,9 +247,9 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
             const keys = this.formRef.current?.touched || {}
 
             if (Object.keys(keys).length > 0 && values) {
-                values.quantity = values.quantity.replace(/,/g, '');
-                values.price = values.price.replace(/,/g, '');
-                localStorage.setItem(PATH, JSON.stringify(values))
+                let data = {...values};
+                data = formValidator.castFormValues(data, formSchema)
+                localStorage.setItem(PATH, JSON.stringify(data))
             }
         } else {
             localStorage.removeItem(PATH)
@@ -292,7 +290,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                               setTouched
                                           }) => {
                                             const symbol = this.symbols.find(s => s.symbol === values.symbol);
-
+                                            formValidator.requiredFields(formSchema, values, errors);
                                             return (
                                                 <Form className={'w-100'}>
                                                     <div className="input">

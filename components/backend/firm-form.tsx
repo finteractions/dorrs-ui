@@ -13,6 +13,7 @@ import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import FormValidator from "@/services/form-validator/form-validator";
 import PhoneInputField from "@/components/phone-input-field";
 import PhoneInput from "react-phone-input-2";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const formSchema = Yup.object().shape({
@@ -20,7 +21,7 @@ const formSchema = Yup.object().shape({
     mpid: Yup.string().min(3).required('Required').max(12).label('MPID'),
     address: Yup.string().required('Required').label('Address'),
     email: Yup.string().required('Required').email("Invalid email").label('Email Address'),
-    phone: FormValidator.phoneNumberField,
+    phone: FormValidator.phoneNumberField.label('Phone'),
     is_member: Yup.boolean().label('DORRS Member'),
     is_ats: Yup.boolean().label('ATS'),
 });
@@ -146,6 +147,8 @@ class FirmForm extends React.Component<FirmFormProps, FirmFormState> {
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema, values, errors);
+
                                         return (
                                             <Form id="firm-form">
 

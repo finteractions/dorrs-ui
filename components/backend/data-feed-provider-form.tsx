@@ -9,6 +9,7 @@ import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {ISocialMediaLink, socialMediaLinks} from "@/interfaces/i-social-media-link";
+import formValidator from "@/services/form-validator/form-validator";
 
 
 const allowedFileSizeMB = 1
@@ -274,6 +275,9 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+
+                                        formValidator.requiredFields(formSchema, values, errors);
+
                                         return (
                                             <Form id="firm-form">
 

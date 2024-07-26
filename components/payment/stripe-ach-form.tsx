@@ -10,6 +10,7 @@ import {IStripeACHInfo} from "@/interfaces/i-stripe-ach-info";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
 import NumericInputField from "@/components/numeric-input-field";
+import formValidator from "@/services/form-validator/form-validator";
 
 interface StripeACHFormProps extends ICallback {
     amount?: number;
@@ -19,15 +20,15 @@ interface StripeACHFormProps extends ICallback {
 }
 
 const validationSchema = Yup.object({
-    accountHolderName: Yup.string().required('Required'),
-    routingNumber: Yup.string().required('Required'),
-    accountNumber: Yup.string().required('Required'),
+    accountHolderName: Yup.string().required('Required').label('Account Holder Name'),
+    routingNumber: Yup.string().required('Required').label('Routing Number'),
+    accountNumber: Yup.string().required('Required').label('Account Number'),
     accountHolderType: Yup.mixed<StripeAccountHolderType>()
         .oneOf(
             Object.values(StripeAccountHolderType),
             'Invalid Account Holder'
         )
-        .required('Required'),
+        .required('Required').label('Account Holder Type'),
 });
 
 const StripeACHForm = (props: StripeACHFormProps) => {
@@ -134,9 +135,12 @@ const StripeACHForm = (props: StripeACHFormProps) => {
                isSubmitting,
                isValid,
                dirty,
-               errors
+               errors,
+               values
            }) => {
             const formIsValid = isValid && dirty;
+
+            formValidator.requiredFields(validationSchema, values, errors);
 
             return (
                 <Form className={'payment-form'}>

@@ -257,6 +257,13 @@ body {
       &:active, &:focus {
         background: #053060
       }
+
+      &:disabled {
+        background: var(--border-colour-2);
+        color: var(--text-colour-8);
+        border: 1px solid var(--border-colour-2);
+        opacity: 1;
+      }
     }
 
     .b-btn-border {

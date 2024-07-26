@@ -23,6 +23,7 @@ import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import 'react-dates/initialize';
 import InputMask from "react-input-mask";
 import formatterService from "@/services/formatter/formatter-service";
+import formValidator from "@/services/form-validator/form-validator";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -34,7 +35,7 @@ const allowedFileExt = ['pdf']
 const selectedCountry = 'US';
 
 const formSchema = Yup.object().shape({
-    symbol: Yup.string().required('Required'),
+    symbol: Yup.string().required('Required').label('Symbol'),
     company_name: Yup.string().required('Required').label('Company Name'),
     logo_tmp: Yup.mixed()
         .test('logo_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
@@ -102,7 +103,16 @@ const formSchema = Yup.object().shape({
                 if (!value) return true;
                 return value.size <= allowedFileSize;
             })),
-    email: Yup.string().email("Invalid email").label('Email Address')
+    email: Yup.string().email("Invalid email").label('Email Address'),
+    total_shares_outstanding: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Total Shares Outstanding').label('Total Shares Outstanding'),
+    price_per_share: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Price Per Share').label('Price Per Share'),
+    number_of_employees: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Number of Employees').label('Number of Employees'),
 });
 
 interface CompanyProfilePageFormProps extends ICallback {
@@ -354,43 +364,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             selectedAssetTypeImages: selectedAssetTypeImages,
             selectedIssuerProfileImages: selectedIssuerProfileImages,
             selectedIssuerProfileFiles: selectedIssuerProfileFiles,
-        }, () => {
-            this.requiredFields()
         })
-    }
-
-    requiredFields = () => {
-        const titles = document.querySelectorAll<HTMLDivElement>('.input__title');
-
-        titles.forEach(title => {
-            if (title.querySelector('i')) {
-                const wrap = title.nextElementSibling as HTMLDivElement;
-                if (wrap && wrap.classList.contains('input__wrap')) {
-                    const inputs = wrap.querySelectorAll<HTMLInputElement>('.input__text');
-                    inputs.forEach(input => {
-                        if (!input.disabled) {
-                            input.classList.add('required')
-                        }
-                    });
-                    const selects = wrap.querySelectorAll<HTMLSelectElement>('.b-select');
-                    selects.forEach(select => {
-                        if (!select.disabled) {
-                            select.classList.add('required')
-                        }
-                    });
-
-                    const datePickers = wrap.querySelectorAll<HTMLInputElement>('.DateInput_input ');
-                    datePickers.forEach(picker => {
-                        if (!picker.disabled) {
-                            const parent = picker.closest('.SingleDatePickerInput');
-                            if (parent) {
-                                parent.classList.add('required');
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     componentDidMount() {
@@ -460,11 +434,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         this.setState({errorMessages: null});
 
-        const data = {...values};
-
-        data.total_shares_outstanding = data.total_shares_outstanding.replace(/,/g, '')
-        data.price_per_share = data.price_per_share.replace(/,/g, '')
-        data.number_of_employees = data.number_of_employees.replace(/,/g, '')
+        let data = {...values};
+        data = formValidator.castFormValues(data, formSchema);
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -694,6 +665,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                     innerRef={this.formRef}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema,values, errors);
                                         return (
                                             <Form id="bank-form">
                                                 <div className="flex-panel-box">
@@ -1433,7 +1405,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     {this.state.selectedCountry === selectedCountry && (
                                                                         <div className="input__box">
                                                                             <div
-                                                                                className="input__title">State <i>*</i>
+                                                                                className="input__title">State
                                                                             </div>
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>

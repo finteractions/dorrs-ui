@@ -13,8 +13,6 @@ import UserImage from "@/components/user-image";
 import {NextRouter, withRouter} from 'next/router';
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
-import SymbolForm from "@/components/symbol-form";
-import CompanyProfile from "@/components/company-profile-form";
 import UserForm from "@/components/backend/user-form";
 
 const columnHelper = createColumnHelper<any>();
