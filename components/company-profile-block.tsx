@@ -25,7 +25,6 @@ import UserPermissionService from "@/services/user/user-permission-service";
 import {DataContext} from "@/contextes/data-context";
 import {IDataContext} from "@/interfaces/i-data-context";
 import SubSymbolBlock from "@/components/sub-symbol-block";
-import AssetImage from "@/components/asset-image";
 
 
 interface CompanyProfileProps extends ICallback {

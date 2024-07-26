@@ -319,7 +319,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             issuer_profile_description: initialData?.issuer_profile_description || [""],
             issuer_profile_images: initialData?.issuer_profile_images || [],
             issuer_profile_files: initialData?.issuer_profile_files || [],
-            company_name: initialData?.company_name || this.props?.symbol || '',
+            company_name: initialData?.company_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
             street_address_2: initialData?.street_address_2 || '',
@@ -435,7 +435,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         this.setState({errorMessages: null});
 
         let data = {...values};
+
         data = formValidator.castFormValues(data, formSchema);
+
+        data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
+        data.price_per_share = (Number(data.price_per_share) == 0 ? '' : data.price_per_share).toString()
+        data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
+
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -665,7 +671,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                     innerRef={this.formRef}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
-                                        formValidator.requiredFields(formSchema,values, errors);
+                                        formValidator.requiredFields(formSchema, values, errors);
                                         return (
                                             <Form id="bank-form">
                                                 <div className="flex-panel-box">
