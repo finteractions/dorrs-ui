@@ -231,9 +231,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     constructor(props: SymbolFormProps) {
         super(props);
 
-        const initialTime = moment().format('HH:mm');
-
         const initialData = this.props.data || {} as ISymbol;
+
+        const currentDateTime = new Date();
+        const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+        const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+        const initialTime = `${currentHour}:${currentMinute}`;
+        const initialDate = moment().format('YYYY-MM-DD').toString();
 
         try {
             const sec_description = JSON.parse(initialData.sec_description.toString());
@@ -358,7 +362,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             date_entered_change: initialData?.date_entered_change || moment().format('YYYY-MM-DD'),
             time_entered_change: initialData?.time_entered_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
-            date_effective_change: initialData?.date_effective_change || '',
+            date_effective_change: initialData?.date_effective_change || initialDate,
             time_effective_change: initialData?.time_effective_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
                 .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
             new_symbol: initialData?.new_symbol || '',
@@ -463,7 +467,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
         const request: Promise<any> = ['edit', 'delete'].includes(this.props.action) ?
             !this.props?.isAdmin ? symbolService.updateSymbol(formData, this.props.data?.id || 0) : this.props.action === 'delete' ? adminService.updateAsset(formData, this.props.data?.id || 0) : adminService.approveAsset(this.props.data?.id || 0, this.state.isApproving || false) :
-            !this.props?.isAdmin ? symbolService.createSymbol(formData) : adminService.createAsset(formData);
+            !this.props?.isAdmin ? symbolService.createSymbol(formData) : values.is_change ? adminService.updateAsset(formData, this.props.data?.id || 0) : adminService.createAsset(formData);
 
         await request
             .then(((res: any) => {
@@ -537,7 +541,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         const actionMapping: Record<string, string> = {
             'add': `Save ${symbolTitle}`,
             'edit': `Save ${symbolTitle}`,
-            'view': `View ${symbolTitle}`,
+            'view': `Save ${symbolTitle}`,
             'delete': 'Confirm',
         };
 
@@ -1071,7 +1075,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                         <div
                                                                                             className={'input__btns gap-20'}
                                                                                             key={index}>
-                                                                                            <div className={'input__wrap'}>
+                                                                                            <div
+                                                                                                className={'input__wrap'}>
                                                                                                 {!this.isShow() && values.sec_images[index] && (
                                                                                                     <div key={index}
                                                                                                          className="mb-2 d-flex">
@@ -1108,7 +1113,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                                 placeholder={''}
                                                                                                 disabled={isSubmitting || this.isShow()}
                                                                                             />
-                                                                                            <div className={'input__wrap'}>
+                                                                                            <div
+                                                                                                className={'input__wrap'}>
                                                                                                 {!this.isShow() && values.sec_files[index] && (
                                                                                                     <div key={index}
                                                                                                          className="mb-2 d-flex">
@@ -1215,6 +1221,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                     className='border-grey-btn ripple'
                                                                                     onClick={() => {
                                                                                         setFieldValue('is_change', true);
+                                                                                        setFieldValue('new_symbol', values.symbol);
+                                                                                        setFieldValue('new_security_name', values.security_name);
+                                                                                        this.handleNewSymbol(values.symbol, setFieldValue)
                                                                                     }}
                                                                                 >
                                                                                     <FontAwesomeIcon
@@ -2135,7 +2144,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
                                                 {/**/}
 
-                                                {this.props.action !== 'view' && (
+                                                {this.props.action !== 'view' || (this.props.action === 'view' && values.is_change) && (
                                                     <button id="add-bank-acc"
                                                             className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                             type="submit" disabled={isSubmitting || !isValid || !dirty}>
