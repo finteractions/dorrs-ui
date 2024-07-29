@@ -315,7 +315,6 @@ class AlgorandDataFeedBestBidAndBestOfferPerSymbolBlock extends React.Component<
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
                     const symbol = data.find((s: ISymbol) => s.symbol === formatterService.getSymbolName(this.props.symbol));
                     const companyProfile = symbol?.company_profile ?? null;
                     const algorandBestBidAndBestOfferApplicationId = symbol?.algorand_best_bid_and_best_offer_application_id ?? ''

@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {Link} from 'react-scroll';
 import Image from "next/image"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBars, faClose} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
+import {DataContext} from "@/contextes/data-context";
 
 interface Menus {
     text: string,
@@ -121,19 +122,16 @@ let MENU_LIST: Array<Menus> = [
         icon: '/img/pd-ico.svg',
         alt: 'FINRA CAT'
     },
-    {
-        text: 'Symbols',
-        to: "symbols",
-        icon: '/img/pd-ico.svg',
-        alt: 'Symbols'
-    },
-
 ]
 
 const CompanyProfileNav = () => {
     const offset = () => -95;
     const [activeMenu, setActiveMenu] = useState<string>("name");
     const [isOpen, setIsOpen] = useState(false);
+    const context = useContext(DataContext);
+    const [linkedSymbol, setLinkedSymbol] = useState<string | null>(null);
+    const [menus, setMenus] = useState(MENU_LIST);
+
     const handleClick = (to: string) => {
         setActiveMenu(to);
         toggleMenu()
@@ -169,6 +167,27 @@ const CompanyProfileNav = () => {
             window.removeEventListener('scroll', handleScroll);
         }
     }, [])
+
+
+    useEffect(() => {
+        if (context && context.getSharedData()) {
+            const isLinkedSymbol = context.getSharedData().isLinkedSymbol;
+
+            if (!isLinkedSymbol) {
+                const menuItems = menus;
+
+                menuItems.push({
+                    text: 'Symbols',
+                    to: "symbols",
+                    icon: '/img/pd-ico.svg',
+                    alt: 'Symbols'
+                })
+
+                setMenus(menuItems)
+            }
+        }
+
+    }, [context])
 
     const NavItem = ({text, to, icon, alt}: any) => {
         return (

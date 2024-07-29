@@ -215,7 +215,6 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
 
                     const symbol = data.find((s: ISymbol) => s.symbol === this.props.symbol);
                     this.symbol = symbol ?? null;

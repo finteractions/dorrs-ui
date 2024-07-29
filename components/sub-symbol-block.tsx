@@ -110,26 +110,27 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
 
         columns = [
             columnHelper.accessor((row) => ({
-                symbol: row.symbol
+                symbol: row.symbol,
+                company_profile: row.company_profile,
+                formData: row,
+                name_label: row.company_profile?.security_name,
+                image: row.company_profile?.logo
             }), {
                 id: "symbol",
                 cell: (item) =>
                     <>
-                        {companyProfileAccess.view && (
-                            <div onClick={() => {
-                                this.navigate(item.getValue().symbol)
-                            }}
-                                 className={`table-image cursor-pointer link`}
-                            >
-                                {item.getValue().symbol}
+                        <div onClick={() => {
+                            this.navigate(item.getValue().symbol)
+                        }}
+                             className={`table-image cursor-pointer link`}
+                        >
+                            <div className="table-image-container">
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
                             </div>
-                        )}
-                        {!companyProfileAccess.view && (
-                            <div className={`table-image`}
-                            >
-                                {item.getValue().symbol}
-                            </div>
-                        )}
+                            {item.getValue().symbol}
+                        </div>
                     </>
                 ,
                 header: () => <span>Symbol</span>,

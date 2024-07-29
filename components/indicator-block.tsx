@@ -148,7 +148,6 @@ class IndicatorBlock extends React.Component<IndicatorBlockProps> {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                data = data.filter(s => !s.symbol_id)
                 this.symbols = data.filter(s => s.is_approved)
 
             })

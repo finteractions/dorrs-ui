@@ -197,7 +197,6 @@ class AssetsBlock extends React.Component<{}> {
                 let data = res?.sort((a, b) => {
                     return Date.parse(b.created_at) - Date.parse(a.created_at);
                 }) || [];
-                data = data.filter(s => !s.symbol_id)
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
                     s.reason_change_status = !!s.reason_change
@@ -354,7 +353,7 @@ class AssetsBlock extends React.Component<{}> {
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-                    {((this.state.formAction === 'edit' || this.state.formAction === 'view') && !this.state.formData?.symbol_id) && (
+                    {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
                         <div className="modal__navigate">
                             <div className="modal__navigate__title">Asset Profile:</div>
 

@@ -35,13 +35,23 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
     const getUniqueMonthLabels = (labels: string[]): string[] => {
         const result: string[] = [];
 
-        // Iterate through each label
+        const parseDate = (label: string): Date => new Date(label);
+
+        const getStartOfMonth = (date: Date): Date => new Date(date.getFullYear(), date.getMonth(), 1);
+
+        const daysDifference = (date1: Date, date2: Date): number => Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+
         labels.forEach((label, index, array) => {
             const currentDate = parseDate(label);
             const prevDate = index > 0 ? parseDate(array[index - 1]) : null;
+            const startOfMonth = getStartOfMonth(currentDate);
 
-            if (index === 0 || currentDate.getMonth() !== prevDate?.getMonth()) {
-                result.push(label);
+            if (index === 0 || currentDate.getMonth() !== (prevDate?.getMonth() ?? -1)) {
+                if (index > 0 && prevDate && daysDifference(startOfMonth, prevDate) < 5) {
+                    result.push('');
+                } else {
+                    result.push(label);
+                }
             } else {
                 result.push('');
             }
@@ -54,6 +64,9 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
 
         return result;
     };
+
+
+
 
     const drawChart = (
         ctx: CanvasRenderingContext2D,

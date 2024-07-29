@@ -133,7 +133,6 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                data = data.filter(s => !s.symbol_id)
 
                 this.symbols = data.filter(s => getApprovedFormStatus().includes(s.status.toLowerCase() as FormStatus));
             })
@@ -336,7 +335,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                 isDisabled={isSubmitting || this.isShow()}
                                                                 options={Object.values(this.symbols).map((item) => ({
                                                                     value: item.symbol,
-                                                                    label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
+                                                                    label: item.symbol
                                                                 }))}
                                                                 onChange={(selectedOption: any) => {
                                                                     setFieldValue('symbol', selectedOption.value);

@@ -378,7 +378,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
 
                     data.forEach(s => {
                         s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -727,6 +726,22 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                         <div className="input__box">
                                                                             <div className="input__title">Logo</div>
                                                                             <div className="input__wrap">
+
+                                                                                {this.companyProfile?.logo && (
+                                                                                    <div
+                                                                                        className="mb-2 d-flex">
+                                                                                        <Link
+                                                                                            className={'link info-panel-title-link'}
+                                                                                            href={`${this.host}${this.companyProfile?.logo}`}
+                                                                                            target={'_blank'}>
+                                                                                            Image {' '}
+                                                                                            <FontAwesomeIcon
+                                                                                                className="nav-icon"
+                                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                                        </Link>
+                                                                                    </div>
+                                                                                )}
+
                                                                                 <input
                                                                                     id="logo_tmp"
                                                                                     name="logo_tmp"

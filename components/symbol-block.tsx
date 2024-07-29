@@ -118,31 +118,18 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 id: "symbol",
                 cell: (item) =>
                     <>
-                        {companyProfileAccess.view && (
-                            <div onClick={() => {
-                                this.navigate(item.getValue().symbol)
-                            }}
-                                 className={`table-image cursor-pointer link`}
-                            >
-                                <div className="table-image-container">
-                                    <AssetImage alt=''
-                                                src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                                width={28} height={28}/>
-                                </div>
-                                {item.getValue().symbol}
+                        <div onClick={() => {
+                            this.navigate(item.getValue().symbol)
+                        }}
+                             className={`table-image cursor-pointer link`}
+                        >
+                            <div className="table-image-container">
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                            width={28} height={28}/>
                             </div>
-                        )}
-                        {!companyProfileAccess.view && (
-                            <div className={`table-image`}
-                            >
-                                <div className="table-image-container">
-                                    <AssetImage alt=''
-                                                src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                                width={28} height={28}/>
-                                </div>
-                                {item.getValue().symbol}
-                            </div>
-                        )}
+                            {item.getValue().symbol}
+                        </div>
                     </>
                 ,
                 header: () => <span>Symbol</span>,
@@ -282,7 +269,6 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                data = data.filter(s => !s.symbol_id)
 
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;

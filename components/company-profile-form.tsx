@@ -694,6 +694,22 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <div className="input">
                                                         <div className="input__title">Logo</div>
                                                         <div className="input__wrap">
+
+                                                            {initialValues?.logo && (
+                                                                <div
+                                                                    className="mb-2 d-flex">
+                                                                    <Link
+                                                                        className={'link info-panel-title-link'}
+                                                                        href={`${this.host}${initialValues?.logo}`}
+                                                                        target={'_blank'}>
+                                                                        Image {' '}
+                                                                        <FontAwesomeIcon
+                                                                            className="nav-icon"
+                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                    </Link>
+                                                                </div>
+                                                            )}
+
                                                             <input
                                                                 id="logo_tmp"
                                                                 name="logo_tmp"

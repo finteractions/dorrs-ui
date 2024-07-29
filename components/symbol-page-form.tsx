@@ -98,6 +98,9 @@ const formSchema = Yup.object().shape({
         })
         .label('Lot Size'),
     fractional_lot_size: Yup.number()
+        .transform((value, originalValue) => {
+            return Number(originalValue.toString().replace(/,/g, ''));
+        })
         .typeError('Invalid Fractional Lot Size')
         .test('is-fractional', 'Invalid Fractional Lot Size. Example: .01. .001, .0001 and etc.', function (value) {
             if (value === null || value === undefined) {
@@ -121,6 +124,9 @@ const formSchema = Yup.object().shape({
         .label('Fractional Lot Size'),
 
     mvp: Yup.number()
+        .transform((value, originalValue) => {
+            return Number(originalValue.toString().replace(/,/g, ''));
+        })
         .typeError('Invalid MVP')
         .test('is-fractional', 'Invalid MVP. Example: .01, 05, .10 and etc.', function (value) {
             if (value === null || value === undefined) {

@@ -134,7 +134,6 @@ class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
             adminService.getAssets()
                 .then((res: ISymbol[]) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
                     data = data.filter(s => s.is_approved).filter(s => !this.state.bestBidAndBestOfferGeneratorSymbols.includes(s.symbol))
 
                     this.setState({symbols: data});
@@ -318,7 +317,7 @@ class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
                                                             isDisabled={isSubmitting}
                                                             options={Object.values(this.state.symbols).map((item) => ({
                                                                 value: item.symbol,
-                                                                label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
+                                                                label: item.symbol
                                                             }))}
                                                             value={values.symbol ? {
                                                                 value: values.symbol,

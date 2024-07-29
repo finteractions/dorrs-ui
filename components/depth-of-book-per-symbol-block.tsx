@@ -355,7 +355,6 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
 
                     const dataDepthByOrder = data;
                     const symbol = dataDepthByOrder.find((s: ISymbol) => s.symbol === this.props.symbol);

@@ -248,7 +248,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
             symbolService.getSymbols()
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-                    data = data.filter(s => !s.symbol_id)
 
                     data.forEach(s => {
                         s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
@@ -365,7 +364,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                 })
                 .finally(() => {
                     resolve(true);
-                    this.props.onCallback(this.companyProfile?.logo);
+                    this.props.onCallback({logo: this.companyProfile?.logo, isLinkedSymbol: !!this.symbol?.symbol_id});
                 });
         })
 
@@ -1156,18 +1155,20 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                             </div>
 
-                                            <div id={'symbols'} className={'panel'}>
-                                                <div className={'content__top'}>
-                                                    <div className={'content__title'}>Symbols
+                                            {!this.symbol.symbol_id && (
+                                                <div id={'symbols'} className={'panel'}>
+                                                    <div className={'content__top'}>
+                                                        <div className={'content__title'}>Symbols
+                                                        </div>
+                                                    </div>
+                                                    <div className={'content__bottom'}>
+                                                        <SubSymbolBlock
+                                                            isDashboard={false}
+                                                            symbol={this.props.symbol}
+                                                            onCallback={this.onCallbackSubSymbol}/>
                                                     </div>
                                                 </div>
-                                                <div className={'content__bottom'}>
-                                                    <SubSymbolBlock
-                                                        isDashboard={false}
-                                                        symbol={this.props.symbol}
-                                                        onCallback={this.onCallbackSubSymbol}/>
-                                                </div>
-                                            </div>
+                                            )}
                                         </>
 
                                     ) : (
