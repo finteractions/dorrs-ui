@@ -40,6 +40,7 @@ import Select from "react-select";
 import InputMask from "react-input-mask";
 import AssetImage from "@/components/asset-image";
 import formValidator from "@/services/form-validator/form-validator";
+import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 
 
 const allowedImageFileSizeMB = 1
@@ -2142,7 +2143,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     </>
                                                 )}
 
-                                                {/**/}
 
                                                 {this.props.action !== 'view' || (this.props.action === 'view' && values.is_change) && (
                                                     <button id="add-bank-acc"
@@ -2159,6 +2159,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         );
                                     }}
                                 </Formik>
+                                {!this.props.data?.symbol_id && (
+                                    <div className={'input'}>
+                                        <h4 className="input__group__title">Symbols</h4>
+                                        <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
+                                    </div>
+                                )}
+
                             </>
                         )}
 
