@@ -54,7 +54,7 @@ const allowedFileExt = ['pdf']
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
     is_cusip: Yup.boolean().label('CUSIP'),
-    symbol: Yup.string().min(2).max(5).required('Required').label('Symbol'),
+    symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
     symbol_id: Yup.string().nullable(),
     spv_name: Yup.string().label('SPV Name'),
     fund_manager: Yup.string().label('Fund Manager'),
@@ -172,7 +172,7 @@ const formSchema = Yup.object().shape({
     }),
     new_symbol: Yup.string().when('is_change', {
         is: (is_change: boolean) => is_change,
-        then: (schema) => schema.min(2).max(5).required('Required').label('Symbol')
+        then: (schema) => schema.min(2).max(6).required('Required').label('Symbol')
     }),
     new_security_name: Yup.string().when('is_change', {
         is: (is_change: boolean) => is_change,
@@ -456,7 +456,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     }
 
     handleSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
-        const alphanumericValue = value.slice(0, 5).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         setFieldValue('symbol', alphanumericValue);
 
         const dsin = dsinService.generate(alphanumericValue)
@@ -464,7 +464,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     }
 
     handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
-        const alphanumericValue = value.slice(0, 5).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         setFieldValue('new_symbol', alphanumericValue);
 
         const dsin = dsinService.generate(alphanumericValue)

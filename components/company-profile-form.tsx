@@ -27,6 +27,7 @@ import {AssetType} from "@/enums/asset-type";
 import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
 import formValidator from "@/services/form-validator/form-validator";
+import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 
 
 const allowedImageFileSizeMB = 1
@@ -2148,12 +2149,22 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             </div>
                                         </div>
                                     </div>
+
+                                    {!this.props.symbolData?.symbol_id && (
+                                        <div className="view_block full_block">
+                                            <div className="view_block_body">
+                                                <div className="view_block_title">Symbols</div>
+                                                <div>
+                                                    <SubSymbolBlock symbol={this.props.symbolData?.symbol || ''}/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
                             <NoDataBlock/>
-                        )
-                        }
+                        )}
                     </>
                 )
             // case 'delete':

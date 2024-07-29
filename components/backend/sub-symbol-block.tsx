@@ -38,8 +38,6 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
     constructor(props: SubSymbolBlockProps) {
         super(props);
 
-        console.log(props)
-
         this.state = {
             success: false,
             isLoading: true,
