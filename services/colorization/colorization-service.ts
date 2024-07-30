@@ -108,6 +108,29 @@ async function depthOfBookByOrder(data: Array<IDepthByOrder>,
     return rows;
 }
 
+function percentageBlock(data: Array<any>,
+                         colours: { up: IRGB, down: IRGB, theme: string },
+                         index: number
+) {
+
+    let style = {}
+    data = data.sort((a: any, b: any) => Number(b.percentage_changed) - Number(a.percentage_changed))
+    let up = data.filter((s: any) => Number(s.percentage_changed) > 0)
+    let down = data.filter((s: any) => Number(s.percentage_changed) < 0)
+
+    down = down.reverse()
+
+    if (data[index].percentage_changed > 0) {
+        const colourIndex = 1 - (up.indexOf(data[index]) / up.length);
+        style = colours.up.toStyleString(colourIndex)
+    } else if (data[index].percentage_changed < 0) {
+        const colourIndex = 1 - (down.indexOf(data[index]) / down.length);
+        style = colours.down.toStyleString(colourIndex)
+    }
+
+    return style
+}
+
 function sumValues(map: Map<string, number>): number {
     let sum = 0;
     map.forEach((value) => {
@@ -116,8 +139,9 @@ function sumValues(map: Map<string, number>): number {
     return sum;
 }
 
-const tableColorizationService = {
-    depthOfBookByOrder
+const colorizationService = {
+    depthOfBookByOrder,
+    percentageBlock
 }
 
-export default tableColorizationService;
+export default colorizationService;

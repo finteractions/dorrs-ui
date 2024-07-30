@@ -19,7 +19,7 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import userPermissionService from "@/services/user/user-permission-service";
 import {IOrder} from "@/interfaces/i-order";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
-import tableColorizationService from "@/services/colorization/table-colorization-service";
+import colorizationService from "@/services/colorization/colorization-service";
 import {RGB} from "@/interfaces/i-rgb"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -444,7 +444,7 @@ class DepthOfBookPerSymbolBlock extends React.Component<DepthOfBookPerSymbolProp
         }
 
         this.setState({dataDepthByOrder: data, pageLengthByOrder: count}, async () => {
-            rowProps.row = await tableColorizationService.depthOfBookByOrder(data, colours, count, pageLength, columnsByOrder.length, colorizeLimit, askReverseColour)
+            rowProps.row = await colorizationService.depthOfBookByOrder(data, colours, count, pageLength, columnsByOrder.length, colorizeLimit, askReverseColour)
             this.setState({byOrderRowProps: rowProps})
         })
     }

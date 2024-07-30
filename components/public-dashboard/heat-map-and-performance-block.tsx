@@ -11,15 +11,31 @@ import Table from "@/components/table/table";
 import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import colorizationService from "@/services/colorization/colorization-service";
+import {IRGB, RGB} from "@/interfaces/i-rgb";
 
 interface HeatMapAndPerformanceBlockState extends IState {
     isLoadingHeatMap: boolean;
     errors: string[];
     dataHeatMap: Array<IDashboardHeatMapAndPerformance>;
     activeTab: string | null;
+    colours: { up: IRGB, down: IRGB, theme: string }
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS_PUBLIC_DASHBOARD || '2')
+
+const defaultColors = {
+    light: {
+        up: new RGB(232, 255, 243),
+        down: new RGB(255, 245, 248),
+        theme: 'light'
+    },
+    dark: {
+        up: new RGB(0, 83, 67),
+        down: new RGB(89, 0, 0),
+        theme: 'dark'
+    },
+};
 
 class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerformanceBlockState> {
 
@@ -34,7 +50,8 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
             isLoadingHeatMap: true,
             errors: [],
             dataHeatMap: [],
-            activeTab: 'heat-map'
+            activeTab: 'heat-map',
+            colours: defaultColors.light
         }
     }
 
@@ -43,11 +60,23 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
             await this.getHeatMap()
             this.subscriptions();
         });
+
+        window.addEventListener('themeToggle', this.handleTheme);
     }
 
     componentWillUnmount() {
         this.subscriptionOnHeatMap?.unsubscribe();
+        window.removeEventListener('themeToggle', this.handleTheme);
     }
+
+    handleTheme = () => {
+        const colours = this.isDarkTheme() ? defaultColors.dark : defaultColors.light
+        this.setState({colours: colours})
+    }
+
+    isDarkTheme = () => {
+        return document.documentElement.classList.contains('dark');
+    };
 
     setActiveTab = (tab: string) => {
         if (this.state.activeTab !== tab) {
@@ -79,7 +108,7 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
 
     handleHeatMapData = (data: Array<IDashboardHeatMapAndPerformance>) => {
         this.setState({
-            dataHeatMap: data ?? [],
+            dataHeatMap: data ?? []
         })
     }
 
@@ -130,9 +159,10 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                 {this.state.dataHeatMap
                                                     .slice()
                                                     .sort((a, b) => Number(b.percentage_changed) - Number(a.percentage_changed))
-                                                    .map(item => (
+                                                    .map((item: IDashboardHeatMapAndPerformance, idx: number) => (
                                                         <div key={item.market_sector}
-                                                             className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}>
+                                                             className={`indicator__item compact ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}
+                                                             style={colorizationService.percentageBlock(this.state.dataHeatMap, this.state.colours, idx)}>
                                                             <div className={'gap-10 justify-content-between'}>
                                                                 <div
                                                                     className={`table-image bold`}>{item.market_sector}
@@ -165,40 +195,40 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
                                                 {this.state.dataHeatMap
                                                     .sort((a, b) => Number(b.total_market_cap) - Number(a.total_market_cap))
                                                     .map(item => (
-                                                    <div key={item.market_sector}
-                                                         className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}>
+                                                        <div key={item.market_sector}
+                                                             className={`indicator__item ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block bg-colour`}>
 
-                                                        <div className={''}>
-                                                            <div
-                                                                className={`table-image  bold`}>{item.market_sector}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className={'gap-10'}>
-                                                            <div title={'Add to Watch List'}
-                                                                 className={'admin-table-actions'}>
-                                                            </div>
-                                                        </div>
-                                                        <div className={'indicator__item__data dashboard'}>
-                                                            <div>
-                                                                <div>Average Change:</div>
-                                                                <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div>Total Market Cap:</div>
-                                                                <div><span
-                                                                    className={'stay'}>{formatterService.numberFormat(Number(item.total_market_cap), decimalPlaces)}</span>
+                                                            <div className={''}>
+                                                                <div
+                                                                    className={`table-image  bold`}>{item.market_sector}
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div>Number of Companies:</div>
-                                                                <div><span
-                                                                    className={'stay padding-left-25'}>{formatterService.numberFormat(Number(item.number_of_companies), 0)}</span>
+
+                                                            <div className={'gap-10'}>
+                                                                <div title={'Add to Watch List'}
+                                                                     className={'admin-table-actions'}>
+                                                                </div>
+                                                            </div>
+                                                            <div className={'indicator__item__data dashboard'}>
+                                                                <div>
+                                                                    <div>Average Change:</div>
+                                                                    <div>{formatterService.formatAndColorNumberBlockHTML(item.percentage_changed)}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div>Total Market Cap:</div>
+                                                                    <div><span
+                                                                        className={'stay'}>{formatterService.numberFormat(Number(item.total_market_cap), decimalPlaces)}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div>Number of Companies:</div>
+                                                                    <div><span
+                                                                        className={'stay padding-left-25'}>{formatterService.numberFormat(Number(item.number_of_companies), 0)}</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ))}
                                             </div>
                                         </div>
                                     ) : (
