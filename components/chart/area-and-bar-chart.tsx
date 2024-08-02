@@ -41,6 +41,14 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
         if (canvasRef.current) {
             const ctx = canvasRef.current.getContext('2d');
 
+            let scale_x_display = false
+
+            if (window.innerWidth >= 768) {
+                scale_x_display = data.length <= 15
+            } else {
+                scale_x_display = false
+            }
+
             if (ctx) {
                 Chart.defaults.font.family = '"PT Serif", serif';
 
@@ -75,7 +83,7 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
                     options: {
                         scales: {
                             x: {
-                                display: window.innerWidth >= 768,
+                                display: scale_x_display,
                                 title: {
                                     display: true,
                                     text: '',
