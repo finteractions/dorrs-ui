@@ -227,7 +227,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                         <i className="fa fa-circle me"></i>
                                                                     </div>
                                                                     <div
-                                                                        className="message other-message float-right mb-0">
+                                                                        className="text-colour message other-message float-right mb-0">
                                                                         {itm.message}
                                                                     </div>
                                                                 </div>
@@ -243,7 +243,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                 </span>
                                                                     </div>
                                                                     <div
-                                                                        className="message my-message mb-0">{itm.message}</div>
+                                                                        className="text-colour message my-message mb-0">{itm.message}</div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -254,7 +254,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                             })}
                                         </>
                                     ) : (
-                                        <div className={'px-3'}>No notifications</div>
+                                        <div className={'px-3 text-colour'}>No notifications</div>
                                     )}
                                 </div>
 
