@@ -135,7 +135,7 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}fiat_change_status/`, data, {}, this.getAdminToken()));
     }
 
-    public async getAssets(symbol?:string | null): Promise<ISymbol[]> {
+    public async getAssets(symbol?: string | null): Promise<ISymbol[]> {
         let queryString = "";
         if (symbol) {
             queryString += `&symbol=${symbol}`;
@@ -380,7 +380,7 @@ class AdminService extends BaseService {
     }
 
     public async getCompanyProfile(): Promise<Array<ICompanyProfile>> {
-        return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/`, {}, this.getAdminToken())).data;
     }
 
     public async getDataFeedProviders(name?: string): Promise<IDataFeedProvider[]> {
@@ -423,7 +423,7 @@ class AdminService extends BaseService {
     public async getOrderGeneratorStatus(): Promise<Array<{ status: boolean }>> {
         return (await apiWebBackendService.get<IResponse<Array<{
             status: boolean
-        }>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getUserAccessToken())).data;
+        }>>>(`${this.PATH}tools/order_generator/status/`, {}, this.getAdminToken())).data;
     }
 
     public async setOrderGeneratorStatus(data: any): Promise<IResponseApi> {
@@ -431,11 +431,11 @@ class AdminService extends BaseService {
     }
 
     public async getOrderGeneratorSymbols(): Promise<Array<string>> {
-        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, {}, this.getAdminToken())).data;
     }
 
     public async addOrderGeneratorSymbol(data: any): Promise<Array<string>> {
-        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/order_generator/symbols/`, data, {}, this.getAdminToken())).data;
     }
 
     public async deleteOrderGeneratorSymbol(symbol: string): Promise<IResponseApi> {
@@ -450,7 +450,7 @@ class AdminService extends BaseService {
     public async getLastSaleGeneratorStatus(): Promise<Array<{ status: boolean }>> {
         return (await apiWebBackendService.get<IResponse<Array<{
             status: boolean
-        }>>>(`${this.PATH}tools/last_sale_generator/status/`, {}, this.getUserAccessToken())).data;
+        }>>>(`${this.PATH}tools/last_sale_generator/status/`, {}, this.getAdminToken())).data;
     }
 
     public async setLastSaleGeneratorStatus(data: any): Promise<IResponseApi> {
@@ -458,11 +458,11 @@ class AdminService extends BaseService {
     }
 
     public async getLastSaleGeneratorSymbols(): Promise<Array<string>> {
-        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, {}, this.getAdminToken())).data;
     }
 
     public async addLastSaleGeneratorSymbol(data: any): Promise<Array<string>> {
-        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/last_sale_generator/symbols/`, data, {}, this.getAdminToken())).data;
     }
 
     public async deleteLastSaleGeneratorSymbol(symbol: string): Promise<IResponseApi> {
@@ -477,7 +477,7 @@ class AdminService extends BaseService {
     public async getBestBidAndBestOfferGeneratorStatus(): Promise<Array<{ status: boolean }>> {
         return (await apiWebBackendService.get<IResponse<Array<{
             status: boolean
-        }>>>(`${this.PATH}tools/bbo_generator/status/`, {}, this.getUserAccessToken())).data;
+        }>>>(`${this.PATH}tools/bbo_generator/status/`, {}, this.getAdminToken())).data;
     }
 
     public async setBestBidAndBestOfferGeneratorStatus(data: any): Promise<IResponseApi> {
@@ -485,11 +485,11 @@ class AdminService extends BaseService {
     }
 
     public async getBestBidAndBestOfferGeneratorSymbols(): Promise<Array<string>> {
-        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.get<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, {}, this.getAdminToken())).data;
     }
 
     public async addBestBidAndBestOfferGeneratorSymbol(data: any): Promise<Array<string>> {
-        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, data, {}, this.getUserAccessToken())).data;
+        return (await apiWebBackendService.post<IResponse<Array<string>>>(`${this.PATH}tools/bbo_generator/symbols/`, data, {}, this.getAdminToken())).data;
     }
 
     public async deleteBestBidAndBestOfferGeneratorSymbol(symbol: string): Promise<IResponseApi> {
@@ -499,6 +499,19 @@ class AdminService extends BaseService {
     public async deleteBestBidAndBestOfferGeneratorLastSales(): Promise<IResponseApi> {
         return apiWebBackendService.post<IResponseApi>(`${this.PATH}tools/bbo_generator/clear/`, {}, {}, this.getAdminToken());
     }
+
+    public async getNotification(): Promise<Array<INotificationChatMessage>> {
+        return (await apiWebBackendService.get<IResponse<Array<INotificationChatMessage>>>(`${this.PATH}notification/`, {}, this.getAdminToken())).data;
+    }
+
+    public addNotification(data: any): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}notification/`, data, {}, this.getAdminToken())
+    }
+
+    public markAsReadNotification(): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}notification_mark_as_read/`, {}, {}, this.getAdminToken())
+    }
+
 
     //********************** //
 

@@ -4972,5 +4972,61 @@
   .link:active, .link:focus {
     color: #053060
   }
+
+  .notification-block {
+    width: 320px !important;
+    inset: 7px auto auto -280px !important;
+  }
+
+
+  .sidebar {
+    z-index: 0 !important;
+  }
+
+  .dropdown-item.active, .dropdown-item:active {
+    color: inherit !important;
+    background-color: inherit !important;
+  }
+
+  .notification-list {
+    //max-height: 150px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .portal-navbar-widget {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    cursor: pointer;
+
+    //&:hover:not(.disable) {
+    //  svg {
+    //    path, rect {
+    //      fill: var(--text-colour-1);
+    //    }
+    //  }
+    //}
+
+    &.disable:hover {
+      cursor: not-allowed;
+    }
+
+    &.event.unread:after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      background: #E72D04;
+      border-radius: 50%;
+      right: 0;
+      top: 0;
+    }
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
+
 }
 

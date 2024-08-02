@@ -13,6 +13,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import ThemeToggle from "@/components/layouts/portal/theme-toggle";
 import UserImage from "@/components/user-image";
+import NotificationBlock from "@/components/notification-block";
 
 
 type ItemWithIconProps = {
@@ -51,6 +52,8 @@ const PortalNav = () => {
                 <NavItem>
                     <ThemeToggle/>
                 </NavItem>
+
+                {/*<NotificationBlock isAdmin={false}/>*/}
                 {authUserContext.isAuthenticated() ? (
                     <>
                         <Dropdown as={NavItem}>

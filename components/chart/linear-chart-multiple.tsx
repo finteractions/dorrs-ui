@@ -215,7 +215,7 @@ const LinearChartMultiple: React.FC<ChartProps> = ({
                 {datasets.every(dataset => dataset.data.every(value => value === 0)) ? (
                     <NoDataBlock primaryText="No Chart available yet"/>
                 ) : (
-                    <canvas style={{zIndex: 99999}} ref={canvasRef}></canvas>
+                    <canvas  ref={canvasRef}></canvas>
                 )}
             </div>
         </>

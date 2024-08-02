@@ -6,9 +6,10 @@ import {Container} from 'react-bootstrap'
 import Header from "@/components/layouts/backend/header/header";
 import Footer from "@/components/layouts/backend/footer/footer";
 import Sidebar, {SidebarOverlay} from "@/components/layouts/backend/sidebar/sidebar";
+import layoutWrapper from "@/wrappers/layout-wrapper";
 
 
-export default function BackendLayoutWrapper({children}: PropsWithChildren) {
+function BackendLayoutWrapper({children}: PropsWithChildren) {
     // Show status for xs screen
     const [isShowSidebar, setIsShowSidebar] = useState(false)
 
@@ -79,3 +80,5 @@ export default function BackendLayoutWrapper({children}: PropsWithChildren) {
         </>
     )
 }
+
+export default layoutWrapper(BackendLayoutWrapper);

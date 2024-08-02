@@ -117,6 +117,36 @@ class WebSocketService extends BaseService {
         this.sendMessage(message)
     }
 
+    public subscribeOnUserNotification(): void {
+        const message = {
+            type: WebsocketEvent.SUBSCRIBE_NOTIFICATION,
+        }
+        this.sendMessage(message)
+    }
+
+    public unSubscribeOnUserNotification(): void {
+        const message = {
+            type: WebsocketEvent.UNSUBSCRIBE_NOTIFICATION
+        }
+
+        this.sendMessage(message)
+    }
+
+    public subscribeOnAdminNotification(): void {
+        const message = {
+            type: WebsocketEvent.SUBSCRIBE_NOTIFICATION_ADMIN,
+        }
+        this.sendMessage(message)
+    }
+
+    public unSubscribeOnAdminNotification(): void {
+        const message = {
+            type: WebsocketEvent.UNSUBSCRIBE_NOTIFICATION_ADMIN
+        }
+
+        this.sendMessage(message)
+    }
+
     public on<T>(event: string): Observable<T> {
         if (event) {
             return this.messagesSubject.asObservable().pipe(

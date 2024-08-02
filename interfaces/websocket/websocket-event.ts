@@ -32,4 +32,13 @@ export const WebsocketEvent = {
     DASHBOARD_HEAT_MAP: 'dashboard-heat-map',
     DASHBOARD_HEAT_MAP_CHART: 'dashboard-heat-map-chart',
 
+    // Notifications
+    SUBSCRIBE_NOTIFICATION: 'subscribe-notification',
+    UNSUBSCRIBE_NOTIFICATION: 'unsubscribe-notification',
+    NOTIFICATION: 'notification',
+
+    SUBSCRIBE_NOTIFICATION_ADMIN: 'subscribe-notification-admin',
+    UNSUBSCRIBE_NOTIFICATION_ADMIN: 'unsubscribe-notification-admin',
+    NOTIFICATION_ADMIN: 'notification-admin',
+
 }

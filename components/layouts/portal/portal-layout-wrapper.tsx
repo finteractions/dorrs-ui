@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PortalHeader from "./portal-header";
-import portalWrapper from "@/wrappers/portal-wrapper";
+import layoutWrapper from "@/wrappers/layout-wrapper";
 import PortalSidebar from "@/components/layouts/portal/sidebar/portal-sidebar";
 import { useResizeDetector } from "react-resize-detector";
 import { SidebarOverlay } from "@/components/layouts/backend/sidebar/sidebar";
@@ -101,4 +101,4 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
     );
 }
 
-export default portalWrapper(PortalLayoutWrapper);
+export default layoutWrapper(PortalLayoutWrapper);

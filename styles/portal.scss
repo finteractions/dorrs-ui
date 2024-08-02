@@ -1686,7 +1686,7 @@ body {
             cursor: not-allowed;
           }
 
-          &.event:after {
+          &.event.unread:after {
             content: '';
             width: 10px;
             height: 10px;
@@ -4821,4 +4821,22 @@ a.block-link {
   }
 }
 
+.notification-block {
+  width: 320px !important;
+  inset: 10px auto auto -280px !important;
+}
 
+.sidebar {
+  z-index: 0 !important;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  color: inherit !important;
+  background-color: inherit !important;
+}
+
+.notification-list {
+  //max-height: 150px;
+  height: 100%;
+  overflow-y: auto;
+}

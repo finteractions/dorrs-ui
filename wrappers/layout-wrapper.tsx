@@ -4,7 +4,7 @@ import LoaderBlock from "@/components/loader-block";
 import websocketService from "@/services/websocket/websocket-service";
 
 
-export default function portalWrapper<P extends {}>(
+export default function layoutWrapper<P extends {}>(
     Component: React.ComponentType<P>
 ) {
     return function Init(props: P) {

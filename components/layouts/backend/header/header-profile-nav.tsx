@@ -21,6 +21,7 @@ import {AuthAdminContext} from "@/contextes/auth-admin-context";
 import userService from "@/services/user/user-service";
 import LoaderBlock from "@/components/loader-block";
 import UserImage from "@/components/user-image";
+import NotificationBlock from "@/components/notification-block";
 
 type ItemWithIconProps = {
     icon: IconDefinition;
@@ -41,7 +42,7 @@ export default function HeaderProfileNav() {
     const authUserContext = useContext(AuthUserContext);
     const authAdminContext = useContext(AuthAdminContext);
     const dataContext = useContext(DataContext)
-    
+
     const handleLogout = (): void => {
         userService.logout()
             .finally(() => {
@@ -54,7 +55,8 @@ export default function HeaderProfileNav() {
 
 
     return (
-        <Nav>
+        <Nav className={'justify-content-end align-items-center'}>
+            {/*<NotificationBlock isAdmin={true}/>*/}
             <Dropdown as={NavItem}>
                 <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="py-0 px-2 rounded-0"
                                  id="dropdown-profile">
