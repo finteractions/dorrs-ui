@@ -411,7 +411,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
                                 {!this.isDashboard && (
                                     <div
-                                        className="content__title_btns content__filter download-buttons justify-content-end">
+                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
                                         <div className="filter-menu filter-menu-last-sale-table">
                                             <Button
                                                 variant="link"
