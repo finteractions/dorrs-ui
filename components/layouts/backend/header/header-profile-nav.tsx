@@ -56,7 +56,7 @@ export default function HeaderProfileNav() {
 
     return (
         <Nav className={'justify-content-end align-items-center'}>
-            {/*<NotificationBlock isAdmin={true}/>*/}
+            <NotificationBlock isAdmin={true}/>
             <Dropdown as={NavItem}>
                 <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="py-0 px-2 rounded-0"
                                  id="dropdown-profile">

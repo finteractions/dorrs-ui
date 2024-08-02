@@ -24,6 +24,8 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = (props) => {
         } = {},
     } = props;
 
+    console.log(data)
+
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
     let chart: any = null;
@@ -58,6 +60,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = (props) => {
     };
 
     const getTicker = (time: any) => {
+
         const date = new Date(time * 1000);
         const formattedDate = `${(date.getUTCMonth() + 1).toString().padStart(2, '0')}/${date.getUTCDate().toString().padStart(2, '0')}/${date.getUTCFullYear()}`;
         const formattedTime = `${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}`;
@@ -87,14 +90,14 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = (props) => {
                             color: 'rgba(0, 0, 0, 0)',
                         },
                     },
-                    handleScroll: false,
+                    handleScroll: true,
                     handleScale: false,
                 });
                 chart.timeScale().fitContent();
 
                 const newSeries = chart.addAreaSeries({
                     lineColor,
-                    lineWidth: 5,
+                    lineWidth: 3,
                     topColor: areaTopColor,
                     bottomColor: areaBottomColor,
                 })

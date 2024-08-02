@@ -18,10 +18,10 @@ export const TradingViewChartWrapper: React.FC<TradingViewChartWrapperProps> = (
 
     const light = {
         backgroundColor: 'transparent',
-        lineColor: '#718494',
+        lineColor: '#1f8ceb',
         textColor: '#464056',
-        areaTopColor: '#d4dadf',
-        areaBottomColor: '#d4dadf',
+        areaTopColor: '#d1e2f1',
+        areaBottomColor: '#d1e2f1',
     }
 
     const dark = {

@@ -17,9 +17,10 @@ import {AreaAndBarChart} from "@/components/chart/area-and-bar-chart";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFileExport, faFilter} from "@fortawesome/free-solid-svg-icons";
+import {faFileExport, faFilter, faSortAmountAsc} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "react-bootstrap";
 import AssetImage from "@/components/asset-image";
+import {faSortAmountDesc} from "@fortawesome/free-solid-svg-icons/faSortAmountDesc";
 
 interface LastSaleReportingPerSymbolProps {
     symbol: string;
@@ -33,9 +34,11 @@ interface LastSaleReportingPerSymbolState extends IState {
     errors: string[];
     data: ILastSale[];
     mpid: string | null;
-    isToggle: boolean;
-    isFilterShow: boolean;
+    isChartToggle: boolean;
+    isTableToggle: boolean;
+    isTableFilterShow: boolean;
     filtersClassName: string;
+    period: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -67,9 +70,11 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             errors: [],
             data: [],
             mpid: null,
-            isToggle: false,
-            isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            isChartToggle: false,
+            isTableToggle: false,
+            isTableFilterShow: false,
+            period: '1m',
+            filtersClassName: 'd-none d-md-flex',
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -153,13 +158,15 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             .then(() => this.getLastSaleReportingChart())
             .then(() => this.getLastSaleReporting())
             .finally(() => this.setState({isLoading: false}))
-        window.addEventListener('click', this.handleClickOutside);
+        window.addEventListener('click', this.handleChartClickOutside);
+        window.addEventListener('click', this.handleTableClickOutside);
         this.startAutoUpdate();
     }
 
     componentWillUnmount() {
         this.stopAutoUpdate();
-        window.addEventListener('click', this.handleClickOutside);
+        window.addEventListener('click', this.handleChartClickOutside);
+        window.addEventListener('click', this.handleTableClickOutside);
     }
 
     startAutoUpdate = () => {
@@ -170,26 +177,39 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
         if (this.getLastSaleReportingInterval) clearInterval(this.getLastSaleReportingInterval as number);
     }
 
-    toggleMenu = () => {
-        this.setState({isToggle: !this.state.isToggle})
+    toggleTableMenu = () => {
+        this.setState({isTableToggle: !this.state.isTableToggle})
     };
 
-    handleClickOutside = (event: any) => {
-        const menu = document.querySelector('.filter-menu-last-sale');
+
+    handleTableClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-last-sale-table');
         if (menu && !menu.contains(event.target)) {
-            this.setState({isToggle: false});
+            this.setState({isTableToggle: false});
+        }
+    };
+
+    toggleChartMenu = () => {
+        this.setState({isChartToggle: !this.state.isChartToggle})
+    };
+
+
+    handleChartClickOutside = (event: any) => {
+        const menu = document.querySelector('.filter-menu-last-sale-chart');
+        if (menu && !menu.contains(event.target)) {
+            this.setState({isChartToggle: false});
         }
     };
 
     handleShowFilters = () => {
-        this.setState({isFilterShow: !this.state.isFilterShow}, () => {
-            this.setState({filtersClassName: this.state.isFilterShow ? '' : 'd-none d-md-flex'})
+        this.setState({isTableFilterShow: !this.state.isTableFilterShow}, () => {
+            this.setState({filtersClassName: this.state.isTableFilterShow ? '' : 'd-none d-md-flex'})
         })
     };
 
     getLastSaleReportingChart = () => {
         return new Promise((resolve) => {
-            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix)
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
                 })
@@ -249,7 +269,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     }
 
     onCallback = async (values: any, step: boolean) => {
-        this.getLastSaleReporting();
+        await this.getLastSaleReporting();
     };
 
     downloadLastSaleReportingCSV = () => {
@@ -271,6 +291,12 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     handleMPID = (mpid: string | null) => {
         this.setState({mpid: mpid})
+    }
+
+    setPeriod = (period: string) => {
+        this.setState({isLoadingChart: true, period: period, isChartToggle: false}, async () => {
+            await this.getLastSaleReportingChart();
+        });
     }
 
     render() {
@@ -321,14 +347,59 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                     </div>
                                 )}
 
+                                {/*<div*/}
+                                {/*    className="content__title_btns content__filter download-buttons justify-content-end mb-24 ">*/}
+                                {/*    <div className="filter-menu filter-menu-last-sale-chart">*/}
+                                {/*        <Button*/}
+                                {/*            variant="link"*/}
+                                {/*            className="d-md-none admin-table-btn ripple"*/}
+                                {/*            type="button"*/}
+                                {/*            onClick={this.toggleChartMenu}*/}
+                                {/*        >*/}
+                                {/*            {this.state.isChartToggle ? (*/}
+                                {/*                <FontAwesomeIcon icon={faSortAmountAsc}/>*/}
+                                {/*            ) : (*/}
+                                {/*                <FontAwesomeIcon icon={faSortAmountDesc}/>*/}
+                                {/*            )}*/}
+                                {/*        </Button>*/}
+
+                                {/*        <ul className={`${this.state.isChartToggle ? 'open' : ''}`}>*/}
+                                {/*            <li>*/}
+                                {/*                <button*/}
+                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '1w' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
+                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
+                                {/*                    onClick={() => this.setPeriod('1w')}>*/}
+                                {/*                    <span>1 Week</span>*/}
+                                {/*                </button>*/}
+                                {/*            </li>*/}
+                                {/*            <li>*/}
+                                {/*                <button*/}
+                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '1m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
+                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
+                                {/*                    onClick={() => this.setPeriod('1m')}>*/}
+                                {/*                    <span>1 Month</span>*/}
+                                {/*                </button>*/}
+                                {/*            </li>*/}
+                                {/*            <li>*/}
+                                {/*                <button*/}
+                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
+                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
+                                {/*                    onClick={() => this.setPeriod('3m')}>*/}
+                                {/*                    <span>3 Month</span>*/}
+                                {/*                </button>*/}
+                                {/*            </li>*/}
+                                {/*        </ul>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
+
                                 {this.state.isLoadingChart ? (
                                     <LoaderBlock/>
                                 ) : (
                                     <>
                                         {this.charts.length ? (
-                                                <div className={'mb-48'}>
-                                                    <AreaAndBarChart data={this.charts}/>
-                                                </div>
+                                            <div className={'mb-48'}>
+                                                <AreaAndBarChart data={this.charts}/>
+                                            </div>
                                         ) : (
                                             <div className="no-chart mb-24">
                                                 <NoDataBlock primaryText="No Chart available yet"/>
@@ -340,17 +411,17 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
                                 {!this.isDashboard && (
                                     <div
-                                        className="content__title_btns content__filter download-buttons justify-content-end mb-24">
-                                        <div className="filter-menu filter-menu-last-sale">
+                                        className="content__title_btns content__filter download-buttons justify-content-end">
+                                        <div className="filter-menu filter-menu-last-sale-table">
                                             <Button
                                                 variant="link"
                                                 className="d-md-none admin-table-btn ripple"
                                                 type="button"
-                                                onClick={this.toggleMenu}
+                                                onClick={this.toggleTableMenu}
                                             >
                                                 <FontAwesomeIcon icon={faFileExport}/>
                                             </Button>
-                                            <ul className={`${this.state.isToggle ? 'open' : ''}`}>
+                                            <ul className={`${this.state.isTableToggle ? 'open' : ''}`}>
                                                 <li>
                                                     <button className="border-grey-btn ripple d-flex"
                                                             onClick={this.downloadLastSaleReportingCSV}>

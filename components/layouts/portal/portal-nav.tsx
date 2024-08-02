@@ -53,7 +53,7 @@ const PortalNav = () => {
                     <ThemeToggle/>
                 </NavItem>
 
-                {/*<NotificationBlock isAdmin={false}/>*/}
+                <NotificationBlock isAdmin={false}/>
                 {authUserContext.isAuthenticated() ? (
                     <>
                         <Dropdown as={NavItem}>

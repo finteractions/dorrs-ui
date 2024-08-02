@@ -65,12 +65,14 @@ async function loadZone(Component: NextPageWithLayout): Promise<void> {
             styleImports.push(import(("@/styles/portal.scss")));
             styleImports.push(import(("@/styles/form.scss")));
             styleImports.push(import(("@/styles/chat.scss")));
+            styleImports.push(import(("@/styles/scroll.scss")));
             break;
         case "BackendLayout":
             styleImports.push(import(("@/styles/light.scss")));
             styleImports.push(import(("@/styles/backend.scss")));
             styleImports.push(import(("@/styles/form.scss")));
             styleImports.push(import(("@/styles/chat.scss")));
+            styleImports.push(import(("@/styles/scroll.scss")));
             break;
     }
 

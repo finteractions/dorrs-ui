@@ -45,6 +45,14 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
     }
 
     modal = (action = '', message: INotificationChatMessage | null) => {
+        const sidebar = document.querySelector('.sidebar')
+        if (sidebar) {
+            if (!this.state.isOpenModal) {
+                sidebar.classList.add('z-index-0')
+            } else {
+                sidebar.classList.remove('z-index-0')
+            }
+        }
         this.setState({isOpenModal: !this.state.isOpenModal, formAction: action, message: message})
     }
 
@@ -53,24 +61,29 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
             this.modal('', null)
         }
 
-        this.reInit();
+        await this.reInit();
     }
 
     reInit = () => {
-        if (this.state.message) {
-            const message = this.state.messages.filter(s => s.dialogue_id === this.state.message!.dialogue_id)[0]
-            if (message) this.setState({message: message})
-        }
-        let unread = 0;
-        this.state.messages.map((item: INotificationChatMessage, idx: number) => {
-            if (this.props.isAdmin) {
-                unread += item.messages.filter(s => !s.is_admin && !s.is_delivered).length
-            } else {
-                unread += item.messages.filter(s => s.is_admin && !s.is_delivered).length
+        return new Promise(resolve => {
+            if (this.state.message) {
+                const message = this.state.messages.filter(s => s.dialogue_id === this.state.message!.dialogue_id)[0]
+                if (message) this.setState({message: message})
             }
-        })
+            let unread = 0;
+            this.state.messages.map((item: INotificationChatMessage, idx: number) => {
+                if (this.props.isAdmin) {
+                    unread += item.messages.filter(s => !s.is_admin && !s.is_delivered).length
+                } else {
+                    unread += item.messages.filter(s => s.is_admin && !s.is_delivered).length
+                }
+            })
 
-        this.setState({unreadCount: unread})
+            this.setState({unreadCount: unread}, () => {
+                console.log(this.state.unreadCount)
+                resolve(true)
+            })
+        })
 
     }
 
@@ -111,15 +124,16 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
     }
 
     getChat = async () => {
-        this.props.isAdmin ? await this.getAdminMessages() : await this.getUsermessages();
+        this.props.isAdmin ? await this.getAdminNotification() : await this.getUserNotification();
     }
 
-    getAdminMessages = (): Promise<boolean> => {
+    getAdminNotification = (): Promise<boolean> => {
         return new Promise(resolve => {
             adminService.getNotification()
                 .then((res: INotificationChatMessage[]) => {
                     let data = res || []
-                    this.setState({messages: data}, () => {
+                    this.setState({messages: data}, async () => {
+                        await this.reInit()
                     });
                 })
                 .catch((errors: IError) => {
@@ -132,12 +146,13 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
         })
     }
 
-    getUsermessages = (): Promise<boolean> => {
+    getUserNotification = (): Promise<boolean> => {
         return new Promise(resolve => {
             notificationService.getNotification()
                 .then((res: INotificationChatMessage[]) => {
                     let data = res || []
-                    this.setState({messages: data}, () => {
+                    this.setState({messages: data}, async () => {
+                        await this.reInit()
                     });
                 })
                 .catch((errors: IError) => {
@@ -197,7 +212,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                 return (
                                                     <React.Fragment key={idx}>
                                                         <div className={'chat-history m-0 '} key={idx}
-                                                                       // onClick={() => this.modal('edit', item)}
+                                                            // onClick={() => this.modal('edit', item)}
                                                         >
                                                             {isAdmin ? (
                                                                 <div className="clearfix">
@@ -211,7 +226,8 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                     </span>
                                                                         <i className="fa fa-circle me"></i>
                                                                     </div>
-                                                                    <div className="message other-message float-right mb-0">
+                                                                    <div
+                                                                        className="message other-message float-right mb-0">
                                                                         {itm.message}
                                                                     </div>
                                                                 </div>
@@ -231,14 +247,14 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        {idx < this.state.messages.length - 1 && <Dropdown.Divider />}
+                                                        {idx < this.state.messages.length - 1 && <Dropdown.Divider/>}
                                                     </React.Fragment>
 
                                                 )
                                             })}
                                         </>
                                     ) : (
-                                        <div className={'px-3'}>No messages</div>
+                                        <div className={'px-3'}>No notifications</div>
                                     )}
                                 </div>
 

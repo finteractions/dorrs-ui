@@ -4975,12 +4975,13 @@
 
   .notification-block {
     width: 320px !important;
-    inset: 7px auto auto -280px !important;
+    inset: 35px auto auto -162px !important;
+    transform: unset!important;
   }
 
 
   .sidebar {
-    z-index: 0 !important;
+    //z-index: 0 !important;
   }
 
   .dropdown-item.active, .dropdown-item:active {
@@ -4992,6 +4993,13 @@
     //max-height: 150px;
     height: 100%;
     overflow-y: auto;
+
+    max-height: 395px;
+
+    .chat-history {
+      padding: 15px !important;
+    }
+
   }
 
   .portal-navbar-widget {
@@ -5028,5 +5036,10 @@
     flex: 1;
   }
 
+  .z-index-0 {
+    z-index: 0!important;
+  }
+
 }
+
 
