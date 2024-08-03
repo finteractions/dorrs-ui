@@ -73,7 +73,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isChartToggle: false,
             isTableToggle: false,
             isTableFilterShow: false,
-            period: '1d',
+            period: '',
             filtersClassName: 'd-none d-md-flex',
         }
 
@@ -212,6 +212,8 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
+                    const period = this.charts[0]?.period || '';
+                    this.setState({period: period});
                 })
                 .catch((errors: IError) => {
 
@@ -295,7 +297,11 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
     }
 
     setPeriod = (period: string) => {
-        this.setState({isLoadingChart: true, period: period, isChartToggle: false}, async () => {
+        this.setState({
+            isLoadingChart: true,
+            period: this.state.period === period ? '' : period,
+            isChartToggle: false
+        }, async () => {
             await this.getLastSaleReportingChart();
         });
     }
@@ -368,23 +374,23 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                             <li>
                                                 <button
                                                     className={`border-grey-btn ripple d-flex ${this.state.period === '1d' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart}
                                                     onClick={() => this.setPeriod('1d')}>
                                                     <span>1 Day</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '30d')}
                                                     onClick={() => this.setPeriod('30d')}>
                                                     <span>30 Days</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '3m')}
                                                     onClick={() => this.setPeriod('3m')}>
                                                     <span>3 Months</span>
                                                 </button>
