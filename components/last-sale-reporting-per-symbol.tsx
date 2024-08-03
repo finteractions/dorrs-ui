@@ -39,6 +39,7 @@ interface LastSaleReportingPerSymbolState extends IState {
     isTableFilterShow: boolean;
     filtersClassName: string;
     period: string;
+    previousPeriod: string;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -74,6 +75,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isTableToggle: false,
             isTableFilterShow: false,
             period: '',
+            previousPeriod: '',
             filtersClassName: 'd-none d-md-flex',
         }
 
@@ -212,8 +214,9 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
-                    const period = this.charts[0]?.period || '';
-                    this.setState({period: period});
+                    const period = this.charts[0]?.period || this.state.period || '';
+                    const previousPeriod = this.state.previousPeriod == '' ? period : this.state.previousPeriod;
+                    this.setState({period: period, previousPeriod: previousPeriod});
                 })
                 .catch((errors: IError) => {
 
@@ -381,18 +384,18 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '30d')}
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : ''} ${this.state.isLoading || (this.state.period !== '30d' && this.state.previousPeriod !== '30d') ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || (this.state.period !== '30d' && this.state.previousPeriod !== '30d')}
                                                     onClick={() => this.setPeriod('30d')}>
                                                     <span>30 Days</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '3m')}
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : ''} ${this.state.isLoading || (this.state.period !== '3m' && this.state.previousPeriod !== '3m') ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || (this.state.period !== '3m' && this.state.previousPeriod !== '3m')}
                                                     onClick={() => this.setPeriod('3m')}>
-                                                    <span>3 Months</span>
+                                                    <span>3 Months </span>
                                                 </button>
                                             </li>
                                         </ul>
