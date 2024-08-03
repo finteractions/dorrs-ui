@@ -369,24 +369,24 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                         <ul className={`${this.state.isChartToggle ? 'open' : ''}`}>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '1d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '1d')}
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '1d' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
                                                     onClick={() => this.setPeriod('1d')}>
                                                     <span>1 Day</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '30d')}
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
                                                     onClick={() => this.setPeriod('30d')}>
                                                     <span>30 Days</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button
-                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
-                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '3m')}
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart }
                                                     onClick={() => this.setPeriod('3m')}>
                                                     <span>3 Months</span>
                                                 </button>
