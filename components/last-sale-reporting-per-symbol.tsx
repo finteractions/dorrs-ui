@@ -73,7 +73,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isChartToggle: false,
             isTableToggle: false,
             isTableFilterShow: false,
-            period: '',
+            period: '1d',
             filtersClassName: 'd-none d-md-flex',
         }
 
@@ -209,11 +209,9 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     getLastSaleReportingChart = () => {
         return new Promise((resolve) => {
-            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix)
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
-                    const period = this.charts[0]?.period || '';
-                    this.setState({period: period});
                 })
                 .catch((errors: IError) => {
 

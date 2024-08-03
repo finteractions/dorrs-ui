@@ -46,11 +46,15 @@ class LastSaleService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<ILastSale>>>(url, {}, this.getUserAccessToken())).data;
     }
 
-    public async getLastSaleReportingChartBySymbol(symbol: string, symbolSuffix: string | undefined): Promise<Array<ITradingView>> {
+    public async getLastSaleReportingChartBySymbol(symbol: string, symbolSuffix: string | undefined, period: string | undefined): Promise<Array<ITradingView>> {
         let queryString = `symbol=${symbol}`;
 
         if (symbolSuffix !== null && symbolSuffix !== undefined && symbolSuffix !== '') {
             queryString += `&symbol_suffix=${symbolSuffix}`;
+        }
+
+        if (period !== null && period !== undefined && period !== '') {
+            queryString += `&period=${period}`;
         }
 
         const url = `${this.PATH}chart/?${queryString}`;
