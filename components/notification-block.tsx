@@ -80,7 +80,6 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
             })
 
             this.setState({unreadCount: unread}, () => {
-                console.log(this.state.unreadCount)
                 resolve(true)
             })
         })

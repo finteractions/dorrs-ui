@@ -24,8 +24,6 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = (props) => {
         } = {},
     } = props;
 
-    console.log(data)
-
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
     let chart: any = null;

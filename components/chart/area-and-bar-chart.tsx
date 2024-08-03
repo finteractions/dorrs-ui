@@ -27,9 +27,16 @@ export const AreaAndBarChart: React.FC<AreAndBarChartProps> = ({data}) => {
 
     const getTicker = (time: any) => {
         const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+        const timePattern = /^\d{2}:\d{2}$/;
+
         if (datePattern.test(time)) {
             return time;
         }
+
+        if (timePattern.test(time)) {
+            return time;
+        }
+        
         const date = new Date(time * 1000);
         const formattedDate = `${(date.getUTCMonth() + 1).toString().padStart(2, '0')}/${date.getUTCDate().toString().padStart(2, '0')}/${date.getUTCFullYear()}`;
         const formattedTime = `${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}`;

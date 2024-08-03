@@ -73,7 +73,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             isChartToggle: false,
             isTableToggle: false,
             isTableFilterShow: false,
-            period: '1m',
+            period: '',
             filtersClassName: 'd-none d-md-flex',
         }
 
@@ -209,14 +209,17 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
 
     getLastSaleReportingChart = () => {
         return new Promise((resolve) => {
-            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
+            lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
+                    const period = this.charts[0]?.period || '';
+                    this.setState({period: period});
                 })
                 .catch((errors: IError) => {
 
                 })
                 .finally(() => {
+
                     this.setState({isLoadingChart: false});
                     resolve(true);
                 });
@@ -347,50 +350,50 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                                     </div>
                                 )}
 
-                                {/*<div*/}
-                                {/*    className="content__title_btns content__filter download-buttons justify-content-end mb-24 ">*/}
-                                {/*    <div className="filter-menu filter-menu-last-sale-chart">*/}
-                                {/*        <Button*/}
-                                {/*            variant="link"*/}
-                                {/*            className="d-md-none admin-table-btn ripple"*/}
-                                {/*            type="button"*/}
-                                {/*            onClick={this.toggleChartMenu}*/}
-                                {/*        >*/}
-                                {/*            {this.state.isChartToggle ? (*/}
-                                {/*                <FontAwesomeIcon icon={faSortAmountAsc}/>*/}
-                                {/*            ) : (*/}
-                                {/*                <FontAwesomeIcon icon={faSortAmountDesc}/>*/}
-                                {/*            )}*/}
-                                {/*        </Button>*/}
+                                <div
+                                    className="content__title_btns content__filter download-buttons justify-content-end mb-24 ">
+                                    <div className="filter-menu filter-menu-last-sale-chart">
+                                        <Button
+                                            variant="link"
+                                            className="d-md-none admin-table-btn ripple"
+                                            type="button"
+                                            onClick={this.toggleChartMenu}
+                                        >
+                                            {this.state.isChartToggle ? (
+                                                <FontAwesomeIcon icon={faSortAmountAsc}/>
+                                            ) : (
+                                                <FontAwesomeIcon icon={faSortAmountDesc}/>
+                                            )}
+                                        </Button>
 
-                                {/*        <ul className={`${this.state.isChartToggle ? 'open' : ''}`}>*/}
-                                {/*            <li>*/}
-                                {/*                <button*/}
-                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '1w' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
-                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
-                                {/*                    onClick={() => this.setPeriod('1w')}>*/}
-                                {/*                    <span>1 Week</span>*/}
-                                {/*                </button>*/}
-                                {/*            </li>*/}
-                                {/*            <li>*/}
-                                {/*                <button*/}
-                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '1m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
-                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
-                                {/*                    onClick={() => this.setPeriod('1m')}>*/}
-                                {/*                    <span>1 Month</span>*/}
-                                {/*                </button>*/}
-                                {/*            </li>*/}
-                                {/*            <li>*/}
-                                {/*                <button*/}
-                                {/*                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : ''} ${this.state.isLoading ? 'disable' : ''}`}*/}
-                                {/*                    disabled={this.state.isLoading || this.state.isLoadingChart}*/}
-                                {/*                    onClick={() => this.setPeriod('3m')}>*/}
-                                {/*                    <span>3 Month</span>*/}
-                                {/*                </button>*/}
-                                {/*            </li>*/}
-                                {/*        </ul>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
+                                        <ul className={`${this.state.isChartToggle ? 'open' : ''}`}>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '1d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '1d')}
+                                                    onClick={() => this.setPeriod('1d')}>
+                                                    <span>1 Day</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '30d' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '30d')}
+                                                    onClick={() => this.setPeriod('30d')}>
+                                                    <span>30 Days</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    className={`border-grey-btn ripple d-flex ${this.state.period === '3m' ? 'active' : 'disable'} ${this.state.isLoading ? 'disable' : ''}`}
+                                                    disabled={this.state.isLoading || this.state.isLoadingChart || !(this.state.period === '3m')}
+                                                    onClick={() => this.setPeriod('3m')}>
+                                                    <span>3 Months</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
 
                                 {this.state.isLoadingChart ? (
                                     <LoaderBlock/>
