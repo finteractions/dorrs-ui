@@ -214,7 +214,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
             lastSaleService.getLastSaleReportingChartBySymbol(this.props.symbol, this.props.symbolSuffix, this.state.period)
                 .then((res: Array<ITradingView>) => {
                     this.charts = res;
-                    const period = this.charts[0]?.period;
+                    const period = this.charts[0]?.period || this.state.period;
                     const previousPeriod = this.state.previousPeriod == null ? period : this.state.previousPeriod;
                     this.setState({period: period, previousPeriod: previousPeriod});
                 })

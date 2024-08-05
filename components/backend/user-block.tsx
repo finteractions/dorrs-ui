@@ -16,7 +16,7 @@ import Link from "next/link";
 import NoDataBlock from "@/components/no-data-block";
 import UserPermissionsBlock from "@/components/backend/user-permissions-block";
 import {IFirm} from "@/interfaces/i-firm";
-import {faClose, faEdit, faEye, faCheck} from "@fortawesome/free-solid-svg-icons";
+import {faClose, faEdit, faEye, faCheck, faEnvelope} from "@fortawesome/free-solid-svg-icons";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import {AccountType, getAccountTypeDescription} from "@/enums/account-type";
@@ -375,6 +375,11 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
             });
     };
 
+    notifyUser = () => {
+        const event = new CustomEvent('notifyUser', {detail: this.state.data});
+        window.dispatchEvent(event);
+    }
+
     render() {
 
         switch (this.state.mode) {
@@ -401,6 +406,12 @@ class UserBlock extends React.Component<UserBlockProps, UserBlockState> {
                                                         height="70px"
                                                     />
                                                     {this.state.data?.user_id.first_name || ''} {this.state.data?.user_id.last_name || ''}
+                                                    <div className={'admin-table-actions ml-20px'}>
+                                                        <button className="admin-table-btn ripple"
+                                                                onClick={this.notifyUser}>
+                                                            <FontAwesomeIcon className="nav-icon" icon={faEnvelope}/>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <Link href="/backend/user-management" className="border-btn">Back</Link>
                                             </div>

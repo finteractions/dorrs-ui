@@ -10,6 +10,8 @@ import 'react-dates/lib/css/_datepicker.css';
 import {IUserDetail} from "@/interfaces/i-user-detail";
 import Select from "react-select";
 import notificationService from "@/services/notification/notification-service";
+import {faChevronUp, faEye} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 interface NotificationChatFormState extends IState {
     formInitialValues: {},
@@ -34,18 +36,23 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
     formRef: RefObject<any>;
     chatHistoryRef: RefObject<HTMLDivElement>;
 
-
     constructor(props: NotificationChatFormProps) {
         super(props);
 
-
         let messages = this.props.data?.messages || [];
-        messages = messages.sort((a, b) => a.id - b.id)
+
+        messages = messages.sort((a, b) => a.id - b.id).slice(-10)
+
         const dialogue_id = this.props.data?.dialogue_id || null;
-        const formInitialValues = {
+        let formInitialValues = {
             message: '',
-            dialogue_id: dialogue_id
+            dialogue_id: dialogue_id,
+        } as any
+
+        if (this.props.data?.user_id) {
+            formInitialValues['users'] = [this.props.data?.user_id]
         }
+
         this.state = {
             success: false,
             formInitialValues: formInitialValues,
@@ -110,7 +117,7 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
                 this.setState({errorMessages: errors.messages});
             })
             .finally(() => {
-                this.setState({loading: false})
+                this.setState({loading: false}, this.scroll)
             });
     }
 
@@ -129,7 +136,6 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
             .then((async (res: any) => {
                 await this.formRef.current.setFieldValue('message', '')
                 await this.formRef.current.setFieldValue('users', [])
-
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -163,7 +169,7 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
                                             <Form id="company-profile-form" className={'chat'}>
                                                 <div
                                                     className={`chat-history ${!this.props.isAdmin && this.props.action === 'add' ? 'p-0' : ''}`}>
-                                                    {this.props.action === 'edit' && (
+                                                    {this.props.data && (
                                                         <>
                                                             {this.state.messages.length ? (
                                                                 <div ref={this.chatHistoryRef}
@@ -178,14 +184,25 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
                                                                                             <div
                                                                                                 className="message-data align-right">
                                                                                                 <span
-                                                                                                    className="message-data-time">{formatterService.dateTimeFormat(item.updated_at)}</span> &nbsp; &nbsp;
+                                                                                                    className="message-data-time">{formatterService.dateTimeFormat(item.created_at)}</span> &nbsp; &nbsp;
                                                                                                 <span
                                                                                                     className="message-data-name">{item.sender}</span>
                                                                                                 <i className="fa fa-circle me"></i>
                                                                                             </div>
                                                                                             <div
                                                                                                 className="message other-message float-right"
-                                                                                                dangerouslySetInnerHTML={{__html: item.message}}/>
+                                                                                            >
+                                                                                                <span
+                                                                                                    dangerouslySetInnerHTML={{__html: item.message}}></span>
+                                                                                                {item.is_delivered && (
+                                                                                                    <span
+                                                                                                        className={'seen'}>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            size="xs"
+                                                                                                            icon={faEye}/> {' '}
+                                                                                                        {formatterService.dateTimeFormat(item.updated_at)}</span>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </li>
                                                                                     ) : (
                                                                                         <li>
@@ -195,19 +212,28 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
                                                                                                     className="message-data-name"><i
                                                                                                     className="fa fa-circle online"></i>{item.sender}</span>
                                                                                                 <span
-                                                                                                    className="message-data-time">{formatterService.dateTimeFormat(item.updated_at)}</span>
+                                                                                                    className="message-data-time">{formatterService.dateTimeFormat(item.created_at)}</span>
                                                                                             </div>
                                                                                             <div
                                                                                                 className="message my-message"
-                                                                                                dangerouslySetInnerHTML={{__html: item.message}}/>
+                                                                                            >
+                                                                                                <span
+                                                                                                    dangerouslySetInnerHTML={{__html: item.message}}></span>
+                                                                                                {item.is_delivered && (
+                                                                                                    <span
+                                                                                                        className={'seen'}>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            size="xs"
+                                                                                                            icon={faEye}/> {' '}
+                                                                                                        {formatterService.dateTimeFormat(item.updated_at)}</span>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </li>
                                                                                     )}
                                                                                 </React.Fragment>
                                                                             )
                                                                         })}
                                                                     </ul>
-
-
                                                                 </div>
                                                             ) : (
                                                                 <>No messages</>
@@ -216,7 +242,7 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
 
                                                     )}
 
-                                                    {this.props.isAdmin && this.props.action === 'add' && (
+                                                    {this.props.isAdmin && this.props.action === 'add' && !this.props.data && (
                                                         <div className="input mb-0">
                                                             <div
                                                                 className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
@@ -275,7 +301,6 @@ class NotificationChatForm extends React.Component<NotificationChatFormProps, No
                                                         id="message"
                                                         type={'hidden'}
                                                     />
-
 
                                                     <button
                                                         className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}

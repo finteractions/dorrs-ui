@@ -9,6 +9,9 @@ import {Subscription} from "rxjs";
 import websocketService from "@/services/websocket/websocket-service";
 import {WebsocketEvent} from "@/interfaces/websocket/websocket-event";
 import formatterService from "@/services/formatter/formatter-service";
+import {IUserDetail} from "@/interfaces/i-user-detail";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEye} from "@fortawesome/free-solid-svg-icons";
 
 interface NotificationBockProps {
     isAdmin: boolean
@@ -53,7 +56,11 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                 sidebar.classList.remove('z-index-0')
             }
         }
-        this.setState({isOpenModal: !this.state.isOpenModal, formAction: action, message: message})
+        this.setState({
+            isOpenModal: !this.state.isOpenModal,
+            formAction: action,
+            message: action === 'add' ? message : null
+        })
     }
 
     onCallback = async (value: any) => {
@@ -67,7 +74,20 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
     reInit = () => {
         return new Promise(resolve => {
             if (this.state.message) {
-                const message = this.state.messages.filter(s => s.dialogue_id === this.state.message!.dialogue_id)[0]
+                let message: INotificationChatMessage;
+                if (this.state.message.user_id) {
+                    const user_id = this.state.message.user_id
+
+                    const messages = this.state.messages
+                        .flatMap(r => r.messages)
+                        .filter(s => s.recipient_id === user_id)
+
+                    message = this.state.message;
+                    message.messages = messages
+                } else {
+                    message = this.state.messages.filter(s => s.dialogue_id === this.state.message!.dialogue_id)[0]
+                }
+
                 if (message) this.setState({message: message})
             }
             let unread = 0;
@@ -90,11 +110,29 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
         this.setState({loading: true}, async () => {
             await this.getChat()
                 .then(() => this.subscriptions())
-        })
+        });
+        window.addEventListener('notifyUser', this.notifyUser as EventListener);
     }
 
     componentWillUnmount() {
         this.unsubscribe();
+        window.removeEventListener('notifyUser', this.notifyUser as EventListener);
+    }
+
+    notifyUser = (event: CustomEvent) => {
+        const user: IUserDetail = event.detail as IUserDetail;
+        const user_id = user.user_id.id;
+
+        const messages = this.state.messages
+            .flatMap(r => r.messages)
+            .filter(s => s.recipient_id === user_id)
+
+        const message: INotificationChatMessage = {
+            user_id: user_id,
+            messages: messages
+        }
+
+        this.modal('add', message)
     }
 
     subscribe() {
@@ -204,14 +242,14 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                 <div className={'notification-list chat'}>
                                     {this.state.messages.length ? (
                                         <>
-                                            {this.state.messages.map((item: INotificationChatMessage, idx: number) => {
+                                            {this.state.messages.slice(0, 10).map((item: INotificationChatMessage, idx: number) => {
                                                 const itm = item.messages.sort((a, b) => b.id - a.id)[0]
                                                 const isAdmin = !this.props.isAdmin ? itm.is_admin : !itm.is_admin;
                                                 const from = isAdmin && !this.props.isAdmin ? 'Admin' : itm.sender
                                                 return (
                                                     <React.Fragment key={idx}>
                                                         <div className={'chat-history m-0 '} key={idx}
-                                                            // onClick={() => this.modal('edit', item)}
+                                                             onClick={() => this.modal('edit', item)}
                                                         >
                                                             {isAdmin ? (
                                                                 <div className="clearfix">
@@ -227,7 +265,16 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                     </div>
                                                                     <div
                                                                         className="text-colour message other-message float-right mb-0">
-                                                                        {itm.message}
+                                                                        <span
+                                                                            dangerouslySetInnerHTML={{__html: itm.message}}></span>
+                                                                        {itm.is_delivered && (
+                                                                            <span
+                                                                                className={'seen'}>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            size="xs"
+                                                                                                            icon={faEye}/> {' '}
+                                                                                {formatterService.dateTimeFormat(itm.updated_at)}</span>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             ) : (
@@ -242,7 +289,18 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                                 </span>
                                                                     </div>
                                                                     <div
-                                                                        className="text-colour message my-message mb-0">{itm.message}</div>
+                                                                        className="text-colour message my-message mb-0">
+                                                                        <span
+                                                                            dangerouslySetInnerHTML={{__html: itm.message}}></span>
+                                                                        {itm.is_delivered && (
+                                                                            <span
+                                                                                className={'seen'}>
+                                                                                                        <FontAwesomeIcon
+                                                                                                            size="xs"
+                                                                                                            icon={faEye}/> {' '}
+                                                                                {formatterService.dateTimeFormat(itm.updated_at)}</span>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -279,7 +337,8 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                        className={''}
                 >
 
-                    <NotificationChatForm isAdmin={this.props.isAdmin} action={this.state.formAction}
+                    <NotificationChatForm isAdmin={this.props.isAdmin}
+                                          action={this.state.formAction}
                                           data={this.state.message}
                                           onCallback={this.onCallback}
                     />

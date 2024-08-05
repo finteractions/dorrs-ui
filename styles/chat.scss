@@ -3,7 +3,7 @@
   border-bottom-right-radius: 5px;
   color: #434651;
   width: 100%;
-  max-height: 495px;
+  //max-height: 495px;
   height: 100%;
   overflow-y: auto;
 }
@@ -83,12 +83,20 @@
 
 .chat .chat-history .message {
   color: inherit;
-  padding: 18px 20px;
+  padding: 18px 20px 30px;
   border-radius: 7px;
   margin-bottom: 30px;
   width: 90%;
   position: relative;
+
+  .seen {
+    position: absolute;
+    font-size: 12px;
+    bottom: 10px;
+    right: 18px;
+  }
 }
+
 
 .chat .chat-history .message:after {
   bottom: 100%;

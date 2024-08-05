@@ -6,7 +6,7 @@ import adminService from "@/services/admin/admin-service";
 import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faComment} from "@fortawesome/free-solid-svg-icons";
+import {faComment, faEnvelope} from "@fortawesome/free-solid-svg-icons";
 import {IUserDetail} from "@/interfaces/i-user-detail";
 import adminIconService from "@/services/admin/admin-icon-service";
 import UserImage from "@/components/user-image";
@@ -14,6 +14,7 @@ import {NextRouter, withRouter} from 'next/router';
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
 import UserForm from "@/components/backend/user-form";
+import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -39,6 +40,13 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class UsersBlock extends React.Component<UsersBlockProps> {
     state: UsersBlockState;
     getUsersInterval: NodeJS.Timer | number | undefined;
+
+    customBtns: Array<ICustomButtonProps> = [
+        {
+            icon: <FontAwesomeIcon className="nav-icon" icon={faEnvelope}/>,
+            onCallback: 'notifyUser'
+        }
+    ]
 
     constructor(props: UsersBlockProps) {
         super(props);
@@ -209,6 +217,11 @@ class UsersBlock extends React.Component<UsersBlockProps> {
         }
     }
 
+    notifyUser = (user: IUserDetail) => {
+        const event = new CustomEvent('notifyUser', { detail: user });
+        window.dispatchEvent(event);
+    }
+
     render() {
         return (
 
@@ -237,6 +250,7 @@ class UsersBlock extends React.Component<UsersBlockProps> {
                                         block={this}
                                         viewBtn={true}
                                         filters={tableFilters}
+                                        customBtnProps={this.customBtns}
                                     />
                                 </>
 
