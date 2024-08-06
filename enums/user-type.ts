@@ -5,4 +5,5 @@ export enum UserType {
     INVESTOR = 'Investor',
     TRANSFER_AGENT = 'Transfer Agent',
     CUSTODIAN = 'Custodian',
+    OTHER = 'Other',
 }

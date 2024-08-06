@@ -5,7 +5,6 @@ import Link from "next/link";
 import authService from "@/services/auth/auth-service";
 import formValidator from "@/services/form-validator/form-validator";
 import AlertBlock from "@/components/alert-block";
-import ordersService from "@/services/orders/orders-service";
 import adminService from "@/services/admin/admin-service";
 
 const formSchema = Yup.object().shape({

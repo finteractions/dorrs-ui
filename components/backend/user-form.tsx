@@ -40,7 +40,7 @@ const formSchema = Yup.object().shape({
     password1: FormValidator.passwordField,
     password2: FormValidator.confirmPasswordField('password1'),
     mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
-    data_feed_providers: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Data Feed Providers'),
+    data_feed_providers: Yup.array().of(Yup.string()).label('Data Feed Providers'),
     email_verified: Yup.boolean().label('Email Verified'),
 });
 
@@ -426,7 +426,7 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Data Feed Providers <i>*</i></div>
+                                                    <div className="input__title">Data Feed Providers</div>
                                                     <div
                                                         className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                         <Field
@@ -498,14 +498,17 @@ class UserForm extends React.Component<UserFormProps, UserFormState> {
                                         <>
                                             <div className='approve-form'>
                                                 <div
-                                                    className={`approve-form-text w-100`}>
+                                                    className={`approve-form-text w-100 d-flex align-items-center`}>
                                                     <>
-                                                        Information about User: <span className={'link cursor-pointer'}
-                                                                                      onClick={() => this.navigate(values.email)}>{values.email}</span>
-                                                        <strong>
+                                                        <div>Information about User:</div>
+                                                        <div className={'ml-20px link cursor-pointer'}
+                                                             onClick={() => this.navigate(values.email)}>
+                                                            {values.email}
+                                                        </div>
+                                                        <div>
                                                             <CopyClipboard
                                                                 text={`${values.email} ${values.password1}`}/>
-                                                        </strong>
+                                                        </div>
                                                     </>
                                                 </div>
                                             </div>

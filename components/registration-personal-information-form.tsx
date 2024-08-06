@@ -32,7 +32,7 @@ const formSchema = Yup.object().shape({
     agreement: Yup.boolean()
         .oneOf([true],
             "Required"),
-    data_feed_providers: Yup.array().of(Yup.string()).min(1, 'Required')
+    data_feed_providers: Yup.array().of(Yup.string())
 });
 
 let initialValues = {
@@ -187,7 +187,7 @@ class RegistrationPersonalInformationForm extends React.Component<{
                                             ))}
                                         </div>
                                         <div className="sign-up__title__small mb-24">Choose the type of Data Feed
-                                            Provider <i>*</i></div>
+                                            Provider</div>
                                         <div className="form-wrap sign-up__row_small">
                                             {this.state.dataFeedProviders.map((provider: IDataFeedProvider, idx: number) => (
                                                 <React.Fragment key={idx}>

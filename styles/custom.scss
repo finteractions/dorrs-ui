@@ -73,6 +73,15 @@ $color-warning: #F4CC72;
 
 input[type="radio"]:checked + label.sign-up__item, input[type="checkbox"]:checked + label.sign-up__item {
   border-color: $color-primary;
+  background-color: #ebf4fb;
+
+  > span {
+    font-weight: 500;
+  }
+
+  &:after {
+    background-image: url(img/icon-2.png);
+  }
 }
 
 .react-tel-input .form-control {
@@ -273,7 +282,7 @@ textarea.input__textarea {
   .message-block {
     flex: 1;
     overflow-wrap: break-word;
-    margin-left: 24px;
+    margin-left: 15px;
   }
 
   &-success {

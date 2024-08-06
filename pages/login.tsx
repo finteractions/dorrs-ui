@@ -24,7 +24,7 @@ const Login: NextPageWithLayout = () => {
                 otp_token: values.otp_token
             }));
             router.push('/registration');
-        } else if (nextStep && !values?.is_approved && !values.is_admin) {
+        } else if (nextStep && !values?.is_approved) {
             router.push('/account-approval');
         } else if (values?.access_token && values?.refresh_token) {
             localStorage.removeItem(`${getGlobalConfig().host}-${process.env.TOKEN_NAME}Registration`)
