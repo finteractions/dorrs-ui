@@ -1,0 +1,21 @@
+export enum AssetClassType{
+    NON_US_GOVERNMENT_DEBT = 'Non-US Government Debt',
+    MUNICIPAL_BONDS = 'Municipal Bonds',
+    CORPORATE_BONDS = 'Corporate Bonds',
+    PUBLIC_EQUITY = 'Public Equity',
+    PRIVATE_EQUITY = 'Private Equity',
+    REAL_ESTATE = 'Real Estate',
+    PHYSICAL_ITEMS = 'Physical Items',
+    MORTGAGES = 'Mortgages',
+    DERIVATIVES = 'Derivatives',
+    STRUCTURED_CREDIT = 'Structured Credit',
+    PRIVATE_FUNDS = 'Private Funds',
+    CRYPTOCURRENCIES = 'Cryptocurrencies',
+    US_AGENCY_BONDS = 'US Agency Bonds',
+    BANK_DEPOSITS = 'Bank Deposits',
+    MONEY_MARKET = 'Money Market',
+    STABLECOINS = 'Stablecoins',
+    COMMODITIES = 'Commodities',
+    US_TREASURY_DEBT = 'US Treasury Debt',
+    PRIVATE_CREDIT = 'Private Credit'
+}

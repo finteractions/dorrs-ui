@@ -76,7 +76,7 @@ const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: Form
         const requiredFields = requiredFieldsToFill.length === 0 ? requiredFieldsAll : requiredFieldsToFill
 
         requiredFields.forEach(field => {
-            const el = document.querySelector<any>(`[name="${field}"]`);
+            const el = document.body.querySelector<any>(`[name="${field}"]`);
             const el_tmp = document.querySelector<any>(`[name="${field}_tmp"]`);
 
             if (el && !el.disabled) {
@@ -87,7 +87,7 @@ const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: Form
                         if (el.classList.contains('b-select')) el.classList.add('required')
                         break;
                     default:
-                        if (el.classList.contains('DateInput_input ')) {
+                        if (el.classList.contains('DateInput_input')) {
                             const parent = el.closest('.SingleDatePickerInput');
                             if (parent) {
                                 parent.classList.add('required');
@@ -95,7 +95,6 @@ const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: Form
                         } else {
 
                             if (el.type == 'hidden') {
-
                                 const parent = el.closest('.b-select-search')
                                 if (parent) {
                                     const el = parent.querySelector('.select__react__control');

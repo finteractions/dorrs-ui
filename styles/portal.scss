@@ -2665,6 +2665,7 @@ body {
       background: #34cb68
     }
 
+
     .table__status.table__status-approved:before {
       background: #34cb68
     }
@@ -2674,6 +2675,14 @@ body {
     }
 
     .table__status.table__status-debit:before {
+      background: #3d7da2
+    }
+
+    .table__status.table__status-live:before {
+      background: #34cb68
+    }
+
+    .table__status.inprocess:before {
       background: #3d7da2
     }
 
@@ -2690,6 +2699,10 @@ body {
     }
 
     .table__status.table__status-rejected:before {
+      background: #cb3d34
+    }
+
+    .table__status.table__status-unclaimed:before {
       background: #cb3d34
     }
 
@@ -2713,6 +2726,9 @@ body {
       background: #FFA800
     }
 
+    .table__status.table__status-claimed:before {
+      background: #FFA800
+    }
 
     @media(max-width: 1299px) {
       .assets__item-block.big {
@@ -2731,12 +2747,7 @@ body {
         margin: 24px 0;
         padding: 0 0 24px
       }
-      //.content__top {
-      //  margin: 0 0 16px
-      //}
-      //.content__title {
-      //  font-size: 20px
-      //}
+
       .row .col.col-md-12 {
         width: 100%
       }
@@ -4818,7 +4829,7 @@ a.block-link {
 .notification-block {
   width: 320px !important;
   inset: 35px auto auto -162px !important;
-  transform: unset!important;
+  transform: unset !important;
 }
 
 .sidebar {
@@ -4842,10 +4853,79 @@ a.block-link {
 }
 
 .z-index-0 {
-  z-index: 0!important;
+  z-index: 0 !important;
 }
 
 .text-colour {
   color: var(--colour-gray);
 }
 
+.public-directory {
+
+  .tag-block {
+    max-width: 500px;
+    width: 100%;
+    gap: 10px;
+    display: flex;
+    margin-left: 10px;
+
+    .tag {
+      padding: 5px;
+      background-color: var(--bg-gray);
+      color: var(--text-colour-2);
+      border-radius: 6px;
+      font-size: 12px;
+      margin-left: 0;
+    }
+  }
+
+  .public-directory-col {
+    //max-width: 45%;
+    width: 100%;
+    //display: flex;
+
+    .content__title {
+      font-size: 16px;
+    }
+
+    .content__bottom {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      padding: 5px;
+      background-color: var(--bg-gray);
+      color: var(--text-colour-2);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    > a {
+      margin-left: auto;
+    }
+
+    &:nth-of-type(3) {
+      width: auto;
+    }
+  }
+
+  @media(max-width: 1145px) {
+    .blocks {
+      flex-direction: column;
+    }
+    .tag-block {
+      max-width: unset;
+    }
+    .public-directory-col {
+      > a {
+        margin-left: unset !important;
+      }
+    }
+
+
+  }
+}

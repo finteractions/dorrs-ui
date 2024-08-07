@@ -249,7 +249,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                                 return (
                                                     <React.Fragment key={idx}>
                                                         <div className={'chat-history m-0 '} key={idx}
-                                                             onClick={() => this.modal('edit', item)}
+                                                             // onClick={() => this.modal('edit', item)}
                                                         >
                                                             {isAdmin ? (
                                                                 <div className="clearfix">

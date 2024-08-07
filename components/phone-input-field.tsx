@@ -7,7 +7,7 @@ import "react-phone-input-2/lib/style.css";
 class PhoneInputField extends React.Component<{ field: any, form: any, disabled: boolean, height?: number }> {
 
     handleInput = async (value: any, form: any, field: any) => {
-
+        if (value === undefined) return;
         if (value && !value.startsWith("+")) {
             value = "+" + value;
         }

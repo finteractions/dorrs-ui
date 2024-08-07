@@ -1,18 +1,17 @@
 import React, { ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
-import DashboardBlock from "@/components/public-dashboard/dashboard-block";
 import {GetLayout, LayoutNameProvider} from "@/components/layouts/utils/layout-utils";
+import DirectoryBlock from "@/components/public-directory/directory-block";
 
-
-const PublicDashboard: NextPageWithLayout = () => {
+const PublicDirectory: NextPageWithLayout = () => {
     return (
         <>
-            <DashboardBlock />
+            <DirectoryBlock/>
         </>
     );
 };
 
-PublicDashboard.getLayout = function getLayout(page: ReactElement) {
+PublicDirectory.getLayout = function getLayout(page: ReactElement) {
     return (
         <LayoutNameProvider>
             <GetLayout page={page} />
@@ -20,6 +19,6 @@ PublicDashboard.getLayout = function getLayout(page: ReactElement) {
     );
 };
 
-PublicDashboard.layoutName = "PublicLayout";
+PublicDirectory.layoutName = "PublicLayout";
 
-export default PublicDashboard;
+export default PublicDirectory;
