@@ -2807,7 +2807,7 @@ body {
         }
       }
 
-      .table {
+      .table:not(.no-transponse) {
         -webkit-box-shadow: none;
         box-shadow: none;
         background: 0 0;
@@ -4925,7 +4925,35 @@ a.block-link {
         margin-left: unset !important;
       }
     }
+  }
 
+  .max-width-800 {
+    //max-width: 800px;
+  }
 
+  .flex-table {
+    tbody {
+      tr {
+        display: flex;
+        //justify-content: space-between;
+
+        td {
+          flex: 1 1 100%;
+          display: flex;
+          height: auto !important;
+          padding-top: 10px!important;
+          padding-bottom: 10px!important;
+
+          &:nth-of-type(2){
+            flex: 1 1 50%;
+          }
+          &:last-child {
+          flex: 0;
+            justify-items: center;
+            align-items: center;
+          }
+        }
+      }
+    }
   }
 }

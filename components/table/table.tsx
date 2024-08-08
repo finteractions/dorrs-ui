@@ -36,7 +36,8 @@ interface ITableProps {
     className?: string,
     filters?: ITableFilter[];
     filtersClassName?: string;
-    options?: { type: string }
+    options?: { type: string },
+    header?: boolean
 }
 
 interface TableRef {
@@ -78,12 +79,18 @@ const filterData = (data: any[], searchValue: string, columnFilters: { [key: str
         data = data.filter((rowData) => {
             const columnKeys = Object.keys(columnFilters);
 
+
             if (columnKeys.length > 0) {
                 return columnKeys.every((columnKey) => {
                     const [rowKey, nestedKey] = columnKey.split('.');
-                    const value =
-                        typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
+
+                    const value = typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
+
                     const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
+
+                    if (Array.isArray(rowData[rowKey]) && columnFilters[rowKey]) {
+                        return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey])
+                    }
 
                     const startDate = (columnFilters[columnKey] as any).startDate;
                     const endDate = (columnFilters[columnKey] as any).endDate;
@@ -124,7 +131,8 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                      className,
                                                      filters,
                                                      filtersClassName,
-                                                     options
+                                                     options,
+                                                     header = true
                                                  }: ITableProps,
                                                  ref: ForwardedRef<TableRef>) => {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -376,64 +384,66 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
                             <div className='overflow-x-auto'>
                                 <table className={className}>
-                                    <thead>
-                                    <tr>
-                                        {headers.map((header) => {
-                                            const direction = header.column.getIsSorted() as string;
-
-                                            return (
-                                                <th key={header.id}>
-                                                    {header.isPlaceholder ? null : (
-                                                        <div
-                                                            onClick={header.column.getToggleSortingHandler()}
-                                                            className={`sort-th-box cursor-pointer position-relative`}
-                                                        >
-                                                            {flexRender(
-                                                                header.column.columnDef.header,
-                                                                header.getContext()
-                                                            )}
-                                                            <span className={`sort-ico ${direction}`}></span>
-                                                        </div>
-                                                    )}
-
-                                                </th>
-                                            );
-                                        })}
-                                        {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps || filter ? (
-                                            <th>
-
-                                            </th>
-                                        ) : ''}
-                                    </tr>
-                                    {filter && (
+                                    {header && (
+                                        <thead>
                                         <tr>
                                             {headers.map((header) => {
+                                                const direction = header.column.getIsSorted() as string;
+
                                                 return (
                                                     <th key={header.id}>
-                                                        {filter && (
-                                                            <>
-                                                                {renderFilter(header.column)}
-                                                            </>
+                                                        {header.isPlaceholder ? null : (
+                                                            <div
+                                                                onClick={header.column.getToggleSortingHandler()}
+                                                                className={`sort-th-box cursor-pointer position-relative`}
+                                                            >
+                                                                {flexRender(
+                                                                    header.column.columnDef.header,
+                                                                    header.getContext()
+                                                                )}
+                                                                <span className={`sort-ico ${direction}`}></span>
+                                                            </div>
                                                         )}
+
                                                     </th>
                                                 );
                                             })}
+                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps || filter ? (
+                                                <th>
 
-                                            <th className={filter ? 'reset-filter' : ''}>
-                                                {filter && (
-                                                    <div className='admin-table-actions'>
-                                                        <button
-                                                            onClick={resetFilters}
-                                                            className='btn-reset-filter'><FontAwesomeIcon
-                                                            className="nav-icon" icon={faClose}/></button>
-                                                    </div>
-
-                                                )}
-                                            </th>
-
+                                                </th>
+                                            ) : ''}
                                         </tr>
+                                        {filter && (
+                                            <tr>
+                                                {headers.map((header) => {
+                                                    return (
+                                                        <th key={header.id}>
+                                                            {filter && (
+                                                                <>
+                                                                    {renderFilter(header.column)}
+                                                                </>
+                                                            )}
+                                                        </th>
+                                                    );
+                                                })}
+
+                                                <th className={filter ? 'reset-filter' : ''}>
+                                                    {filter && (
+                                                        <div className='admin-table-actions'>
+                                                            <button
+                                                                onClick={resetFilters}
+                                                                className='btn-reset-filter'><FontAwesomeIcon
+                                                                className="nav-icon" icon={faClose}/></button>
+                                                        </div>
+
+                                                    )}
+                                                </th>
+
+                                            </tr>
+                                        )}
+                                        </thead>
                                     )}
-                                    </thead>
                                     <tbody>
                                     {rows.map((row, idx) => (
                                         <tr id={row.id}

@@ -2,11 +2,18 @@ import React, { ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
 import {GetLayout, LayoutNameProvider} from "@/components/layouts/utils/layout-utils";
 import DirectoryBlock from "@/components/public-directory/directory-block";
+import {useRouter} from "next/router";
 
 const PublicDirectory: NextPageWithLayout = () => {
+    const router = useRouter();
+
+    const onCallback = async (linkTo: string) => {
+        await router.push(linkTo)
+    }
+
     return (
         <>
-            <DirectoryBlock/>
+            <DirectoryBlock onCallback={onCallback}/>
         </>
     );
 };

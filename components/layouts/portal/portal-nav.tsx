@@ -53,9 +53,10 @@ const PortalNav = () => {
                     <ThemeToggle/>
                 </NavItem>
 
-                <NotificationBlock isAdmin={false}/>
+
                 {authUserContext.isAuthenticated() ? (
                     <>
+                        <NotificationBlock isAdmin={false}/>
                         <Dropdown as={NavItem}>
                             <Dropdown.Toggle variant="link" bsPrefix="hide-caret"
                                              className="d-flex align-items-center portal-navbar-widget-user">
