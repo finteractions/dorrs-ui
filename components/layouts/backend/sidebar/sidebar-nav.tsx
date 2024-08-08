@@ -77,6 +77,12 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
+        text: 'Public Directory',
+        href: "/backend/public-directory",
+        icon: faBuilding,
+        submenus: []
+    },
+    {
         text: 'Membership Forms',
         href: "/backend/membership-form",
         icon: faBook,

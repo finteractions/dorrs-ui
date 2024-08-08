@@ -6,6 +6,13 @@ export enum FormStatus {
     DELETED = 'deleted'
 }
 
+export enum PublicDirectoryFormStatus {
+    IN_PROCESS = 'In Process',
+    LIVE = 'Live',
+    UNCLAIMED = 'Unclaimed',
+    CLAIMED = 'Claimed',
+    PENDING = 'Pending'
+}
 
 export const getApprovedFormStatus = (): FormStatus[] => {
     return [FormStatus.APPROVED, FormStatus.CHANGED];

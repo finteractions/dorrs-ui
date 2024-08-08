@@ -28,7 +28,7 @@ const allowedImageExt = ['png', 'jpg', 'jpeg']
 
 
 const formSchema = Yup.object().shape({
-    name: Yup.string().required('Required').label('Your Name'),
+    first_last_name: Yup.string().required('Required').label('Your Name'),
     email: Yup.string().email("Invalid email").required('Required').label('Email Address'),
     mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
     company_name: Yup.string().required('Required').label('Company Name'),
@@ -53,8 +53,8 @@ const formSchema = Yup.object().shape({
             if (!value) return true;
             return value.size <= allowedImageFileSize;
         }),
-    asset_class: Yup.array().of(Yup.string()).required('Required').label('Asset Class(es)'),
-    region: Yup.array().of(Yup.string()).required('Required').label('Regions'),
+    asset_class: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Asset Class(es)'),
+    asset_region: Yup.array().of(Yup.string()).label('Asset Region(s)'),
     network: Yup.array().of(Yup.string()).label('Network(s)'),
     asset_listing: Yup.string().min(3).label('Asset Listing Request')
         .when('company_type', {
@@ -74,7 +74,7 @@ interface PublicDirectoryPageFormState extends IState {
     isLoading: boolean;
     errors: string[];
 
-    formInitialValues: IDirectoryCompanyProfileData,
+    formInitialValues: IDirectoryCompanyProfile,
     focusedInputDateEntered: any;
     selectedFile: File | null;
 }
@@ -91,7 +91,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             success: false,
             isLoading: true,
             errors: [],
-            formInitialValues: {} as IDirectoryCompanyProfileData,
+            formInitialValues: {} as IDirectoryCompanyProfile,
             focusedInputDateEntered: null,
             selectedFile: null
         }
@@ -99,12 +99,12 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
         this.formRef = React.createRef();
     }
 
-    initForm(data?: IDirectoryCompanyProfileData) {
-        const initialData = data || {} as IDirectoryCompanyProfileData;
+    initForm(data?: IDirectoryCompanyProfile) {
+        const initialData = data || {} as IDirectoryCompanyProfile;
 
         const initialValues: {
             id: number | null;
-            name: string;
+            first_last_name: string;
             email: string;
             mobile_number: string;
             company_name: string;
@@ -117,13 +117,13 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             founding_date: string;
             logo: string;
             asset_class: string[];
-            region: string[];
+            asset_region: string[];
             network: string[];
             asset_listing: string;
             additional_information: string;
         } = {
             id: initialData.id || null,
-            name: initialData.name || '',
+            first_last_name: initialData.first_last_name || '',
             email: initialData.email || '',
             mobile_number: initialData.mobile_number || '',
             company_name: initialData.company_name || '',
@@ -136,7 +136,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             founding_date: initialData.founding_date || '',
             logo: initialData.logo || '',
             asset_class: initialData.asset_class || [],
-            region: initialData.region || [],
+            asset_region: initialData.asset_region || [],
             network: initialData.network || [],
             asset_listing: initialData.asset_listing || '',
             additional_information: initialData.additional_information || ''
@@ -157,7 +157,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
         return this.props.action === 'view';
     }
 
-    handleSubmit = async (values: IDirectoryCompanyProfileData, {setSubmitting}: {
+    handleSubmit = async (values: IDirectoryCompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
 
@@ -226,8 +226,8 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                         </div>
 
 
-                        <Formik<IDirectoryCompanyProfileData>
-                            initialValues={this.state.formInitialValues as IDirectoryCompanyProfileData}
+                        <Formik<IDirectoryCompanyProfile>
+                            initialValues={this.state.formInitialValues as IDirectoryCompanyProfile}
                             validationSchema={formSchema}
                             onSubmit={this.handleSubmit}
                             innerRef={this.formRef}
@@ -247,15 +247,15 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                             <Field
-                                                                name="name"
-                                                                id="name"
+                                                                name="first_last_name"
+                                                                id="first_last_name"
                                                                 type="text"
                                                                 className="input__text no-bg"
                                                                 placeholder="First and Last Name"
                                                                 disabled={isSubmitting || this.isShow()}
                                                             />
                                                             <ErrorMessage
-                                                                name="name"
+                                                                name="first_last_name"
                                                                 component="div"
                                                                 className="error-message"/>
                                                         </div>
@@ -283,7 +283,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                     </div>
 
                                                     <div className="input__box">
-                                                        <div className="input__title">Phone Number
+                                                        <div className="input__title">Phone Number <i>*</i>
                                                         </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -511,14 +511,14 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                                     type="file"
                                                                     accept={'.' + allowedImageExt.join(',.')}
                                                                     className="input__file"
-                                                                    disabled={isSubmitting}
+                                                                    disabled={isSubmitting || this.isShow()}
                                                                     onChange={(event) => {
                                                                         setFieldValue('logo_tmp', event.target?.files?.[0] || '');
                                                                         this.handleFileChange(event);
                                                                     }}
                                                                 />
 
-                                                                {errors.logo_tmp && values.logo_tmp === '' && (
+                                                                {errors.logo_tmp && values.logo_tmp!== null && (
                                                                     <div
                                                                         className="error-message">{errors.logo_tmp.toString()}</div>
                                                                 )}
@@ -527,7 +527,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                     )}
 
                                                     <div className="input__box">
-                                                        <div className="input__title">Asset Class(es) <i>*</i></div>
+                                                        <div className="input__title">Asset Class(es)  <i>*</i></div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                             <Field
@@ -538,7 +538,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                                 placeholder="Select relevant asset classes"
                                                                 classNamePrefix="select__react"
                                                                 isMulti={true}
-                                                                isDisabled={isSubmitting}
+                                                                isDisabled={isSubmitting || this.isShow()}
                                                                 options={Object.values(AssetClassType).map((type) => ({
                                                                     value: type,
                                                                     label: type
@@ -559,32 +559,32 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                     </div>
 
                                                     <div className="input__box">
-                                                        <div className="input__title">Regions</div>
+                                                        <div className="input__title">Asset Region(s)</div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                             <Field
-                                                                name="region"
-                                                                id="region"
+                                                                name="asset_region"
+                                                                id="asset_region"
                                                                 as={Select}
                                                                 className={`b-select-search`}
                                                                 placeholder="Regions where the protocol operates"
                                                                 classNamePrefix="select__react"
                                                                 isMulti={true}
-                                                                isDisabled={isSubmitting}
+                                                                isDisabled={isSubmitting || this.isShow()}
                                                                 options={Object.values(RegionType).map((type) => ({
                                                                     value: type,
                                                                     label: type
                                                                 }))}
                                                                 onChange={(selectedOptions: any) => {
                                                                     const values = selectedOptions.map((s: any) => s.value)
-                                                                    setFieldValue('region', values)
+                                                                    setFieldValue('asset_region', values)
                                                                 }}
-                                                                value={(values.region || []).map((value: string) => ({
+                                                                value={(values.asset_region || []).map((value: string) => ({
                                                                     value,
                                                                     label: value
                                                                 }))}
                                                             />
-                                                            <ErrorMessage name="region"
+                                                            <ErrorMessage name="asset_region"
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
@@ -602,7 +602,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                                 placeholder="Select all blockchain networks where your protocol is currently live"
                                                                 classNamePrefix="select__react"
                                                                 isMulti={true}
-                                                                isDisabled={isSubmitting}
+                                                                isDisabled={isSubmitting || this.isShow()}
                                                                 options={Object.values(NetworkType).map((type) => ({
                                                                     value: type,
                                                                     label: type

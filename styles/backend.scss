@@ -1,7 +1,8 @@
 .backend {
   --error-colour: #CB3D34;
-  --error-colour: #CB3D34;
   --border-colour-2: #c5cacf;
+  --bg-gray: #ebeff5;
+  --text-colour-2: #1e2d3b;
 
   h1, h2, h3, h4, h5, h6 {
     margin: 0 0 30px;
@@ -2907,6 +2908,22 @@
     background: #cb3d34
   }
 
+  .table__status.table__status-unclaimed:before {
+    background: #cb3d34
+  }
+
+  .table__status.table__status-claimed:before {
+    background: #34cb68
+  }
+
+  .table__status.inprocess:before {
+    background: #3d7da2
+  }
+
+  .table__status.table__status-live:before {
+    background: #34cb68
+  }
+
   .table__status.table__status-deleted:before {
     background: #cb3d34
   }
@@ -5039,6 +5056,21 @@
   .z-index-0 {
     z-index: 0!important;
   }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .tag {
+      padding: 5px;
+      background-color: var(--bg-gray);
+      color: var(--text-colour-2);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+  }
+
 
 }
 

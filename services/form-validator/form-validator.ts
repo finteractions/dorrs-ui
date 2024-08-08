@@ -66,13 +66,18 @@ const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: Form
         const requiredFieldsAll: string[] = [];
 
         Object.keys(schema.fields).forEach(key => {
-            const hasRequired = !(schema.fields[key] as any).spec.optional && !values[key]
+            let hasRequired = !(schema.fields[key] as any).spec.optional; // && !values[key]
+            if (hasRequired) {
+                if (Array.isArray(values[key])) {
+                    hasRequired = (values[key] as Array<any>).length === 0
+                } else {
+                    hasRequired = !values[key]
+                }
+            }
 
             if (hasRequired) requiredFieldsAll.push(key)
         })
-
         const requiredFieldsToFill = Object.keys(errors)
-
         const requiredFields = requiredFieldsToFill.length === 0 ? requiredFieldsAll : requiredFieldsToFill
 
         requiredFields.forEach(field => {
@@ -102,6 +107,11 @@ const requiredFields = (schema: Yup.ObjectSchema<any>, values: any, errors: Form
                                 }
                             } else {
                                 el.classList.add('required');
+
+                                const nextElement = el.nextElementSibling;
+                                if (nextElement?.classList.contains('flag-dropdown')) {
+                                    nextElement.classList.add('required');
+                                }
                             }
                         }
                 }

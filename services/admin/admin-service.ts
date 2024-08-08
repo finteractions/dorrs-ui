@@ -513,8 +513,64 @@ class AdminService extends BaseService {
     }
 
 
-    //********************** //
+    public async getDirectoryProfile(): Promise<Array<IDirectoryCompanyProfile>> {
+        // return (await apiWebBackendService.get<IResponse<Array<IDirectoryCompanyProfile>>>(`${this.PATH}profile/`, {}, this.getAdminToken())).data;
 
+        return new Promise(resolve => {
+            resolve(
+                [
+                    {
+                        id: 5,
+                        first_last_name: 'Dev Dev',
+                        email:'dev@dorrs.io',
+                        mobile_number:'+19299992733',
+                        company_name:'Atlas ATS Global',
+                        company_type:'Private Company',
+                        company_title:'Test',
+                        protocol_name:'Test 1',
+                        founding_date:'2020-08-15',
+                        logo: '/media/company_profile_logo/modern-atlas-logo-vector-46403983.jpg',
+                        asset_class: ['Real Estate'],
+                        asset_region: ['Asia Pacific', 'Europe'],
+                        website_link: 'https://google.com',
+                        network: ['Ethereum'],
+                        status: 'Unclaimed',
+                        description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                    },
+                    {
+                        id: 6,
+                        first_last_name: 'Dev Dev',
+                        email:'dev@dorrs.io',
+                        mobile_number:'+19299992733',
+                        company_name:'Test Company',
+                        company_type:'Private Company',
+                        company_title:'Test',
+                        protocol_name:'Test 1',
+                        founding_date:'2020-08-15',
+                        logo: '',
+                        asset_class: ['Private Equity'],
+                        asset_region: ['Europe'],
+                        website_link: 'https://google.com',
+                        network: ['Algorand', 'Algorand', 'Polygon'],
+                        status: 'Claimed',
+                        description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                    }
+                ] as any
+            )
+        })
+    }
+
+    public createDirectoryProfile(data: any): Promise<any> {
+        return apiWebBackendService.post(`${this.PATH}directory_profile/`, data, {}, this.getAdminToken())
+    }
+
+    public updateDirectoryProfile(id: number, data: any): Promise<any> {
+        return apiWebBackendService.put(`${this.PATH}directory_profile/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async deleteDirectoryProfile(id: number): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}directory_profile/${id}/`, {}, {}, this.getAdminToken());
+    }
 
 }
 

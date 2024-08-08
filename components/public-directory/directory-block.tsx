@@ -57,13 +57,13 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
         columns = [
             columnHelper.accessor((row) => ({
-                name: row.name,
+                company_name: row.company_name,
                 status: row.status,
                 logo: row.logo,
                 network: row.network,
                 description: row.description
             }), {
-                id: "symbol",
+                id: "name",
                 cell: (item) =>
                     <div className="max-width-800 view_block_main_title mb-0">
                         <div className={"company-profile-logo"}>
@@ -92,7 +92,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                                     </div>
                                 )}
                             </div>
-                            <div><h3>{item.getValue().name}</h3></div>
+                            <div><h3>{item.getValue().company_name}</h3></div>
                         </div>
                         <div className={'flex-row w-100'}>
                             <div>
@@ -108,7 +108,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                 asset_class: row.asset_class,
                 asset_region: row.asset_region,
             }), {
-                id: "class",
+                id: "asset_class_region",
                 cell: (item) =>
                     <div
                         className={'d-flex gap-20 public-directory-col tag-block'}>
@@ -133,7 +133,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                         </div>
                         <div className={'flex-1-1-100'}>
                             <div className={'w-100 content__title'}>Asset
-                                Region
+                                Regions
                             </div>
                             <div className={'w-100 content__bottom'}>
                                 {item.getValue().asset_region.length > 0 ? (
@@ -157,7 +157,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
         tableFilters = [
             {key: 'asset_class', placeholder: 'Asset Class'},
-            {key: 'asset_region', placeholder: 'Region'},
+            {key: 'asset_region', placeholder: 'Asset Region'},
             {key: 'network', placeholder: 'Network'},
             {key: 'status', placeholder: 'Status'},
         ]
@@ -196,7 +196,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
         this.setState({isToggle: !this.state.isToggle})
     };
 
-    navigate = (data: IDirectoryCompanyProfileData) => {
+    navigate = (data: IDirectoryCompanyProfile) => {
         this.props.onCallback(data.website_link)
     }
 
@@ -220,7 +220,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                     <LoaderBlock/>
                 ) : (
                     <>
-                        <div className={'flex-panel-box mb-4'}>
+                        <div className={'flex-panel-box mb-4 public-directory'}>
                             <div className="panel">
                                 <div className="content__top">
                                     <div className="content__title">Directory</div>
@@ -248,11 +248,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div className="flex-panel-box public-directory panel mb-4">
-                            <div className={'panel'}>
                                 <div className={'content__bottom flex-table'}>
                                     {this.state.data?.length ? (
                                         <Table columns={columns}

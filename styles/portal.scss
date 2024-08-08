@@ -2727,7 +2727,7 @@ body {
     }
 
     .table__status.table__status-claimed:before {
-      background: #FFA800
+      background: #34cb68
     }
 
     @media(max-width: 1299px) {
@@ -4518,7 +4518,7 @@ html.dark {
 
 
 .input .input__title i, .input__box .input__title i, .error-message {
-  color: var(--error-colour)
+  color: var(--error-colour, #CB3D34)
 }
 
 .p-0-10 {
@@ -4612,6 +4612,10 @@ a.block-link {
 
 .font-weight-normal {
   font-weight: normal;
+}
+
+.font-weight-500 {
+  font-weight: 500;
 }
 
 .indicator-item {
@@ -4886,6 +4890,7 @@ a.block-link {
 
     .content__title {
       font-size: 16px;
+      font-weight: 400;
     }
 
     .content__bottom {
@@ -4941,8 +4946,8 @@ a.block-link {
           flex: 1 1 100%;
           display: flex;
           height: auto !important;
-          padding-top: 10px!important;
-          padding-bottom: 10px!important;
+          padding-top: 15px!important;
+          padding-bottom: 15px!important;
 
           &:nth-of-type(2){
             flex: 1 1 50%;

@@ -1,17 +1,6 @@
 interface IDirectoryCompanyProfile {
-    name: string;
-    logo: string;
-    description: string;
-    asset_class: Array<string>;
-    asset_region: Array<string>;
-    website_link: string;
-    network: Array<string>;
-    status: string;
-}
-
-interface IDirectoryCompanyProfileData {
     id?: number | null,
-    name: string;
+    first_last_name: string;
     email: string;
     mobile_number: string;
     company_name: string;
@@ -24,10 +13,15 @@ interface IDirectoryCompanyProfileData {
     founding_date: string;
     logo: string;
     asset_class: Array<string>;
-    region: Array<string>;
+    asset_region: Array<string>;
     network: Array<string>;
     asset_listing: string;
     additional_information: string;
 
     logo_tmp?: string;
+    approved_by: string;
+    created_at: string;
+    created_by: string;
+    created_date_time: string;
+    status: string;
 }
