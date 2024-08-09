@@ -157,7 +157,7 @@ class PublicDirectoryBlock extends React.Component<{}> {
                         </div>
                     </div>
                 ,
-                header: () => <span>Networks Currently Live</span>,
+                header: () => <span>Live Protocols</span>,
             }),
             columnHelper.accessor((row) => ({
                 status: row.status
@@ -188,7 +188,7 @@ class PublicDirectoryBlock extends React.Component<{}> {
         tableFilters = [
             {key: 'asset_class', placeholder: 'Asset Class'},
             {key: 'asset_region', placeholder: 'Asset Region'},
-            {key: 'network', placeholder: 'Network'},
+            {key: 'network', placeholder: 'Live Protocol'},
             {key: 'status', placeholder: 'Status'},
             {key: 'profile_status', placeholder: 'Profile Status'},
         ]
