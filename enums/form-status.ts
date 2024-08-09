@@ -1,3 +1,5 @@
+import {InvoiceStatus, InvoiceStatusNames} from "@/enums/invoice-status";
+
 export enum FormStatus {
     SUBMITTED = 'submitted',
     APPROVED = 'approved',
@@ -7,12 +9,17 @@ export enum FormStatus {
 }
 
 export enum PublicDirectoryFormStatus {
-    IN_PROCESS = 'In Process',
-    LIVE = 'Live',
     UNCLAIMED = 'Unclaimed',
     CLAIMED = 'Claimed',
-    PENDING = 'Pending'
 }
+
+export const PublicDirectoryFormStatusNames = {
+    [FormStatus.SUBMITTED]: 'In Process',
+    [FormStatus.APPROVED]: 'Live',
+    [FormStatus.REJECTED]: 'Rejected',
+    [FormStatus.CHANGED]: 'Changed',
+    [FormStatus.DELETED]: 'Deleted',
+};
 
 export const getApprovedFormStatus = (): FormStatus[] => {
     return [FormStatus.APPROVED, FormStatus.CHANGED];
@@ -20,4 +27,8 @@ export const getApprovedFormStatus = (): FormStatus[] => {
 
 export const getBuildableFormStatuses = (): FormStatus[] => {
     return [FormStatus.APPROVED, FormStatus.CHANGED, FormStatus.DELETED];
+};
+
+export const getPublicDirectoryFormStatusNames = <T extends FormStatus>(status: T): string => {
+    return PublicDirectoryFormStatusNames[status] || '';
 };

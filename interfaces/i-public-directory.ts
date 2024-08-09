@@ -20,8 +20,7 @@ interface IDirectoryCompanyProfile {
 
     logo_tmp?: string;
     approved_by: string;
-    created_at: string;
-    created_by: string;
-    created_date_time: string;
+    approved_date_time: string;
     status: string;
+    profile_status: string;
 }

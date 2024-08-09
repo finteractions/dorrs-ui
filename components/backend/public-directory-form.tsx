@@ -20,7 +20,7 @@ import {AssetClassType} from "@/enums/asset-class-type";
 import {RegionType} from "@/enums/region-type";
 import {NetworkType} from "@/enums/network-type";
 import AssetImage from "@/components/asset-image";
-import {PublicDirectoryFormStatus} from "@/enums/form-status";
+import {FormStatus, getApprovedFormStatus, PublicDirectoryFormStatus} from "@/enums/form-status";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -64,7 +64,7 @@ const formSchema = Yup.object().shape({
         })
         .label('Asset Listing Request'),
     additional_information: Yup.string().label('Additional Information'),
-    status: Yup.string().required('Required').label('Status')
+    profile_status: Yup.string().required('Required').label('Status')
 });
 
 interface PublicDirectoryFormState extends IState {
@@ -73,6 +73,8 @@ interface PublicDirectoryFormState extends IState {
     formInitialValues: IDirectoryCompanyProfile,
     focusedInputDateEntered: any;
     selectedFile: File | null;
+    isConfirmedApproving: boolean;
+    isApproving: boolean | null;
 }
 
 interface PublicDirectoryFormProps extends ICallback {
@@ -109,7 +111,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
             network: string[];
             asset_listing: string;
             additional_information: string;
-            status: string;
+            profile_status: string;
             logo_tmp: any;
         } = {
             id: initialData.id || null,
@@ -130,7 +132,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
             network: initialData.network || [],
             asset_listing: initialData.asset_listing || '',
             additional_information: initialData.additional_information || '',
-            status: initialData.status || '',
+            profile_status: initialData.profile_status || PublicDirectoryFormStatus.UNCLAIMED,
             logo_tmp: initialData.logo || null
         };
 
@@ -141,7 +143,9 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
             loading: false,
             isDeleting: false,
             focusedInputDateEntered: null,
-            selectedFile: null
+            selectedFile: null,
+            isApproving: null,
+            isConfirmedApproving: false,
         };
     }
 
@@ -152,8 +156,6 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
     handleSubmit = async (values: IDirectoryCompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-        this.setState({errorMessages: null});
-
         this.setState({errorMessages: null});
 
         let data = {...values};
@@ -171,7 +173,6 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
         }
-
 
         const request: Promise<any> = this.props.action == 'edit' ?
             adminService.updateDirectoryProfile(this.props.firmData?.id || 0, formData) :
@@ -200,6 +201,20 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                 this.setState({isDeleting: false});
             });
     }
+
+    handleApprove = async (values: any) => {
+        this.setState({loading: true});
+        const request: Promise<any> = adminService.approveDirectoryProfile(values.id, this.state.isApproving || false)
+
+        await request
+            .then(((res: any) => {
+                this.props.onCallback(true);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            })
+            .finally(() => this.setState({loading: false}))
+    };
 
     isShow(): boolean {
         return this.props.action === 'view';
@@ -234,15 +249,71 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                         return (
                                             <Form id="firm-form">
 
-                                                {this.isShow() && (
-                                                    <div className='approve-form'>
-                                                        <div
-                                                            className={`approve-form-text w-100 ${this.props.firmData?.created_by ? 'pt-1' : ''}`}>
-                                                            <>
-                                                                Status: {this.props.firmData?.status}
-                                                            </>
+                                                {['edit', 'view'].includes(this.props.action) && (
+                                                    <>
+
+                                                        <div className='approve-form'>
+                                                            <div
+                                                                className={`approve-form-text w-100 pt-1`}>
+                                                                <>
+                                                                    Profile
+                                                                    Status: {this.props.firmData?.profile_status}
+                                                                </>
+                                                            </div>
+                                                            <div
+                                                                className={`approve-form-text w-100 ${this.props.firmData?.approved_date_time ? 'pt-1' : ''}`}>
+                                                                <>
+                                                                    Status: {this.props.firmData?.status} by {this.props.firmData?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.firmData?.approved_date_time || '')}
+                                                                </>
+                                                            </div>
+                                                            {!getApprovedFormStatus().includes(this.props.firmData?.status.toLowerCase() as FormStatus) && (
+                                                                <div className='approve-form-confirm'>
+                                                                    {this.state.isConfirmedApproving ? (
+                                                                        <>
+                                                                            <div
+                                                                                className='approve-form-confirm-title mb-2'>Are
+                                                                                you sure you want
+                                                                                to {this.state.isApproving ? 'approve' : 'reject'}?
+                                                                            </div>
+                                                                            <button className={`b-btn ripple`}
+                                                                                    type="button"
+                                                                                    onClick={() => this.handleApprove(this.props.firmData)}>Confirm
+                                                                            </button>
+                                                                            <button
+                                                                                className={`border-btn ripple`}
+                                                                                type="button"
+                                                                                onClick={() => this.setState({
+                                                                                    isConfirmedApproving: false,
+                                                                                    isApproving: null
+                                                                                })}>Cancel
+                                                                            </button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <button className={`b-btn ripple`}
+                                                                                    type="button"
+                                                                                    onClick={() => this.setState({
+                                                                                        isConfirmedApproving: true,
+                                                                                        isApproving: true
+                                                                                    })}>Approve
+                                                                            </button>
+                                                                            <button
+                                                                                className={`border-btn ripple`}
+                                                                                type="button"
+                                                                                onClick={() => this.setState({
+                                                                                    isConfirmedApproving: true,
+                                                                                    isApproving: false
+                                                                                })}>Reject
+                                                                            </button>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
                                                         </div>
-                                                    </div>
+
+                                                    </>
+
                                                 )}
                                                 <div className="input">
                                                     <div
@@ -348,7 +419,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 {values.company_type === CompanyType.OTHER && (
                                                     <div className="input">
                                                         <div
-                                                            className="input__title">Fill Company Type <i>*</i>
+                                                            className="input__title">Other Company Type <i>*</i>
                                                         </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -678,12 +749,12 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                     <>
                                                         <hr/>
                                                         <div className="input">
-                                                            <div className="input__title">Status <i>*</i></div>
+                                                            <div className="input__title">Profile Status <i>*</i></div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                 <Field
-                                                                    name="status"
-                                                                    id="status"
+                                                                    name="profile_status"
+                                                                    id="profile_status"
                                                                     as="select"
                                                                     className="b-select"
                                                                     disabled={isSubmitting || this.isShow()}
@@ -696,7 +767,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                                         </option>
                                                                     ))}
                                                                 </Field>
-                                                                <ErrorMessage name="status"
+                                                                <ErrorMessage name="profile_status"
                                                                               component="div"
                                                                               className="error-message"/>
                                                             </div>

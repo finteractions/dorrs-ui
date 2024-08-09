@@ -536,6 +536,7 @@ body {
     .input__wrap {
       position: relative;
       word-break: break-word;
+      padding-bottom: 0;
 
       .table {
         tbody {
@@ -769,7 +770,7 @@ body {
     .b-select-search {
       font-weight: 400;
       font-size: 14px;
-      height: 35px;
+      min-height: 35px;
       color: #718494;
 
       .select__react__control {
@@ -2698,12 +2699,16 @@ body {
       background: #3d7da2
     }
 
+    .table__status.table__status-inprocess:before {
+      background: #3d7da2
+    }
+
     .table__status.table__status-rejected:before {
       background: #cb3d34
     }
 
     .table__status.table__status-unclaimed:before {
-      background: #cb3d34
+      background: #FFA800
     }
 
     .table__status.table__status-deleted:before {
@@ -2728,6 +2733,14 @@ body {
 
     .table__status.table__status-claimed:before {
       background: #34cb68
+    }
+
+    .color-approved {
+      color: var(--colour-green);
+    }
+
+    .color-pending, .color-submitted {
+      color: #3d7da2;
     }
 
     @media(max-width: 1299px) {
@@ -3063,7 +3076,7 @@ body {
           &.view__input__box {
             .input__wrap {
               border-bottom: 1px solid #ddd;
-              padding-bottom: 5px;
+              //padding-bottom: 5px;
               min-height: 25px;
               margin-top: auto;
             }
@@ -4867,11 +4880,13 @@ a.block-link {
 .public-directory {
 
   .tag-block {
-    max-width: 500px;
+    //max-width: 500px;
     width: 100%;
     gap: 10px;
     display: flex;
+    flex-wrap: wrap;
     margin-left: 10px;
+    margin-right: 10px;
 
     .tag {
       padding: 5px;
@@ -4946,14 +4961,15 @@ a.block-link {
           flex: 1 1 100%;
           display: flex;
           height: auto !important;
-          padding-top: 15px!important;
-          padding-bottom: 15px!important;
+          padding-top: 15px !important;
+          padding-bottom: 15px !important;
 
-          &:nth-of-type(2){
-            flex: 1 1 50%;
+          &:nth-of-type(2) {
+            flex: 1 1 80%;
           }
+
           &:last-child {
-          flex: 0;
+            flex: 0;
             justify-items: center;
             align-items: center;
           }
@@ -4961,4 +4977,8 @@ a.block-link {
       }
     }
   }
+}
+
+.margin-left-10 {
+  margin-left: 10px;
 }

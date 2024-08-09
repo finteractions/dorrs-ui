@@ -2904,12 +2904,16 @@
     background: #3d7da2
   }
 
+  .table__status.table__status-inprocess:before {
+    background: #3d7da2
+  }
+
   .table__status.table__status-rejected:before {
     background: #cb3d34
   }
 
   .table__status.table__status-unclaimed:before {
-    background: #cb3d34
+    background: #FFA800
   }
 
   .table__status.table__status-claimed:before {
@@ -4776,7 +4780,7 @@
   .b-select-search {
     font-weight: 400;
     font-size: 14px;
-    height: 35px;
+    min-height: 35px;
     color: #718494;
 
     .select__react__control {

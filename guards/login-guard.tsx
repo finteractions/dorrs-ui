@@ -8,7 +8,7 @@ import {AuthAdminContext} from "@/contextes/auth-admin-context";
 export default function loginGuard<P extends {}>(
     Component: React.ComponentType<P>
 ) {
-    const excludedPath: Array<string> = ['/', '/email-verification', '/backend/login', '/public-dashboard']
+    const excludedPath: Array<string> = ['/', '/email-verification', '/backend/login', '/public-dashboard','/public-directory']
 
     return function WithLogin(props: P) {
         const router = useRouter();

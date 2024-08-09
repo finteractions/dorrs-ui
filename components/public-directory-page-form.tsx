@@ -47,10 +47,12 @@ const formSchema = Yup.object().shape({
     logo_tmp: Yup.mixed().required('Required')
         .test('logo_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;
+            if (typeof value === 'string') return true;
             return allowedImageExt.includes(value.name.split('.').pop().toLowerCase());
         })
         .test('logo_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
             if (!value) return true;
+            if (typeof value === 'string') return true;
             return value.size <= allowedImageFileSize;
         }),
     asset_class: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Asset Class(es)'),
@@ -121,6 +123,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             network: string[];
             asset_listing: string;
             additional_information: string;
+            logo_tmp: any;
         } = {
             id: initialData.id || null,
             first_last_name: initialData.first_last_name || '',
@@ -139,7 +142,8 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             asset_region: initialData.asset_region || [],
             network: initialData.network || [],
             asset_listing: initialData.asset_listing || '',
-            additional_information: initialData.additional_information || ''
+            additional_information: initialData.additional_information || '',
+            logo_tmp: initialData.logo || null
         };
 
         this.setState({formInitialValues: initialValues})
@@ -179,7 +183,6 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
             formData.append('logo', this.state.selectedFile);
         }
 
-
         const request: Promise<any> = this.props.action == 'edit' ?
             publicDirectoryService.updateCompanyProfile(formData, this.state.formInitialValues?.id || 0) :
             publicDirectoryService.createCompanyProfile(formData)
@@ -187,12 +190,13 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
         await request
             .then(((res: any) => {
                 // this.props.onCallback(this.symbol?.symbol, 'view');
+                this.props.onCallback(null)
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);
-                this.props.onCallback(null)
+
             });
     };
 
@@ -344,7 +348,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                     {values.company_type === CompanyType.OTHER && (
                                                         <div className="input__box">
                                                             <div
-                                                                className="input__title">Fill Company Type <i>*</i>
+                                                                className="input__title">Other Company Type <i>*</i>
                                                             </div>
                                                             <div
                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -518,14 +522,13 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                                     }}
                                                                 />
 
-                                                                {errors.logo_tmp && values.logo_tmp!== null && (
+                                                                {errors.logo_tmp && (values.logo_tmp || values.logo_tmp == '') && (
                                                                     <div
                                                                         className="error-message">{errors.logo_tmp.toString()}</div>
                                                                 )}
                                                             </div>
                                                         </div>
                                                     )}
-
                                                     <div className="input__box">
                                                         <div className="input__title">Asset Class(es)  <i>*</i></div>
                                                         <div

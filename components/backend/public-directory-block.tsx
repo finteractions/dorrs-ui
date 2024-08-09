@@ -38,7 +38,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 
 class PublicDirectoryBlock extends React.Component<{}> {
     state: PublicDirectoryBlockState;
-    getAssetsInterval: NodeJS.Timer | number | undefined;
+    getProfileInterval: NodeJS.Timer | number | undefined;
     columnDefinition: any;
     columnValues: any;
 
@@ -171,6 +171,18 @@ class PublicDirectoryBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
+            columnHelper.accessor((row) => ({
+                status: row.profile_status
+            }), {
+                id: "profile_status",
+                cell: (item) =>
+                    <div className='status-panel'>
+                        <div className={`table__status show table__status-${(item.getValue().status).toLowerCase()}`}>
+                            {item.getValue().status}
+                        </div>
+                    </div>,
+                header: () => <span>Profile Status</span>,
+            }),
         ];
 
         tableFilters = [
@@ -178,6 +190,7 @@ class PublicDirectoryBlock extends React.Component<{}> {
             {key: 'asset_region', placeholder: 'Asset Region'},
             {key: 'network', placeholder: 'Network'},
             {key: 'status', placeholder: 'Status'},
+            {key: 'profile_status', placeholder: 'Profile Status'},
         ]
     }
 
@@ -202,7 +215,9 @@ class PublicDirectoryBlock extends React.Component<{}> {
             adminService.getDirectoryProfile()
                 .then((res: Array<IDirectoryCompanyProfile>) => {
                     const data = res || [];
-
+                    data.forEach(s => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    })
                     this.handleData(data);
                 })
                 .catch((errors: IError) => {
@@ -252,11 +267,11 @@ class PublicDirectoryBlock extends React.Component<{}> {
     }
 
     startAutoUpdate(): void {
-        this.getAssetsInterval = setInterval(this.getFirms, Number(fetchIntervalSec) * 1000);
+        this.getProfileInterval = setInterval(this.getFirms, Number(fetchIntervalSec) * 1000);
     }
 
     stopAutoUpdate(): void {
-        if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
+        if (this.getProfileInterval) clearInterval(this.getProfileInterval as number);
     }
 
     openModal = (mode: string, data?: IFirm) => {

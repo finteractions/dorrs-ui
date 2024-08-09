@@ -10,6 +10,8 @@ import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {Button} from "react-bootstrap";
+import {getPublicDirectoryFormStatusNames} from "@/enums/form-status";
+import Image from "next/image";
 
 interface DirectoryBlockState extends IState {
     isLoading: boolean;
@@ -28,11 +30,13 @@ interface DirectoryBlockProps extends ICallback {
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
 let tableFilters: Array<ITableFilter> = []
+const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
 class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlockState> {
 
     state: DirectoryBlockState;
     tableRef: React.RefObject<any> = React.createRef();
+    getProfileInterval: NodeJS.Timer | number | undefined;
 
     customBtns: Array<ICustomButtonProps> = [
         {
@@ -59,42 +63,59 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
             columnHelper.accessor((row) => ({
                 company_name: row.company_name,
                 status: row.status,
+                profile_status: row.profile_status,
                 logo: row.logo,
                 network: row.network,
                 description: row.description
             }), {
                 id: "name",
                 cell: (item) =>
-                    <div className="max-width-800 view_block_main_title mb-0">
-                        <div className={"company-profile-logo"}>
-                            <AssetImage alt=''
-                                        src={item.getValue().logo}
-                                        width={60}
-                                        height={60}/>
-                        </div>
-                        <div>
-                            <div
-                                className={`mb-1 table__status show table__status-${item.getValue().status.toLowerCase()}`}>
-                                <div>{item.getValue().status.toUpperCase()}</div>
+                    <div className="d-block view_block_main_title mb-0">
+                        <div className={'d-flex gap-20 align-items-center'}>
+                            <div className={"company-profile-logo"}>
+                                <AssetImage alt=''
+                                            src={item.getValue().logo}
+                                            width={60}
+                                            height={60}/>
                             </div>
                             <div>
-                                {item.getValue().network.length > 0 && (
-                                    <div className={'mb-1'}>
-                                        <div
-                                            className={'tag-block'}>
-                                            {item.getValue().network.map((s: string, idx: number) => (
-                                                <React.Fragment
-                                                    key={idx}>
-                                                    <span className={'tag'}>{s}</span>
-                                                </React.Fragment>
-                                            ))}
+                                <div
+                                    className={`mb-1 show table__status-${(item.getValue().status).toLowerCase()}`}>
+                                    <div className={'d-flex flex-shrink-0 align-items-center'}>
+                                        <span
+                                            className={`font-weight-500 color-${(item.getValue().status).toLowerCase()}`}>
+                                            {getPublicDirectoryFormStatusNames(item.getValue().status).toUpperCase()}
+                                        </span>
+                                        {item.getValue().network.length > 0 && (
+                                            <>
+                                                <span className={'margin-left-10'}> on</span>
+                                                <div
+                                                    className={'tag-block align-items-center'}>
+                                                    {item.getValue().network.map((s: string, idx: number) => (
+                                                        <React.Fragment
+                                                            key={idx}>
+                                                            <span className={'tag'}>{s}</span>
+                                                        </React.Fragment>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+
+                                </div>
+                                <div className={'d-flex align-items-center'}>
+                                    <h3 className={'mb-0'}>{item.getValue().company_name}</h3>
+                                    <div
+                                        className={`margin-left-10 table__status show table__status-${(item.getValue().profile_status).toString().replace(/ /g, '').toLowerCase()}`}>
+                                        <div className={'d-flex flex-shrink-0 align-items-center'}>
+                                            {item.getValue().profile_status}
                                         </div>
                                     </div>
-                                )}
+                                </div>
                             </div>
-                            <div><h3>{item.getValue().company_name}</h3></div>
                         </div>
-                        <div className={'flex-row w-100'}>
+                        <div className={'flex-row w-100 mt-3'}>
                             <div>
                                 {item.getValue().description}
                             </div>
@@ -111,12 +132,12 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                 id: "asset_class_region",
                 cell: (item) =>
                     <div
-                        className={'d-flex gap-20 public-directory-col tag-block'}>
-                        <div className={'flex-1-1-100'}>
+                        className={'d-flex gap-20 public-directory-col'}>
+                        <div className={'flex-1-1-100 px-1'}>
                             <div className={'w-100 content__title'}>Asset
                                 Classes
                             </div>
-                            <div className={'w-100 content__bottom'}>
+                            <div className={'w-100 content__bottom tag-block mx-0'}>
                                 {item.getValue().asset_class.length > 0 ? (
                                     <>
                                         {item.getValue().asset_class.map((s: string, idx: number) => (
@@ -131,11 +152,11 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                                 )}
                             </div>
                         </div>
-                        <div className={'flex-1-1-100'}>
+                        <div className={'flex-1-1-100 px-1'}>
                             <div className={'w-100 content__title'}>Asset
                                 Regions
                             </div>
-                            <div className={'w-100 content__bottom'}>
+                            <div className={'w-100 content__bottom tag-block mx-0'}>
                                 {item.getValue().asset_region.length > 0 ? (
                                     <>
                                         {item.getValue().asset_region.map((s: string, idx: number) => (
@@ -159,21 +180,30 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
             {key: 'asset_class', placeholder: 'Asset Class'},
             {key: 'asset_region', placeholder: 'Asset Region'},
             {key: 'network', placeholder: 'Network'},
-            {key: 'status', placeholder: 'Status'},
+            {key: 'profile_status', placeholder: 'Status'},
         ]
     }
 
     componentDidMount() {
         this.setState({isLoading: true}, () => {
-            this.getCompanyProfile();
+            this.getFirmProfile();
         });
+        this.startAutoUpdate();
     }
 
     componentWillUnmount() {
-
+        this.stopAutoUpdate();
     }
 
-    getCompanyProfile = () => {
+    startAutoUpdate(): void {
+        this.getProfileInterval = setInterval(this.getFirmProfile, Number(fetchIntervalSec) * 1000);
+    }
+
+    stopAutoUpdate(): void {
+        if (this.getProfileInterval) clearInterval(this.getProfileInterval as number);
+    }
+
+    getFirmProfile = () => {
         publicDirectoryService.getCompanyProfile()
             .then((res: Array<IDirectoryCompanyProfile>) => {
                 const data = res || [];
@@ -270,120 +300,6 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                             </div>
 
                         </div>
-                        {/*{this.state.data?.length ? (*/}
-                        {/*    <>*/}
-                        {/*        {this.state.data*/}
-                        {/*            .map((item: IDirectoryCompanyProfile, index: number) => (*/}
-                        {/*                <React.Fragment key={index}>*/}
-                        {/*                    <div className="flex-panel-box public-directory panel mb-4">*/}
-                        {/*                        <div*/}
-                        {/*                            className="panel d-flex justify-content-between align-items-center">*/}
-                        {/*                            <div*/}
-                        {/*                                className="content__bottom d-flex justify-content-between w-100">*/}
-                        {/*                                <div className="d-flex gap-20 w-100">*/}
-                        {/*                                    <div*/}
-                        {/*                                        className="blocks w-100 d-flex justify-content-between gap-20">*/}
-                        {/*                                        <div className={''}>*/}
-                        {/*                                            <div className="view_block_main_title mb-0">*/}
-                        {/*                                                <div className={"company-profile-logo"}>*/}
-                        {/*                                                    <AssetImage alt=''*/}
-                        {/*                                                                src={item.logo}*/}
-                        {/*                                                                width={60}*/}
-                        {/*                                                                height={60}/>*/}
-                        {/*                                                </div>*/}
-                        {/*                                                <div>*/}
-                        {/*                                                    <div*/}
-                        {/*                                                        className={`table__status show table__status-${item.status.toLowerCase()}`}>*/}
-                        {/*                                                        {item.status.toUpperCase()}*/}
-                        {/*                                                        {item.network.length && (*/}
-                        {/*                                                            <>*/}
-                        {/*                                                                <div className={'mx-2'}> on*/}
-                        {/*                                                                </div>*/}
-                        {/*                                                                <div*/}
-                        {/*                                                                    className={'tag-block'}>*/}
-                        {/*                                                                    {item.network.map((s: string, idx: number) => (*/}
-                        {/*                                                                        <React.Fragment*/}
-                        {/*                                                                            key={idx}>*/}
-                        {/*                                                                    <span*/}
-                        {/*                                                                        className={'tag'}>{s}</span>*/}
-                        {/*                                                                        </React.Fragment>*/}
-                        {/*                                                                    ))}*/}
-                        {/*                                                                </div>*/}
-                        {/*                                                            </>*/}
-                        {/*                                                        )}*/}
-                        {/*                                                    </div>*/}
-                        {/*                                                    <h3>{item.name}</h3>*/}
-                        {/*                                                </div>*/}
-                        {/*                                                <div className={'flex-row w-100'}>*/}
-                        {/*                                                    <div>*/}
-                        {/*                                                        {item.description}*/}
-                        {/*                                                    </div>*/}
-                        {/*                                                </div>*/}
-                        {/*                                            </div>*/}
-                        {/*                                        </div>*/}
-                        {/*                                        <div*/}
-                        {/*                                            className={'d-flex gap-20 public-directory-col tag-block'}>*/}
-                        {/*                                            <div className={'flex-1-1-100'}>*/}
-                        {/*                                                <div className={'w-100 content__title'}>Asset*/}
-                        {/*                                                    Classes*/}
-                        {/*                                                </div>*/}
-                        {/*                                                <div className={'w-100 content__bottom'}>*/}
-                        {/*                                                    {item.asset_class.length ? (*/}
-                        {/*                                                        <>*/}
-                        {/*                                                            {item.asset_class.map((s: string, idx: number) => (*/}
-                        {/*                                                                <React.Fragment key={idx}>*/}
-                        {/*                                                                    <span*/}
-                        {/*                                                                        className={'tag'}>{s}</span>*/}
-                        {/*                                                                </React.Fragment>*/}
-                        {/*                                                            ))}*/}
-                        {/*                                                        </>*/}
-                        {/*                                                    ) : (*/}
-                        {/*                                                        <>-</>*/}
-                        {/*                                                    )}*/}
-                        {/*                                                </div>*/}
-                        {/*                                            </div>*/}
-                        {/*                                            <div className={'flex-1-1-100'}>*/}
-                        {/*                                                <div className={'w-100 content__title'}>Asset*/}
-                        {/*                                                    Region*/}
-                        {/*                                                </div>*/}
-                        {/*                                                <div className={'w-100 content__bottom'}>*/}
-                        {/*                                                    {item.asset_region.length ? (*/}
-                        {/*                                                        <>*/}
-                        {/*                                                            {item.asset_region.map((s: string, idx: number) => (*/}
-                        {/*                                                                <React.Fragment key={idx}>*/}
-                        {/*                                                                    <span*/}
-                        {/*                                                                        className={'tag'}>{s}</span>*/}
-                        {/*                                                                </React.Fragment>*/}
-                        {/*                                                            ))}*/}
-                        {/*                                                        </>*/}
-                        {/*                                                    ) : (*/}
-                        {/*                                                        <>-</>*/}
-                        {/*                                                    )}*/}
-                        {/*                                                </div>*/}
-                        {/*                                            </div>*/}
-                        {/*                                        </div>*/}
-                        {/*                                        <div*/}
-                        {/*                                            className={'d-flex public-directory-col align-items-center justify-content-center'}>*/}
-                        {/*                                            <Link*/}
-                        {/*                                                className={'b-btn ripple d-flex align-items-center align-self-center'}*/}
-                        {/*                                                target={'_blank'}*/}
-                        {/*                                                href={item.website_link}>*/}
-                        {/*                                                <span>Website</span>*/}
-                        {/*                                            </Link>*/}
-                        {/*                                        </div>*/}
-                        {/*                                    </div>*/}
-                        {/*                                </div>*/}
-                        {/*                            </div>*/}
-                        {/*                        </div>*/}
-                        {/*                    </div>*/}
-                        {/*                </React.Fragment>*/}
-                        {/*            ))}*/}
-                        {/*    </>*/}
-                        {/*) : (*/}
-                        {/*    <div className={'flex-column'}>*/}
-                        {/*        <NoDataBlock/>*/}
-                        {/*    </div>*/}
-                        {/*)}*/}
                     </>
                 )}
             </>
