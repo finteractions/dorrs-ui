@@ -10,7 +10,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import Table from "@/components/table/table";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {Button} from "react-bootstrap";
-import {getPublicDirectoryFormStatusNames} from "@/enums/form-status";
+import {FormStatus, getPublicDirectoryFormStatusNames} from "@/enums/form-status";
 import Image from "next/image";
 
 interface DirectoryBlockState extends IState {
@@ -83,12 +83,12 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                                     className={`mb-1 show table__status-${(item.getValue().status).toLowerCase()}`}>
                                     <div className={'d-flex flex-shrink-0 align-items-center'}>
                                         <span
-                                            className={`font-weight-500 color-${(item.getValue().status).toLowerCase()}`}>
+                                            className={`flex-shrink-0 font-weight-500 color-${(item.getValue().status).toLowerCase()}`}>
                                             {getPublicDirectoryFormStatusNames(item.getValue().status).toUpperCase()}
                                         </span>
-                                        {item.getValue().network.length > 0 && (
+                                        {item.getValue().network.length > 0 && item.getValue().status === FormStatus.APPROVED && (
                                             <>
-                                                <span className={'margin-left-10'}> on</span>
+                                                <span className={'flex-shrink-0 margin-left-10'}> on</span>
                                                 <div
                                                     className={'tag-block align-items-center'}>
                                                     {item.getValue().network.map((s: string, idx: number) => (
