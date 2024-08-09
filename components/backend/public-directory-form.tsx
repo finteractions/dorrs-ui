@@ -57,12 +57,7 @@ const formSchema = Yup.object().shape({
     asset_class: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Asset Class(es)'),
     asset_region: Yup.array().of(Yup.string()).label('Asset Region(s)'),
     network: Yup.array().of(Yup.string()).label('Network(s)'),
-    asset_listing: Yup.string().min(3).label('Asset Listing Request')
-        .when('company_type', {
-            is: (v: string) => v === CompanyType.ISSUER,
-            then: (schema) => schema.required('Required')
-        })
-        .label('Asset Listing Request'),
+    asset_listing: Yup.string().label('Asset Listing Request').label('Asset Listing Request'),
     additional_information: Yup.string().label('Additional Information'),
     profile_status: Yup.string().required('Required').label('Status')
 });
@@ -439,6 +434,29 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                     </div>
                                                 )}
 
+                                                {values.company_type === CompanyType.ISSUER && (
+                                                    <div className="input">
+                                                        <div
+                                                            className="input__title">Asset Listing Request
+                                                        </div>
+                                                        <div
+                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                            <Field
+                                                                name="asset_listing"
+                                                                id="asset_listing"
+                                                                type="text"
+                                                                className="input__text no-bg"
+                                                                placeholder="Option to Issuer to list private securities and digital asset securities on the DORRS platform"
+                                                                disabled={isSubmitting || this.isShow()}
+                                                            />
+                                                            <ErrorMessage
+                                                                name="asset_listing"
+                                                                component="div"
+                                                                className="error-message"/>
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 <div className="input">
                                                     <div
                                                         className="input__title">Title <i>*</i>
@@ -697,29 +715,6 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
-
-                                                {values.company_type === CompanyType.ISSUER && (
-                                                    <div className="input">
-                                                        <div
-                                                            className="input__title">Asset Listing Request <i>*</i>
-                                                        </div>
-                                                        <div
-                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                            <Field
-                                                                name="asset_listing"
-                                                                id="asset_listing"
-                                                                type="text"
-                                                                className="input__text no-bg"
-                                                                placeholder="Option to Issuer to list private securities and digital asset securities on the DORRS platform"
-                                                                disabled={isSubmitting || this.isShow()}
-                                                            />
-                                                            <ErrorMessage
-                                                                name="asset_listing"
-                                                                component="div"
-                                                                className="error-message"/>
-                                                        </div>
-                                                    </div>
-                                                )}
 
                                                 <div className="input">
                                                     <div
