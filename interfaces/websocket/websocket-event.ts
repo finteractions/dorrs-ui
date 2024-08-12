@@ -1,4 +1,7 @@
 export const WebsocketEvent = {
+    LOGIN: 'login',
+    LOGOUT: 'logout',
+
     SUBSRIBE_DEPTH: 'subscribe-depth',
     UNSUBSCRIBE_DEPTH: 'unsubscribe-depth',
     DEPTH: 'depth',

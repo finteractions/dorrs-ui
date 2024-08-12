@@ -2,10 +2,14 @@ import React from "react";
 import jwtService from "@/services/jwt/jwt-service";
 import cookieService from "@/services/cookie/cookie-service";
 import {AUTH_USER_ACCESS_TOKEN, AUTH_USER_REFRESH_TOKEN} from "@/constants/settings";
+import {Subscription} from "rxjs";
+import websocketService from "@/services/websocket/websocket-service";
 
 const AuthUserContext = React.createContext<any>(null);
 const {Provider} = AuthUserContext;
 
+let websocketSubscription: Subscription | null = null;
+let loggedIn = false
 const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
     const [authState, setAuthState] = React.useState<IAuthState>({
         token: null,
@@ -50,6 +54,9 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
             token_type: null,
             user_id: null,
         });
+        if (loggedIn) websocketService?.logout();
+        loggedIn = false
+        websocketSubscription?.unsubscribe();
     };
 
     const isAuthenticated = (): boolean => {
@@ -68,11 +75,31 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
     const accessTokenFromCookie = cookieService.getItem(AUTH_USER_ACCESS_TOKEN);
     const refreshTokenFromCookie = cookieService.getItem(AUTH_USER_REFRESH_TOKEN);
 
+    const login = () => {
+        if (authState.token && websocketService.isSocketOpen && !loggedIn) {
+            loggedIn = true
+            websocketService.login(authState.token);
+        }
+    };
+
     React.useEffect(() => {
         if (accessTokenFromCookie && refreshTokenFromCookie) {
+            login();
             setAuthInfo({access_token: accessTokenFromCookie, refresh_token: refreshTokenFromCookie});
         }
     }, [accessTokenFromCookie, refreshTokenFromCookie]);
+
+    React.useEffect(() => {
+        websocketSubscription = websocketService.isOpen.subscribe((isOpen: boolean) => {
+            if (isOpen) {
+                login();
+            }
+        });
+
+        return () => {
+            websocketSubscription?.unsubscribe();
+        };
+    }, [authState]);
 
     return (
         <Provider

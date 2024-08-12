@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useResizeDetector} from "react-resize-detector";
 import PublicHeader from "@/components/layouts/public/public-header";
-import publicWrapper from "@/wrappers/public-wrapper";
 
 type PortalLayoutProps = {
     children: React.ReactNode;
@@ -89,4 +88,4 @@ function PublicLayoutWrapper({children}: PortalLayoutProps) {
     );
 }
 
-export default publicWrapper(PublicLayoutWrapper);
+export default PublicLayoutWrapper;

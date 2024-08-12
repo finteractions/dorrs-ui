@@ -10,6 +10,7 @@ class WebSocketService extends BaseService {
     public isOpen: Observable<boolean> = this.isOpenSubject.asObservable();
     private messagesSubject = new Subject();
     private reconnect = true;
+    public isSocketOpen: boolean = false;
 
     constructor() {
         super();
@@ -32,6 +33,7 @@ class WebSocketService extends BaseService {
 
             this.socket.onopen = () => {
                 console.log('WebSocket connected');
+                this.isSocketOpen = true;
                 this.isOpenSubject.next(true);
                 attempts = 0;
             };
@@ -41,8 +43,9 @@ class WebSocketService extends BaseService {
             };
             this.socket.onclose = () => {
                 console.log('WebSocket disconnected');
-                this.socket = null;
+                this.isSocketOpen = false;
                 this.isOpenSubject.next(false);
+                this.socket = null;
 
                 if (this.reconnect && attempts < maxAttempts) {
                     attempts++;
@@ -64,6 +67,22 @@ class WebSocketService extends BaseService {
             this.isOpenSubject.next(false);
             this.reconnect = reconnect;
         }
+    }
+
+    public login(token: string): void {
+        const message = {
+            type: WebsocketEvent.LOGIN,
+            token: token
+        }
+        this.sendMessage(message)
+    }
+
+    public logout(): void {
+        const message = {
+            type: WebsocketEvent.LOGOUT,
+        }
+
+        this.sendMessage(message)
     }
 
     public subscribeOnDepthOfBook(symbol: string): void {

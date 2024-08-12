@@ -1,7 +1,6 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext} from "react";
 import {DataContext} from "@/contextes/data-context";
 import LoaderBlock from "@/components/loader-block";
-import websocketService from "@/services/websocket/websocket-service";
 
 
 export default function layoutWrapper<P extends {}>(
@@ -9,10 +8,6 @@ export default function layoutWrapper<P extends {}>(
 ) {
     return function Init(props: P) {
         const dataContext = useContext(DataContext);
-
-        useEffect(() => {
-            if (!dataContext.userProfileLoading) websocketService.initWebSocket();
-        }, [dataContext]);
 
         return (
             <>
