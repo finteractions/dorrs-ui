@@ -1586,14 +1586,14 @@ body {
           cursor: pointer;
 
           svg {
-            path, rect {
+            path, rect, circle {
               transition: 0.15s ease-in-out;
             }
           }
 
           &:hover {
             svg {
-              path, rect {
+              path, rect, circle {
                 fill: var(--text-colour-1);
               }
             }
@@ -1621,7 +1621,7 @@ body {
           column-gap: 10px;
 
           svg {
-            path, rect {
+            path, rect, circle {
               transition: 0.15s ease-in-out;
             }
           }
@@ -1631,7 +1631,7 @@ body {
             background-color: transparent;
 
             svg {
-              path, rect {
+              path, rect, circle {
                 fill: var(--text-colour-1);
               }
             }
