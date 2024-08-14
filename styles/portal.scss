@@ -2431,6 +2431,8 @@ body {
 
           .select__react__value-container {
             padding: 2px 0 2px 5px;
+            display: flex;
+            flex-wrap: nowrap;
           }
 
           .select__react__indicators {
@@ -4953,7 +4955,7 @@ a.block-link {
 
   .flex-table {
     tbody {
-      tr {
+      tr:not(.tr-no-data) {
         display: flex;
         //justify-content: space-between;
 

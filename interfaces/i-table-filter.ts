@@ -1,5 +1,5 @@
 interface ITableFilter {
     key: string;
     placeholder: string;
-    type?: string;
+    type?: 'datePickerRange' | 'multiSelect';
 }

@@ -44,9 +44,8 @@ interface TableRef {
     getColumnFilters?: () => { [key: string]: string };
 }
 
-const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string }) => {
+const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string | Array<string> }) => {
     searchValue = searchValue?.trim();
-
     const originalColumns = new Set<string>();
 
     Object.keys(columnFilters).forEach((key: string) => {
@@ -79,17 +78,38 @@ const filterData = (data: any[], searchValue: string, columnFilters: { [key: str
         data = data.filter((rowData) => {
             const columnKeys = Object.keys(columnFilters);
 
-
             if (columnKeys.length > 0) {
                 return columnKeys.every((columnKey) => {
                     const [rowKey, nestedKey] = columnKey.split('.');
-
                     const value = typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
 
                     const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
 
-                    if (Array.isArray(rowData[rowKey]) && columnFilters[rowKey]) {
-                        return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey])
+                    if (Array.isArray(rowData[rowKey])) {
+                        switch (typeof columnFilters[rowKey]) {
+                            case "string":
+                                return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
+                            case "object":
+                                const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
+                                if (values.length > 0) {
+                                    return values.some(filterValue => {
+                                        return (rowData[rowKey] as Array<string>).includes(filterValue)
+                                    });
+                                } else {
+                                    return data
+                                }
+                        }
+                    } else if (Array.isArray(rowData[rowKey]) && typeof columnFilters[rowKey] === 'string') {
+                        return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
+                    } else if (typeof rowData[rowKey] === 'string' && Array.isArray(columnFilters[rowKey])) {
+                        const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
+                        if (values.length > 0) {
+                            return values.some(filterValue => {
+                                return rowData[rowKey] as string === filterValue
+                            });
+                        } else {
+                            return data
+                        }
                     }
 
                     const startDate = (columnFilters[columnKey] as any).startDate;
@@ -215,7 +235,9 @@ const Table = forwardRef<TableRef, ITableProps>(({
             </>
         );
     };
-    const renderFilterSelect = (filterKey: string, placeholder: string) => {
+    const renderFilterSelect = (filterKey: string, placeholder: string, type?: string) => {
+        const isMulti = type && type === "multiSelect";
+
         const selectOptionsSet = new Set();
         originalData.forEach((dataItem: any) => {
             const value = dataItem[filterKey];
@@ -228,17 +250,34 @@ const Table = forwardRef<TableRef, ITableProps>(({
         const value = columnFilters[filterKey] ?? '';
 
         return (
-            <Select
-                key={filterKey}
-                className="select__react"
-                classNamePrefix="select__react"
-                isClearable={true}
-                isSearchable={true}
-                value={value ? {value, label: value} : null}
-                onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption?.value ?? '')}
-                placeholder={placeholder}
-                options={selectOptions}
-            />
+            <>
+                {!isMulti ? (
+                    <Select
+                        key={filterKey}
+                        className="select__react"
+                        classNamePrefix="select__react"
+                        isClearable={true}
+                        isSearchable={true}
+                        value={value ? {value, label: value} : null}
+                        onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption?.value ?? '')}
+                        placeholder={placeholder}
+                        options={selectOptions}
+                    />
+                ) : (
+                    <Select
+                        key={filterKey}
+                        className="select__react"
+                        classNamePrefix="select__react"
+                        isClearable={true}
+                        isSearchable={true}
+                        isMulti={true}
+                        value={value ? value : []}
+                        onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption ?? [])}
+                        placeholder={placeholder}
+                        options={selectOptions as any}
+                    />
+                )}
+            </>
         );
     };
 
@@ -360,7 +399,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
                                                 ) : (
                                                     <>
-                                                        {renderFilterSelect(filter.key, filter.placeholder)}
+                                                        {renderFilterSelect(filter.key, filter.placeholder, filter.type)}
                                                     </>
                                                 )}
                                                 {index === filters.length - 1 && (
@@ -515,7 +554,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                         </tr>
                                     ))}
                                     {rows.length === 0 && (
-                                        <tr>
+                                        <tr className={'tr-no-data'}>
                                             <td colSpan={20}>
                                                 <NoDataBlock primaryText={' '}
                                                              secondaryText={'No data available'}/>

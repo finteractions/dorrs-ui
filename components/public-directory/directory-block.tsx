@@ -11,7 +11,6 @@ import Table from "@/components/table/table";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {Button} from "react-bootstrap";
 import {FormStatus, getPublicDirectoryFormStatusNames} from "@/enums/form-status";
-import Image from "next/image";
 
 interface DirectoryBlockState extends IState {
     isLoading: boolean;
@@ -177,9 +176,9 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
         ];
 
         tableFilters = [
-            {key: 'asset_class', placeholder: 'Asset Class'},
-            {key: 'asset_region', placeholder: 'Asset Region'},
-            {key: 'network', placeholder: 'Network'},
+            {key: 'asset_class', placeholder: 'Asset Classes', type: 'multiSelect'},
+            {key: 'asset_region', placeholder: 'Asset Regions', type: 'multiSelect'},
+            {key: 'network', placeholder: 'Live Protocols', type: 'multiSelect'},
             {key: 'profile_status', placeholder: 'Status'},
         ]
     }
@@ -291,7 +290,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                                                customBtnProps={this.customBtns}
                                                filtersClassName={this.state.filtersClassName}
                                                rowProps={this.state.rowProps}
-                                               className={'no-transponse'}
+                                               className={`no-transponse`}
                                         />
                                     ) : (
                                         <NoDataBlock/>

@@ -186,9 +186,9 @@ class PublicDirectoryBlock extends React.Component<{}> {
         ];
 
         tableFilters = [
-            {key: 'asset_class', placeholder: 'Asset Class'},
-            {key: 'asset_region', placeholder: 'Asset Region'},
-            {key: 'network', placeholder: 'Live Protocol'},
+            {key: 'asset_class', placeholder: 'Asset Classes', type: 'multiSelect'},
+            {key: 'asset_region', placeholder: 'Asset Regions', type: 'multiSelect'},
+            {key: 'network', placeholder: 'Live Protocols', type: 'multiSelect'},
             {key: 'status', placeholder: 'Status'},
             {key: 'profile_status', placeholder: 'Profile Status'},
         ]
