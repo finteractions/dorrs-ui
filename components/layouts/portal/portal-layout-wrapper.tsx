@@ -12,7 +12,7 @@ type PortalLayoutProps = {
 
 function PortalLayoutWrapper({children}: PortalLayoutProps) {
     const [isShowSidebar, setIsShowSidebar] = useState(false);
-
+    let loaded = false;
     // Show status for md screen and above
     const [isShowSidebarMd, setIsShowSidebarMd] = useState(true);
 
@@ -81,10 +81,11 @@ function PortalLayoutWrapper({children}: PortalLayoutProps) {
     }, []);
 
     useEffect(() => {
-        if (!authUserContext.isAuthenticated()) {
+        if (!authUserContext.isAuthenticated() && !loaded) {
             toggleIsShowSidebarMd();
+            loaded = true;
         }
-    }, [authUserContext]);
+    }, []);
 
     return (
         <div className="portal">
