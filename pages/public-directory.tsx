@@ -1,8 +1,8 @@
 import React, { ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
-import {GetLayout, LayoutNameProvider} from "@/components/layouts/utils/layout-utils";
 import DirectoryBlock from "@/components/public-directory/directory-block";
 import {useRouter} from "next/router";
+import PortalLayout from "@/components/layouts/portal/portal-layout";
 
 const PublicDirectory: NextPageWithLayout = () => {
     const router = useRouter();
@@ -20,12 +20,12 @@ const PublicDirectory: NextPageWithLayout = () => {
 
 PublicDirectory.getLayout = function getLayout(page: ReactElement) {
     return (
-        <LayoutNameProvider>
-            <GetLayout page={page} />
-        </LayoutNameProvider>
+        <PortalLayout>
+            {page}
+        </PortalLayout>
     );
 };
 
-PublicDirectory.layoutName = "PublicLayout";
+PublicDirectory.layoutName = "PortalLayout";
 
 export default PublicDirectory;

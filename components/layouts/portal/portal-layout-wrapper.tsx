@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import PortalHeader from "./portal-header";
 import layoutWrapper from "@/wrappers/layout-wrapper";
 import PortalSidebar from "@/components/layouts/portal/sidebar/portal-sidebar";
-import { useResizeDetector } from "react-resize-detector";
-import { SidebarOverlay } from "@/components/layouts/backend/sidebar/sidebar";
+import {useResizeDetector} from "react-resize-detector";
+import {SidebarOverlay} from "@/components/layouts/backend/sidebar/sidebar";
+import {AuthUserContext} from "@/contextes/auth-user-context";
 
 type PortalLayoutProps = {
     children: React.ReactNode;
 };
 
-function PortalLayoutWrapper({ children }: PortalLayoutProps) {
+function PortalLayoutWrapper({children}: PortalLayoutProps) {
     const [isShowSidebar, setIsShowSidebar] = useState(false);
 
     // Show status for md screen and above
@@ -60,8 +61,9 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
         };
     }, []);
 
-    const { ref } = useResizeDetector({ onResize });
+    const {ref} = useResizeDetector({onResize});
 
+    const authUserContext = useContext(AuthUserContext)
     // On first time load only
     useEffect(() => {
         if (localStorage.getItem("isPortalShowSidebarMd")) {
@@ -78,9 +80,15 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
         };
     }, []);
 
+    useEffect(() => {
+        if (!authUserContext.isAuthenticated()) {
+            toggleIsShowSidebarMd();
+        }
+    }, [authUserContext]);
+
     return (
         <div className="portal">
-            <div ref={ref} className="position-absolute w-100" />
+            <div ref={ref} className="position-absolute w-100"/>
             <PortalSidebar
                 isShow={isShowSidebar}
                 isShowMd={isShowSidebarMd}
@@ -88,7 +96,7 @@ function PortalLayoutWrapper({ children }: PortalLayoutProps) {
             />
 
             <div className={"wrapper d-flex flex-column min-vh-100"}>
-                <PortalHeader toggleSidebar={toggleIsShowSidebar} />
+                <PortalHeader toggleSidebar={toggleIsShowSidebar}/>
                 <div className="content">
                     <div className="container-fluid">{children}</div>
                 </div>

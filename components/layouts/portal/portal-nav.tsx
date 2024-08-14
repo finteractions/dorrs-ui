@@ -1,6 +1,5 @@
 import React, {PropsWithChildren, useContext} from "react"
 import Link from "next/link"
-import Image from 'next/image'
 import {AuthUserContext} from "@/contextes/auth-user-context";
 import {DataContext} from "@/contextes/data-context";
 import {AuthAdminContext} from "@/contextes/auth-admin-context";

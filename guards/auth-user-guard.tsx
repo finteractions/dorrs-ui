@@ -4,6 +4,7 @@ import {AuthUserContext} from "@/contextes/auth-user-context";
 import React from "react";
 import LoaderBlock from "@/components/loader-block";
 import {AuthAdminContext} from "@/contextes/auth-admin-context";
+import {publicPages} from "@/constants/public-pages";
 
 export default function authUserGuard<P extends {}>(
     Component: React.ComponentType<P>
@@ -16,16 +17,18 @@ export default function authUserGuard<P extends {}>(
         const [isRedirected, setIsRedirected] = useState(false);
 
         useEffect(() => {
-
             const checkAuth = () => {
-                if (!authUserContext.isAuthenticated() && !isRedirected) {
-                    router.push("/login")
-                    authUserContext?.clearAuthInfo();
-                    authAdminContext?.clearAuthInfo();
-                    setIsRedirected(true);
-                } else {
-                    setIsLoading(false);
-                }
+                setTimeout(() => {
+                    if (!authUserContext.isAuthenticated() && !isRedirected) {
+                        const path = !publicPages.includes(router.pathname) ? '/login' : router.pathname;
+                        authUserContext?.clearAuthInfo();
+                        authAdminContext?.clearAuthInfo();
+                        setIsRedirected(true);
+                        router.push(path)
+                    } else {
+                        setIsLoading(false);
+                    }
+                })
             }
 
             checkAuth();
@@ -40,10 +43,10 @@ export default function authUserGuard<P extends {}>(
 
         return (
             <>
-                {isLoading || !authUserContext.isAuthenticated() ? (
-                   <div className="pre-loader">
-                       <LoaderBlock/>
-                   </div>
+                {isLoading ? (
+                    <div className="pre-loader">
+                        <LoaderBlock/>
+                    </div>
                 ) : (
                     <Component {...props} />
                 )}

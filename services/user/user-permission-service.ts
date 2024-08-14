@@ -24,8 +24,8 @@ function getAccessRulesByKey(key: string, access_matrix: any[]) {
 }
 
 function filterMenuByAccess(menu: any[], access_matrix: any[]) {
-    const allowed_keys = access_matrix.filter(rule => rule.values.view).map(rule => rule.key);
-    return menu.filter(item => !item.permission_key || allowed_keys.includes(item.permission_key));
+    const allowed_keys = access_matrix?.filter(rule => rule.values.view).map(rule => rule.key);
+    return menu.filter(item => !item.permission_key || allowed_keys?.includes(item.permission_key));
 }
 
 const userPermissionService = {

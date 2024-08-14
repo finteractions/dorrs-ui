@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import type { NextPageWithLayout } from "./_app";
 import DashboardBlock from "@/components/public-dashboard/dashboard-block";
-import {GetLayout, LayoutNameProvider} from "@/components/layouts/utils/layout-utils";
+import PortalLayout from "@/components/layouts/portal/portal-layout";
 
 
 const PublicDashboard: NextPageWithLayout = () => {
@@ -14,12 +14,12 @@ const PublicDashboard: NextPageWithLayout = () => {
 
 PublicDashboard.getLayout = function getLayout(page: ReactElement) {
     return (
-        <LayoutNameProvider>
-            <GetLayout page={page} />
-        </LayoutNameProvider>
+        <PortalLayout>
+            {page}
+        </PortalLayout>
     );
 };
 
-PublicDashboard.layoutName = "PublicLayout";
+PublicDashboard.layoutName = "PortalLayout";
 
 export default PublicDashboard;

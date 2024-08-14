@@ -2,7 +2,7 @@ import {NextPageWithLayout} from "@/pages/_app";
 import React, {ReactElement} from "react";
 import {useRouter} from "next/router";
 import PublicDirectoryPageForm from "@/components/public-directory-page-form";
-import {GetLayout, LayoutNameProvider} from "@/components/layouts/utils/layout-utils";
+import PortalLayout from "@/components/layouts/portal/portal-layout";
 
 const Add: NextPageWithLayout = () => {
 
@@ -20,9 +20,9 @@ const Add: NextPageWithLayout = () => {
 
 Add.getLayout = function getLayout(page: ReactElement) {
     return (
-        <LayoutNameProvider>
-            <GetLayout page={page} />
-        </LayoutNameProvider>
+        <PortalLayout>
+            {page}
+        </PortalLayout>
     );
 }
 

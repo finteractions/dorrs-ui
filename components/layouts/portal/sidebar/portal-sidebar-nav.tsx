@@ -8,6 +8,7 @@ import {AuthAdminContext} from "@/contextes/auth-admin-context";
 import {useRouter} from "next/router";
 import userPermissionService from "@/services/user/user-permission-service";
 import {DataContext} from "@/contextes/data-context";
+import {AuthUserContext} from "@/contextes/auth-user-context";
 
 type PortalSidebarNavItemProps = {
     href: string;
@@ -25,8 +26,8 @@ interface MenuItem {
     href: string;
     icon: string
     submenus: Array<Submenu>;
-    onlyAdmin: boolean;
     permission_key: string;
+    isPublic: boolean;
 }
 
 const MENU_LIST: MenuItem[] = [
@@ -35,112 +36,112 @@ const MENU_LIST: MenuItem[] = [
         href: "/public-dashboard",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="part-blue-bolder" x="4" y="4" width="7" height="7" rx="1.5" fill="#718494"/><path opacity="0.3" fill-rule="evenodd" clip-rule="evenodd" d="M13 5.5C13 4.67157 13.6716 4 14.5 4H18.5C19.3284 4 20 4.67157 20 5.5V9.5C20 10.3284 19.3284 11 18.5 11H14.5C13.6716 11 13 10.3284 13 9.5V5.5ZM4 14.5C4 13.6716 4.67157 13 5.5 13H9.5C10.3284 13 11 13.6716 11 14.5V18.5C11 19.3284 10.3284 20 9.5 20H5.5C4.67157 20 4 19.3284 4 18.5V14.5ZM14.5 13C13.6716 13 13 13.6716 13 14.5V18.5C13 19.3284 13.6716 20 14.5 20H18.5C19.3284 20 20 19.3284 20 18.5V14.5C20 13.6716 19.3284 13 18.5 13H14.5Z" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: ''
+        permission_key: '',
+        isPublic: true,
     },
     {
         text: 'Directory',
         href: "/public-directory",
-        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="part-blue-bolder" x="4" y="4" width="7" height="7" rx="1.5" fill="#718494"/><path opacity="0.3" fill-rule="evenodd" clip-rule="evenodd" d="M13 5.5C13 4.67157 13.6716 4 14.5 4H18.5C19.3284 4 20 4.67157 20 5.5V9.5C20 10.3284 19.3284 11 18.5 11H14.5C13.6716 11 13 10.3284 13 9.5V5.5ZM4 14.5C4 13.6716 4.67157 13 5.5 13H9.5C10.3284 13 11 13.6716 11 14.5V18.5C11 19.3284 10.3284 20 9.5 20H5.5C4.67157 20 4 19.3284 4 18.5V14.5ZM14.5 13C13.6716 13 13 13.6716 13 14.5V18.5C13 19.3284 13.6716 20 14.5 20H18.5C19.3284 20 20 19.3284 20 18.5V14.5C20 13.6716 19.3284 13 18.5 13H14.5Z" fill="#718494"/></svg>`,
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: ''
+        permission_key: '',
+        isPublic: true,
     },
     {
         text: 'Report Data',
         href: "/dashboard",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="part-blue-bolder" x="4" y="4" width="7" height="7" rx="1.5" fill="#718494"/><path opacity="0.3" fill-rule="evenodd" clip-rule="evenodd" d="M13 5.5C13 4.67157 13.6716 4 14.5 4H18.5C19.3284 4 20 4.67157 20 5.5V9.5C20 10.3284 19.3284 11 18.5 11H14.5C13.6716 11 13 10.3284 13 9.5V5.5ZM4 14.5C4 13.6716 4.67157 13 5.5 13H9.5C10.3284 13 11 13.6716 11 14.5V18.5C11 19.3284 10.3284 20 9.5 20H5.5C4.67157 20 4 19.3284 4 18.5V14.5ZM14.5 13C13.6716 13 13 13.6716 13 14.5V18.5C13 19.3284 13.6716 20 14.5 20H18.5C19.3284 20 20 19.3284 20 18.5V14.5C20 13.6716 19.3284 13 18.5 13H14.5Z" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: ''
+        permission_key: '',
+        isPublic: false,
     },
     {
         text: 'Quote Board',
         href: "/quote-board",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'quote_board'
+        permission_key: 'quote_board',
+        isPublic: false,
     },
     {
         text: 'Data Feed Providers',
         href: "/data-feed-providers",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'data_feed_providers'
+        permission_key: 'data_feed_providers',
+        isPublic: false,
     },
     {
         text: 'Symbols',
         href: "/symbols",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="part-blue-bolder" d="M22 12C22 17.5 17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2C17.5 2 22 6.5 22 12ZM14.5 4.5C10.4 4.5 7 7.9 7 12C7 16.1 10.4 19.5 14.5 19.5C18.6 19.5 22 16.1 22 12C22 7.9 18.6 4.5 14.5 4.5Z" fill="#718494"/><path opacity="0.3" d="M22 12C22 16.1 18.6 19.5 14.5 19.5C10.4 19.5 7 16.1 7 12C7 7.9 10.4 4.5 14.5 4.5C18.6 4.5 22 7.9 22 12ZM12 7C9.2 7 7 9.2 7 12C7 14.8 9.2 17 12 17C14.8 17 17 14.8 17 12C17 9.2 14.8 7 12 7Z" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'security'
+        permission_key: 'security',
+        isPublic: false,
     },
     {
         text: 'Asset Profiles',
         href: "/asset-profiles",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'company_profile'
+        permission_key: 'company_profile',
+        isPublic: false,
     },
     {
         text: 'Last Sale Reporting',
         href: "/last-sale-reporting",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'last_sale_reporting'
+        permission_key: 'last_sale_reporting',
+        isPublic: false,
     },
     {
         text: 'Best Bid and Best Offer',
         href: "/best-bid-and-best-offer",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'bbo'
+        permission_key: 'bbo',
+        isPublic: false,
     },
     {
         text: 'Depth of Book',
         href: "/depth-of-book",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'dob'
+        permission_key: 'dob',
+        isPublic: false,
     },
     {
         text: 'Weekly and Monthly Reports',
         href: "/weekly-and-monthly-reports",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'weekly_and_monthly_reports'
+        permission_key: 'weekly_and_monthly_reports',
+        isPublic: true,
     },
     {
         text: 'Fees',
         href: "/fees",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: ''
+        permission_key: '',
+        isPublic: false,
     },
     {
         text: 'Invoices',
         href: "/invoices",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Library"><path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M5 2.99951C4.44772 2.99951 4 3.44723 4 3.99951V19.9995C4 20.5518 4.44772 20.9995 5 20.9995H6C6.55228 20.9995 7 20.5518 7 19.9995V3.99951C7 3.44723 6.55228 2.99951 6 2.99951H5ZM10 2.99951C9.44772 2.99951 9 3.44723 9 3.99951V19.9995C9 20.5518 9.44772 20.9995 10 20.9995H11C11.5523 20.9995 12 20.5518 12 19.9995V3.99951C12 3.44723 11.5523 2.99951 11 2.99951H10Z" fill="#718494"/><rect id="Rectangle Copy 2" opacity="0.3" x="13.4775" y="3.92432" width="3" height="18" rx="1" transform="rotate(-19 13.4775 3.92432)" fill="#718494"/></g></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: ''
+        permission_key: '',
+        isPublic: false,
     },
     {
         text: 'Algorand Data Feed',
         href: "/algorand-data-feed",
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect opacity="0.3" x="13" y="4" width="3" height="16" rx="1.5" fill="#718494"/><rect x="8" y="9" width="3" height="11" rx="1.5" fill="#718494"/><rect x="18" y="11" width="3" height="9" rx="1.5" fill="#718494"/><rect x="3" y="13" width="3" height="7" rx="1.5" fill="#718494"/></svg>`,
         submenus: [],
-        onlyAdmin: false,
-        permission_key: 'algorand_data_feed'
+        permission_key: 'algorand_data_feed',
+        isPublic: false,
     },
 ]
 
@@ -240,18 +241,20 @@ const activeLink = (url: string, pathname: string) => {
 }
 
 export default function PortalSidebarNav() {
-    const authAdminContext = useContext(AuthAdminContext);
+    const [menus, setMenus] = useState(MENU_LIST);
+    const authUserContext = useContext(AuthUserContext);
     const dataContext = useContext(DataContext);
     const router = useRouter();
 
     useEffect(() => {
-        MENUS = !authAdminContext.isAuthenticated() ? MENU_LIST.filter(item => !item.onlyAdmin) : MENU_LIST;
-    }, [authAdminContext]);
+        let menus = !authUserContext.isAuthenticated() ? MENU_LIST.filter(item => item.isPublic) : MENU_LIST;
+        setMenus(menus)
+    }, [authUserContext]);
 
     return (
 
         <ul className="list-unstyled">
-            {userPermissionService.filterMenuByAccess(MENUS, dataContext.userProfile.access).map((menu: MenuItem, idx) => (
+            {userPermissionService.filterMenuByAccess(menus, dataContext?.userProfile?.access).map((menu: MenuItem, idx) => (
                 <React.Fragment key={idx}>
                     {menu.submenus.length > 0 ? (
                         <PortalSidebarNavGroup key={idx} toggleIcon={menu.icon} toggleText={menu.text}>
