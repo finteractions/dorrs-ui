@@ -4999,7 +4999,7 @@
   .notification-block {
     width: 320px !important;
     inset: 35px auto auto -162px !important;
-    transform: unset!important;
+    transform: unset !important;
   }
 
 
@@ -5008,8 +5008,27 @@
   }
 
   .sidebar.sidebar-narrow {
-    //width: auto;
-    //overflow: hidden;
+    .nav-link {
+      > span {
+        display: none;
+      }
+    }
+  }
+
+  .sidebar {
+
+    .nav-item {
+      min-height: 35px;
+      height: 100%;
+    }
+
+    &:hover {
+      .nav-link {
+        > span {
+          display: block;
+        }
+      }
+    }
   }
 
   .dropdown-item.active, .dropdown-item:active {
@@ -5065,7 +5084,7 @@
   }
 
   .z-index-0 {
-    z-index: 0!important;
+    z-index: 0 !important;
   }
 
   .tags {

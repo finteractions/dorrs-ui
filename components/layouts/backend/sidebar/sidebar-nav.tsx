@@ -28,7 +28,7 @@ import {
     faBookOpen,
     faBookOpenReader,
     faFileLines,
-    faWallet
+    faWallet, faFileSignature
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -49,6 +49,7 @@ type SidebarNavItemProps = {
 interface Submenu {
     text: string;
     href: string;
+    icon: IconDefinition
 }
 
 interface MenuItem {
@@ -73,10 +74,12 @@ const MENU_LIST: MenuItem[] = [
             {
                 text: 'Users',
                 href: "/backend/user-management",
+                icon: faUserTie
             },
             {
                 text: 'Activity Logs',
                 href: "/backend/activity-logs",
+                icon: faFileSignature
             },
         ]
     },
@@ -135,7 +138,7 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
-        text: 'Weekly and Monthly Reports',
+        text: 'Weekly & Monthly',
         href: "/backend/weekly-and-monthly-reports",
         icon: faFileLines,
         submenus: []
@@ -277,14 +280,14 @@ export default function SidebarNav() {
                     {menu.submenus.length > 0 ? (
                         <SidebarNavGroup key={idx} toggleIcon={menu.icon} toggleText={menu.text}>
                             {menu.submenus.map((subMenu, idxx) => (
-                                <SidebarNavItem key={idxx} href={subMenu.href}>
-                                    {subMenu.text}
+                                <SidebarNavItem key={idxx} icon={subMenu.icon} href={subMenu.href}>
+                                    <span>{subMenu.text}</span>
                                 </SidebarNavItem>
                             ))}
                         </SidebarNavGroup>
                     ) : (
                         <SidebarNavItem key={idx} icon={menu.icon} href={menu.href}>
-                            {menu.text}
+                           <span> {menu.text}</span>
                         </SidebarNavItem>
                     )}
                 </React.Fragment>
