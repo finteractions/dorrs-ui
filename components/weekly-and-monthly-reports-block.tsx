@@ -383,13 +383,14 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<WeeklyAndMonthlyRepor
 
                                                     >
                                                     </Field>
+                                                    <button type="submit"
+                                                            className={`content__filter-clear ripple ${(isSubmitting || this.state.isReportLoading || values.date === '' || values.report === '') ? 'disable' : ''}`}
+                                                            disabled={isSubmitting || this.state.isReportLoading || values.date === '' || values.report === ''}>
+                                                        <FontAwesomeIcon className="nav-icon"
+                                                                         icon={filterService.getFilterResetIcon()}/>
+                                                    </button>
                                                 </div>
-                                                <button type="submit"
-                                                        className={`content__filter-clear ripple ${(isSubmitting || this.state.isReportLoading || values.date === '' || values.report === '') ? 'disable' : ''}`}
-                                                        disabled={isSubmitting || this.state.isReportLoading || values.date === '' || values.report === ''}>
-                                                    <FontAwesomeIcon className="nav-icon"
-                                                                     icon={filterService.getFilterResetIcon()}/>
-                                                </button>
+
                                             </Form>
                                         </>
                                     );
