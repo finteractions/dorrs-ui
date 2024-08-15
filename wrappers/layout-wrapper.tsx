@@ -12,7 +12,6 @@ export default function layoutWrapper<P extends {}>(
         const router = useRouter();
         const dataContext = useContext(DataContext);
         const show = publicPages.includes(router.pathname) ? true : dataContext.userProfile;
-
         return (
             <>
                 {show ? (

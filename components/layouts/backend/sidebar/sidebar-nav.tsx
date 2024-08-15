@@ -18,7 +18,17 @@ import {
     faHandshake,
     faArrowsUpToLine,
     faList,
-    faFolderOpen, faTools
+    faFolderOpen,
+    faTools,
+    faUsers,
+    faBriefcase,
+    faTag,
+    faTags,
+    faReceipt,
+    faBookOpen,
+    faBookOpenReader,
+    faFileLines,
+    faWallet
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -58,7 +68,7 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Users',
         href: '#',
-        icon: faUserTie,
+        icon: faUsers,
         submenus: [
             {
                 text: 'Users',
@@ -79,7 +89,7 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Public Directory',
         href: "/backend/public-directory",
-        icon: faBuilding,
+        icon: faBriefcase,
         submenus: []
     },
     {
@@ -91,7 +101,7 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Symbols',
         href: "/backend/asset-management",
-        icon: faDollarSign,
+        icon: faTags,
         submenus: []
     },
     {
@@ -103,19 +113,19 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Last Sale Reporting',
         href: "/backend/last-sales",
-        icon: faHandshake,
+        icon: faReceipt,
         submenus: []
     },
     {
         text: 'Best Bid and Best Offer',
         href: "/backend/best-bid-and-best-offer",
-        icon: faArrowsUpToLine,
+        icon: faBookOpen,
         submenus: []
     },
     {
         text: 'Orders',
         href: "/backend/orders",
-        icon: faList,
+        icon: faBookOpenReader,
         submenus: []
     },
     {
@@ -127,7 +137,7 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Weekly and Monthly Reports',
         href: "/backend/weekly-and-monthly-reports",
-        icon: faCalendarAlt,
+        icon: faFileLines,
         submenus: []
     },
     {
@@ -139,7 +149,7 @@ const MENU_LIST: MenuItem[] = [
     {
         text: 'Invoices',
         href: "/backend/invoices",
-        icon: faMoneyBillWave,
+        icon: faWallet,
         submenus: []
     },
     {
