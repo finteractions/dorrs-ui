@@ -3733,6 +3733,9 @@
     & > .content__top, & > .table, & > .pagination, & > .bank-empty {
       flex: 0 0 100%;
     }
+    & > .content__top, & > .table {
+      overflow-x: auto;
+    }
   }
 
   .content__top {
@@ -3882,6 +3885,8 @@
           display: flex;
           align-items: center;
           column-gap: 10px;
+          margin-right: auto;
+          padding-right: 28px;
 
           .table-image-container {
             display: flex;

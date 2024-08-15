@@ -67,7 +67,7 @@ function BackendLayoutWrapper({children}: PropsWithChildren) {
 
                 <div className="backend wrapper d-flex flex-column min-vh-100">
                     <Header toggleSidebar={toggleIsShowSidebar} toggleSidebarMd={toggleIsShowSidebarMd}/>
-                    <div className="body flex-grow-1 px-sm-2 mb-2">
+                    <div className="body flex-grow-1 px-sm-2 mb-2 d-flex flex-wrap">
                         <Container fluid="fluid">
                             {children}
                         </Container>
