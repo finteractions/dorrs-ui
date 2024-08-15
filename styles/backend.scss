@@ -5016,10 +5016,9 @@
   }
 
   .sidebar.sidebar-narrow {
-    .nav-link {
-      > span {
-        display: none;
-      }
+    .nav-item {
+      width: 265px;
+      overflow-x: hidden;
     }
   }
 
@@ -5028,14 +5027,6 @@
     .nav-item {
       min-height: 35px;
       height: 100%;
-    }
-
-    &:hover {
-      .nav-link {
-        > span {
-          display: block;
-        }
-      }
     }
   }
 
