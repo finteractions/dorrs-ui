@@ -138,7 +138,7 @@ const MENU_LIST: MenuItem[] = [
         submenus: []
     },
     {
-        text: 'Weekly & Monthly',
+        text: 'Weekly and Monthly Reports',
         href: "/backend/weekly-and-monthly-reports",
         icon: faFileLines,
         submenus: []
