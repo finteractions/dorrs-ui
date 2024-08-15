@@ -82,7 +82,7 @@ class WeeklyAndMonthlyReportsBlock extends React.Component<WeeklyAndMonthlyRepor
             reportProps: null,
             isToggle: false,
             isFilterShow: false,
-            filtersClassName: 'd-none d-md-flex'
+            filtersClassName: !props.isAdmin ? 'd-none d-md-flex' : ''
         };
 
         isAdmin = props.isAdmin ?? false;

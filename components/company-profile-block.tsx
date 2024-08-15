@@ -588,32 +588,36 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                         className={`font-weight-normal d-flex table__status table__status-${this.symbol?.status.toLowerCase()}`}>{this.symbol?.status}</div>
                                                                 </div>
 
-                                                                {this.state.symbolAccess.view && this.symbol && (
-                                                                    <span title={'Symbol Profile'}
-                                                                          className={'indicator-item cursor-pointer'}
-                                                                          onClick={() => this.navigate('symbols', 'view')}>S</span>
-                                                                )}
+                                                                <div
+                                                                    className={'d-flex align-items-center justify-content-center gap-10'}>
+                                                                    {this.state.symbolAccess.view && this.symbol && (
+                                                                        <span title={'Symbol Profile'}
+                                                                              className={'indicator-item cursor-pointer'}
+                                                                              onClick={() => this.navigate('symbols', 'view')}>S</span>
+                                                                    )}
 
-                                                                {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
-                                                                    <span title={'Quote Board Profile'}
-                                                                          className={'indicator-item cursor-pointer'}
-                                                                          onClick={() => this.navigate('quote-board')}>Q</span>
-                                                                )}
+                                                                    {this.state.quoteBoardAccess.view && this.state.quoteBoardAccess.view && (
+                                                                        <span title={'Quote Board Profile'}
+                                                                              className={'indicator-item cursor-pointer'}
+                                                                              onClick={() => this.navigate('quote-board')}>Q</span>
+                                                                    )}
 
-                                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
-                                                                    <span
-                                                                        title={'Algorand Data Feed - Last Sale Profile'}
-                                                                        className={'indicator-item cursor-pointer'}
-                                                                        onClick={() => this.navigate('algorand-data-feed/last-sale')}>ALG-LS</span>
-                                                                )}
+                                                                    {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                                        <span
+                                                                            title={'Algorand Data Feed - Last Sale Profile'}
+                                                                            className={'indicator-item cursor-pointer'}
+                                                                            onClick={() => this.navigate('algorand-data-feed/last-sale')}>ALG-LS</span>
+                                                                    )}
 
 
-                                                                {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                                    <span
-                                                                        title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
-                                                                        className={'indicator-item cursor-pointer'}
-                                                                        onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>ALG-BBO</span>
-                                                                )}
+                                                                    {this.state.algorandDataFeedAccess.view && this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                                        <span
+                                                                            title={'Algorand Data Feed - Best Bid And Best Offer Profile'}
+                                                                            className={'indicator-item cursor-pointer'}
+                                                                            onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>ALG-BBO</span>
+                                                                    )}
+                                                                </div>
+
                                                             </div>
                                                         </div>
                                                     </div>

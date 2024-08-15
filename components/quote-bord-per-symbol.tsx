@@ -286,61 +286,67 @@ class QuoteBoardPerSymbolBlock extends React.Component<QuoteBoardPerSymbolProps>
                             <div className={'panel d-flex justify-content-between align-items-center'}>
                                 <div
                                     className={'content__bottom d-flex align-items-center justify-content-between w-100'}>
-                                    <div className={'d-flex gap-10 '}>
-                                        <div
-                                            className={'cursor-pointer title d-flex align-items-center gap-10'}>
-                                            <h2 className={'view_block_main_title mb-0'}>
-                                                <div className={"company-profile-logo"}>
-                                                    <AssetImage alt=''
-                                                                src={this.companyProfile?.logo}
-                                                                width={60}
-                                                                height={60}/>
-                                                </div>
+                                    <div className={'d-flex gap-10 w-100'}>
+                                        <div className={'title d-flex align-items-center gap-20 w-100 info-mob'}>
+                                            <div
+                                                className={'d-flex align-items-center justify-content-center gap-20'}>
+                                                <h2 className={'view_block_main_title mb-0'}>
+                                                    <div className={"company-profile-logo"}>
+                                                        <AssetImage alt=''
+                                                                    src={this.companyProfile?.logo}
+                                                                    width={60}
+                                                                    height={60}/>
+                                                    </div>
 
-                                                {this.companyProfile ? (
-                                                    <>
-                                                        {this.companyProfile.company_name} ({this.props.symbol})
-                                                    </>
-                                                ) : (
-                                                    <>{this.props.symbol}</>
-                                                )}
-                                            </h2>
-
-                                            {this.state.symbolAccess.view && this.symbol && (
-                                                <span title={'Symbol Profile'}
-                                                      className={'indicator-item'}
-                                                      onClick={() => this.navigate('symbols', 'view')}>
+                                                    {this.companyProfile ? (
+                                                        <>
+                                                            {this.companyProfile.company_name} ({this.props.symbol})
+                                                        </>
+                                                    ) : (
+                                                        <>{this.props.symbol}</>
+                                                    )}
+                                                </h2>
+                                            </div>
+                                            <div
+                                                className={'d-flex align-items-center justify-content-center gap-10'}>
+                                                {this.state.symbolAccess.view && this.symbol && (
+                                                    <span title={'Symbol Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('symbols', 'view')}>
                                                        S
                                                     </span>
-                                            )}
+                                                )}
 
-                                            {this.state.companyProfileAccess.view && this.companyProfile && (
-                                                <span title={'Asset Profile'}
-                                                      className={'indicator-item'}
-                                                      onClick={() => this.navigate('asset-profiles', 'view')}>
+                                                {this.state.companyProfileAccess.view && this.companyProfile && (
+                                                    <span title={'Asset Profile'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('asset-profiles', 'view')}>
                                                        P
                                                     </span>
-                                            )}
+                                                )}
 
-                                            {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
-                                                <span title={'Algorand Data Feed - Last Sale'}
-                                                      className={'indicator-item'}
-                                                      onClick={() => this.navigate('algorand-data-feed/last-sale')}>
+                                                {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_last_sale_application_id && (
+                                                    <span title={'Algorand Data Feed - Last Sale'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('algorand-data-feed/last-sale')}>
                                                        ALG-LS
                                                     </span>
-                                            )}
+                                                )}
 
-                                            {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
-                                                <span title={'Algorand Data Feed - Best Bid And Best Offer'}
-                                                      className={'indicator-item'}
-                                                      onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
+                                                {this.state.algorandDataFeedAccess.view && this.symbol?.algorand_best_bid_and_best_offer_application_id && (
+                                                    <span title={'Algorand Data Feed - Best Bid And Best Offer'}
+                                                          className={'indicator-item'}
+                                                          onClick={() => this.navigate('algorand-data-feed/best-bid-and-best-offer')}>
                                                        ALG-BBO
                                                     </span>
-                                            )}
-
-
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
+
+
+
+
                                 </div>
                             </div>
 
