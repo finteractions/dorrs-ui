@@ -64,7 +64,6 @@ async function loadZone(Component: NextPageWithLayout): Promise<void> {
             styleImports.push(import(("@/styles/home.scss")));
             break;
         case "PortalLayout":
-        case "PublicLayout":
             styleImports.push(import(("@/styles/light.scss")));
             styleImports.push(import(("@/styles/dark.scss")));
             styleImports.push(import(("@/styles/portal.scss")));

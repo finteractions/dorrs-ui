@@ -5007,6 +5007,11 @@
     //z-index: 0 !important;
   }
 
+  .sidebar.sidebar-narrow {
+    //width: auto;
+    //overflow: hidden;
+  }
+
   .dropdown-item.active, .dropdown-item:active {
     color: inherit !important;
     background-color: inherit !important;

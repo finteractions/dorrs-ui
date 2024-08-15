@@ -9,7 +9,9 @@ const AuthUserContext = React.createContext<any>(null);
 const {Provider} = AuthUserContext;
 
 let websocketSubscription: Subscription | null = null;
-let loggedIn = false
+let isWsLoggedIn = false
+let isUserAuthenticated = false
+
 const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
     const [authState, setAuthState] = React.useState<IAuthState>({
         token: null,
@@ -41,6 +43,7 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
             expires: user.exp ? new Date(user.exp * 1000) : undefined
         });
         setAuthState(user);
+        isUserAuthenticated = true;
     };
 
     const clearAuthInfo = () => {
@@ -54,9 +57,11 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
             token_type: null,
             user_id: null,
         });
-        if (loggedIn) websocketService?.logout();
-        loggedIn = false
+        if (isWsLoggedIn) websocketService?.logout();
         websocketSubscription?.unsubscribe();
+
+        isWsLoggedIn = false
+        isUserAuthenticated = false
     };
 
     const isAuthenticated = (): boolean => {
@@ -76,8 +81,8 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
     const refreshTokenFromCookie = cookieService.getItem(AUTH_USER_REFRESH_TOKEN);
 
     const login = () => {
-        if (authState.token && websocketService.isSocketOpen && !loggedIn) {
-            loggedIn = true
+        if (authState.token && websocketService.isSocketOpen && !isWsLoggedIn) {
+            isWsLoggedIn = true
             websocketService.login(authState.token);
         }
     };
@@ -100,6 +105,19 @@ const AuthUserProvider = ({children}: { children: React.ReactNode }) => {
             websocketSubscription?.unsubscribe();
         };
     }, [authState]);
+
+    React.useEffect(() => {
+        const checkCookie = () => {
+            const accessToken = cookieService.getItem(AUTH_USER_ACCESS_TOKEN);
+            if (!accessToken && isUserAuthenticated) {
+                clearAuthInfo();
+            }
+        };
+
+        const intervalId = setInterval(checkCookie, 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <Provider

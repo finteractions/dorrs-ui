@@ -1,10 +1,10 @@
 import {useRouter} from "next/router";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {AuthUserContext} from "@/contextes/auth-user-context";
-import React from "react";
-import LoaderBlock from "@/components/loader-block";
 import {AuthAdminContext} from "@/contextes/auth-admin-context";
+import React from "react";
 import {publicPages} from "@/constants/public-pages";
+import LoaderBlock from "@/components/loader-block";
 
 export default function authUserGuard<P extends {}>(
     Component: React.ComponentType<P>
@@ -13,45 +13,47 @@ export default function authUserGuard<P extends {}>(
         const router = useRouter();
         const authUserContext = useContext(AuthUserContext);
         const authAdminContext = useContext(AuthAdminContext);
-        const [isLoading, setIsLoading] = useState(true);
-        const [isRedirected, setIsRedirected] = useState(false);
+        const isRedirecting = useRef(false);
+        const [redirectPath, setRedirectPath] = useState<string | null>(null);
+        const [loading, setLoading] = useState(true);
 
         useEffect(() => {
+
             const checkAuth = () => {
-                setTimeout(() => {
-                    if (!authUserContext.isAuthenticated() && !isRedirected) {
-                        const path = !publicPages.includes(router.pathname) ? '/login' : router.pathname;
-                        authUserContext?.clearAuthInfo();
-                        authAdminContext?.clearAuthInfo();
-                        setIsRedirected(true);
-                        router.push(path)
-                    } else {
-                        setIsLoading(false);
-                    }
-                })
-            }
+                if (isRedirecting.current) {
+                    return;
+                }
+                if (!authUserContext.isAuthenticated() && !publicPages.includes(router.pathname)) {
+                    isRedirecting.current = true;
+                    authUserContext?.clearAuthInfo();
+                    authAdminContext?.clearAuthInfo();
 
-            checkAuth();
-
-            const interval = setInterval(checkAuth, 1000);
-
-            return () => {
-                clearInterval(interval);
+                    setRedirectPath('/login');
+                } else {
+                    setLoading(false);
+                }
             };
 
-        }, [authUserContext, isRedirected, router]);
+            checkAuth();
+        }, [authAdminContext, authUserContext]);
 
-        return (
-            <>
-                {isLoading ? (
-                    <div className="pre-loader">
-                        <LoaderBlock/>
-                    </div>
-                ) : (
-                    <Component {...props} />
-                )}
+        useEffect(() => {
+            if (redirectPath) {
+                router.push(redirectPath).finally(() => {
+                    setLoading(false);
+                    isRedirecting.current = false;
+                });
+            }
+        }, [redirectPath, router]);
 
-            </>
-        );
+        if (loading) {
+            return (
+                <div className="pre-loader">
+                    <LoaderBlock/>
+                </div>
+            );
+        }
+
+        return <Component {...props} />;
     };
 }

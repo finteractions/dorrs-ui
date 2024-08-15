@@ -187,14 +187,6 @@ const SidebarNavItem = (props: SidebarNavItemProps) => {
     )
 }
 
-const SidebarNavTitle = (props: PropsWithChildren) => {
-    const {children} = props
-
-    return (
-        <li className="nav-title px-3 py-2 mt-3 text-uppercase fw-bold">{children}</li>
-    )
-}
-
 type SidebarNavGroupToggleProps = {
     eventKey: string;
     icon: IconDefinition;

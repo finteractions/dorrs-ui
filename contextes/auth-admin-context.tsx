@@ -6,6 +6,8 @@ import {AUTH_ADMIN_ACCESS_TOKEN} from "@/constants/settings";
 const AuthAdminContext = React.createContext<any>(null);
 const {Provider} = AuthAdminContext;
 
+let isAdminAuthenticated = false
+
 const AuthAdminProvider = ({children}: { children: React.ReactNode }) => {
     const [authState, setAuthState] = React.useState<IAuthState>({
         token: null,
@@ -33,6 +35,7 @@ const AuthAdminProvider = ({children}: { children: React.ReactNode }) => {
             expires: user.exp ? new Date(user.exp * 1000) : undefined
         });
         setAuthState(user);
+        isAdminAuthenticated = true;
     };
 
     const clearAuthInfo = () => {
@@ -45,6 +48,8 @@ const AuthAdminProvider = ({children}: { children: React.ReactNode }) => {
             token_type: null,
             user_id: null,
         });
+
+        isAdminAuthenticated = true;
     };
 
     const isAuthenticated = (): boolean => {
@@ -67,6 +72,19 @@ const AuthAdminProvider = ({children}: { children: React.ReactNode }) => {
             setAuthInfo({access_token: accessTokenFromCookie});
         }
     }, [accessTokenFromCookie]);
+
+    React.useEffect(() => {
+        const checkCookie = () => {
+            const accessToken = cookieService.getItem(AUTH_ADMIN_ACCESS_TOKEN);
+            if (!accessToken && isAdminAuthenticated) {
+                clearAuthInfo();
+            }
+        };
+
+        const intervalId = setInterval(checkCookie, 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <Provider

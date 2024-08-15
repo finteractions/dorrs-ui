@@ -1,9 +1,9 @@
-import {useRouter} from "next/router";
-import {useContext, useEffect, useState} from "react";
+import { useRouter } from "next/router";
+import {useContext, useEffect, useRef, useState} from "react";
 import React from "react";
 import LoaderBlock from "@/components/loader-block";
-import {AuthAdminContext} from "@/contextes/auth-admin-context";
-import {AuthUserContext} from "@/contextes/auth-user-context";
+import { AuthAdminContext } from "@/contextes/auth-admin-context";
+import { AuthUserContext } from "@/contextes/auth-user-context";
 
 export default function authAdminGuard<P extends {}>(
     Component: React.ComponentType<P>
@@ -12,42 +12,47 @@ export default function authAdminGuard<P extends {}>(
         const router = useRouter();
         const authUserContext = useContext(AuthUserContext);
         const authAdminContext = useContext(AuthAdminContext);
-        const [isLoading, setIsLoading] = useState(true);
-        const [isRedirected, setIsRedirected] = useState(false);
+        const isRedirecting = useRef(false);
+        const [loading, setLoading] = useState(true);
+        const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
         useEffect(() => {
-
             const checkAuth = () => {
-                if (!authAdminContext.isAuthenticated() && !isRedirected) {
-                    const routePath = authUserContext.isAuthenticated() ? '/dashboard' : '/login';
-                    router.push(routePath)
-                    setIsRedirected(true);
-                } else {
-                    setIsLoading(false);
+                if (isRedirecting.current) {
+                    return;
                 }
-            }
 
-            checkAuth();
+                if (!authAdminContext.isAuthenticated()) {
+                    isRedirecting.current = true;
+                    authAdminContext?.clearAuthInfo();
 
-            const interval = setInterval(checkAuth, 1000);
-
-            return () => {
-                clearInterval(interval);
+                    const path = authUserContext.isAuthenticated() ? '/dashboard' : '/login';
+                    setRedirectPath(path);
+                } else {
+                    setLoading(false);
+                }
             };
 
-        }, [authAdminContext, isRedirected, router]);
+            checkAuth();
+        }, [authAdminContext, authUserContext]);
 
-        return (
-            <>
-                {isLoading || !authAdminContext.isAuthenticated() ? (
-                    <div className="pre-loader">
-                        <LoaderBlock/>
-                    </div>
-                ) : (
-                    <Component {...props} />
-                )}
+        useEffect(() => {
+            if (redirectPath) {
+                router.push(redirectPath).finally(() => {
+                    setLoading(false);
+                    isRedirecting.current = false;
+                });
+            }
+        }, [redirectPath, router]);
 
-            </>
-        );
+        if (loading) {
+            return (
+                <div className="pre-loader">
+                    <LoaderBlock />
+                </div>
+            );
+        }
+
+        return <Component {...props} />;
     };
 }
