@@ -361,10 +361,6 @@ const Table = forwardRef<TableRef, ITableProps>(({
         setFilteredData(filterData(data, searchValue, columnFilters));
     }, [data, table, searchValue, columns_for_search, columnFilters]);
 
-    React.useEffect(() => {
-        table.setPageIndex(currentPage);
-    }, [filteredData, currentPage, table]);
-
 
     return (
 
@@ -420,7 +416,6 @@ const Table = forwardRef<TableRef, ITableProps>(({
                         )}
 
                         <div className="table">
-
                             <div className='overflow-x-auto'>
                                 <table className={className}>
                                     {header && (

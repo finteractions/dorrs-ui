@@ -5,7 +5,8 @@ import {faFilterCircleXmark} from "@fortawesome/free-solid-svg-icons/faFilterCir
 function buildOptions(prop_name: string, data: any[]) {
     const values = data.flatMap(item => {
         const value = getObjectValue(prop_name, item);
-        return value instanceof Set ? Array.from(value) : [value];
+        const arrayValues = value instanceof Set ? Array.from(value) : [value];
+        return arrayValues.filter(v => v !== null && v !== undefined && v !== '');
     });
 
     return Array.from(new Set(values))

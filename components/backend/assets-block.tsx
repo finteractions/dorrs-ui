@@ -169,7 +169,7 @@ class AssetsBlock extends React.Component<{}> {
         ];
 
         tableFilters = [
-            {key: 'symbol', placeholder: 'Symbol'},
+            {key: 'symbol', placeholder: 'Symbol', type:'multiSelect'},
             {key: 'cusip', placeholder: 'CUSIP'},
             // {key: 'reason_for_entry', placeholder: 'Reason for Entry'},
             {key: 'dsin', placeholder: 'DSIN'},
