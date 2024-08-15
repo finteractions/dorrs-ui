@@ -959,9 +959,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                         />
 
                                                                                                         <button
-                                                                                                            disabled={isSubmitting || values.asset_type_description.length < 2}
                                                                                                             type="button"
-                                                                                                            className={`border-grey-btn ripple ${values.asset_type_description.length < 2 ? 'disable' : ''}`}
+                                                                                                            disabled={isSubmitting || this.isShow() || values.asset_type_description.length < 2}
+                                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.asset_type_description.length < 2 ? 'disable' : ''}`}
                                                                                                             onClick={() => {
                                                                                                                 const updatedDescriptions = [...values.asset_type_description];
                                                                                                                 updatedDescriptions.splice(index, 1);
@@ -995,7 +995,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 Profile Fields:</h4>
                                                                             <button
                                                                                 type="button"
-                                                                                className='border-grey-btn ripple'
+                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow()}
                                                                                 onClick={() => {
                                                                                     const updatedDescriptions = [...values.issuer_profile_description, ''];
                                                                                     const index = updatedDescriptions.length - 1 || 0
@@ -1092,8 +1093,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                 </div>
 
                                                                                                 <button
-                                                                                                    disabled={isSubmitting || values.issuer_profile_description.length < 2}
                                                                                                     type="button"
+                                                                                                    disabled={isSubmitting || this.isShow() || values.issuer_profile_description.length < 2}
                                                                                                     className={`border-grey-btn ripple ${values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
                                                                                                     onClick={() => {
                                                                                                         const updatedDescriptions = [...values.issuer_profile_description];
@@ -1226,7 +1227,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     Documents:</h4>
                                                                                 <button
                                                                                     type="button"
-                                                                                    className={`border-grey-btn ripple  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || this.isShow()}
                                                                                     onClick={() => {
                                                                                         const updatedDescriptions = [...values.sec_description, ''];
                                                                                         const index = updatedDescriptions.length - 1 || 0
@@ -1234,7 +1236,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         this.handleSecImageChange(null, index);
                                                                                         this.handleSecFileChange(null, index);
                                                                                     }}
-                                                                                    disabled={isSubmitting || this.isShow()}
                                                                                 >
                                                                                     <FontAwesomeIcon
                                                                                         className="nav-icon"
@@ -1327,8 +1328,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                     </div>
 
                                                                                                     <button
-                                                                                                        disabled={isSubmitting || values.sec_description.length < 2}
                                                                                                         type="button"
+                                                                                                        disabled={isSubmitting || this.isShow() || values.sec_description.length < 2}
                                                                                                         className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
                                                                                                         onClick={() => {
                                                                                                             const updatedDescriptions = [...values.sec_description];
@@ -1665,7 +1666,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             Contacts
                                                                             <button
                                                                                 type="button"
-                                                                                className='border-grey-btn ripple'
+                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow()}
                                                                                 onClick={() => {
                                                                                     const updatedOfficers = [...values.company_officers_and_contacts, ''];
                                                                                     setFieldValue('company_officers_and_contacts', updatedOfficers);
@@ -1690,7 +1692,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         />
                                                                                         <button
                                                                                             type="button"
-                                                                                            className='border-grey-btn ripple'
+                                                                                            disabled={isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2}
+                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2 ? 'disable' : ''}`}
                                                                                             onClick={() => {
                                                                                                 const updatedOfficers = [...values.company_officers_and_contacts];
                                                                                                 updatedOfficers.splice(index, 1);
@@ -1717,7 +1720,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             of Directors
                                                                             <button
                                                                                 type="button"
-                                                                                className='border-grey-btn ripple'
+                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow()}
                                                                                 onClick={() => {
                                                                                     const updatedBoardOfDirectors = [...values.board_of_directors, ''];
                                                                                     setFieldValue('board_of_directors', updatedBoardOfDirectors);
@@ -1742,7 +1746,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         />
                                                                                         <button
                                                                                             type="button"
-                                                                                            className='border-grey-btn ripple'
+                                                                                            disabled={isSubmitting || this.isShow() || values.board_of_directors.length < 2}
+                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.board_of_directors.length < 2 ? 'disable' : ''}`}
                                                                                             onClick={() => {
                                                                                                 const updatedBoardOfDirectors = [...values.board_of_directors];
                                                                                                 updatedBoardOfDirectors.splice(index, 1);
