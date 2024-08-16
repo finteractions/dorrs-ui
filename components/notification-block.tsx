@@ -23,6 +23,7 @@ interface NotificationBockState extends IState, IModalState {
     message: INotificationChatMessage | null
     loading: boolean;
     unreadCount: number;
+    userName: string;
 }
 
 class NotificationBlock extends React.Component<NotificationBockProps, NotificationBockState> {
@@ -43,7 +44,8 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
             messages: [],
             message: null,
             loading: false,
-            unreadCount: 0
+            unreadCount: 0,
+            userName: ''
         }
     }
 
@@ -60,6 +62,12 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
             isOpenModal: !this.state.isOpenModal,
             formAction: action,
             message: action === 'add' ? message : null
+        })
+    }
+
+    add = () => {
+        this.setState({userName: ''}, () => {
+            this.modal('add', null)
         })
     }
 
@@ -122,17 +130,21 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
     notifyUser = (event: CustomEvent) => {
         const user: IUserDetail = event.detail as IUserDetail;
         const user_id = user.user_id.id;
+        const userName = user.name;
 
         const messages = this.state.messages
             .flatMap(r => r.messages)
             .filter(s => s.recipient_id === user_id)
 
-        const message: INotificationChatMessage = {
-            user_id: user_id,
-            messages: messages
-        }
+        this.setState({userName: userName ?? ''}, () => {
+            const message: INotificationChatMessage = {
+                user_id: user_id,
+                messages: messages
+            }
 
-        this.modal('add', message)
+            this.modal('add', message)
+        })
+
     }
 
     subscribe() {
@@ -241,75 +253,90 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                             <>
                                 <div className={'notification-list chat'}>
                                     {this.state.messages.length ? (
-                                        <>
-                                            {this.state.messages.slice(0, 10).map((item: INotificationChatMessage, idx: number) => {
-                                                const itm = item.messages.sort((a, b) => b.id - a.id)[0]
-                                                const isAdmin = !this.props.isAdmin ? itm.is_admin : !itm.is_admin;
-                                                const from = isAdmin && !this.props.isAdmin ? 'Admin' : itm.sender
-                                                return (
-                                                    <React.Fragment key={idx}>
-                                                        <div className={'chat-history m-0 '} key={idx}
-                                                             // onClick={() => this.modal('edit', item)}
-                                                        >
-                                                            {isAdmin ? (
-                                                                <div className="clearfix">
-                                                                    <div className="message-data align-right">
+                                        (() => {
+                                            const messages = this.state.messages.slice(0, 10);
+
+                                            return (
+                                                <>
+                                                    {messages.map((item: INotificationChatMessage, idx: number) => {
+                                                        const itm = item.messages.sort((a, b) => b.id - a.id)[0]
+                                                        const isAdmin = !this.props.isAdmin ? itm.is_admin : !itm.is_admin;
+                                                        const from = isAdmin && !this.props.isAdmin ? 'Admin' : itm.sender
+                                                        const to = isAdmin && !this.props.isAdmin ? 'Admin' : itm.recipient
+                                                        return (
+                                                            <React.Fragment key={idx}>
+                                                                <div className={'chat-history m-0 '} key={idx}
+                                                                    // onClick={() => this.modal('edit', item)}
+                                                                >
+                                                                    {isAdmin ? (
+                                                                        <div className="clearfix">
+                                                                            <div className="message-data align-right">
                                                                     <span className="message-data-time">
                                                                         {formatterService.dateTimeFormat(itm.created_at)}
                                                                     </span> &nbsp; &nbsp;
-                                                                        <span
-                                                                            className="message-data-name">
-                                                                        {from}
+                                                                                <span
+                                                                                    className="message-data-name">
+                                                                         {!(isAdmin && !this.props.isAdmin) ? (
+                                                                             <>From: {from}</>
+                                                                         ) : (
+                                                                             <>{to}</>
+                                                                         )}
                                                                     </span>
-                                                                        <i className="fa fa-circle me"></i>
-                                                                    </div>
-                                                                    <div
-                                                                        className="text-colour message other-message float-right mb-0">
+                                                                            </div>
+                                                                            <div
+                                                                                className="text-colour message other-message float-right mb-0">
                                                                         <span
                                                                             dangerouslySetInnerHTML={{__html: itm.message}}></span>
-                                                                        {itm.is_delivered && (
-                                                                            <span
-                                                                                className={'seen'}>
+                                                                                {itm.is_delivered && (
+                                                                                    <span
+                                                                                        className={'seen'}>
                                                                                                         <FontAwesomeIcon
                                                                                                             size="xs"
                                                                                                             icon={faEye}/> {' '}
-                                                                                {formatterService.dateTimeFormat(itm.updated_at)}</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            ) : (
-                                                                <div>
-                                                                    <div className="message-data">
+                                                                                        {formatterService.dateTimeFormat(itm.updated_at)}</span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div>
+                                                                            <div className="message-data">
                                                                 <span className="message-data-name">
-                                                                    <i className="fa fa-circle online"></i>
-                                                                    {from}
+                                                                    {!(isAdmin && !this.props.isAdmin) ? (
+                                                                        <>To: {to}</>
+                                                                    ) : (
+                                                                        <>{from}</>
+                                                                    )}
                                                                 </span>
-                                                                        <span className="message-data-time">
+                                                                                <span className="message-data-time">
                                                                     {formatterService.dateTimeFormat(itm.created_at)}
                                                                 </span>
-                                                                    </div>
-                                                                    <div
-                                                                        className="text-colour message my-message mb-0">
+                                                                            </div>
+                                                                            <div
+                                                                                className="text-colour message my-message mb-0">
                                                                         <span
                                                                             dangerouslySetInnerHTML={{__html: itm.message}}></span>
-                                                                        {itm.is_delivered && (
-                                                                            <span
-                                                                                className={'seen'}>
+                                                                                {itm.is_delivered && (
+                                                                                    <span
+                                                                                        className={'seen'}>
                                                                                                         <FontAwesomeIcon
                                                                                                             size="xs"
                                                                                                             icon={faEye}/> {' '}
-                                                                                {formatterService.dateTimeFormat(itm.updated_at)}</span>
-                                                                        )}
-                                                                    </div>
+                                                                                        {formatterService.dateTimeFormat(itm.updated_at)}</span>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                        {idx < this.state.messages.length - 1 && <Dropdown.Divider/>}
-                                                    </React.Fragment>
 
-                                                )
-                                            })}
-                                        </>
+                                                                {idx < messages.length - 1 &&
+                                                                    <Dropdown.Divider/>}
+                                                            </React.Fragment>
+
+                                                        )
+                                                    })}
+                                                </>
+                                            );
+                                        })()
                                     ) : (
                                         <div className={'px-3 text-colour'}>No notifications</div>
                                     )}
@@ -321,7 +348,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
                                         <Dropdown.Divider/>
                                         <div className={'justify-content-center d-flex'}>
                                             <Button className={' b-btn ripple'}
-                                                    onClick={() => this.modal('add', null)}>Create</Button>
+                                                    onClick={() => this.add()}>Create</Button>
                                         </div>
                                     </>
                                 )}
@@ -333,7 +360,7 @@ class NotificationBlock extends React.Component<NotificationBockProps, Notificat
 
                 <Modal isOpen={this.state.isOpenModal}
                        onClose={() => this.modal('', null)}
-                       title={'Notification'}
+                       title={this.state.userName ? `Notification to ${this.state.userName}` : 'Notifications'}
                        className={''}
                 >
 

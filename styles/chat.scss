@@ -75,9 +75,12 @@
   margin-bottom: 15px;
 }
 
+.chat .chat-history .message-data-time, .chat .chat-history {
+  padding-left: 6px;
+}
+
 .chat .chat-history .message-data-time, .chat .chat-history .message-data-name {
   color: #a8aab1;
-  padding-left: 6px;
   font-size: 14px;
 }
 
