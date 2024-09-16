@@ -1483,44 +1483,47 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Security
-                                                                                        Name <i>*</i>
+                                                                                <div className={'input__group'}>
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Security
+                                                                                            Name <i>*</i>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap ${(isSubmitting || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                                            <Field
+                                                                                                name="new_security_name"
+                                                                                                id="new_security_name"
+                                                                                                type="text"
+                                                                                                className="input__text no-bg"
+                                                                                                placeholder="Type Security Name"
+                                                                                                disabled={isSubmitting || this.state.getSymbolProcessing}
+                                                                                                onBlur={(e: any) => this.handleSymbolCodeMewChange(e, setFieldValue)}
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="new_security_name"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
                                                                                     </div>
-                                                                                    <div
-                                                                                        className={`input__wrap ${(isSubmitting || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
-                                                                                        <Field
-                                                                                            name="new_security_name"
-                                                                                            id="new_security_name"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Security Name"
-                                                                                            disabled={isSubmitting || this.state.getSymbolProcessing}
-                                                                                            onBlur={(e: any) => this.handleSymbolCodeMewChange(e, setFieldValue)}
-                                                                                        />
-                                                                                        <ErrorMessage
-                                                                                            name="new_security_name"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className="input__title">Symbol
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className={`input__wrap no-border`}>
-                                                                                        <Field
-                                                                                            name="new_symbol"
-                                                                                            id="new_symbol"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg dsin no-bg dsin-view"
-                                                                                            disabled={true}
-                                                                                        />
-                                                                                        <ErrorMessage name="new_symbol"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className="input__title">Symbol
+                                                                                        </div>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <Field
+                                                                                                name="new_symbol"
+                                                                                                id="new_symbol"
+                                                                                                type="text"
+                                                                                                className="input__text no-bg dsin no-bg dsin-view"
+                                                                                                disabled={true}
+                                                                                            />
+                                                                                            <ErrorMessage
+                                                                                                name="new_symbol"
+                                                                                                component="div"
+                                                                                                className="error-message"/>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="input">
