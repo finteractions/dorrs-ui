@@ -19,7 +19,7 @@ import * as Yup from "yup";
 import {getLotSize} from "@/enums/lot-size";
 import dsinService from "@/services/dsin/dsin-service";
 import {FormStatus, getApprovedFormStatus, getBuildableFormStatuses} from "@/enums/form-status";
-import {ErrorMessage, Field, FieldProps, Form, Formik, FormikErrors} from "formik";
+import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import moment from 'moment';
 import 'moment-timezone';
 import 'react-dates/initialize';
@@ -43,6 +43,7 @@ import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
 import {Button} from "react-bootstrap";
 import formValidator from "@/services/form-validator/form-validator";
+import formService from "@/services/form/form-service";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -230,7 +231,6 @@ interface SymbolPageFormState extends IState, IModalState {
     formAction: string;
     symbol: ISymbol | null;
     formCompanyData: ICompanyProfile | null;
-
     formInitialValues: {},
     focusedInputDateEntered: any;
     focusedInputDateEffective: any;
@@ -238,6 +238,7 @@ interface SymbolPageFormState extends IState, IModalState {
     focusedInputDateEffectiveDelete: any;
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
+    getSymbolProcessing: boolean;
 }
 
 class SymbolPageForm extends React.Component<SymbolPageFormProps> {
@@ -283,7 +284,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             formAction: 'edit',
             symbol: null,
             formCompanyData: null,
-
             formInitialValues: {},
             focusedInputDateEntered: null,
             focusedInputDateEffective: null,
@@ -291,7 +291,9 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             focusedInputDateEffectiveDelete: null,
 
             selectedSecFiles: [],
-            selectedSecImages: []
+            selectedSecImages: [],
+
+            getSymbolProcessing: false
         }
 
         this.formRef = React.createRef();
@@ -469,6 +471,10 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         setFieldValue('dsin', dsin);
     }
 
+    handleSecurityName(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
+        setFieldValue('security_name', value);
+    }
+
     handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
         const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         setFieldValue('new_symbol', alphanumericValue);
@@ -504,6 +510,40 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         await setFieldValue("security_name", value);
         await setFieldValue("issuer_name", value);
     };
+
+    processSymbolChange = async (
+        value: string | null,
+        setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
+        symbolField: string,
+        dsinField: string
+    ) => {
+        this.setState({getSymbolProcessing: true}, () => {
+            const values = this.state.formInitialValues as ISymbol;
+            const symbol = values.symbol;
+            formService.searchSymbol(value, symbol)
+                .then((res: Array<ISymbolSearch>) => {
+                    const symbol = res[0].symbol || null;
+                    setFieldValue(symbolField, symbol);
+
+                    if (symbol !== null) {
+                        const dsin = dsinService.generate(symbol);
+                        setFieldValue(dsinField, dsin);
+                    }
+                })
+                .finally(() => this.setState({getSymbolProcessing: false}));
+});
+    };
+
+    handleSymbolCodeChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        let value: string | null = e.target.value;
+        this.processSymbolChange(value, setFieldValue, "symbol", "dsin");
+    };
+
+    handleSymbolCodeMewChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        let value: string | null = e.target.value;
+        this.processSymbolChange(value, setFieldValue, "new_symbol", "new_dsin");
+    };
+
 
     handleCusipChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         const isCusip = e.target.value === 'false';
@@ -645,11 +685,15 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         }
     }
 
-    closeModal(): void {
+    closeModal()
+        :
+        void {
         this.setState({isOpenModal: false})
     }
 
-    cancelCompanyForm(): void {
+    cancelCompanyForm()
+        :
+        void {
         this.setState({isOpenCompanyModal: false});
     }
 
@@ -1274,15 +1318,16 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     Name <i>*</i>
                                                                                 </div>
                                                                                 <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.getSymbolProcessing) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
                                                                                         name="security_name"
                                                                                         id="security_name"
                                                                                         type="text"
                                                                                         className="input__text no-bg"
                                                                                         placeholder="Type Security Name"
-                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.getSymbolProcessing}
                                                                                         onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
+                                                                                        onBlur={(e: any) => this.handleSymbolCodeChange(e, setFieldValue)}
                                                                                     />
                                                                                     <ErrorMessage
                                                                                         name="security_name"
@@ -1292,19 +1337,23 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                             </div>
                                                                             <div className="input__box">
                                                                                 <div
-                                                                                    className="input__title">Symbol <i>*</i>
+                                                                                    className="input__title">Symbol
                                                                                 </div>
                                                                                 <div
                                                                                     className={`input__wrap ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <Field
-                                                                                        name="symbol"
-                                                                                        id="symbol"
-                                                                                        type="text"
-                                                                                        className="input__text no-bg"
-                                                                                        placeholder="Type Symbol"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                        onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
-                                                                                    />
+                                                                                    <div
+                                                                                        className={`input__wrap no-border`}>
+                                                                                        <Field
+                                                                                            name="symbol"
+                                                                                            id="symbol"
+                                                                                            type="text"
+                                                                                            className="input__text no-bg dsin no-bg dsin-view"
+                                                                                            disabled={true}
+                                                                                        />
+                                                                                        <ErrorMessage name="symbol"
+                                                                                                      component="div"
+                                                                                                      className="error-message"/>
+                                                                                    </div>
                                                                                     {getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && (
                                                                                         <button
                                                                                             type="button"
@@ -1440,13 +1489,15 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                         Name <i>*</i>
                                                                                     </div>
                                                                                     <div
-                                                                                        className={`input__wrap no-border`}>
+                                                                                        className={`input__wrap ${(isSubmitting || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                                         <Field
                                                                                             name="new_security_name"
                                                                                             id="new_security_name"
                                                                                             type="text"
                                                                                             className="input__text no-bg"
                                                                                             placeholder="Type Security Name"
+                                                                                            disabled={isSubmitting || this.state.getSymbolProcessing}
+                                                                                            onBlur={(e: any) => this.handleSymbolCodeMewChange(e, setFieldValue)}
                                                                                         />
                                                                                         <ErrorMessage
                                                                                             name="new_security_name"
@@ -1456,7 +1507,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 </div>
                                                                                 <div className="input">
                                                                                     <div
-                                                                                        className="input__title">Symbol <i>*</i>
+                                                                                        className="input__title">Symbol
                                                                                     </div>
                                                                                     <div
                                                                                         className={`input__wrap no-border`}>
@@ -1464,14 +1515,12 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             name="new_symbol"
                                                                                             id="new_symbol"
                                                                                             type="text"
-                                                                                            className="input__text no-bg"
-                                                                                            placeholder="Type Symbol"
-                                                                                            onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue)}
+                                                                                            className="input__text no-bg dsin no-bg dsin-view"
+                                                                                            disabled={true}
                                                                                         />
-                                                                                        <ErrorMessage
-                                                                                            name="new_symbol"
-                                                                                            component="div"
-                                                                                            className="error-message"/>
+                                                                                        <ErrorMessage name="new_symbol"
+                                                                                                      component="div"
+                                                                                                      className="error-message"/>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="input">
@@ -1564,14 +1613,14 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     Name <i>*</i>
                                                                                 </div>
                                                                                 <div
-                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.getSymbolProcessing) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
                                                                                         name="security_name"
                                                                                         id="security_name"
                                                                                         type="text"
                                                                                         className="input__text no-bg"
                                                                                         placeholder="Type Security Name"
-                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.getSymbolProcessing}
                                                                                         onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                                     />
                                                                                     <ErrorMessage
@@ -1582,18 +1631,16 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                             </div>
                                                                             <div className="input__box">
                                                                                 <div
-                                                                                    className="input__title">Symbol <i>*</i>
+                                                                                    className="input__title">Symbol
                                                                                 </div>
                                                                                 <div
-                                                                                    className={`${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input__wrap no-border`}>
                                                                                     <Field
                                                                                         name="symbol"
                                                                                         id="symbol"
                                                                                         type="text"
-                                                                                        className="input__text no-bg"
-                                                                                        placeholder="Type Symbol"
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                        onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue)}
+                                                                                        className="input__text no-bg dsin no-bg dsin-view"
+                                                                                        disabled={true}
                                                                                     />
                                                                                     <ErrorMessage name="symbol"
                                                                                                   component="div"

@@ -40,6 +40,14 @@ class FormService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<IMPIDSearch>>>(`/search/mpid/`, params, this.getUserAccessToken())).data;
     }
 
+    public async searchSymbol(security_name: string | null, symbol:string | null): Promise<Array<ISymbolSearch>> {
+        const params = {
+            security_name: security_name,
+            symbol: symbol
+        }
+        return (await apiWebBackendService.get<IResponse<Array<ISymbolSearch>>>(`/search/symbol/`, params, this.getUserAccessToken())).data;
+    }
+
     // **** Edgar CIK Forms *****
     public async getFINRARegA(symbol?: string | null): Promise<IFINRACatRegA[]> {
         let queryString = "";

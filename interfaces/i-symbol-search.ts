@@ -1,0 +1,3 @@
+interface ISymbolSearch {
+    symbol: string;
+}
