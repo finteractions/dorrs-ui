@@ -398,7 +398,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                     <>
                                         <div className={'profile__right-wrap-full'}>
                                             <div className={'profile__panel'}>
-                                                <div className={'profile__info__panel view__input__box'}>
+                                                <div className={'profile__info__panel view__input__box align-items-end'}>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Reason for Entry</div>
                                                         <div
@@ -502,7 +502,13 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Symbol</div>
                                                         <div
-                                                            className={'input__wrap'}>{this.symbol.symbol || 'not filled'}</div>
+                                                            className={'input__wrap no-border'}><input name="dsin"
+                                                                                                       id="dsin"
+                                                                                                       type="text"
+                                                                                                       className="input__text dsin no-bg dsin-view"
+                                                                                                       disabled
+                                                                                                       value={this.symbol.symbol || 'not filled'}/>
+                                                        </div>
                                                     </div>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Does it have cusip number?</div>
@@ -522,12 +528,12 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             Number - DSIN
                                                         </div>
                                                         <div
-                                                            className={'input__wrap'}><input name="dsin"
+                                                            className={'input__wrap no-border'}><input name="dsin"
                                                                                              id="dsin"
                                                                                              type="text"
                                                                                              className="input__text dsin no-bg dsin-view"
                                                                                              disabled
-                                                                                             value={this.symbol.dsin}/>
+                                                                                             value={this.symbol.dsin || 'not filled'}/>
                                                         </div>
                                                     </div>
                                                     <div className={'input__box'}>

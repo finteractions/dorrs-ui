@@ -863,7 +863,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                             <div className={'profile__right'}>
                                                 <div className={'profile__right-wrap-full'}>
                                                     <div className={'profile__panel'}>
-                                                        <div className={'profile__info__panel view__input__box'}>
+                                                        <div className={'profile__info__panel view__input__box align-items-end'}>
                                                             {(values.is_delete) && (
                                                                 <>
                                                                     <div className="input">
@@ -1340,7 +1340,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     className="input__title">Symbol
                                                                                 </div>
                                                                                 <div
-                                                                                    className={`input__wrap ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input__wrap no-border ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                     <div
                                                                                         className={`input__wrap no-border`}>
                                                                                         <Field
