@@ -182,7 +182,7 @@ const formSchema = Yup.object().shape({
     }),
     new_security_name: Yup.string().when('is_change', {
         is: (is_change: boolean) => is_change,
-        then: (schema) => schema.required('Required')
+        then: (schema) => schema.min(3).max(50).required('Required').label('Security Name')
     }),
     reason_change: Yup.string(),
     is_delete: Yup.boolean(),
@@ -236,6 +236,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     formRef: RefObject<any>;
     host: string = ''
+    typingTimeout: NodeJS.Timeout | null = null;
 
     constructor(props: SymbolFormProps) {
         super(props);
@@ -597,6 +598,17 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
         await setFieldValue("security_name", value);
         await setFieldValue("issuer_name", value);
+
+        this.processSymbolChange(value, setFieldValue, "symbol", "dsin");
+    };
+
+    handleNewSecurityNameChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        let value: string | null = e.target.value;
+
+        await setFieldValue("new_security_name", value);
+        await setFieldValue("new_issuer_name", value);
+
+        this.processSymbolChange(value, setFieldValue, "new_symbol", "new_dsin");
     };
 
     handleCusipChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
@@ -604,39 +616,39 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         setFieldValue("is_cusip", isFinra);
         setFieldValue("cusip", "");
     };
+
     processSymbolChange = async (
         value: string | null,
         setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
         symbolField: string,
         dsinField: string
     ) => {
-        this.setState({getSymbolProcessing: true}, () => {
-            const values = this.state.formInitialValues as ISymbol;
-            const symbol = values.symbol;
-            formService.searchSymbol(value, symbol)
-                .then((res: Array<ISymbolSearch>) => {
-                    const symbol = res[0].symbol || null;
-                    setFieldValue(symbolField, symbol);
+        if (this.typingTimeout) {
+            clearTimeout(this.typingTimeout);
+        }
 
-                    if (symbol !== null) {
-                        const dsin = dsinService.generate(symbol);
-                        setFieldValue(dsinField, dsin);
-                    }
+        const values = this.state.formInitialValues as ISymbol;
+        const symbol = values.symbol;
+
+        this.typingTimeout = setTimeout(() => {
+            if (value && value.length >= 3) {
+                this.setState({getSymbolProcessing: true}, () => {
+                    formService.searchSymbol(value, symbol)
+                        .then((res: Array<ISymbolSearch>) => {
+                            const symbol = res[0].symbol || null;
+                            setFieldValue(symbolField, symbol);
+
+                            if (symbol !== null) {
+                                const dsin = dsinService.generate(symbol);
+                                setFieldValue(dsinField, dsin);
+                            }
+                        })
+                        .finally(() => this.setState({getSymbolProcessing: false}));
                 })
-                .finally(() => this.setState({getSymbolProcessing: false}));
-        });
-    };
+            }
+        }, 1000);
 
-    handleSymbolCodeChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-        let value: string | null = e.target.value;
-        this.processSymbolChange(value, setFieldValue, "symbol", "dsin");
     };
-
-    handleSymbolCodeMewChange = (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-        let value: string | null = e.target.value;
-        this.processSymbolChange(value, setFieldValue, "new_symbol", "new_dsin");
-    };
-
 
     handleSecImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
@@ -1237,7 +1249,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                 placeholder="Type Security Name"
                                                                                 disabled={isSubmitting || this.isShow() || this.state.getSymbolProcessing}
                                                                                 onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
-                                                                                onBlur={(e: any) => this.handleSymbolCodeChange(e, setFieldValue)}
                                                                             />
                                                                             <ErrorMessage name="security_name"
                                                                                           component="div"
@@ -1401,7 +1412,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                     className="input__text"
                                                                                     placeholder="Type Security Name"
                                                                                     disabled={isSubmitting || this.state.getSymbolProcessing}
-                                                                                    onBlur={(e: any) => this.handleSymbolCodeMewChange(e, setFieldValue)}
+                                                                                    onChange={(e: any) => this.handleNewSecurityNameChange(e, setFieldValue)}
                                                                                 />
                                                                                 <ErrorMessage name="new_security_name"
                                                                                               component="div"
@@ -2192,7 +2203,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                     </>
                                                 )}
 
-                                                {((this.props.action !== 'view') || (this.props.action === 'view' && values.is_change) )&& (
+                                                {((this.props.action !== 'view') || (this.props.action === 'view' && values.is_change)) && (
                                                     <button id="add-bank-acc"
                                                             className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                             type="submit" disabled={isSubmitting || !isValid || !dirty}>
