@@ -1989,17 +1989,24 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     ))}
                                                                                 </optgroup>
 
-                                                                                <optgroup label="Or select existing">
-                                                                                    {this.primaryATS.slice(2).map((primaryATS: {
-                                                                                        value: string,
-                                                                                        label: string
-                                                                                    }) => (
-                                                                                        <option key={primaryATS.value}
-                                                                                                value={primaryATS.value}>
-                                                                                            {primaryATS.label}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </optgroup>
+                                                                                {(() => {
+                                                                                    const existingATS = this.primaryATS.slice(2);
+                                                                                    return existingATS.length > 0 && (
+                                                                                        <optgroup
+                                                                                            label="Or select existing">
+                                                                                            {existingATS.map((primaryATS: {
+                                                                                                value: string,
+                                                                                                label: string
+                                                                                            }) => (
+                                                                                                <option
+                                                                                                    key={primaryATS.value}
+                                                                                                    value={primaryATS.value}>
+                                                                                                    {primaryATS.label}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </optgroup>
+                                                                                    );
+                                                                                })()}
                                                                             </Field>
 
                                                                             <ErrorMessage

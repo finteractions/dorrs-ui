@@ -1280,7 +1280,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         <div
                                                                             className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  `}>
                                                                             <div
-                                                                                className={`input__wrap text-center flex-1`} style={{marginLeft: '45px'}}>
+                                                                                className={`input__wrap text-center flex-1`}
+                                                                                style={{marginLeft: '45px'}}>
                                                                                 <Field
                                                                                     name="symbol"
                                                                                     id="symbol"
@@ -1892,18 +1893,23 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                 </option>
                                                                             ))}
                                                                         </optgroup>
-
-                                                                        <optgroup label="Or select existing">
-                                                                            {this.primaryATS.slice(2).map((primaryATS: {
-                                                                                value: string,
-                                                                                label: string
-                                                                            }) => (
-                                                                                <option key={primaryATS.value}
-                                                                                        value={primaryATS.value}>
-                                                                                    {primaryATS.label}
-                                                                                </option>
-                                                                            ))}
-                                                                        </optgroup>
+                                                                        {}
+                                                                        {(() => {
+                                                                            const existingATS = this.primaryATS.slice(2);
+                                                                            return existingATS.length > 0 && (
+                                                                                <optgroup label="Or select existing">
+                                                                                    {existingATS.map((primaryATS: {
+                                                                                        value: string,
+                                                                                        label: string
+                                                                                    }) => (
+                                                                                        <option key={primaryATS.value}
+                                                                                                value={primaryATS.value}>
+                                                                                            {primaryATS.label}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </optgroup>
+                                                                            );
+                                                                        })()}
                                                                     </Field>
 
                                                                     <ErrorMessage
