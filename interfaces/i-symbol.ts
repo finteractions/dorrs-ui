@@ -9,9 +9,11 @@ export interface ISymbol {
     cusip: string;
     dsin: string;
     primary_ats: string;
+    new_primary_ats: string;
     transfer_agent: string;
     custodian: string;
     market_sector: string;
+    market_sector_category: string;
     lot_size: number;
     fractional_lot_size: number;
     mvp: number;

@@ -4,7 +4,6 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import LoaderBlock from "@/components/loader-block";
 import Link from "next/link";
-import {useRouter} from "next/router";
 import {UsaStates} from "usa-states";
 import {UnderpinningAssetValue} from "@/enums/underpinning-asset-value";
 import {RedeemabilityType} from "@/enums/redeemability-type";
@@ -28,7 +27,7 @@ import 'react-dates/lib/css/_datepicker.css';
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
 import {AlternativeAssetCategory, getAlternativeAssetSubCategory} from "@/enums/alternative-asset-category";
 import {ExemptedOfferingType} from "@/enums/exempted-offering-type";
-import {MarketSector} from "@/enums/market-sector";
+import {getMarketSectorCategory, MarketSector} from "@/enums/market-sector";
 import NumericInputField from "@/components/numeric-input-field";
 import {DigitalAssetCategory, getDigitalAssetCategoryInstrument} from "@/enums/digital-asset-category";
 import {IssuerType} from "@/enums/issuer-type";
@@ -44,6 +43,7 @@ import InputMask from "react-input-mask";
 import {Button} from "react-bootstrap";
 import formValidator from "@/services/form-validator/form-validator";
 import formService from "@/services/form/form-service";
+import {PrimaryATS} from "@/constants/primary-ats";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -89,10 +89,16 @@ const formSchema = Yup.object().shape({
         }),
     dsin: Yup.string().label('DSIN'),
     primary_ats: Yup.string().min(3).max(50).required('Required').label('Primary ATS'),
+    new_primary_ats: Yup.string().min(3).max(50)
+        .when('primary_ats', {
+            is: (v: string) => v === PrimaryATS.ADD_NEW.value,
+            then: (schema) => schema.required('Required').label('Primary ATS')
+        }),
     transfer_agent: Yup.string().min(3).max(50).label('Transfer Agent'),
     custodian: Yup.string().min(3).max(50).label('Custodian'),
     market_sector: Yup.string().min(3).max(50).required('Required').label('Market Sector'),
-    lot_size: Yup.number().required('Required')
+    market_sector_category: Yup.string().label('Market Sector Category'),
+    lot_size: Yup.number()
         .required('Required')
         .test('is-valid-lot-size', `Invalid Lot Size. Example ${getLotSize().join(', ')}`, (value) => {
             return getLotSize().includes(value);
@@ -244,6 +250,7 @@ interface SymbolPageFormState extends IState, IModalState {
 class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
     symbols: Array<ISymbol> = new Array<ISymbol>();
+    primaryATS: Array<{ value: string, label: string }> = new Array<{ value: string, label: string }>();
     masterSymbols: Array<ISymbol> = new Array<ISymbol>();
     state: SymbolPageFormState;
     companyProfile: ICompanyProfile | null;
@@ -349,6 +356,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             transfer_agent: string;
             custodian: string;
             market_sector: string;
+            market_sector_category: string;
             lot_size: string;
             fractional_lot_size: string;
             mvp: string;
@@ -406,6 +414,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             transfer_agent: initialData?.transfer_agent || '',
             custodian: initialData?.custodian || '',
             market_sector: initialData?.market_sector || '',
+            market_sector_category: initialData?.market_sector_category || '',
             lot_size: (initialData?.lot_size || getLotSize()[0]).toString(),
             fractional_lot_size: formatterService.toPlainString(initialData?.fractional_lot_size?.toString()),
             mvp: formatterService.toPlainString(initialData?.mvp?.toString()),
@@ -557,6 +566,10 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
         const data = {...values};
 
+        if (data.primary_ats === PrimaryATS.ADD_NEW.value) {
+            data.primary_ats = data.new_primary_ats.trim();
+        }
+
         if (data.time_entered_change !== '') {
             data.time_entered_change = moment.tz(`${moment().format('YYYY-MM-DD')} ${data.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.userTimeZone)
                 .tz(this.targetTimeZone)
@@ -628,6 +641,19 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
 
+                const primaryATS: Array<{
+                    value: string,
+                    label: string
+                }> = [...new Set(data.map(s => s.primary_ats).filter(s => s.length > 0))].sort().map((i) => {
+                    return {
+                        value: i,
+                        label: i
+                    }
+                });
+                primaryATS.unshift({value: PrimaryATS.ADD_NEW.value, label: PrimaryATS.ADD_NEW.label});
+                primaryATS.unshift({value: PrimaryATS.NONE.value, label: PrimaryATS.NONE.label});
+                this.primaryATS = primaryATS;
+
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
 
@@ -669,54 +695,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                 this.setState({isLoading: false})
             });
     }
-    handleBack = () => {
-        const router = useRouter();
-        router.push('/symbols');
-    }
-
-
-    openModal = (mode: string) => {
-        if (mode === 'edit') {
-            this.props.onCallback(this.props.symbol, mode)
-        } else {
-            this.setState({isOpenModal: true, formAction: mode, modalTitle: this.modalTitle(mode)})
-            this.cancelCompanyForm();
-        }
-    }
-
-    closeModal()
-        :
-        void {
-        this.setState({isOpenModal: false})
-    }
-
-    cancelCompanyForm()
-        :
-        void {
-        this.setState({isOpenCompanyModal: false});
-    }
-
-    modalTitle = (mode: string) => {
-        if (mode === 'delete') {
-            return 'Do you want to delete this symbol?';
-        } else if (mode === 'view') {
-            return 'View Symbol'
-        } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Symbol`;
-        }
-    }
-
-    onCallback = async (values: any, step: boolean) => {
-        this.closeModal();
-        this.cancelCompanyForm()
-
-        if (values?.symbol && values.symbol !== this.props.symbol) {
-            this.props.onCallback(values.symbol);
-        } else {
-            this.getSymbols();
-        }
-
-    };
 
     buttonText = () => {
         const symbolTitle = 'Symbol';
@@ -1871,6 +1849,40 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                         </div>
                                                                     </div>
 
+                                                                    {values.market_sector !== '' && getMarketSectorCategory(values.market_sector) && (
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Market
+                                                                                Sector Category
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="market_sector_category"
+                                                                                    id="market_sector_category"
+                                                                                    as="select"
+                                                                                    className="b-select no-bg"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                >
+                                                                                    <option value="">Select Market
+                                                                                        Sector Category
+                                                                                    </option>
+                                                                                    {Object.values(getMarketSectorCategory(values.market_sector)).map((type: any) => (
+                                                                                        <option key={type}
+                                                                                                value={type}>
+                                                                                            {type}
+                                                                                        </option>
+                                                                                    ))}
+
+                                                                                </Field>
+
+                                                                                <ErrorMessage
+                                                                                    name="market_sector_category"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
                                                                     <div className="input__box">
                                                                         <div className="input__title">Lot Size
                                                                             ({getLotSize().join(', ')}) <i>*</i>
@@ -1958,16 +1970,69 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                             <Field
                                                                                 name="primary_ats"
                                                                                 id="primary_ats"
-                                                                                type="text"
-                                                                                className="input__text no-bg"
-                                                                                placeholder="Type Primary ATS"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
                                                                                 disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="primary_ats"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
+                                                                            >
+                                                                                <option value="">Select Primary ATS
+                                                                                </option>
+
+                                                                                <optgroup label="None or add a new">
+                                                                                    {this.primaryATS.slice(0, 2).map((primaryATS: {
+                                                                                        value: string,
+                                                                                        label: string
+                                                                                    }) => (
+                                                                                        <option key={primaryATS.value}
+                                                                                                value={primaryATS.value}>
+                                                                                            {primaryATS.label}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </optgroup>
+
+                                                                                <optgroup label="Or select existing">
+                                                                                    {this.primaryATS.slice(2).map((primaryATS: {
+                                                                                        value: string,
+                                                                                        label: string
+                                                                                    }) => (
+                                                                                        <option key={primaryATS.value}
+                                                                                                value={primaryATS.value}>
+                                                                                            {primaryATS.label}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </optgroup>
+                                                                            </Field>
+
+                                                                            <ErrorMessage
+                                                                                name="primary_ats"
+                                                                                component="div"
+                                                                                className="error-message"/>
                                                                         </div>
                                                                     </div>
+
+                                                                    {values.primary_ats === PrimaryATS.ADD_NEW.value && (
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Add Primary
+                                                                                ATS <i>*</i>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="new_primary_ats"
+                                                                                    id="new_primary_ats"
+                                                                                    type="text"
+                                                                                    className="input__text no-bg"
+                                                                                    placeholder="Enter the primary ATS"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="new_primary_ats"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
 
                                                                     <div className="input__box">
                                                                         <div className="input__title">Transfer

@@ -9,7 +9,7 @@ import formatterService from "@/services/formatter/formatter-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import symbolService from "@/services/symbol/symbol-service";
 import dsinService from "@/services/dsin/dsin-service";
-import {MarketSector} from "@/enums/market-sector";
+import {getMarketSectorCategory, MarketSector} from "@/enums/market-sector";
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
 import moment from 'moment-timezone';
 import 'moment-timezone/builds/moment-timezone-with-data';
@@ -42,6 +42,7 @@ import AssetImage from "@/components/asset-image";
 import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 import formService from "@/services/form/form-service";
+import {PrimaryATS} from "@/constants/primary-ats";
 
 
 const allowedImageFileSizeMB = 1
@@ -88,9 +89,15 @@ const formSchema = Yup.object().shape({
         }),
     dsin: Yup.string().label('DSIN'),
     primary_ats: Yup.string().min(3).max(50).required('Required').label('Primary ATS'),
+    new_primary_ats: Yup.string().min(3).max(50)
+        .when('primary_ats', {
+            is: (v: string) => v === PrimaryATS.ADD_NEW.value,
+            then: (schema) => schema.required('Required').label('Primary ATS')
+        }),
     transfer_agent: Yup.string().min(3).max(50).label('Transfer Agent'),
     custodian: Yup.string().min(3).max(50).label('Custodian'),
     market_sector: Yup.string().min(3).max(50).required('Required').label('Market Sector'),
+    market_sector_category: Yup.string().label('Market Sector Category'),
     lot_size: Yup.number().required('Required')
         .required('Required')
         .test('is-valid-lot-size', `Invalid Lot Size. Example ${getLotSize().join(', ')}`, (value) => {
@@ -230,7 +237,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     state: SymbolFormState;
     masterSymbols: Array<ISymbol> = new Array<ISymbol>();
-
+    primaryATS: Array<{ value: string, label: string }> = new Array<{ value: string, label: string }>();
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     targetTimeZone = 'UTC';
 
@@ -289,6 +296,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             transfer_agent: string;
             custodian: string;
             market_sector: string;
+            market_sector_category: string;
             lot_size: string;
             fractional_lot_size: string;
             mvp: string;
@@ -346,6 +354,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             transfer_agent: initialData?.transfer_agent || '',
             custodian: initialData?.custodian || '',
             market_sector: initialData?.market_sector || '',
+            market_sector_category: initialData?.market_sector_category || '',
             lot_size: (initialData?.lot_size || getLotSize()[0]).toString(),
             fractional_lot_size: formatterService.toPlainString(initialData?.fractional_lot_size?.toString()),
             mvp: formatterService.toPlainString(initialData?.mvp?.toString()),
@@ -424,6 +433,10 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
         const data = {...values};
 
+        if (data.primary_ats === PrimaryATS.ADD_NEW.value) {
+            data.primary_ats = data.new_primary_ats.trim();
+        }
+
         if (data.time_entered_change !== '') {
             data.time_entered_change = moment.tz(`${moment().format('YYYY-MM-DD')} ${data.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.userTimeZone)
                 .tz(this.targetTimeZone)
@@ -501,6 +514,20 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         adminService.getAssets()
             .then((res: ISymbol[]) => {
                 const data = res || [];
+
+                const primaryATS: Array<{
+                    value: string,
+                    label: string
+                }> = [...new Set(data.map(s => s.primary_ats).filter(s => s.length > 0))].sort().map((i) => {
+                    return {
+                        value: i,
+                        label: i
+                    }
+                });
+                primaryATS.unshift({value: PrimaryATS.ADD_NEW.value, label: PrimaryATS.ADD_NEW.label});
+                primaryATS.unshift({value: PrimaryATS.NONE.value, label: PrimaryATS.NONE.label});
+                this.primaryATS = primaryATS;
+
                 this.masterSymbols = data.filter(s => !s.symbol_id)
             })
             .catch((errors: IError) => {
@@ -530,14 +557,6 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             })
             .finally(() => this.setState({loading: false}))
     };
-
-    handleSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
-        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        setFieldValue('symbol', alphanumericValue);
-
-        const dsin = dsinService.generate(alphanumericValue)
-        setFieldValue('dsin', dsin);
-    }
 
     handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
         const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
@@ -1259,9 +1278,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         <div className="input__title">Symbol
                                                                         </div>
                                                                         <div
-                                                                            className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                            className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  `}>
                                                                             <div
-                                                                                className={`input__wrap text-center`}>
+                                                                                className={`input__wrap text-center flex-1`} style={{marginLeft: '45px'}}>
                                                                                 <Field
                                                                                     name="symbol"
                                                                                     id="symbol"
@@ -1538,7 +1557,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         <div className="input__title">Symbol
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap no-border`}>
+                                                                            className={`input__wrap text-center`}>
                                                                             <Field
                                                                                 name="symbol"
                                                                                 id="symbol"
@@ -1745,6 +1764,37 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 </div>
                                                             </div>
 
+                                                            {values.market_sector !== '' && getMarketSectorCategory(values.market_sector) && (
+                                                                <div className="input">
+                                                                    <div
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                        <Field
+                                                                            name="market_sector_category"
+                                                                            id="market_sector_category"
+                                                                            as="select"
+                                                                            className="b-select"
+                                                                            disabled={isSubmitting || this.isShow()}
+                                                                        >
+                                                                            <option value="">Select Market
+                                                                                Sector Category
+                                                                            </option>
+                                                                            {Object.values(getMarketSectorCategory(values.market_sector)).map((type: any) => (
+                                                                                <option key={type}
+                                                                                        value={type}>
+                                                                                    {type}
+                                                                                </option>
+                                                                            ))}
+
+                                                                        </Field>
+
+                                                                        <ErrorMessage
+                                                                            name="market_sector_category"
+                                                                            component="div"
+                                                                            className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
                                                             <div className="input">
                                                                 <div className="input__title">Lot Size
                                                                     ({getLotSize().join(', ')}) <i>*</i>
@@ -1818,21 +1868,75 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 Information:</h4>
 
                                                             <div className="input">
-                                                                <div className="input__title">Primary ATS <i>*</i></div>
+                                                                <div className="input__title">Primary
+                                                                    ATS <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                     <Field
                                                                         name="primary_ats"
                                                                         id="primary_ats"
-                                                                        type="text"
-                                                                        className="input__text"
-                                                                        placeholder="Type Primary ATS"
+                                                                        as="select"
+                                                                        className="b-select no-bg"
                                                                         disabled={isSubmitting || this.isShow()}
-                                                                    />
-                                                                    <ErrorMessage name="primary_ats" component="div"
-                                                                                  className="error-message"/>
+                                                                    >
+                                                                        <option value="">Select Primary ATS</option>
+
+                                                                        <optgroup label="None or add a new">
+                                                                            {this.primaryATS.slice(0, 2).map((primaryATS: {
+                                                                                value: string,
+                                                                                label: string
+                                                                            }) => (
+                                                                                <option key={primaryATS.value}
+                                                                                        value={primaryATS.value}>
+                                                                                    {primaryATS.label}
+                                                                                </option>
+                                                                            ))}
+                                                                        </optgroup>
+
+                                                                        <optgroup label="Or select existing">
+                                                                            {this.primaryATS.slice(2).map((primaryATS: {
+                                                                                value: string,
+                                                                                label: string
+                                                                            }) => (
+                                                                                <option key={primaryATS.value}
+                                                                                        value={primaryATS.value}>
+                                                                                    {primaryATS.label}
+                                                                                </option>
+                                                                            ))}
+                                                                        </optgroup>
+                                                                    </Field>
+
+                                                                    <ErrorMessage
+                                                                        name="primary_ats"
+                                                                        component="div"
+                                                                        className="error-message"/>
                                                                 </div>
                                                             </div>
+
+                                                            {values.primary_ats === PrimaryATS.ADD_NEW.value && (
+
+                                                                <div className="input">
+                                                                    <div
+                                                                        className="input__title">Add Primary
+                                                                        ATS <i>*</i>
+                                                                    </div>
+                                                                    <div
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                        <Field
+                                                                            name="new_primary_ats"
+                                                                            id="new_primary_ats"
+                                                                            type="text"
+                                                                            className="input__text no-bg"
+                                                                            placeholder="Enter the primary ATS"
+                                                                            disabled={isSubmitting || this.isShow()}
+                                                                        />
+                                                                        <ErrorMessage
+                                                                            name="new_primary_ats"
+                                                                            component="div"
+                                                                            className="error-message"/>
+                                                                    </div>
+                                                                </div>
+                                                            )}
 
                                                             <div className="input">
                                                                 <div className="input__title">Transfer Agent</div>

@@ -489,7 +489,6 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         </div>
                                                     </div>
 
-                                                    {/*------------------*/}
                                                     <div className={'input__box full'}>
                                                         <h4 className={''}>Symbol Information</h4>
                                                     </div>
@@ -558,7 +557,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <div className={'input__title'}>Market Sector
                                                         </div>
                                                         <div
-                                                            className={'input__wrap'}>{this.symbol.market_sector || 'not filled'}</div>
+                                                            className={'input__wrap'}>{this.symbol.market_sector || 'not filled'} {this.symbol.market_sector_category ? ` / ${this.symbol.market_sector_category}` : ''}</div>
                                                     </div>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Lot Size

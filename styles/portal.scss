@@ -804,7 +804,7 @@ body {
 
       .select__react__value-container {
         padding-left: 16px;
-        margin-bottom: 5px;
+        //margin-bottom: 5px;
 
         .select__react__single-value {
           color: #718494;
@@ -4986,4 +4986,18 @@ a.block-link {
 
 .margin-left-10 {
   margin-left: 10px;
+}
+
+[class$="-indicatorContainer"] {
+  padding: 5px !important;
+}
+
+.divider {
+  border-top: 1px solid var(--border-colour-1);
+  width: 100%;
+}
+
+option.divider {
+  background-color: yellow;
+  height: 2px;
 }

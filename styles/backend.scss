@@ -3733,6 +3733,7 @@
     & > .content__top, & > .table, & > .pagination, & > .bank-empty {
       flex: 0 0 100%;
     }
+
     & > .content__top, & > .table {
       overflow-x: auto;
     }
@@ -5100,6 +5101,9 @@
     }
   }
 
+  [class$="-indicatorContainer"] {
+    padding: 5px !important;
+  }
 
 }
 
