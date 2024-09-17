@@ -644,7 +644,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                 const primaryATS: Array<{
                     value: string,
                     label: string
-                }> = [...new Set(data.map(s => s.primary_ats).filter(s => s.length > 0))].sort().map((i) => {
+                }> = [...new Set(data.map(s => s.primary_ats).filter(s => s.length > 0).filter(s => s !== PrimaryATS.NONE.value))].sort().map((i) => {
                     return {
                         value: i,
                         label: i
