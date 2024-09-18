@@ -9,7 +9,7 @@ import {UnderpinningAssetValue} from "@/enums/underpinning-asset-value";
 import {RedeemabilityType} from "@/enums/redeemability-type";
 import formatterService from "@/services/formatter/formatter-service";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faEdit, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faCheck, faClose, faEdit, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import portalAccessWrapper from "@/wrappers/portal-access-wrapper";
 import {DataContext} from "@/contextes/data-context";
 import UserPermissionService from "@/services/user/user-permission-service";
@@ -245,6 +245,8 @@ interface SymbolPageFormState extends IState, IModalState {
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
     getSymbolProcessing: boolean;
+    isSymbolCodeChange: boolean;
+    symbolCode: string;
 }
 
 class SymbolPageForm extends React.Component<SymbolPageFormProps> {
@@ -297,11 +299,11 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             focusedInputDateEffective: null,
             focusedInputDateEnteredDelete: null,
             focusedInputDateEffectiveDelete: null,
-
             selectedSecFiles: [],
             selectedSecImages: [],
-
-            getSymbolProcessing: false
+            getSymbolProcessing: false,
+            isSymbolCodeChange: false,
+            symbolCode: ''
         }
 
         this.formRef = React.createRef();
@@ -459,7 +461,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             edgar_cik: initialData?.edgar_cik || '',
         };
 
-        this.setState({formInitialValues: initialValues})
+        this.setState({formInitialValues: initialValues, symbolCode: initialValues.symbol})
     }
 
     componentDidMount() {
@@ -542,8 +544,10 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                             setFieldValue(symbolField, symbol);
 
                             if (symbol !== null) {
-                                const dsin = dsinService.generate(symbol);
-                                setFieldValue(dsinField, dsin);
+                                this.setState({symbolCode: symbol}, () => {
+                                    const dsin = dsinService.generate(symbol);
+                                    setFieldValue(dsinField, dsin);
+                                });
                             }
                         })
                         .finally(() => this.setState({getSymbolProcessing: false}));
@@ -776,6 +780,30 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     navigateToAssetProfile = () => {
         this.context.setSharedData({symbol: this.symbol?.symbol})
         this.props.onCallback(this.symbol?.symbol, 'add', 'asset-profiles')
+    }
+
+    changeSymbolCode = (value: boolean) => {
+        this.setState({isSymbolCodeChange: value});
+    }
+
+    submitSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        this.setState({symbolCode: symbolCode})
+        this.changeSymbolCode(false);
+    }
+
+    cancelSymbolCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        setFieldValue('symbol', this.state.symbolCode);
+        this.changeSymbolCode(false);
+    }
+
+    submitNewSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        this.setState({symbolCode: symbolCode})
+        this.changeSymbolCode(false);
+    }
+
+    cancelNewSymbolNewCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        setFieldValue('new_symbol', this.state.symbolCode);
+        this.changeSymbolCode(false);
     }
 
     render() {
@@ -1316,42 +1344,89 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 <div
                                                                                     className="input__title">Symbol
                                                                                 </div>
-                                                                                <div
-                                                                                    className={`input__wrap no-border ${getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) ? 'input__btns ' : ''}  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+
+                                                                                {!this.state.isSymbolCodeChange ? (
                                                                                     <div
-                                                                                        className={`input__wrap no-border`}>
-                                                                                        <Field
-                                                                                            name="symbol"
-                                                                                            id="symbol"
-                                                                                            type="text"
-                                                                                            className="input__text no-bg dsin no-bg dsin-view"
-                                                                                            disabled={true}
-                                                                                        />
+                                                                                        className={`input__wrap no-border input__btns justify-content-start  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                        <div
+                                                                                            className={`input__wrap no-border`}>
+                                                                                            <Field
+                                                                                                name="symbol"
+                                                                                                id="symbol"
+                                                                                                type="text"
+                                                                                                className="input__text no-bg dsin no-bg dsin-view"
+                                                                                                disabled={true}
+                                                                                            />
+                                                                                        </div>
+                                                                                        {getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && (
+                                                                                            <button
+                                                                                                type="button"
+                                                                                                className='border-grey-btn ripple'
+                                                                                                onClick={() => {
+                                                                                                    setFieldValue('is_change', true);
+                                                                                                    setFieldValue('new_symbol', values.symbol);
+                                                                                                    setFieldValue('new_security_name', values.security_name);
+                                                                                                    this.handleNewSymbol(values.symbol, setFieldValue)
+                                                                                                }}
+                                                                                            >
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faEdit}/>
+                                                                                            </button>
+                                                                                        )}
+
+                                                                                        {!getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && values.symbol && !this.state.isSymbolCodeChange && (
+                                                                                            <button
+                                                                                                type="button"
+                                                                                                className='border-grey-btn ripple'
+                                                                                                onClick={() => this.changeSymbolCode(true)}
+                                                                                            >
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faEdit}/>
+                                                                                            </button>
+                                                                                        )}
+
                                                                                         <ErrorMessage name="symbol"
                                                                                                       component="div"
                                                                                                       className="error-message"/>
                                                                                     </div>
-                                                                                    {getApprovedFormStatus().includes(this.symbol?.status.toLowerCase() as FormStatus) && (
+                                                                                ) : (
+                                                                                    <div
+                                                                                        className={`input__wrap input__btns justify-content-start  ${(isSubmitting) ? 'disable' : 'no-border'}`}>
+                                                                                        <Field
+                                                                                            name="symbol"
+                                                                                            id="symbol"
+                                                                                            type="text"
+                                                                                            className="input__text edit"
+                                                                                            placeholder="Type Symbol"
+                                                                                            disabled={isSubmitting}
+                                                                                            // onChange={(e: any) => console.log('*')}
+                                                                                        />
+
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className={`border-grey-btn ripple ${isSubmitting || !!errors?.symbol?.length ? 'disable' : ''}`}
+                                                                                            disabled={isSubmitting || !!errors?.symbol?.length}
+                                                                                            onClick={() => this.submitSymbolCode(values.symbol, setFieldValue)}>
+                                                                                            <FontAwesomeIcon
+                                                                                                className="nav-icon"
+                                                                                                icon={faCheck}/>
+                                                                                        </button>
                                                                                         <button
                                                                                             type="button"
                                                                                             className='border-grey-btn ripple'
-                                                                                            onClick={() => {
-                                                                                                setFieldValue('is_change', true);
-                                                                                                setFieldValue('new_symbol', values.symbol);
-                                                                                                setFieldValue('new_security_name', values.security_name);
-                                                                                                this.handleNewSymbol(values.symbol, setFieldValue)
-                                                                                            }}
-                                                                                        >
+                                                                                            onClick={() => this.cancelSymbolCode(setFieldValue)}>
                                                                                             <FontAwesomeIcon
                                                                                                 className="nav-icon"
-                                                                                                icon={faEdit}/>
+                                                                                                icon={faClose}/>
                                                                                         </button>
-                                                                                    )}
 
-                                                                                    <ErrorMessage name="symbol"
-                                                                                                  component="div"
-                                                                                                  className="error-message"/>
-                                                                                </div>
+                                                                                        <ErrorMessage name="symbol"
+                                                                                                      component="div"
+                                                                                                      className="error-message"/>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         </>
                                                                     )}
@@ -1467,7 +1542,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             Name <i>*</i>
                                                                                         </div>
                                                                                         <div
-                                                                                            className={`input__wrap ${(isSubmitting || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                                            className={`input__wrap no-border ${(isSubmitting || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                                             <Field
                                                                                                 name="new_security_name"
                                                                                                 id="new_security_name"
@@ -1487,21 +1562,68 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                         <div
                                                                                             className="input__title">Symbol
                                                                                         </div>
-                                                                                        <div
-                                                                                            className={`input__wrap no-border`}>
-                                                                                            <Field
-                                                                                                name="new_symbol"
-                                                                                                id="new_symbol"
-                                                                                                type="text"
-                                                                                                className="input__text no-bg dsin no-bg dsin-view"
-                                                                                                disabled={true}
-                                                                                            />
-                                                                                            <ErrorMessage
-                                                                                                name="new_symbol"
-                                                                                                component="div"
-                                                                                                className="error-message"/>
-                                                                                        </div>
+
+                                                                                        {!this.state.isSymbolCodeChange ? (
+                                                                                            <div
+                                                                                                className={`input__wrap input__btns justify-content-start no-border`}>
+                                                                                                <Field
+                                                                                                    name="new_symbol"
+                                                                                                    id="new_symbol"
+                                                                                                    type="text"
+                                                                                                    className="input__text no-bg dsin no-bg dsin-view"
+                                                                                                    disabled={true}
+                                                                                                />
+
+                                                                                                <button
+                                                                                                    type="button"
+                                                                                                    className='border-grey-btn ripple'
+                                                                                                    onClick={() => this.changeSymbolCode(true)}
+                                                                                                >
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faEdit}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <div
+                                                                                                className={`input__wrap no-border input__btns justify-content-start  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                                <Field
+                                                                                                    name="new_symbol"
+                                                                                                    id="new_symbol"
+                                                                                                    type="text"
+                                                                                                    className="input__text edit"
+                                                                                                    placeholder="Type Symbol"
+                                                                                                    disabled={isSubmitting}
+                                                                                                />
+
+                                                                                                <button
+                                                                                                    type="button"
+                                                                                                    className={`border-grey-btn ripple ${isSubmitting || !!errors?.new_symbol?.length ? 'disable' : ''}`}
+                                                                                                    disabled={isSubmitting || !!errors?.new_symbol?.length}
+                                                                                                    onClick={() => this.submitNewSymbolCode(values.new_symbol ?? '', setFieldValue)}>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faCheck}/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    type="button"
+                                                                                                    className='border-grey-btn ripple'
+                                                                                                    onClick={() => this.cancelNewSymbolNewCode(setFieldValue)}>
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faClose}/>
+                                                                                                </button>
+
+                                                                                                <ErrorMessage
+                                                                                                    name="new_symbol"
+                                                                                                    component="div"
+                                                                                                    className="error-message"/>
+                                                                                            </div>
+                                                                                        )}
+
                                                                                     </div>
+
+
                                                                                 </div>
                                                                                 <div className="input">
                                                                                     <div

@@ -19,7 +19,7 @@ import 'react-dates/lib/css/_datepicker.css';
 import {createColumnHelper} from "@tanstack/react-table";
 import {IActivityStorage} from "@/interfaces/i-activity-storage";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faEdit, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faCheck, faClose, faEdit, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import NumericInputField from "@/components/numeric-input-field";
 import {
     DigitalAssetCategory,
@@ -221,6 +221,8 @@ interface SymbolFormState extends IState {
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
     getSymbolProcessing: boolean;
+    isSymbolCodeChange: boolean;
+    symbolCode: string;
 }
 
 interface SymbolFormProps extends ICallback {
@@ -413,7 +415,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             history: initialData?.history || [],
             selectedSecFiles: [],
             selectedSecImages: [],
-            getSymbolProcessing: false
+            getSymbolProcessing: false,
+            isSymbolCodeChange: false,
+            symbolCode: initialValues.symbol
         };
 
         columns = [
@@ -658,8 +662,10 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                             setFieldValue(symbolField, symbol);
 
                             if (symbol !== null) {
-                                const dsin = dsinService.generate(symbol);
-                                setFieldValue(dsinField, dsin);
+                                this.setState({symbolCode: symbol}, () => {
+                                    const dsin = dsinService.generate(symbol);
+                                    setFieldValue(dsinField, dsin);
+                                });
                             }
                         })
                         .finally(() => this.setState({getSymbolProcessing: false}));
@@ -733,6 +739,30 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             ),
         }
     );
+
+    changeSymbolCode = (value: boolean) => {
+        this.setState({isSymbolCodeChange: value});
+    }
+
+    submitSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        this.setState({symbolCode: symbolCode})
+        this.changeSymbolCode(false);
+    }
+
+    cancelSymbolCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        setFieldValue('symbol', this.state.symbolCode);
+        this.changeSymbolCode(false);
+    }
+
+    submitNewSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        this.setState({symbolCode: symbolCode})
+        this.changeSymbolCode(false);
+    }
+
+    cancelNewSymbolNewCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        setFieldValue('new_symbol', this.state.symbolCode);
+        this.changeSymbolCode(false);
+    }
 
     render() {
         let action = this.props.action;
@@ -1275,44 +1305,89 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         </div>
                                                                     </div>
                                                                     <div className="input">
-                                                                        <div className="input__title">Symbol
-                                                                        </div>
-                                                                        <div
-                                                                            className={`${getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? 'input__btns' : 'input__wrap'}  `}>
+                                                                        <div className="input__title">Symbol</div>
+                                                                        {!this.state.isSymbolCodeChange ? (
                                                                             <div
-                                                                                className={`input__wrap text-center flex-1`}
-                                                                                style={{marginLeft: '45px'}}>
+                                                                                className={`input__wrap no-border input__btns justify-content-center  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <div
+                                                                                    className={`input__wrap no-border`}>
+                                                                                    <Field
+                                                                                        name="symbol"
+                                                                                        id="symbol"
+                                                                                        type="text"
+                                                                                        className="input__text dsin"
+                                                                                        disabled={true}
+                                                                                    />
+                                                                                </div>
+                                                                                {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className='border-grey-btn ripple'
+                                                                                        onClick={() => {
+                                                                                            setFieldValue('is_change', true);
+                                                                                            setFieldValue('new_symbol', values.symbol);
+                                                                                            setFieldValue('new_security_name', values.security_name);
+                                                                                            this.handleNewSymbol(values.symbol, setFieldValue)
+                                                                                        }}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faEdit}/>
+                                                                                    </button>
+                                                                                )}
+
+                                                                                {/*{!getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && values.symbol && !this.state.isSymbolCodeChange && (*/}
+                                                                                {/*    <button*/}
+                                                                                {/*        type="button"*/}
+                                                                                {/*        className='border-grey-btn ripple'*/}
+                                                                                {/*        onClick={() => this.changeSymbolCode(true)}*/}
+                                                                                {/*    >*/}
+                                                                                {/*        <FontAwesomeIcon*/}
+                                                                                {/*            className="nav-icon"*/}
+                                                                                {/*            icon={faEdit}/>*/}
+                                                                                {/*    </button>*/}
+                                                                                {/*)}*/}
+
+                                                                                <ErrorMessage name="symbol"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div
+                                                                                className={`input__wrap input__btns justify-content-center  ${(isSubmitting) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="symbol"
                                                                                     id="symbol"
                                                                                     type="text"
-                                                                                    className="input__text dsin"
-                                                                                    disabled={true}
+                                                                                    className="input__text edit"
+                                                                                    placeholder="Type Symbol"
+                                                                                    disabled={isSubmitting}
+                                                                                    // onChange={(e: any) => console.log('*')}
                                                                                 />
-                                                                                <ErrorMessage name="new_symbol"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
-                                                                            </div>
-                                                                            {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
+
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || !!errors?.symbol?.length ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || !!errors?.symbol?.length}
+                                                                                    onClick={() => this.submitSymbolCode(values.symbol, setFieldValue)}>
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faCheck}/>
+                                                                                </button>
                                                                                 <button
                                                                                     type="button"
                                                                                     className='border-grey-btn ripple'
-                                                                                    onClick={() => {
-                                                                                        setFieldValue('is_change', true);
-                                                                                        setFieldValue('new_symbol', values.symbol);
-                                                                                        setFieldValue('new_security_name', values.security_name);
-                                                                                        this.handleNewSymbol(values.symbol, setFieldValue)
-                                                                                    }}
-                                                                                >
+                                                                                    onClick={() => this.cancelSymbolCode(setFieldValue)}>
                                                                                     <FontAwesomeIcon
                                                                                         className="nav-icon"
-                                                                                        icon={faEdit}/>
+                                                                                        icon={faClose}/>
                                                                                 </button>
-                                                                            )}
 
-                                                                            <ErrorMessage name="symbol" component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
+                                                                                <ErrorMessage name="symbol"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 </>
                                                             )}
@@ -1373,7 +1448,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         </div>
                                                                         <div className="input__group">
                                                                             <div className="input">
-                                                                                <div className="input__title">Effective
+                                                                                <div
+                                                                                    className="input__title">Effective
                                                                                     Date <i>*</i>
                                                                                 </div>
                                                                                 <div
@@ -1400,7 +1476,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
 
                                                                             <div className="input">
-                                                                                <div className="input__title">Effective
+                                                                                <div
+                                                                                    className="input__title">Effective
                                                                                     Time <i>*</i>
                                                                                 </div>
                                                                                 <div
@@ -1434,19 +1511,19 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                     disabled={isSubmitting || this.state.getSymbolProcessing}
                                                                                     onChange={(e: any) => this.handleNewSecurityNameChange(e, setFieldValue)}
                                                                                 />
-                                                                                <ErrorMessage name="new_security_name"
-                                                                                              component="div"
-                                                                                              className="error-message"/>
+                                                                                <ErrorMessage
+                                                                                    name="new_security_name"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
                                                                             </div>
                                                                         </div>
                                                                         <div className="input">
                                                                             <div
                                                                                 className="input__title">Symbol
                                                                             </div>
-                                                                            <div
-                                                                                className={`input__wrap text-center`}>
+                                                                            {!this.state.isSymbolCodeChange ? (
                                                                                 <div
-                                                                                    className={`input__wrap no-border`}>
+                                                                                    className={`input input__btns justify-content-center no-border`}>
                                                                                     <Field
                                                                                         name="new_symbol"
                                                                                         id="new_symbol"
@@ -1454,14 +1531,57 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                         className="input__text dsin"
                                                                                         disabled={true}
                                                                                     />
-                                                                                    <ErrorMessage name="new_symbol"
-                                                                                                  component="div"
-                                                                                                  className="error-message"/>
+
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className='border-grey-btn ripple'
+                                                                                        onClick={() => this.changeSymbolCode(true)}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faEdit}/>
+                                                                                    </button>
                                                                                 </div>
-                                                                            </div>
+                                                                            ) : (
+                                                                                <div
+                                                                                    className={`input no-border input__btns justify-content-center  ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="new_symbol"
+                                                                                        id="new_symbol"
+                                                                                        type="text"
+                                                                                        className="input__text edit"
+                                                                                        placeholder="Type Symbol"
+                                                                                        disabled={isSubmitting}
+                                                                                    />
+
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className={`border-grey-btn ripple ${isSubmitting || !!errors?.new_symbol?.length ? 'disable' : ''}`}
+                                                                                        disabled={isSubmitting || !!errors?.new_symbol?.length}
+                                                                                        onClick={() => this.submitNewSymbolCode(values.new_symbol ?? '', setFieldValue)}>
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faCheck}/>
+                                                                                    </button>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className='border-grey-btn ripple'
+                                                                                        onClick={() => this.cancelNewSymbolNewCode(setFieldValue)}>
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faClose}/>
+                                                                                    </button>
+
+                                                                                    <ErrorMessage
+                                                                                        name="new_symbol"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                         <div className="input">
-                                                                            <div className="input__title">Change Reason
+                                                                            <div className="input__title">Change
+                                                                                Reason
                                                                             </div>
                                                                             <div className="input__wrap">
                                                                                 <Field
@@ -1517,9 +1637,10 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                             className="input__text dsin blue"
                                                                                             disabled={true}
                                                                                         />
-                                                                                        <ErrorMessage name="new_dsin"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
+                                                                                        <ErrorMessage
+                                                                                            name="new_dsin"
+                                                                                            component="div"
+                                                                                            className="error-message"/>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1586,10 +1707,12 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
                                                                         />
                                                                         <label htmlFor="is_cusip">
-                                                                            <span></span><i> Does it have cusip number?
+                                                                            <span></span><i> Does it have cusip
+                                                                            number?
                                                                         </i>
                                                                         </label>
-                                                                        <ErrorMessage name="is_cusip" component="div"
+                                                                        <ErrorMessage name="is_cusip"
+                                                                                      component="div"
                                                                                       className="error-message"/>
                                                                     </div>
                                                                 </div>
@@ -1606,7 +1729,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                 placeholder="Type CUSIP"
                                                                                 disabled={isSubmitting || this.isShow()}
                                                                             />
-                                                                            <ErrorMessage name="cusip" component="div"
+                                                                            <ErrorMessage name="cusip"
+                                                                                          component="div"
                                                                                           className="error-message"/>
                                                                         </div>
                                                                     </div>
@@ -1651,7 +1775,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             Identifiers
                                                                         </option>
                                                                         {Object.values(FifthCharacterIdentifier).map((identifier) => (
-                                                                            <option key={identifier} value={identifier}>
+                                                                            <option key={identifier}
+                                                                                    value={identifier}>
                                                                                 {identifier}
                                                                             </option>
                                                                         ))}
@@ -1699,7 +1824,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             className="b-select"
                                                                             disabled={isSubmitting || this.isShow()}
                                                                         >
-                                                                            <option value="">Select category</option>
+                                                                            <option value="">Select category
+                                                                            </option>
                                                                             {Object.values(getAlternativeAssetSubCategory(values.alternative_asset_category)).map((type: any) => (
                                                                                 <option key={type} value={type}>
                                                                                     {type}
@@ -1717,7 +1843,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             )}
 
                                                             <div className="input">
-                                                                <div className="input__title">Exempted Offerings</div>
+                                                                <div className="input__title">Exempted Offerings
+                                                                </div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <Field
@@ -1753,14 +1880,16 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                         className="b-select"
                                                                         disabled={isSubmitting || this.isShow()}
                                                                     >
-                                                                        <option value="">Select Market Sector</option>
+                                                                        <option value="">Select Market Sector
+                                                                        </option>
                                                                         {Object.values(MarketSector).map((type) => (
                                                                             <option key={type} value={type}>
                                                                                 {type}
                                                                             </option>
                                                                         ))}
                                                                     </Field>
-                                                                    <ErrorMessage name="market_sector" component="div"
+                                                                    <ErrorMessage name="market_sector"
+                                                                                  component="div"
                                                                                   className="error-message"/>
                                                                 </div>
                                                             </div>
@@ -1819,7 +1948,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             </div>
 
                                                             <div className="input">
-                                                                <div className="input__title">Fractional Lot Size</div>
+                                                                <div className="input__title">Fractional Lot Size
+                                                                </div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                                     <Field
@@ -1839,7 +1969,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             </div>
 
                                                             <div className="input">
-                                                                <div className="input__title">Minimum Price Variation
+                                                                <div className="input__title">Minimum Price
+                                                                    Variation
                                                                     (MPV)
                                                                     (.01,
                                                                     .05, .10)
@@ -2328,12 +2459,14 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         );
                                     }}
                                 </Formik>
-                                {!this.props.data?.symbol_id && this.props.action === 'view' && (
-                                    <div className={'input'}>
-                                        <h4 className="input__group__title">Symbols</h4>
-                                        <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
-                                    </div>
-                                )}
+                                {
+                                    !this.props.data?.symbol_id && this.props.action === 'view' && (
+                                        <div className={'input'}>
+                                            <h4 className="input__group__title">Symbols</h4>
+                                            <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
+                                        </div>
+                                    )
+                                }
 
                             </>
                         )}
@@ -2341,7 +2474,9 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
                     </>
                 )
-            case 'deleteAdmin':
+            case
+            'deleteAdmin'
+            :
                 return (
                     <>
                         <div className="confirm-btns-panel">
@@ -2349,9 +2484,10 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                 <button className="border-btn ripple"
                                         onClick={() => this.props.onCancel?.()}>Cancel</button>
                             )}
-                            <button className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
-                                    type="button" disabled={this.state.isDeleting}
-                                    onClick={() => this.handleDelete(this.props.data)}>Confirm
+                            <button
+                                className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
+                                type="button" disabled={this.state.isDeleting}
+                                onClick={() => this.handleDelete(this.props.data)}>Confirm
                             </button>
                         </div>
                     </>

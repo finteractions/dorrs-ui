@@ -383,10 +383,10 @@ body {
         margin-bottom: 0 !important;
       }
 
-      .input__text.dsin {
-        max-width: unset;
-        margin: unset;
-      }
+      //.input__text.dsin {
+      //  max-width: unset;
+      //  margin: unset;
+      //}
     }
 
     .input {
@@ -424,6 +424,10 @@ body {
         margin-left: 10px;
         border: 1px solid var(--border-colour-4);
         color: var(--border-colour-4);
+      }
+
+      .error-message {
+        bottom: -15px;
       }
     }
 
@@ -3393,6 +3397,11 @@ body {
     //.admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover {
     //  color: var(--text-colour-1)
     //}
+
+    .input__text.edit {
+      max-width: 230px;
+      width: 100%;
+    }
 
     .input__text.dsin {
       max-width: 230px;
