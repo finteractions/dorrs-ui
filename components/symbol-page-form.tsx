@@ -475,14 +475,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         return this.props.action === 'view' || (getBuildableFormStatuses().includes((this.state.formInitialValues as ISymbol)?.status.toLowerCase() as FormStatus) && !this.symbol?.symbol_id);
     }
 
-    handleNewSymbol(value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) {
-        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        setFieldValue('new_symbol', alphanumericValue);
-
-        const dsin = dsinService.generate(alphanumericValue)
-        setFieldValue('new_dsin', dsin);
-    }
-
     handlePeggedChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         let value: string | null = e.target.value;
 
@@ -786,24 +778,45 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         this.setState({isSymbolCodeChange: value});
     }
 
-    submitSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+    submitSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
         this.setState({symbolCode: symbolCode})
         this.changeSymbolCode(false);
+        this.handleSymbol(symbolCode, setFieldValue, setFieldTouched);
     }
 
-    cancelSymbolCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-        setFieldValue('symbol', this.state.symbolCode);
+    cancelSymbolCode = async (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
+        const symbol = this.state.symbolCode;
         this.changeSymbolCode(false);
+        this.handleSymbol(symbol, setFieldValue, setFieldTouched);
     }
 
-    submitNewSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+    submitNewSymbolCode = (symbolCode: string, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
         this.setState({symbolCode: symbolCode})
         this.changeSymbolCode(false);
+        this.handleNewSymbol(symbolCode, setFieldValue, setFieldTouched);
     }
 
-    cancelNewSymbolNewCode = (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-        setFieldValue('new_symbol', this.state.symbolCode);
+    cancelNewSymbolNewCode = async (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
+        const symbol = this.state.symbolCode;
         this.changeSymbolCode(false);
+        this.handleNewSymbol(symbol, setFieldValue, setFieldTouched);
+    }
+
+    handleSymbol = async (value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
+        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        await setFieldValue('symbol', alphanumericValue);
+        await setFieldTouched('symbol', true);
+
+        const dsin = dsinService.generate(alphanumericValue)
+        setFieldValue('dsin', dsin);
+    }
+
+    handleNewSymbol = async (value: any, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void, setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void) => {
+        const alphanumericValue = value.slice(0, 6).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        await setFieldValue('new_symbol', alphanumericValue);
+        await setFieldTouched('new_symbol', true);
+        const dsin = dsinService.generate(alphanumericValue)
+        await setFieldValue('new_dsin', dsin);
     }
 
     render() {
@@ -819,7 +832,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                             onSubmit={this.handleSubmit}
                             innerRef={this.formRef}
                         >
-                            {({isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                            {({isSubmitting, setFieldValue, isValid, dirty, values, errors, setFieldTouched}) => {
                                 formValidator.requiredFields(formSchema, values, errors);
 
                                 return (
@@ -1366,7 +1379,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                     setFieldValue('is_change', true);
                                                                                                     setFieldValue('new_symbol', values.symbol);
                                                                                                     setFieldValue('new_security_name', values.security_name);
-                                                                                                    this.handleNewSymbol(values.symbol, setFieldValue)
+                                                                                                    this.handleNewSymbol(values.symbol, setFieldValue, setFieldTouched)
                                                                                                 }}
                                                                                             >
                                                                                                 <FontAwesomeIcon
@@ -1386,10 +1399,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                     icon={faEdit}/>
                                                                                             </button>
                                                                                         )}
-
-                                                                                        <ErrorMessage name="symbol"
-                                                                                                      component="div"
-                                                                                                      className="error-message"/>
                                                                                     </div>
                                                                                 ) : (
                                                                                     <div
@@ -1401,14 +1410,14 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             className="input__text edit"
                                                                                             placeholder="Type Symbol"
                                                                                             disabled={isSubmitting}
-                                                                                            // onChange={(e: any) => console.log('*')}
+                                                                                            onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue, setFieldTouched)}
                                                                                         />
 
                                                                                         <button
                                                                                             type="button"
                                                                                             className={`border-grey-btn ripple ${isSubmitting || !!errors?.symbol?.length ? 'disable' : ''}`}
                                                                                             disabled={isSubmitting || !!errors?.symbol?.length}
-                                                                                            onClick={() => this.submitSymbolCode(values.symbol, setFieldValue)}>
+                                                                                            onClick={() => this.submitSymbolCode(values.symbol, setFieldValue, setFieldTouched)}>
                                                                                             <FontAwesomeIcon
                                                                                                 className="nav-icon"
                                                                                                 icon={faCheck}/>
@@ -1416,7 +1425,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                         <button
                                                                                             type="button"
                                                                                             className='border-grey-btn ripple'
-                                                                                            onClick={() => this.cancelSymbolCode(setFieldValue)}>
+                                                                                            onClick={() => this.cancelSymbolCode(setFieldValue, setFieldTouched)}>
                                                                                             <FontAwesomeIcon
                                                                                                 className="nav-icon"
                                                                                                 icon={faClose}/>
@@ -1594,13 +1603,14 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                     className="input__text edit"
                                                                                                     placeholder="Type Symbol"
                                                                                                     disabled={isSubmitting}
+                                                                                                    onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue, setFieldTouched)}
                                                                                                 />
 
                                                                                                 <button
                                                                                                     type="button"
                                                                                                     className={`border-grey-btn ripple ${isSubmitting || !!errors?.new_symbol?.length ? 'disable' : ''}`}
                                                                                                     disabled={isSubmitting || !!errors?.new_symbol?.length}
-                                                                                                    onClick={() => this.submitNewSymbolCode(values.new_symbol ?? '', setFieldValue)}>
+                                                                                                    onClick={() => this.submitNewSymbolCode(values.new_symbol ?? '', setFieldValue, setFieldTouched)}>
                                                                                                     <FontAwesomeIcon
                                                                                                         className="nav-icon"
                                                                                                         icon={faCheck}/>
@@ -1608,7 +1618,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                 <button
                                                                                                     type="button"
                                                                                                     className='border-grey-btn ripple'
-                                                                                                    onClick={() => this.cancelNewSymbolNewCode(setFieldValue)}>
+                                                                                                    onClick={() => this.cancelNewSymbolNewCode(setFieldValue, setFieldTouched)}>
                                                                                                     <FontAwesomeIcon
                                                                                                         className="nav-icon"
                                                                                                         icon={faClose}/>
