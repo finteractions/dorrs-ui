@@ -23,4 +23,5 @@ interface IDirectoryCompanyProfile {
     approved_date_time: string;
     status: string;
     profile_status: string;
+    isDisabled?: boolean;
 }

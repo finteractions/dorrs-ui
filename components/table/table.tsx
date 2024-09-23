@@ -328,7 +328,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
     };
 
     const isButtonDisabled = (row: any) => {
-        return row && [FormStatus.DELETED, OrderStatus.CLOSED].includes(row['status']?.toLowerCase());
+        return row && [FormStatus.DELETED, OrderStatus.CLOSED].includes(row['status']?.toLowerCase()) || typeof row.isDisabled !== 'undefined' && row.isDisabled;
     };
 
     const isButtonDeleteDisabled = (row: any) => {

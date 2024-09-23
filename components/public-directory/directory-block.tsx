@@ -205,8 +205,10 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
     getFirmProfile = () => {
         publicDirectoryService.getCompanyProfile()
             .then((res: Array<IDirectoryCompanyProfile>) => {
-                const data = res || [];
-
+                let data = res || [];
+                data.forEach((s:IDirectoryCompanyProfile) => {
+                    s.isDisabled = s.website_link === '';
+                });
                 this.handleData(data);
             })
             .catch((errors: IError) => {
