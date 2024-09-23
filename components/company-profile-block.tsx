@@ -839,7 +839,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Company Address</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{[this.companyProfile.street_address_1, this.companyProfile.street_address_2, this.companyProfile.city, this.companyProfile.zip_code, this.companyProfile.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                                    <div>{[this.companyProfile.street_address_1, this.companyProfile.street_address_2, this.companyProfile.city, this.companyProfile.zip_code, this.companyProfile.country].filter(i => i !== '' && i !== null).join(', ') || 'not filled'}</div>
                                                     {this.companyProfile.email && (
                                                         <div className="mt-2">
                                                             <Link className={'link'}

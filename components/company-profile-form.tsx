@@ -1883,7 +1883,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Company Address</div>
-                                            <div>{[this.state.formInitialValues?.street_address_1, this.state.formInitialValues?.street_address_2, this.state.formInitialValues?.city, this.state.formInitialValues?.zip_code, this.state.formInitialValues?.country].filter(i => i !== '').join(', ') || 'not filled'}</div>
+                                            <div>{[this.state.formInitialValues?.street_address_1, this.state.formInitialValues?.street_address_2, this.state.formInitialValues?.city, this.state.formInitialValues?.zip_code, this.state.formInitialValues?.country].filter(i => i !== '' && i !== null).join(', ') || 'not filled'}</div>
                                             {this.state.formInitialValues?.email && (
                                                 <div className="mt-2">
                                                     <Link className={'link'}
