@@ -24,7 +24,7 @@ const formSchema = Yup.object().shape({
         Yup.string()
             .email("Invalid email")
             .required("Required"),
-    mobile_number: formValidator.phoneNumberField,
+    mobile_number: formValidator.phoneNumberField(),
     user_image_tmp: Yup.mixed()
         .test('user_image_tmp', `File is not a valid image. Only ${allowedExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;

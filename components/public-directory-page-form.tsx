@@ -30,7 +30,7 @@ const allowedImageExt = ['png', 'jpg', 'jpeg']
 const formSchema = Yup.object().shape({
     first_last_name: Yup.string().required('Required').label('Your Name'),
     email: Yup.string().email("Invalid email").required('Required').label('Email Address'),
-    mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
+    mobile_number: FormValidator.phoneNumberField().label('Mobile Number'),
     company_name: Yup.string().required('Required').label('Company Name'),
     company_type: Yup.string().required('Required').label('Company Type'),
     company_type_name: Yup.string().min(3)

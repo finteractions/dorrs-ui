@@ -29,7 +29,7 @@ const allowedImageExt = ['png', 'jpg', 'jpeg']
 const formSchema = Yup.object().shape({
     first_last_name: Yup.string().required('Required').label('Your Name'),
     email: Yup.string().email("Invalid email").required('Required').label('Email Address'),
-    mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
+    mobile_number: FormValidator.phoneNumberField(false).label('Mobile Number'),
     company_name: Yup.string().required('Required').label('Company Name'),
     company_type: Yup.string().required('Required').label('Company Type'),
     company_type_name: Yup.string().min(3)
@@ -39,11 +39,11 @@ const formSchema = Yup.object().shape({
         })
         .label('Company Type'),
     company_title: Yup.string().required('Required').label('Your title'),
-    protocol_name: Yup.string().required('Required').label('Protocol Name'),
-    description: Yup.string().max(280).required('Required').label('Description'),
-    website_link: Yup.string().url('Invalid URL').required('Required').label('Website Link'),
-    founding_date: Yup.string().required('Required').label('Founding Date'),
-    logo_tmp: Yup.mixed().required('Required')
+    protocol_name: Yup.string().label('Protocol Name'),
+    description: Yup.string().max(280).label('Description'),
+    website_link: Yup.string().url('Invalid URL').label('Website Link'),
+    founding_date: Yup.string().label('Founding Date'),
+    logo_tmp: Yup.mixed().nullable()
         .test('logo_tmp', `File is not a valid image. Only ${allowedImageExt.join(', ').toUpperCase()} files are allowed`, (value: any) => {
             if (!value) return true;
             if (typeof value === 'string') return true;
@@ -54,7 +54,7 @@ const formSchema = Yup.object().shape({
             if (typeof value === 'string') return true;
             return value.size <= allowedImageFileSize;
         }),
-    asset_class: Yup.array().of(Yup.string()).min(1, 'Required').required('Required').label('Asset Class(es)'),
+    asset_class: Yup.array().of(Yup.string()).label('Asset Class(es)'),
     asset_region: Yup.array().of(Yup.string()).label('Asset Region(s)'),
     network: Yup.array().of(Yup.string()).label('Network(s)'),
     asset_listing: Yup.string().label('Asset Listing Request').label('Asset Listing Request'),
@@ -151,6 +151,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
     handleSubmit = async (values: IDirectoryCompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
+
         this.setState({errorMessages: null});
 
         let data = {...values};
@@ -182,6 +183,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
             }).finally(() => {
                 setSubmitting(false);
             });
+
     };
 
     handleDelete = async (values: any) => {
@@ -353,7 +355,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Phone Number <i>*</i>
+                                                    <div className="input__title">Phone Number
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -480,7 +482,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
 
                                                 <div className="input">
                                                     <div
-                                                        className="input__title">Protocol Name <i>*</i>
+                                                        className="input__title">Protocol Name
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -501,7 +503,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
 
                                                 <div className="input">
                                                     <div
-                                                        className="input__title">Description <i>*</i>
+                                                        className="input__title">Description
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -524,7 +526,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
 
                                                 <div className="input">
                                                     <div
-                                                        className="input__title">Protocol Website <i>*</i>
+                                                        className="input__title">Protocol Website
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -544,7 +546,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Initial Offering Date <i>*</i>
+                                                    <div className="input__title">Initial Offering Date
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -580,7 +582,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
 
                                                 {!this.isShow() && (
                                                     <div className="input">
-                                                        <div className="input__title">Logo <i>*</i></div>
+                                                        <div className="input__title">Logo</div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
 
@@ -621,7 +623,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 )}
 
                                                 <div className="input">
-                                                    <div className="input__title">Asset Class(es) <i>*</i></div>
+                                                    <div className="input__title">Asset Class(es)</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                         <Field
@@ -777,7 +779,6 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                         Save Firm
                                                     </button>
                                                 )}
-
 
                                                 {this.state.errorMessages && (
                                                     <AlertBlock type={"error"} messages={this.state.errorMessages}/>

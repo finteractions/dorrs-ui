@@ -39,7 +39,7 @@ const formSchema = Yup.object().shape({
             .required("Required").label('Email'),
     password1: FormValidator.passwordField,
     password2: FormValidator.confirmPasswordField('password1'),
-    mobile_number: FormValidator.phoneNumberField.label('Mobile Number'),
+    mobile_number: FormValidator.phoneNumberField().label('Mobile Number'),
     data_feed_providers: Yup.array().of(Yup.string()).label('Data Feed Providers'),
     email_verified: Yup.boolean().label('Email Verified'),
 });

@@ -21,7 +21,7 @@ const formSchema = Yup.object().shape({
     mpid: Yup.string().min(3).required('Required').max(12).label('MPID'),
     address: Yup.string().required('Required').label('Address'),
     email: Yup.string().required('Required').email("Invalid email").label('Email Address'),
-    phone: FormValidator.phoneNumberField.label('Phone'),
+    phone: FormValidator.phoneNumberField().label('Phone'),
     is_member: Yup.boolean().label('DORRS Member'),
     is_ats: Yup.boolean().label('ATS'),
 });

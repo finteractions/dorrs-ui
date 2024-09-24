@@ -32,14 +32,22 @@ const confirmPasswordField = (name: string) => yup.string()
     })
 
 const phoneRegExp = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,3}[-\s.]?[0-9]{2,6}$/im;
-const phoneNumberField = yup.string()
-    .label('Phone Number')
-    .required('Required')
-    .matches(phoneRegExp, "Incorrect Phone Number")
-    .test('is-valid-length', 'Incorrect Phone Number', (value) => {
-        const normalizedPhoneNumber = value.replace(/\D/g, '')
-        return normalizedPhoneNumber.length >= 10;
-    });
+const phoneNumberField = (required = true) => {
+    let schema = yup.string()
+        .label('Phone Number')
+        .matches(phoneRegExp, "Incorrect Phone Number")
+        .test('is-valid-length', 'Incorrect Phone Number', (value) => {
+            if (!value) return true; // Разрешаем пустое значение, если оно не является обязательным
+            const normalizedPhoneNumber = value.replace(/\D/g, '');
+            return normalizedPhoneNumber.length >= 10;
+        });
+
+    if (required) {
+        schema = schema.required('Required');
+    }
+
+    return schema;
+};
 
 const castFormValues = (values: any, schema: Yup.ObjectSchema<any>) => {
     Object.keys(schema.fields).forEach((s: string) => {

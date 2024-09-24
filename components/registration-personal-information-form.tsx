@@ -28,7 +28,7 @@ const formSchema = Yup.object().shape({
             .required("Required"),
     password1: FormValidator.passwordField,
     password2: FormValidator.confirmPasswordField('password1'),
-    mobile_number: FormValidator.phoneNumberField,
+    mobile_number: FormValidator.phoneNumberField(),
     agreement: Yup.boolean()
         .oneOf([true],
             "Required"),
