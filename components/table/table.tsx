@@ -45,103 +45,6 @@ interface TableRef {
     getColumnFilters?: () => { [key: string]: string };
 }
 
-const filterData = (data: any[], searchValue: string,
-                    columnFilters: { [key: string]: string | Array<string> },
-                    condition?: string) => {
-    searchValue = searchValue?.trim();
-    const originalColumns = new Set<string>();
-
-    if (condition && condition !== 'null') {
-        const filterFunction = new Function('s', `return ${condition}`) as (s: any) => boolean;
-        data = data.filter(filterFunction);
-    }
-
-    Object.keys(columnFilters).forEach((key: string) => {
-        if (columnFilters[key] === "") {
-            delete columnFilters[key];
-        } else {
-            const [rowKey, nestedKey] = key.split('.');
-            originalColumns.add(rowKey);
-        }
-    });
-
-    const getAllValues = (obj: any) => {
-        const values: any[] = [];
-
-        const extractValues = (o: any) => {
-            Object.keys(o).forEach(key => {
-                if (typeof o[key] === 'object' && o[key] !== null) {
-                    extractValues(o[key]);
-                } else {
-                    values.push(o[key]);
-                }
-            });
-        };
-
-        extractValues(obj);
-        return values;
-    };
-
-    if (searchValue.length > 0 || Object.keys(columnFilters).length > 0) {
-        data = data.filter((rowData) => {
-            const columnKeys = Object.keys(columnFilters);
-
-            if (columnKeys.length > 0) {
-                return columnKeys.every((columnKey) => {
-                    const [rowKey, nestedKey] = columnKey.split('.');
-                    const value = typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
-
-                    const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
-
-                    if (Array.isArray(rowData[rowKey])) {
-                        switch (typeof columnFilters[rowKey]) {
-                            case "string":
-                                return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
-                            case "object":
-                                const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
-                                if (values.length > 0) {
-                                    return values.some(filterValue => {
-                                        return (rowData[rowKey] as Array<string>).includes(filterValue)
-                                    });
-                                } else {
-                                    return data
-                                }
-                        }
-                    } else if (Array.isArray(rowData[rowKey]) && typeof columnFilters[rowKey] === 'string') {
-                        return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
-                    } else if (typeof rowData[rowKey] === 'string' && Array.isArray(columnFilters[rowKey])) {
-                        const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
-                        if (values.length > 0) {
-                            return values.some(filterValue => {
-                                return rowData[rowKey] as string === filterValue
-                            });
-                        } else {
-                            return data
-                        }
-                    }
-
-                    const startDate = (columnFilters[columnKey] as any).startDate;
-                    const endDate = (columnFilters[columnKey] as any).endDate;
-
-                    if (startDate && endDate) {
-                        const date = moment(rowData[rowKey]);
-                        return !((startDate && date.isBefore(startDate, 'date')) || (endDate && date.isAfter(endDate, 'date')));
-                    }
-
-                    return valueString === columnFilters[columnKey] && (searchValue === "" || valueString.toLowerCase().includes(searchValue.toLowerCase()));
-                });
-            } else {
-                const allValues = getAllValues(rowData).map(value => (value === null ? "" : value.toString().toLowerCase()));
-                return searchValue === "" || allValues.some((val: string) => val.includes(searchValue.toLowerCase()));
-            }
-        });
-        return data;
-    } else {
-        return data;
-    }
-};
-
-
 const Table = forwardRef<TableRef, ITableProps>(({
                                                      columns,
                                                      columns_for_search,
@@ -171,7 +74,6 @@ const Table = forwardRef<TableRef, ITableProps>(({
     const [selectedDateRange, setSelectedDateRange] = React.useState<[Date | null, Date | null]>([null, null]);
     const [datePickers, setDatePickers] = React.useState<{ [key: string]: any | null }>({});
     const dateRangePickerRef = React.useRef<any>(null);
-    const customSelectRef = React.useRef<any>(null);
     const [customSelectValue, setCustomSelectValue] = React.useState("");
     const [loading, setLoading] = React.useState(true);
 
@@ -179,6 +81,103 @@ const Table = forwardRef<TableRef, ITableProps>(({
         getColumnFilters: () => columnFilters,
     }));
 
+    const filterData = (data: any[], searchValue: string,
+                        columnFilters: { [key: string]: string | Array<string> },
+                        condition?: string) => {
+        searchValue = searchValue?.trim();
+        const originalColumns = new Set<string>();
+
+        const conditionFilter = getCondition();
+
+        if (conditionFilter && conditionFilter !== 'null') {
+            const filterFunction = new Function('s', `return ${conditionFilter}`) as (s: any) => boolean;
+            data = data.filter(filterFunction);
+        }
+
+        Object.keys(columnFilters).forEach((key: string) => {
+            if (columnFilters[key] === "") {
+                delete columnFilters[key];
+            } else {
+                const [rowKey, nestedKey] = key.split('.');
+                originalColumns.add(rowKey);
+            }
+        });
+
+        const getAllValues = (obj: any) => {
+            const values: any[] = [];
+
+            const extractValues = (o: any) => {
+                Object.keys(o).forEach(key => {
+                    if (typeof o[key] === 'object' && o[key] !== null) {
+                        extractValues(o[key]);
+                    } else {
+                        values.push(o[key]);
+                    }
+                });
+            };
+
+            extractValues(obj);
+            return values;
+        };
+
+        if (searchValue.length > 0 || Object.keys(columnFilters).length > 0) {
+            data = data.filter((rowData) => {
+                const columnKeys = Object.keys(columnFilters);
+
+                if (columnKeys.length > 0) {
+                    return columnKeys.every((columnKey) => {
+                        const [rowKey, nestedKey] = columnKey.split('.');
+                        const value = typeof rowData[rowKey] === "object" ? rowData[rowKey]?.[nestedKey] ?? undefined : rowData[columnKey];
+
+                        const valueString = (typeof value === 'undefined' || value === null ? '' : value).toString();
+
+                        if (Array.isArray(rowData[rowKey])) {
+                            switch (typeof columnFilters[rowKey]) {
+                                case "string":
+                                    return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
+                                case "object":
+                                    const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
+                                    if (values.length > 0) {
+                                        return values.some(filterValue => {
+                                            return (rowData[rowKey] as Array<string>).includes(filterValue)
+                                        });
+                                    } else {
+                                        return data
+                                    }
+                            }
+                        } else if (Array.isArray(rowData[rowKey]) && typeof columnFilters[rowKey] === 'string') {
+                            return (rowData[rowKey] as Array<string>).includes(columnFilters[rowKey] as string)
+                        } else if (typeof rowData[rowKey] === 'string' && Array.isArray(columnFilters[rowKey])) {
+                            const values = (columnFilters[rowKey] as Array<string>).map((s: any) => s.value)
+                            if (values.length > 0) {
+                                return values.some(filterValue => {
+                                    return rowData[rowKey] as string === filterValue
+                                });
+                            } else {
+                                return data
+                            }
+                        }
+
+                        const startDate = (columnFilters[columnKey] as any).startDate;
+                        const endDate = (columnFilters[columnKey] as any).endDate;
+
+                        if (startDate && endDate) {
+                            const date = moment(rowData[rowKey]);
+                            return !((startDate && date.isBefore(startDate, 'date')) || (endDate && date.isAfter(endDate, 'date')));
+                        }
+
+                        return valueString === columnFilters[columnKey] && (searchValue === "" || valueString.toLowerCase().includes(searchValue.toLowerCase()));
+                    });
+                } else {
+                    const allValues = getAllValues(rowData).map(value => (value === null ? "" : value.toString().toLowerCase()));
+                    return searchValue === "" || allValues.some((val: string) => val.includes(searchValue.toLowerCase()));
+                }
+            });
+            return data;
+        } else {
+            return data;
+        }
+    };
 
     const table = useReactTable({
         columns: columns,
@@ -195,7 +194,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchValue = e.target.value.trim();
         setSearchValue(searchValue);
-        setFilteredData(filterData(originalData, searchValue, columnFilters, getCondition()));
+        setFilteredData(filterData(originalData, searchValue, columnFilters));
     };
 
 
@@ -203,7 +202,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
         setColumnFilters({});
         setSearchValue('');
         setSelectedDateRange([null, null]);
-        setFilteredData(filterData(originalData, searchValue, columnFilters, getCondition()));
+        setFilteredData(filterData(originalData, searchValue, columnFilters));
 
         dateRangePickerRef.current?.onReset();
         setCustomSelectValue('')
@@ -288,7 +287,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                     isClearable={condition?.isClearable ?? true}
                                     isSearchable={condition?.isSearchable ?? true}
                                     value={customSelectValue ? {
-                                        customSelectValue,
+                                        value: customSelectValue,
                                         label: condition?.values[customSelectValue]
                                     } : condition?.selected ? {
                                         value: condition.selected,
@@ -296,20 +295,18 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                     } : null}
                                     onChange={(selectedOption) => {
                                         const selectedValue = selectedOption?.value || '';
-                                        const conditionValue = condition?.condition[selectedValue] ?? null;
-                                        setCustomSelectValue(selectedValue)
-                                        handleFilterChange(filterKey, selectedValue, conditionValue);
+                                        setCustomSelectValue(selectedValue);
                                     }}
                                     placeholder={placeholder}
                                     options={
-                                        condition?.values ?
-                                            Object.entries(condition.values).map(([key, label]) => ({
+                                        condition?.values
+                                            ? Object.entries(condition.values).map(([key, label]) => ({
                                                 value: key,
                                                 label: label
-                                            })) : selectOptions
+                                            }))
+                                            : selectOptions
                                     }
                                 />
-
 
                             );
                         default:
@@ -365,15 +362,14 @@ const Table = forwardRef<TableRef, ITableProps>(({
         }
     }
 
-    const handleFilterChange = (columnId: string, value: any, condition?: string) => {
-        if (!condition) {
+    const handleFilterChange = (columnId: string | null, value: any) => {
+        if (columnId !== null) {
             setColumnFilters((prevFilters) => ({
                 ...prevFilters,
                 [columnId]: value,
             }));
         }
-
-        setFilteredData(filterData(originalData, searchValue, columnFilters, condition));
+        setFilteredData(filterData(originalData, searchValue, columnFilters));
     };
 
     const isEditButtonDisabled = (row: any) => {
@@ -412,9 +408,15 @@ const Table = forwardRef<TableRef, ITableProps>(({
         const currentPageIndex = table.getState().pagination.pageIndex;
         setCurrentPage(currentPageIndex);
         setOriginalData(data);
-        setFilteredData(filterData(data, searchValue, columnFilters, getCondition()));
+        setFilteredData(filterData(data, searchValue, columnFilters));
         setLoading(false)
     }, [data, table, searchValue, columns_for_search, columnFilters]);
+
+    React.useEffect(() => {
+        if (customSelectValue !== '') {
+            handleFilterChange(null, '');
+        }
+    }, [customSelectValue]);
 
     const getCondition = () => {
         const conditionValue = filters?.find(s => s.type === 'customSelect')?.condition

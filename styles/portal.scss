@@ -2071,7 +2071,7 @@ body {
         max-width: 100%;
 
         .content__top {
-          padding: 20px 20px;
+          padding: 10px 10px;
           margin: 0;
           border-bottom: 1px solid var(--border-colour-1);
           display: flex;
@@ -2103,7 +2103,7 @@ body {
         }
 
         .content__bottom {
-          padding: 20px 20px;
+          padding: 10px 10px;
           //word-break: break-all;
 
           .table {
@@ -2494,7 +2494,7 @@ body {
           th {
             font-size: 12px;
             font-weight: 600;
-            padding: 2px 5px;
+            padding: 2px 1px;
             height: 42px;
 
             .sort-th-box {
@@ -2516,8 +2516,8 @@ body {
             td {
               border-top: 1px solid var(--border-colour-1);
               font-size: 14px;
-              padding: 3px 5px;
-              height: 35px;
+              padding: 2px 1px;
+              height: 25px;
               color: var(--text-colour-4);
 
               .black-text {
@@ -2815,7 +2815,7 @@ body {
           }
 
           .content__bottom {
-            padding: 20px 20px;
+            padding: 10px 10px;
 
             .table {
               margin: -20px -20px 0 -20px;
