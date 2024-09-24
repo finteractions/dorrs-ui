@@ -120,11 +120,6 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>DSIN</span>,
             }),
-            columnHelper.accessor((row) => row.primary_ats, {
-                id: "primary_ats",
-                cell: (item) => item.getValue(),
-                header: () => <span>Primary ATS </span>,
-            }),
             columnHelper.accessor((row) => row.market_sector, {
                 id: "market_sector",
                 cell: (item) => item.getValue(),
@@ -170,10 +165,10 @@ class AssetsBlock extends React.Component<{}> {
 
         tableFilters = [
             {key: 'symbol', placeholder: 'Symbol'},
+            {key: 'security_name', placeholder: 'Security Name'},
             {key: 'cusip', placeholder: 'CUSIP'},
             // {key: 'reason_for_entry', placeholder: 'Reason for Entry'},
             {key: 'dsin', placeholder: 'DSIN'},
-            {key: 'primary_ats', placeholder: 'ATS'},
             {key: 'market_sector', placeholder: 'Market Sector'},
             {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
             {key: 'status', placeholder: 'Status'},

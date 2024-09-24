@@ -224,6 +224,7 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
 
         tableFilters = [
             {key: 'symbol', placeholder: 'Symbol'},
+            {key: 'security_name', placeholder: 'Security Name'},
             {key: 'cusip', placeholder: 'CUSIP'},
             {key: 'dsin', placeholder: 'DSIN'},
             {key: 'market_sector', placeholder: 'Market Sector'},
