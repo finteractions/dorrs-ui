@@ -33,6 +33,7 @@ interface AlgorandDataFeedLastSaleBlockProps extends ICallback {
         delete: boolean
     }
 }
+
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
@@ -79,7 +80,8 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
                              className={`table-image cursor-pointer link`}
                         >
                             <div className="table-image-container">
-                                <AssetImage alt='' src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {formatterService.formatSymbolName(item.getValue().symbol)}
@@ -141,6 +143,22 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
                 header: () => <span>Contract Address</span>,
             }),
         ];
+
+        tableFilters = [
+            {
+                key: 'activity',
+                placeholder: 'Active / All',
+                type: 'customSelect',
+                condition: {
+                    isClearable: false,
+                    isSearchable: false,
+                    values: {'all': 'All', 'active': 'Active'},
+                    selected: 'active',
+                    condition: {'all': 'null', 'active': 's.latest_update'}
+                }
+            },
+            {key: 'symbol_name', placeholder: 'Symbol'},
+        ]
     }
 
     componentDidMount() {
@@ -173,7 +191,7 @@ class AlgorandDataFeedLastSaleBlock extends React.Component<AlgorandDataFeedLast
 
     getStatistics = () => {
         statisticsService.getMarketData<IMarketLastSaleStatistics>('last-sale')
-            .then((res: Array<any>) => {
+            .then((res: Array<IMarketLastSaleStatistics>) => {
                 const data = res?.filter(s => s.algorand_last_sale_application_id) || [];
                 this.setState({data: data});
 

@@ -18,6 +18,7 @@ import Select from "react-select";
 import filterService from "@/services/filter/filter";
 import DateRangePicker from "@/components/date-range-picker";
 import moment from 'moment';
+import LoaderBlock from "@/components/loader-block";
 
 interface ITableProps {
     columns: any[];
@@ -44,9 +45,16 @@ interface TableRef {
     getColumnFilters?: () => { [key: string]: string };
 }
 
-const filterData = (data: any[], searchValue: string, columnFilters: { [key: string]: string | Array<string> }) => {
+const filterData = (data: any[], searchValue: string,
+                    columnFilters: { [key: string]: string | Array<string> },
+                    condition?: string) => {
     searchValue = searchValue?.trim();
     const originalColumns = new Set<string>();
+
+    if (condition && condition !== 'null') {
+        const filterFunction = new Function('s', `return ${condition}`) as (s: any) => boolean;
+        data = data.filter(filterFunction);
+    }
 
     Object.keys(columnFilters).forEach((key: string) => {
         if (columnFilters[key] === "") {
@@ -163,6 +171,9 @@ const Table = forwardRef<TableRef, ITableProps>(({
     const [selectedDateRange, setSelectedDateRange] = React.useState<[Date | null, Date | null]>([null, null]);
     const [datePickers, setDatePickers] = React.useState<{ [key: string]: any | null }>({});
     const dateRangePickerRef = React.useRef<any>(null);
+    const customSelectRef = React.useRef<any>(null);
+    const [customSelectValue, setCustomSelectValue] = React.useState("");
+    const [loading, setLoading] = React.useState(true);
 
     React.useImperativeHandle(ref, () => ({
         getColumnFilters: () => columnFilters,
@@ -184,7 +195,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchValue = e.target.value.trim();
         setSearchValue(searchValue);
-        setFilteredData(filterData(originalData, searchValue, columnFilters));
+        setFilteredData(filterData(originalData, searchValue, columnFilters, getCondition()));
     };
 
 
@@ -192,9 +203,10 @@ const Table = forwardRef<TableRef, ITableProps>(({
         setColumnFilters({});
         setSearchValue('');
         setSelectedDateRange([null, null]);
-        setFilteredData(filterData(originalData, searchValue, columnFilters));
+        setFilteredData(filterData(originalData, searchValue, columnFilters, getCondition()));
 
         dateRangePickerRef.current?.onReset();
+        setCustomSelectValue('')
     };
 
     const renderFilter = (column: any) => {
@@ -235,9 +247,8 @@ const Table = forwardRef<TableRef, ITableProps>(({
             </>
         );
     };
-    const renderFilterSelect = (filterKey: string, placeholder: string, type?: string) => {
-        const isMulti = type && type === "multiSelect";
-
+    const renderFilterSelect = (filterKey: string, placeholder: string, type?: string, condition?: ITableFilterCondition) => {
+        const selectType = type ?? '';
         const selectOptionsSet = new Set();
         originalData.forEach((dataItem: any) => {
             const value = dataItem[filterKey];
@@ -251,34 +262,75 @@ const Table = forwardRef<TableRef, ITableProps>(({
 
         return (
             <>
-                {!isMulti ? (
-                    <Select
-                        key={filterKey}
-                        className="select__react"
-                        classNamePrefix="select__react"
-                        isClearable={true}
-                        isSearchable={true}
-                        value={value ? {value, label: value} : null}
-                        onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption?.value ?? '')}
-                        placeholder={placeholder}
-                        options={selectOptions}
-                    />
-                ) : (
-                    <Select
-                        key={filterKey}
-                        className="select__react"
-                        classNamePrefix="select__react"
-                        isClearable={true}
-                        isSearchable={true}
-                        isMulti={true}
-                        value={value ? value : []}
-                        onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption ?? [])}
-                        placeholder={placeholder}
-                        options={selectOptions as any}
-                    />
-                )}
+                {(() => {
+                    switch (selectType) {
+                        case 'multiSelect':
+                            return (
+                                <Select
+                                    key={filterKey}
+                                    className="select__react"
+                                    classNamePrefix="select__react"
+                                    isClearable={true}
+                                    isSearchable={true}
+                                    isMulti={true}
+                                    value={value ? value : []}
+                                    onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption ?? [])}
+                                    placeholder={placeholder}
+                                    options={selectOptions as any}
+                                />
+                            );
+                        case 'customSelect':
+                            return (
+                                <Select
+                                    key={filterKey}
+                                    className="select__react"
+                                    classNamePrefix="select__react"
+                                    isClearable={condition?.isClearable ?? true}
+                                    isSearchable={condition?.isSearchable ?? true}
+                                    value={customSelectValue ? {
+                                        customSelectValue,
+                                        label: condition?.values[customSelectValue]
+                                    } : condition?.selected ? {
+                                        value: condition.selected,
+                                        label: condition.values[condition.selected]
+                                    } : null}
+                                    onChange={(selectedOption) => {
+                                        const selectedValue = selectedOption?.value || '';
+                                        const conditionValue = condition?.condition[selectedValue] ?? null;
+                                        setCustomSelectValue(selectedValue)
+                                        handleFilterChange(filterKey, selectedValue, conditionValue);
+                                    }}
+                                    placeholder={placeholder}
+                                    options={
+                                        condition?.values ?
+                                            Object.entries(condition.values).map(([key, label]) => ({
+                                                value: key,
+                                                label: label
+                                            })) : selectOptions
+                                    }
+                                />
+
+
+                            );
+                        default:
+                            return (
+                                <Select
+                                    key={filterKey}
+                                    className="select__react"
+                                    classNamePrefix="select__react"
+                                    isClearable={true}
+                                    isSearchable={true}
+                                    value={value ? {value, label: value} : null}
+                                    onChange={(selectedOption) => handleFilterChange(filterKey, selectedOption?.value ?? '')}
+                                    placeholder={placeholder}
+                                    options={selectOptions}
+                                />
+                            )
+                    }
+                })()}
             </>
         );
+
     };
 
     const renderFilterDateRange = (filterKey: string, placeholder: string) => {
@@ -313,13 +365,15 @@ const Table = forwardRef<TableRef, ITableProps>(({
         }
     }
 
-    const handleFilterChange = (columnId: string, value: any) => {
-        setColumnFilters((prevFilters) => ({
-            ...prevFilters,
-            [columnId]: value,
-        }));
+    const handleFilterChange = (columnId: string, value: any, condition?: string) => {
+        if (!condition) {
+            setColumnFilters((prevFilters) => ({
+                ...prevFilters,
+                [columnId]: value,
+            }));
+        }
 
-        setFilteredData(filterData(originalData, searchValue, columnFilters));
+        setFilteredData(filterData(originalData, searchValue, columnFilters, condition));
     };
 
     const isEditButtonDisabled = (row: any) => {
@@ -358,213 +412,235 @@ const Table = forwardRef<TableRef, ITableProps>(({
         const currentPageIndex = table.getState().pagination.pageIndex;
         setCurrentPage(currentPageIndex);
         setOriginalData(data);
-        setFilteredData(filterData(data, searchValue, columnFilters));
+        setFilteredData(filterData(data, searchValue, columnFilters, getCondition()));
+        setLoading(false)
     }, [data, table, searchValue, columns_for_search, columnFilters]);
 
-
+    const getCondition = () => {
+        const conditionValue = filters?.find(s => s.type === 'customSelect')?.condition
+        const defaultValue = conditionValue?.selected;
+        let condition = null;
+        if (conditionValue) {
+            if (customSelectValue === '') {
+                setCustomSelectValue(defaultValue ?? '');
+            }
+            const value = customSelectValue === '' ? defaultValue : customSelectValue;
+            condition = conditionValue.condition[value ?? '']
+        }
+        return condition;
+    }
     return (
 
         <>
-            {!data.length ? (
-                    <NoDataBlock/>
-                ) :
-                (
-                    <>
+            {loading ? (
+                <LoaderBlock/>
+            ) : (
+                <>
+                    {!data.length ? (
+                            <NoDataBlock/>
+                        ) :
+                        (
+                            <>
 
 
-                        {(filters || searchPanel) && (
-                            <div className={`content__filter table-content-filter mb-3 ${filtersClassName}`}>
-                                {searchPanel && (
-                                    <input
-                                        type="text"
-                                        className='search-filter'
-                                        value={searchValue}
-                                        onChange={handleSearchChange}
-                                        placeholder="Search"
-                                    />
-                                )}
-                                {filters && (
-                                    <>
-                                        {filters?.map((filter, index) => (
-                                            <div key={filter.key} className="input__wrap">
-                                                {filter?.type === 'datePickerRange' ? (
-                                                    <>
-                                                        {renderFilterDateRange(filter.key, filter.placeholder)}
-                                                    </>
-
-
-                                                ) : (
-                                                    <>
-                                                        {renderFilterSelect(filter.key, filter.placeholder, filter.type)}
-                                                    </>
-                                                )}
-                                                {index === filters.length - 1 && (
-
-                                                    <button className="content__filter-clear ripple"
-                                                            onClick={resetFilters}>
-                                                        <FontAwesomeIcon className="nav-icon"
-                                                                         icon={filterService.getFilterResetIcon()}/>
-                                                    </button>
-
-                                                )}
-                                            </div>
-                                        ))}
-                                    </>
-                                )}
-
-                            </div>
-                        )}
-
-                        <div className="table">
-                            <div className='overflow-x-auto'>
-                                <table className={className}>
-                                    {header && (
-                                        <thead>
-                                        <tr>
-                                            {headers.map((header) => {
-                                                const direction = header.column.getIsSorted() as string;
-
-                                                return (
-                                                    <th key={header.id}>
-                                                        {header.isPlaceholder ? null : (
-                                                            <div
-                                                                onClick={header.column.getToggleSortingHandler()}
-                                                                className={`sort-th-box cursor-pointer position-relative`}
-                                                            >
-                                                                {flexRender(
-                                                                    header.column.columnDef.header,
-                                                                    header.getContext()
-                                                                )}
-                                                                <span className={`sort-ico ${direction}`}></span>
-                                                            </div>
-                                                        )}
-
-                                                    </th>
-                                                );
-                                            })}
-                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps || filter ? (
-                                                <th>
-
-                                                </th>
-                                            ) : ''}
-                                        </tr>
-                                        {filter && (
-                                            <tr>
-                                                {headers.map((header) => {
-                                                    return (
-                                                        <th key={header.id}>
-                                                            {filter && (
-                                                                <>
-                                                                    {renderFilter(header.column)}
-                                                                </>
-                                                            )}
-                                                        </th>
-                                                    );
-                                                })}
-
-                                                <th className={filter ? 'reset-filter' : ''}>
-                                                    {filter && (
-                                                        <div className='admin-table-actions'>
-                                                            <button
-                                                                onClick={resetFilters}
-                                                                className='btn-reset-filter'><FontAwesomeIcon
-                                                                className="nav-icon" icon={faClose}/></button>
-                                                        </div>
-
-                                                    )}
-                                                </th>
-
-                                            </tr>
+                                {(filters || searchPanel) && (
+                                    <div className={`content__filter table-content-filter mb-3 ${filtersClassName}`}>
+                                        {searchPanel && (
+                                            <input
+                                                type="text"
+                                                className='search-filter'
+                                                value={searchValue}
+                                                onChange={handleSearchChange}
+                                                placeholder="Search"
+                                            />
                                         )}
-                                        </thead>
-                                    )}
-                                    <tbody>
-                                    {rows.map((row, idx) => (
-                                        <tr id={row.id}
-                                            key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
-                                            className={rowProps?.className}
-                                            onClick={() => {
-                                                rowProps?.onCallback?.(row.original);
-                                            }}
-                                        >
-                                            {row.getVisibleCells().map((cell, index, array) => {
-                                                const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index]?.style || {};
-                                                const cellClassName = rowProps?.row?.[row?.id as any]?.cell?.[index]?.className || '';
+                                        {filters && (
+                                            <>
+                                                {filters?.map((filter, index) => (
+                                                    <div key={filter.key} className="input__wrap">
+                                                        {filter?.type === 'datePickerRange' ? (
+                                                            <>
+                                                                {renderFilterDateRange(filter.key, filter.placeholder)}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                {renderFilterSelect(filter.key, filter.placeholder, filter.type, filter.condition)}
+                                                            </>
+                                                        )}
+                                                        {index === filters.length - 1 && (
 
-                                                return (
-                                                    <td data-label={dataLabel(cell)}
-                                                        colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
-                                                        key={cell.id}
-                                                        style={cellStyle ? {...cellStyle} : {}}
-                                                        className={cellClassName ? cellClassName : ''}
-                                                    >
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </td>
-                                                )
-                                            })}
-                                            {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps ? (
-                                                <td>
-                                                    <div className='admin-table-actions'>
-                                                        {viewBtn && (
-                                                            <button
-                                                                onClick={() => block.openModal('view', row.original, options?.type)}
-                                                                className='admin-table-btn ripple'><FontAwesomeIcon
-                                                                className="nav-icon" icon={faEye}/></button>
-                                                        )}
-                                                        {editBtn && (!access || access.edit) && (
-                                                            <button
-                                                                disabled={isEditButtonDisabled(row.original) || isButtonDisabled(row.original)}
-                                                                onClick={() => block.openModal('edit', row.original, options?.type)}
-                                                                className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) || isButtonDisabled(row.original) ? 'disable' : ''}`}>
-                                                                <FontAwesomeIcon
-                                                                    className="nav-icon" icon={faEdit}/></button>
-                                                        )}
-                                                        {customBtnProps && (
-                                                            customBtnProps.map((buttonProps, index) => (
-                                                                <div key={index}>
-                                                                    <button
-                                                                        disabled={isButtonDisabled(row.original)}
-                                                                        onClick={() => block[buttonProps.onCallback](row.original)}
-                                                                        className={`custom-btn admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}
-                                                                    >
-                                                                        {buttonProps.icon as any}
-                                                                    </button>
-                                                                </div>
-                                                            ))
-                                                        )}
-                                                        {deleteBtn && (!access || access.delete) && (
-                                                            <button
-                                                                disabled={isButtonDeleteDisabled(row.original)}
-                                                                onClick={() => block.openModal('delete', row.original, options?.type)}
-                                                                className={`admin-table-btn ripple ${isButtonDeleteDisabled(row.original) ? 'disable' : ''}`}>
-                                                                <FontAwesomeIcon
-                                                                    className="nav-icon" icon={faTrashCan}/></button>
+                                                            <button className="content__filter-clear ripple"
+                                                                    onClick={resetFilters}>
+                                                                <FontAwesomeIcon className="nav-icon"
+                                                                                 icon={filterService.getFilterResetIcon()}/>
+                                                            </button>
+
                                                         )}
                                                     </div>
-                                                </td>
-                                            ) : ''}
-                                        </tr>
-                                    ))}
-                                    {rows.length === 0 && (
-                                        <tr className={'tr-no-data'}>
-                                            <td colSpan={20}>
-                                                <NoDataBlock primaryText={' '}
-                                                             secondaryText={'No data available'}/>
-                                            </td>
-                                        </tr>
+                                                ))}
+                                            </>
+                                        )}
 
-                                    )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <Pagination table={table} pageLength={pageLength}/>
-                    </>
-                )
-            }
+                                    </div>
+                                )}
+
+                                <div className="table">
+                                    <div className='overflow-x-auto'>
+                                        <table className={className}>
+                                            {header && (
+                                                <thead>
+                                                <tr>
+                                                    {headers.map((header) => {
+                                                        const direction = header.column.getIsSorted() as string;
+
+                                                        return (
+                                                            <th key={header.id}>
+                                                                {header.isPlaceholder ? null : (
+                                                                    <div
+                                                                        onClick={header.column.getToggleSortingHandler()}
+                                                                        className={`sort-th-box cursor-pointer position-relative`}
+                                                                    >
+                                                                        {flexRender(
+                                                                            header.column.columnDef.header,
+                                                                            header.getContext()
+                                                                        )}
+                                                                        <span
+                                                                            className={`sort-ico ${direction}`}></span>
+                                                                    </div>
+                                                                )}
+
+                                                            </th>
+                                                        );
+                                                    })}
+                                                    {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps || filter ? (
+                                                        <th>
+
+                                                        </th>
+                                                    ) : ''}
+                                                </tr>
+                                                {filter && (
+                                                    <tr>
+                                                        {headers.map((header) => {
+                                                            return (
+                                                                <th key={header.id}>
+                                                                    {filter && (
+                                                                        <>
+                                                                            {renderFilter(header.column)}
+                                                                        </>
+                                                                    )}
+                                                                </th>
+                                                            );
+                                                        })}
+
+                                                        <th className={filter ? 'reset-filter' : ''}>
+                                                            {filter && (
+                                                                <div className='admin-table-actions'>
+                                                                    <button
+                                                                        onClick={resetFilters}
+                                                                        className='btn-reset-filter'><FontAwesomeIcon
+                                                                        className="nav-icon" icon={faClose}/></button>
+                                                                </div>
+
+                                                            )}
+                                                        </th>
+
+                                                    </tr>
+                                                )}
+                                                </thead>
+                                            )}
+                                            <tbody>
+                                            {rows.map((row, idx) => (
+                                                <tr id={row.id}
+                                                    key={row.id} {...rowProps?.attr?.reduce((acc, attr) => ({...acc, ...attr}), {})}
+                                                    className={rowProps?.className}
+                                                    onClick={() => {
+                                                        rowProps?.onCallback?.(row.original);
+                                                    }}
+                                                >
+                                                    {row.getVisibleCells().map((cell, index, array) => {
+                                                        const cellStyle = rowProps?.row?.[row?.id as any]?.cell?.[index]?.style || {};
+                                                        const cellClassName = rowProps?.row?.[row?.id as any]?.cell?.[index]?.className || '';
+
+                                                        return (
+                                                            <td data-label={dataLabel(cell)}
+                                                                colSpan={index === array.length - 1 && !editBtn && !deleteBtn && !viewBtn && !customBtnProps ? 2 : 1}
+                                                                key={cell.id}
+                                                                style={cellStyle ? {...cellStyle} : {}}
+                                                                className={cellClassName ? cellClassName : ''}
+                                                            >
+                                                                {flexRender(
+                                                                    cell.column.columnDef.cell,
+                                                                    cell.getContext()
+                                                                )}
+                                                            </td>
+                                                        )
+                                                    })}
+                                                    {(editBtn && (!access || access.edit)) || (deleteBtn && (!access || access.delete)) || viewBtn || customBtnProps ? (
+                                                        <td>
+                                                            <div className='admin-table-actions'>
+                                                                {viewBtn && (
+                                                                    <button
+                                                                        onClick={() => block.openModal('view', row.original, options?.type)}
+                                                                        className='admin-table-btn ripple'>
+                                                                        <FontAwesomeIcon
+                                                                            className="nav-icon" icon={faEye}/></button>
+                                                                )}
+                                                                {editBtn && (!access || access.edit) && (
+                                                                    <button
+                                                                        disabled={isEditButtonDisabled(row.original) || isButtonDisabled(row.original)}
+                                                                        onClick={() => block.openModal('edit', row.original, options?.type)}
+                                                                        className={`admin-table-btn ripple ${isEditButtonDisabled(row.original) || isButtonDisabled(row.original) ? 'disable' : ''}`}>
+                                                                        <FontAwesomeIcon
+                                                                            className="nav-icon" icon={faEdit}/>
+                                                                    </button>
+                                                                )}
+                                                                {customBtnProps && (
+                                                                    customBtnProps.map((buttonProps, index) => (
+                                                                        <div key={index}>
+                                                                            <button
+                                                                                disabled={isButtonDisabled(row.original)}
+                                                                                onClick={() => block[buttonProps.onCallback](row.original)}
+                                                                                className={`custom-btn admin-table-btn ripple ${isButtonDisabled(row.original) ? 'disable' : ''}`}
+                                                                            >
+                                                                                {buttonProps.icon as any}
+                                                                            </button>
+                                                                        </div>
+                                                                    ))
+                                                                )}
+                                                                {deleteBtn && (!access || access.delete) && (
+                                                                    <button
+                                                                        disabled={isButtonDeleteDisabled(row.original)}
+                                                                        onClick={() => block.openModal('delete', row.original, options?.type)}
+                                                                        className={`admin-table-btn ripple ${isButtonDeleteDisabled(row.original) ? 'disable' : ''}`}>
+                                                                        <FontAwesomeIcon
+                                                                            className="nav-icon" icon={faTrashCan}/>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    ) : ''}
+                                                </tr>
+                                            ))}
+                                            {rows.length === 0 && (
+                                                <tr className={'tr-no-data'}>
+                                                    <td colSpan={20}>
+                                                        <NoDataBlock primaryText={' '}
+                                                                     secondaryText={'No data available'}/>
+                                                    </td>
+                                                </tr>
+
+                                            )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <Pagination table={table} pageLength={pageLength}/>
+                            </>
+                        )
+                    }
+                </>
+            )}
+
         </>
     );
 });

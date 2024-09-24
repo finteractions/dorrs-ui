@@ -24,6 +24,8 @@ import Link from "next/link";
 import SubSymbolBlock from "@/components/sub-symbol-block";
 import Image from "next/image";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import {FormStatus} from "@/enums/form-status";
+import {OrderStatus} from "@/enums/order-status";
 
 
 interface SymbolInfoProps extends ICallback {
@@ -302,7 +304,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <h2 className={'view_block_main_title mb-0'}>
                                                             {this.symbol.security_name} ({this.symbol.symbol})
                                                         </h2>
-                                                        {this.props.access.edit && (
+                                                        {this.props.access.edit && ![FormStatus.DELETED, OrderStatus.CLOSED].includes(this.symbol.status.toLowerCase() as FormStatus) && (
                                                             <>
                                                                 <button className="d-none d-md-block b-btn ripple"
                                                                         disabled={this.state.isLoading}
@@ -398,7 +400,8 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                     <>
                                         <div className={'profile__right-wrap-full'}>
                                             <div className={'profile__panel'}>
-                                                <div className={'profile__info__panel view__input__box align-items-end'}>
+                                                <div
+                                                    className={'profile__info__panel view__input__box align-items-end'}>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Reason for Entry</div>
                                                         <div
@@ -528,11 +531,11 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         </div>
                                                         <div
                                                             className={'input__wrap no-border'}><input name="dsin"
-                                                                                             id="dsin"
-                                                                                             type="text"
-                                                                                             className="input__text dsin no-bg dsin-view"
-                                                                                             disabled
-                                                                                             value={this.symbol.dsin || 'not filled'}/>
+                                                                                                       id="dsin"
+                                                                                                       type="text"
+                                                                                                       className="input__text dsin no-bg dsin-view"
+                                                                                                       disabled
+                                                                                                       value={this.symbol.dsin || 'not filled'}/>
                                                         </div>
                                                     </div>
                                                     <div className={'input__box'}>

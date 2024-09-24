@@ -121,6 +121,14 @@ class DashboardChartsBlock extends React.Component<{}, DashboardChartBlockState>
             4: '#7da1ff',
             5: '#ff6384',
             6: '#b8bec5',
+            7: '#6a0dad',
+            8: '#20c997',
+            9: '#ff5722',
+            10: '#9b59b6',
+            11: '#16a085',
+            12: '#e74c3c',
+            13: '#3498db',
+            14: '#f39c12',
         }
 
         return colours[index] || '#000'

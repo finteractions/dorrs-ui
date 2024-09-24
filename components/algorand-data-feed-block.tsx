@@ -70,7 +70,8 @@ class AlgorandDataFeedBlock extends React.Component<AlgorandDataFeedProps, Algor
                             className={`tab-pane fade ${this.state.activeTab === 'last-sale' ? 'show active' : ''}`}
                             id="last-sale">
                             {this.state.activeTab === 'last-sale' && (
-                                <AlgorandDataFeedLastSaleBlock onCallback={this.onLastSaleCallback}/>
+                                <AlgorandDataFeedLastSaleBlock
+                                    onCallback={this.onLastSaleCallback}/>
                             )}
                         </div>
                         <div

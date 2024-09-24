@@ -14,6 +14,7 @@ interface TickerBlockState extends IState {
     isLoading: boolean;
     errors: string[];
     data: IMarketLastSaleStatistics[];
+    tickerAutoplay: boolean;
 }
 
 class TickerBlock extends React.Component<{}, TickerBlockState> {
@@ -30,6 +31,7 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
             isLoading: true,
             errors: [],
             data: [],
+            tickerAutoplay: false
         }
     }
 
@@ -39,10 +41,14 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
             this.getMarketStatistics();
             this.subscriptions();
         });
+        window.addEventListener('resize', this.ticker);
+        window.addEventListener('isPortalShowSidebarMd', this.ticker);
     }
 
     componentWillUnmount() {
         this.subscription?.unsubscribe();
+        window.removeEventListener('resize', this.ticker);
+        window.addEventListener('isPortalShowSidebarMd', this.ticker);
     }
 
     subscriptions(): void {
@@ -65,8 +71,27 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
             });
     }
 
-    handleData = (data: Array<IMarketLastSaleStatistics>) => {
-        this.setState({data: data})
+    handleData = (res: Array<IMarketLastSaleStatistics>) => {
+        let data = res.filter(s => Number(s.percentage_changed) != 0)
+        this.setState({data: data}, () => {
+            this.ticker();
+        })
+    }
+
+    ticker = () => {
+       setTimeout(() => {
+           const tickerContainer = document.querySelector('.indicators-dashboard') as HTMLElement;
+           const tickerElement = document.querySelector('.indicator__item-dashboard') as HTMLElement;
+           if(tickerContainer && tickerElement){
+               const tickerElementStyle = getComputedStyle(tickerElement);
+               const tickerElementMarginLeft = parseFloat(tickerElementStyle.marginLeft);
+               const tickerElementMarginRight = parseFloat(tickerElementStyle.marginRight);
+               const tickerContainerWidth = tickerContainer.offsetWidth;
+               const tickerElementWidth = tickerElement.offsetWidth + tickerElementMarginLeft + tickerElementMarginRight;
+               const count = this.state.data.length;
+               this.setState({tickerAutoplay: (tickerElementWidth * count) > tickerContainerWidth});
+           }
+       })
     }
 
 
@@ -77,9 +102,9 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
                     <LoaderBlock/>
                 ) : (
                     <>
-                        {this.state.data.length ? (
+                        {this.state.data.length > 0 && (
                             <div className={'indicators-dashboard'}>
-                                <Marquee>
+                                <Marquee play={this.state.tickerAutoplay} key={this.state.tickerAutoplay ? 'playing' : 'stopped'}>
                                     {this.state.data.map(item => (
                                         <div key={item.symbol_name}
                                              className={`indicator__item-dashboard ${formatterService.getBackgroundColourByValue(item.percentage_changed)}-block`}>
@@ -101,8 +126,6 @@ class TickerBlock extends React.Component<{}, TickerBlockState> {
                                     ))}
                                 </Marquee>
                             </div>
-                        ) : (
-                            <NoDataBlock/>
                         )}
                     </>
                 )}

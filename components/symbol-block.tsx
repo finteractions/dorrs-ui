@@ -134,6 +134,13 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 ,
                 header: () => <span>Symbol</span>,
             }),
+            columnHelper.accessor((row) => row.security_name, {
+                id: "security_name",
+                cell: (item) =>
+                    <span className='blue-text'>{item.getValue()}</span>
+                ,
+                header: () => <span>Security Name</span>,
+            }),
             columnHelper.accessor((row) => ({
                 count: row.linked_symbol_count === 0 ? null : row.linked_symbol_count,
             }), {
@@ -153,22 +160,12 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
                 cell: (item) => <span className={'truncate-text'} title={item.getValue()}>{item.getValue()}</span>,
                 header: () => <span>Symbol Suffix </span>,
             }),
-            columnHelper.accessor((row) => row.primary_ats, {
-                id: "primary_ats",
-                cell: (item) => item.getValue(),
-                header: () => <span>Primary ATS </span>,
-            }),
             columnHelper.accessor((row) => row.dsin, {
                 id: "dsin",
                 cell: (item) =>
                     <span className='blue-text'>{item.getValue()}</span>
                 ,
                 header: () => <span>DSIN</span>,
-            }),
-            columnHelper.accessor((row) => row.transfer_agent, {
-                id: "transfer_agent",
-                cell: (item) => item.getValue(),
-                header: () => <span>Transfer Agent </span>,
             }),
             columnHelper.accessor((row) => row.market_sector, {
                 id: "market_sector",
@@ -229,7 +226,6 @@ class SymbolBlock extends React.Component<SymbolBlockProps, SymbolBlockState> {
             {key: 'symbol', placeholder: 'Symbol'},
             {key: 'cusip', placeholder: 'CUSIP'},
             {key: 'dsin', placeholder: 'DSIN'},
-            {key: 'primary_ats', placeholder: 'ATS'},
             {key: 'market_sector', placeholder: 'Market Sector'},
             {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
             {key: 'status', placeholder: 'Status'},

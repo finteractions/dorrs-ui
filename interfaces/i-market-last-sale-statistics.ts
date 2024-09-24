@@ -7,5 +7,6 @@ export interface IMarketLastSaleStatistics extends IMarketStatistics{
     percentage_changed: string;
     vwap: string;
     algorand_last_sale_application_id?: string;
-    logo?:string
+    logo?:string,
+    activity?: Array<string>;
 }

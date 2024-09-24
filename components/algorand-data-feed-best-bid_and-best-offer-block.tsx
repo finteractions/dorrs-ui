@@ -33,6 +33,7 @@ interface AlgorandDataFeedBestBidAndBestOfferBlockProps extends ICallback {
         delete: boolean
     }
 }
+
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
 
@@ -79,7 +80,8 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
                              className={`table-image cursor-pointer link`}
                         >
                             <div className="table-image-container">
-                                <AssetImage alt='' src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
+                                <AssetImage alt=''
+                                            src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
                                             width={28} height={28}/>
                             </div>
                             {formatterService.formatSymbolName(item.getValue().symbol)}
@@ -124,7 +126,7 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
                     return item.getValue().link ? (
                         <div className={'d-flex align-items-center application-id'}>
                             <Link href={item.getValue().link} target={'_blank'}
-                                 className="link">{item.getValue().contract}</Link>
+                                  className="link">{item.getValue().contract}</Link>
                             <CopyClipboard
                                 text={`${item.getValue().contract}`}/>
                         </div>
@@ -136,6 +138,22 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
                 header: () => <span>Contract Address</span>,
             }),
         ];
+
+        tableFilters = [
+            {
+                key: 'activity',
+                placeholder: 'Active / All',
+                type: 'customSelect',
+                condition: {
+                    isClearable: false,
+                    isSearchable: false,
+                    values: {'all': 'All', 'active': 'Active'},
+                    selected: 'active',
+                    condition: {'all': 'null', 'active': 's.latest_update'}
+                }
+            },
+            {key: 'symbol_name', placeholder: 'Symbol'},
+        ]
     }
 
     componentDidMount() {
@@ -169,9 +187,7 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
     getStatistics = () => {
         statisticsService.getMarketData<IMarketBestBidAndBestOfferStatistics>('best-bid-and-best-offer')
             .then((res: Array<any>) => {
-
                 const data = res?.filter(s => s.algorand_best_bid_and_best_offer_application_id) || [] as any;
-
                 this.setState({data: data});
 
             })
