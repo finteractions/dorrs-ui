@@ -2535,12 +2535,20 @@ body {
                 column-gap: 10px;
                 //padding-right: 28px;
 
-                &.text-overflow {
-                  min-width: 200px;
-                  width: 100%;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
+                &::after {
+                  content: '';
+                  display: inline-block;
+                  margin-left: 30px;
+                }
+
+                @media(min-width: 768px) {
+                  &.text-overflow {
+                    min-width: 200px;
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
                 }
 
                 .table-image-container {

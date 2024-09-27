@@ -474,7 +474,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                     </div>
 
                                                     <div className="input__box">
-                                                        <div className="input__title">Initial Offering Date <i>*</i>
+                                                        <div className="input__title">Founding Date <i>*</i>
                                                         </div>
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>

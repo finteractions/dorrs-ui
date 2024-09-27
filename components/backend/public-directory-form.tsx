@@ -546,7 +546,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 </div>
 
                                                 <div className="input">
-                                                    <div className="input__title">Initial Offering Date
+                                                    <div className="input__title">Founding Date
                                                     </div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
