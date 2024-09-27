@@ -29,6 +29,7 @@ import {IDataContext} from "@/interfaces/i-data-context";
 
 interface CompanyProfilesBlockState extends IState {
     isLoading: boolean;
+    isSymbolLoading: boolean;
     usaStates: {
         abbreviation: string;
         name: string;
@@ -91,6 +92,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         this.state = {
             success: false,
             isLoading: true,
+            isSymbolLoading: true,
             usaStates: usaStatesList,
             data: [],
             dataFull: [],
@@ -260,14 +262,13 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-
                 this.symbols = data.filter(s => s.is_approved)
-
             })
             .catch((errors: IError) => {
 
             })
             .finally(() => {
+                this.setState({isSymbolLoading: false});
             });
     }
 
@@ -373,72 +374,79 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
             case 'company_profile':
                 return (
                     this.state.isOverrideComponent ? (
-                        <Formik<ISymbol>
-                            initialValues={initialValues}
-                            validationSchema={formSchema}
-                            onSubmit={this.handleSubmit}
-                        >
-                            {({
-                                  isSubmitting,
-                                  setFieldValue,
-                                  isValid,
-                                  dirty,
-                                  values,
-                                  errors
-                              }) => {
-                                return (
-                                    <Form>
-                                        <div className="input">
-                                            <div className="input__title">Symbol <i>*</i></div>
-                                            <div
-                                                className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
-                                                <Field
-                                                    name="symbol_tmp"
-                                                    id="symbol_tmp"
-                                                    as={Select}
-                                                    className="b-select-search"
-                                                    placeholder="Select Symbol"
-                                                    classNamePrefix="select__react"
-                                                    isDisabled={isSubmitting}
-                                                    options={Object.values(this.symbols).map((item) => ({
-                                                        value: item.symbol,
-                                                        label: (
-                                                            <div className={'flex-panel-box'}>
-                                                                <div className={'panel'}>
-                                                                    <div
-                                                                        className={'content__bottom d-flex justify-content-between font-size-18'}>
-                                                                        <div className={'view_block_main_title'}>
-                                                                            <AssetImage alt=''
-                                                                                        src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
-                                                                                        width={75} height={75}/>
-                                                                            {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                        <>
+                            {this.state.isSymbolLoading ? (
+                                <LoaderBlock/>
+                            ) : (
+                                <Formik<ISymbol>
+                                    initialValues={initialValues}
+                                    validationSchema={formSchema}
+                                    onSubmit={this.handleSubmit}
+                                >
+                                    {({
+                                          isSubmitting,
+                                          setFieldValue,
+                                          isValid,
+                                          dirty,
+                                          values,
+                                          errors
+                                      }) => {
+                                        return (
+                                            <Form>
+                                                <div className="input">
+                                                    <div className="input__title">Symbol <i>*</i></div>
+                                                    <div
+                                                        className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="symbol_tmp"
+                                                            id="symbol_tmp"
+                                                            as={Select}
+                                                            className="b-select-search"
+                                                            placeholder="Select Symbol"
+                                                            classNamePrefix="select__react"
+                                                            isDisabled={isSubmitting}
+                                                            options={Object.values(this.symbols).map((item) => ({
+                                                                value: item.symbol,
+                                                                label: (
+                                                                    <div className={'flex-panel-box'}>
+                                                                        <div className={'panel'}>
+                                                                            <div
+                                                                                className={'content__bottom d-flex justify-content-between font-size-18'}>
+                                                                                <div
+                                                                                    className={'view_block_main_title'}>
+                                                                                    <AssetImage alt=''
+                                                                                                src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                                                                                width={75} height={75}/>
+                                                                                    {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                                                                                </div>
+                                                                                <DoughnutChartPercentage
+                                                                                    percentage={item.fill_out_percentage}
+                                                                                />
+                                                                            </div>
                                                                         </div>
-                                                                        <DoughnutChartPercentage
-                                                                            percentage={item.fill_out_percentage}
-                                                                        />
                                                                     </div>
-                                                                </div>
-                                                            </div>
-                                                        ),
-                                                    }))}
-                                                    onChange={(selectedOption: any) => {
-                                                        setFieldValue('symbol', selectedOption.value);
-                                                    }}
-                                                />
-                                                <Field type="hidden" name="symbol" id="symbol"/>
-                                                <ErrorMessage name="symbol" component="div"
-                                                              className="error-message"/>
-                                            </div>
-                                        </div>
-                                        <button
-                                            className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                            type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                            Next
-                                        </button>
-                                    </Form>
-                                );
-                            }}
-                        </Formik>
+                                                                ),
+                                                            }))}
+                                                            onChange={(selectedOption: any) => {
+                                                                setFieldValue('symbol', selectedOption.value);
+                                                            }}
+                                                        />
+                                                        <Field type="hidden" name="symbol" id="symbol"/>
+                                                        <ErrorMessage name="symbol" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                    type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                                    Next
+                                                </button>
+                                            </Form>
+                                        );
+                                    }}
+                                </Formik>
+                            )}
+                        </>
                     ) : (
                         <CompanyProfileForm
                             action={this.state.formAction}
