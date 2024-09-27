@@ -510,8 +510,13 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     componentDidMount() {
         this.host = `${window.location.protocol}//${window.location.host}`;
-        this.setState({loading: true});
-        this.getAssets();
+
+        if(this.props.isAdmin) {
+            this.setState({loading: true}, () => {
+                this.getAssets();
+            });
+
+        }
     }
 
     getAssets = () => {
