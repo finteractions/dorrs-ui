@@ -4985,6 +4985,9 @@
       max-width: 100%;
       width: 100%;
       height: unset;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 
