@@ -168,7 +168,8 @@ class AdminService extends BaseService {
 
     public async approveAsset(id: number, is_approved: boolean): Promise<IResponseApi> {
         const data = {
-            status: is_approved ? 'approved' : 'rejected'
+            status: is_approved ? 'approved' : 'rejected',
+            is_approval: true
         }
 
         return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management/${id}/`, data, {}, this.getAdminToken()));

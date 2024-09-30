@@ -9,7 +9,7 @@ type PaginationProps = {
 const portalPageLength = Number(process.env.PORTAL_PAGE_LENGTH)
 
 const Pagination = ({ table, pageLength }: PaginationProps) => {
-    const [pageSize, setPageSize] = useState(portalPageLength || 10);
+    const [pageSize, setPageSize] = useState(pageLength || portalPageLength || 10);
 
     const pageCount = table.getPageCount();
 

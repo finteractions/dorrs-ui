@@ -1,4 +1,6 @@
 export interface IActivityStorage {
-    action: string;
-    details: string;
+    log: object
+    record_before: object;
+    record_after: object;
+    created_at: string;
 }

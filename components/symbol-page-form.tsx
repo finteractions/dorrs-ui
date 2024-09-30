@@ -472,7 +472,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     }
 
     isShow(): boolean {
-        return this.props.action === 'view' || (getBuildableFormStatuses().includes((this.state.formInitialValues as ISymbol)?.status.toLowerCase() as FormStatus) && !this.symbol?.symbol_id);
+        return this.props.action === 'view';
     }
 
     handlePeggedChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {

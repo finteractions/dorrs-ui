@@ -368,40 +368,19 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     }
 
     componentDidMount() {
-        this.setState({isLoading: true});
-        this.getSymbols()
-            .finally(() => this.setState({isLoading: false}))
+        this.setState({isLoading: true}, () => {
+            console.log(this.props)
+            this.getSymbols()
+                .finally(() => this.setState({isLoading: false}))
+        });
+
     }
 
     getSymbols = () => {
         return new Promise(resolve => {
-            symbolService.getSymbols()
+            symbolService.getSymbols(this.props.symbol)
                 .then((res: Array<ISymbol>) => {
                     let data = res || [];
-
-                    data.forEach(s => {
-                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-
-                        if (s.company_profile && s.company_profile?.status) {
-                            s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
-                        }
-
-                        if (typeof s.company_profile?.company_officers_and_contacts === 'string') {
-                            try {
-                                s.company_profile.company_officers_and_contacts = JSON.parse(s.company_profile.company_officers_and_contacts);
-                            } catch (error) {
-                                s.company_profile.company_officers_and_contacts = [""];
-                            }
-                        }
-
-                        if (typeof s.company_profile?.board_of_directors === 'string') {
-                            try {
-                                s.company_profile.board_of_directors = JSON.parse(s.company_profile.board_of_directors);
-                            } catch (error) {
-                                s.company_profile.board_of_directors = [""];
-                            }
-                        }
-                    });
 
                     this.symbols = data;
                     const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);

@@ -262,7 +262,7 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
         symbolService.getSymbols()
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
-                this.symbols = data.filter(s => s.is_approved)
+                this.symbols = data
             })
             .catch((errors: IError) => {
 

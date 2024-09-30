@@ -43,6 +43,8 @@ import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 import formService from "@/services/form/form-service";
 import {PrimaryATS} from "@/constants/primary-ats";
+import Table from "@/components/table/table";
+import NoDataBlock from "@/components/no-data-block";
 
 
 const allowedImageFileSizeMB = 1
@@ -191,7 +193,7 @@ const formSchema = Yup.object().shape({
         is: (is_change: boolean) => is_change,
         then: (schema) => schema.min(3).max(50).required('Required').label('Security Name')
     }),
-    reason_change: Yup.string(),
+    reason_change: Yup.string().label('Change Reason'),
     is_delete: Yup.boolean(),
     date_entered_delete: Yup.string(),
     time_entered_delete: Yup.string(),
@@ -203,7 +205,8 @@ const formSchema = Yup.object().shape({
         is: (is_change: boolean) => is_change,
         then: (schema) => schema.required('Required')
     }),
-    reason_delete: Yup.string()
+    reason_delete: Yup.string().label('Delete Reason'),
+    status: Yup.string().label('Status')
 
 });
 
@@ -337,6 +340,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             reason_delete: string;
             status: string;
             edgar_cik: string;
+            version: string;
         } = {
             reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
             symbol: initialData?.symbol || '',
@@ -399,6 +403,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             reason_delete: initialData?.reason_delete || '',
             status: initialData?.status || '',
             edgar_cik: initialData?.edgar_cik || '',
+            version: initialData?.version || '',
         };
 
         this.state = {
@@ -421,15 +426,73 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         };
 
         columns = [
-            columnHelper.accessor((row) => row.details, {
+            columnHelper.accessor((row) => ({
+                details: row.log?.details,
+                before: row.record_before,
+                after: row.record_after,
+            }), {
                 id: "details",
-                cell: (item) => item.getValue(),
+                cell: (item) => {
+                    const changes = this.getChanges(item.getValue().before, item.getValue().after) ?? []
+                    return (
+                        <>
+                            <div className={changes.length > 0 ? 'mb-2' : ''}>{item.getValue().details}</div>
+                            {changes.length > 0 && (
+                                <div className={'mb-3'}>
+                                    {changes.map((s: { key: string, value: string }, index: number) => (
+                                        <div key={index}>
+                                            <span className={'bold'}>{s.key}: </span>
+                                            <span>{s.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )
+                },
                 header: () => <span>Details</span>,
+            }),
+            columnHelper.accessor((row) => row.created_at, {
+                id: "created_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Created Date</span>,
             }),
         ]
 
         this.formRef = React.createRef();
 
+    }
+
+    getChanges(before: any, after: any) {
+        const changes = [];
+
+        for (const key in before) {
+            if (before.hasOwnProperty(key) && after.hasOwnProperty(key)) {
+                const beforeValue = before[key];
+                const afterValue = after[key];
+
+                if ((beforeValue === null && afterValue === '') || (beforeValue === '' && afterValue === null)) {
+                    continue;
+                }
+
+                if (beforeValue !== afterValue) {
+                    const label = this.getLabelFromSchema(key);
+                    if (label === '') continue;
+                    changes.push({key: label, value: `${beforeValue} -> ${afterValue}`});
+                }
+            }
+        }
+
+        return changes;
+    }
+
+    getLabelFromSchema(key: string): string {
+        const fieldSchema = (formSchema as any).fields[key];
+        if (fieldSchema && fieldSchema.describe) {
+            const description = fieldSchema.describe();
+            return description.label || key;
+        }
+        return '';
     }
 
     handleSubmit = async (values: ISymbol, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
@@ -494,7 +557,11 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
         }
 
         const request: Promise<any> = ['edit', 'delete'].includes(this.props.action) ?
-            !this.props?.isAdmin ? symbolService.updateSymbol(formData, this.props.data?.id || 0) : this.props.action === 'delete' ? adminService.updateAsset(formData, this.props.data?.id || 0) : adminService.approveAsset(this.props.data?.id || 0, this.state.isApproving || false) :
+            !this.props?.isAdmin ?
+                symbolService.updateSymbol(formData, this.props.data?.id || 0) :
+                ['edit', 'delete'].includes(this.props.action) ?
+                    adminService.updateAsset(formData, this.props.data?.id || 0) :
+                    adminService.approveAsset(this.props.data?.id || 0, this.state.isApproving || false) :
             !this.props?.isAdmin ? symbolService.createSymbol(formData) : values.is_change ? adminService.updateAsset(formData, this.props.data?.id || 0) : adminService.createAsset(formData);
 
         await request
@@ -511,7 +578,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     componentDidMount() {
         this.host = `${window.location.protocol}//${window.location.host}`;
 
-        if(this.props.isAdmin) {
+        if (this.props.isAdmin) {
             this.setState({loading: true}, () => {
                 this.getAssets();
             });
@@ -548,7 +615,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     }
 
     isShow(): boolean {
-        return this.props.action === 'view' || getBuildableFormStatuses().includes((this.state.formInitialValues as ISymbol)?.status.toLowerCase() as FormStatus);
+        return this.props.action === 'view'
     }
 
     handleApprove = async (values: any) => {
@@ -817,10 +884,18 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         formValidator.requiredFields(formSchema, values, errors);
 
                                         return (
-                                            <Form id="bank-form">
+                                            <Form id="bank-form" className={'position-relative'}>
+                                                {values.version && (
+                                                    <div className={'symbol-version'}>
+                                                        <div className={'bg-light-blue p-2 bold'}>
+                                                           Version: {values.version}
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {this.props.isAdmin && (
                                                     <>
-                                                        {!['add', 'delete'].includes(this.props.action) && (
+                                                        {this.isShow() && (
                                                             <div className='approve-form'>
                                                                 {this.props.data?.created_by && (
                                                                     <div
@@ -1341,7 +1416,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                         name="symbol"
                                                                                         id="symbol"
                                                                                         type="text"
-                                                                                        className={`input__text dsin ${!this.state.isSymbolCodeChange ? 'ml-45px' : ''}`}
+                                                                                        className={`input__text dsin ${!this.state.isSymbolCodeChange ? !this.isShow() ? 'ml-55px' : '' : ''}`}
                                                                                         disabled={true}
                                                                                     />
                                                                                 </div>
@@ -2482,14 +2557,42 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         );
                                     }}
                                 </Formik>
-                                {
-                                    !this.props.data?.symbol_id && this.props.action === 'view' && (
-                                        <div className={'input'}>
-                                            <h4 className="input__group__title">Symbols</h4>
-                                            <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
+
+                                {!this.props.data?.symbol_id && this.props.action === 'view' && (
+                                    <div className={'input'}>
+                                        <h4 className="input__group__title">Symbols</h4>
+                                        <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
+                                    </div>
+                                )}
+
+                                {['edit', 'view'].includes(this.props.action) && (
+                                    <>
+                                        <div className={'order-block__item mt-4'}>
+                                            <div className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>History Log</div>
+                                                </div>
+
+                                                <div className={'content__bottom'}>
+                                                    {this.state.history.length > 0 ? (
+                                                        <Table columns={columns}
+                                                               data={this.state.history}
+                                                               searchPanel={false}
+                                                               block={this}
+                                                               viewBtn={false}
+                                                               editBtn={false}
+                                                               deleteBtn={false}
+                                                               pageLength={5}
+                                                        />
+                                                    ) : (
+                                                        <NoDataBlock
+                                                            primaryText="No history available yet"/>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                    )
-                                }
+                                    </>
+                                )}
 
                             </>
                         )}

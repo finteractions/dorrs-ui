@@ -323,7 +323,7 @@ class AssetsBlock extends React.Component<{}> {
                                                searchPanel={true}
                                                block={this}
                                                viewBtn={true}
-                                               editBtn={false}
+                                               editBtn={true}
                                                deleteBtn={true}
                                                filters={tableFilters}
                                                ref={this.tableRef}
@@ -348,7 +348,7 @@ class AssetsBlock extends React.Component<{}> {
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-                    {(this.state.formAction === 'edit' || this.state.formAction === 'view') && (
+                    {(this.state.formAction === 'view') && (
                         <div className="modal__navigate">
                             <div className="modal__navigate__title">Asset Profile:</div>
 
