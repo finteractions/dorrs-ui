@@ -2990,12 +2990,12 @@ body {
       }
 
       &.content-box {
-        max-width: 210px;
+        max-width: 100%;
         width: 100%;
         margin: 0px;
 
         .logo {
-          max-width: 210px;
+          max-width: 100%;
           width: 100%;
           height: unset;
         }

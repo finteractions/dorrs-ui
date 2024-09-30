@@ -1923,7 +1923,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         Info
                                                     </div>
                                                     {this.state.formInitialValues?.asset_type_description.map((description, index) => (
-                                                        <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                        <div className={'d-flex gap-20 flex-wrap mb-2'}
                                                              key={index}>
                                                             {this.state.formInitialValues?.asset_type_images && this.state.formInitialValues?.asset_type_images[index] && (
                                                                 <div
@@ -1949,7 +1949,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 className="view_block_title">Issuer Profile
                                             </div>
                                             {this.state.formInitialValues?.issuer_profile_description.map((description, index) => (
-                                                <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                <div className={'d-flex gap-20 flex-wrap mb-2'}
                                                      key={index}>
                                                     {this.state.formInitialValues?.issuer_profile_images && this.state.formInitialValues?.issuer_profile_images[index] && (
                                                         <div
@@ -2014,7 +2014,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     className="view_block_title">SEC Documents
                                                 </div>
                                                 {this.state.formInitialValues?.sec_description.map((description, index) => (
-                                                    <div className={'d-flex gap-20 flex-wrap flex-md-nowrap mb-2'}
+                                                    <div className={'d-flex gap-20 flex-wrap mb-2'}
                                                          key={index}>
                                                         {this.state.formInitialValues?.sec_images && this.state.formInitialValues?.sec_images[index] && (
                                                             <div

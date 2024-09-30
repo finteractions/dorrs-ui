@@ -646,7 +646,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             <>
                                                                 {this.companyProfile?.asset_type_description.map((description, index) => (
                                                                     <div
-                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                        className={'d-flex gap-20 flex-wrap'}
                                                                         key={index}>
                                                                         {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
                                                                             <div
@@ -749,7 +749,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                 {this.companyProfile?.sec_description.map((description, index) => (
                                                                     <React.Fragment key={index}>
                                                                         <div
-                                                                            className={'d-flex gap-20 flex-wrap flex-md-nowrap'}
+                                                                            className={'d-flex gap-20 flex-wrap'}
                                                                             key={index}>
                                                                             {this.companyProfile?.sec_images && this.companyProfile?.sec_images[index] && (
                                                                                 <div
@@ -944,7 +944,17 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Board of Directors</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{this.companyProfile.product_and_services || 'not filled'}</div>
+                                                    {this.companyProfile.board_of_directors.length > 0 && this.companyProfile.board_of_directors.every((value) => value !== "") ? (
+
+                                                        this.companyProfile.board_of_directors.map((director, index) => (
+                                                            <>
+                                                                <div>{director}</div>
+                                                            </>
+                                                        ))
+
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div id={'product_and_services'} className={'panel'}>
@@ -957,7 +967,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             </div>
                                             <div id={'company_facilities'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Company Facilities</div>
+                                                <div className={'content__title'}>Company Facilities</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{this.companyProfile.company_facilities || 'not filled'}</div>
