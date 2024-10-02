@@ -50,24 +50,25 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
         const isSeparator = isThousandSeparator ?? true;
 
         return (
-            <div>
-                <NumericFormat
-                    name={name}
-                    allowLeadingZeros
-                    thousandSeparator={isSeparator ? ',' : ''}
-                    className={className}
-                    placeholder={placeholder}
-                    decimalScale={decimalScale}
-                    disabled={disabled}
-                    maxLength={maxLength}
-                    onChange={this.handleChange}
-                    onBlur={field.onBlur}
-                    value={field.value}
-                />
+           <>
+               <NumericFormat
+                   name={name}
+                   allowLeadingZeros
+                   thousandSeparator={isSeparator ? ',' : ''}
+                   className={className}
+                   placeholder={placeholder}
+                   decimalScale={decimalScale}
+                   disabled={disabled}
+                   maxLength={maxLength}
+                   onChange={this.handleChange}
+                   onBlur={field.onBlur}
+                   value={field.value}
+               />
 
-                <ErrorMessage name={name} component="div" className="error-message"/>
-            </div>
-        );
+               <ErrorMessage name={name} component="div" className="error-message"/>
+           </>
+    )
+        ;
     }
 }
 

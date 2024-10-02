@@ -272,6 +272,24 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             }
                         }
 
+                        if (typeof s.company_profile?.price_per_share_value === 'string') {
+                            try {
+                                const price_per_share_value = JSON.parse(s.company_profile.price_per_share_value)
+                                s.company_profile.price_per_share_value = price_per_share_value;
+                            } catch (error) {
+                                s.company_profile.price_per_share_value = [""];
+                            }
+                        }
+
+                        if (typeof s.company_profile?.price_per_share_date === 'string') {
+                            try {
+                                const price_per_share_date = JSON.parse(s.company_profile.price_per_share_date)
+                                s.company_profile.price_per_share_date = price_per_share_date;
+                            } catch (error) {
+                                s.company_profile.price_per_share_date = [""];
+                            }
+                        }
+
                         if (typeof s.company_profile?.asset_type_description === 'string') {
                             try {
                                 const str = (s.company_profile.asset_type_description as string).toString()
@@ -672,7 +690,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             )}
                                             <div id={'total_shares_outstanding'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Total Shares Outstanding</div>
+                                                    <div className={'content__title'}>Total Equity Funding Amount</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{this.companyProfile?.total_shares_outstanding ? formatterService.numberFormat(Number(this.companyProfile.total_shares_outstanding)) : 'not filled'}</div>
@@ -680,7 +698,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             </div>
                                             <div id={'initial_offering_date'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Initial Offering Date</div>
+                                                    <div className={'content__title'}>Founded Date</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{this.companyProfile?.initial_offering_date ? formatterService.dateTimeFormat(this.companyProfile?.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
@@ -688,10 +706,26 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             </div>
                                             <div id={'price_per_share'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                    <div className={'content__title'}>Price Per Share</div>
+                                                    <div className={'content__title'}>Last Funding Amount</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{this.companyProfile?.price_per_share ? formatterService.numberFormat(Number(this.companyProfile?.price_per_share), decimalPlaces) : 'not filled'}</div>
+                                                    {this.companyProfile?.price_per_share_value ? (
+                                                        <>
+                                                            {this.companyProfile?.price_per_share_value.map((description, index) => (
+                                                                <div key={index}>
+                                                                    {this.companyProfile?.price_per_share_value && this.companyProfile?.price_per_share_value[index] && (
+                                                                        <>{this.companyProfile?.price_per_share_value[index]}</>
+                                                                    )}
+                                                                    {this.companyProfile?.price_per_share_date && this.companyProfile?.price_per_share_date[index] && (
+                                                                        <> on {formatterService.dateTimeFormat(this.companyProfile?.price_per_share_date[index], 'dd/MM/yyyy')}</>
+                                                                    )}
+
+                                                                </div>
+                                                            ))}
+                                                        </>
+                                                    ) : (
+                                                        <>not filled</>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className={'d-none'}>
@@ -843,13 +877,13 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     {this.companyProfile.email && (
                                                         <div className="mt-2">
                                                             <Link className={'link'}
-                                                                href={`mailto:${this.companyProfile.email}`}>{this.companyProfile.email}</Link>
+                                                                  href={`mailto:${this.companyProfile.email}`}>{this.companyProfile.email}</Link>
                                                         </div>
                                                     )}
                                                     {this.companyProfile.phone && (
                                                         <div className="mt-2">
                                                             <Link className={'link'}
-                                                                href={`tel:${this.companyProfile.phone}`}>{this.companyProfile.phone}</Link>
+                                                                  href={`tel:${this.companyProfile.phone}`}>{this.companyProfile.phone}</Link>
                                                         </div>
                                                     )}
                                                     {this.companyProfile.web_address && (
@@ -929,9 +963,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     {this.companyProfile.company_officers_and_contacts.length > 0 && this.companyProfile.company_officers_and_contacts.every((value) => value !== "") ? (
 
                                                         this.companyProfile.company_officers_and_contacts.map((officer, index) => (
-                                                            <>
+                                                            <React.Fragment key={index}>
                                                                 <div>{officer}</div>
-                                                            </>
+                                                            </React.Fragment>
                                                         ))
 
                                                     ) : (
@@ -967,7 +1001,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                             </div>
                                             <div id={'company_facilities'} className={'panel'}>
                                                 <div className={'content__top'}>
-                                                <div className={'content__title'}>Company Facilities</div>
+                                                    <div className={'content__title'}>Company Facilities</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{this.companyProfile.company_facilities || 'not filled'}</div>

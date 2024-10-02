@@ -27,22 +27,22 @@ let MENU_LIST: Array<Menus> = [
         alt: 'Asset Type'
     },
     {
-        text: 'Total Shares Outstanding',
+        text: 'Total Equity Funding Amount',
         to: "total_shares_outstanding",
         icon: '/img/pd-ico.svg',
-        alt: 'Total Shares Outstanding'
+        alt: 'Total Equity Funding Amount'
     },
     {
-        text: 'Initial Offering Date',
+        text: 'Founded Date',
         to: "initial_offering_date",
         icon: '/img/pd-ico.svg',
         alt: 'Initial Offering Date'
     },
     {
-        text: 'Price Per Share',
+        text: 'Last Funding Amount',
         to: "price_per_share",
         icon: '/img/pd-ico.svg',
-        alt: 'Price Per Shar'
+        alt: 'Last Funding Amount'
     },
     {
         text: 'Issuer Profile',

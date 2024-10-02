@@ -31,7 +31,8 @@ export interface ICompanyProfile {
     incorporation_information: string;
     number_of_employees: string;
     initial_offering_date: string;
-    price_per_share: string;
+    price_per_share_value: string[];
+    price_per_share_date: string[];
     company_officers_and_contacts: string[];
     board_of_directors: string[];
     product_and_services: string;

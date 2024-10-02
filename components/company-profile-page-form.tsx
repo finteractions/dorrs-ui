@@ -106,10 +106,7 @@ const formSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").label('Email Address'),
     total_shares_outstanding: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
-    }).typeError('Invalid Total Shares Outstanding').label('Total Shares Outstanding'),
-    price_per_share: Yup.number().transform((value, originalValue) => {
-        return Number(originalValue.toString().replace(/,/g, ''));
-    }).typeError('Invalid Price Per Share').label('Price Per Share'),
+    }).typeError('Invalid Total Equity Funding Amount').label('Total Equity Funding Amount'),
     number_of_employees: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Number of Employees').label('Number of Employees'),
@@ -135,6 +132,9 @@ interface CompanyProfilePageFormState extends IState {
     selectedIssuerProfileImages: File[] | null;
     selectedIssuerProfileFiles: File[] | null;
     focusedInitialOfferingDate: any;
+    focusedInitialPricePerShare: {
+        [key: number]: boolean;
+    };
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
 }
@@ -173,7 +173,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             selectedIssuerProfileImages: [],
             selectedIssuerProfileFiles: [],
             focusedInitialOfferingDate: null,
-
+            focusedInitialPricePerShare: {},
             selectedSecFiles: [],
             selectedSecImages: []
         }
@@ -201,6 +201,24 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                 initialData.board_of_directors = board_of_directors;
             } catch (error) {
                 initialData.board_of_directors = [""];
+            }
+        }
+
+        if (typeof initialData?.price_per_share_value === 'string') {
+            try {
+                const price_per_share_value = JSON.parse(initialData.price_per_share_value)
+                initialData.price_per_share_value = price_per_share_value;
+            } catch (error) {
+                initialData.price_per_share_value = [""];
+            }
+        }
+
+        if (typeof initialData?.price_per_share_date === 'string') {
+            try {
+                const price_per_share_date = JSON.parse(initialData.price_per_share_date)
+                initialData.price_per_share_date = price_per_share_date;
+            } catch (error) {
+                initialData.price_per_share_date = [""];
             }
         }
 
@@ -269,7 +287,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             asset_type_images: string[];
             total_shares_outstanding: string;
             initial_offering_date: string;
-            price_per_share: string;
+            price_per_share_value: string[];
+            price_per_share_date: string[];
             company_name: string;
             business_description: string;
             street_address_1: string;
@@ -310,7 +329,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             symbol: initialData?.symbol || this.props.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
             initial_offering_date: initialData?.initial_offering_date || '',
-            price_per_share: initialData?.price_per_share || '',
+            price_per_share_value: initialData?.price_per_share_value || [""],
+            price_per_share_date: initialData?.price_per_share_date || [""],
             asset_type: initialData?.asset_type || '',
             asset_type_option: initialData?.asset_type_option || '',
             asset_type_description: initialData?.asset_type_description || [""],
@@ -369,7 +389,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
     componentDidMount() {
         this.setState({isLoading: true}, () => {
-            console.log(this.props)
             this.getSymbols()
                 .finally(() => this.setState({isLoading: false}))
         });
@@ -417,9 +436,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         data = formValidator.castFormValues(data, formSchema);
 
         data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
-        data.price_per_share = (Number(data.price_per_share) == 0 ? '' : data.price_per_share).toString()
         data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
-
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -439,6 +456,16 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         const directorsValues = data.board_of_directors;
         formData.append('board_of_directors', JSON.stringify(directorsValues));
+
+        const pricePerShareValues = data.price_per_share_value;
+        pricePerShareValues.forEach((s, index) => {
+            const value = Number((pricePerShareValues[index]).toString().replace(/,/g, ''));
+            pricePerShareValues[index] = (Number(value) === 0 ? '' : s).toString();
+        });
+        formData.append('price_per_share_value', JSON.stringify(pricePerShareValues));
+
+        const pricePerShareDates = data.price_per_share_date;
+        formData.append('price_per_share_date', JSON.stringify(pricePerShareDates));
 
         formData.delete('sec_description');
         const sec_description = data.sec_description;
@@ -506,7 +533,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             }).finally(() => {
                 setSubmitting(false);
             });
-
     };
 
     isShow(): boolean {
@@ -743,7 +769,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
                                                                     <div className="input__box">
                                                                         <div className="input__title">Symbol</div>
-                                                                        <div className="input__wrap">
+                                                                        <div className="input__wrap mt-2">
                                                                             {this.symbol?.security_name} ({this.symbol?.symbol})
                                                                             <Field
                                                                                 name="symbol"
@@ -764,7 +790,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 id="number_of_employees"
                                                                                 type="text"
                                                                                 className="input__text"
-                                                                                placeholder="Type Total Shares Outstanding"
+                                                                                placeholder="Type Total Equity Funding Amount"
                                                                                 component={NumericInputField}
                                                                                 decimalScale={0}
                                                                                 disabled={isSubmitting || this.isShow()}
@@ -793,34 +819,12 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 isOutsideRange={() => false}
                                                                                 disabled={isSubmitting || this.isShow()}
                                                                                 readOnly={true}
-                                                                                placeholder={'Select Initial Offering Date'}
+                                                                                placeholder={'Select Founded Date'}
                                                                             />
                                                                             <ErrorMessage
                                                                                 name="initial_offering_date"
                                                                                 component="div"
                                                                                 className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Price Per
-                                                                            Share
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="price_per_share"
-                                                                                id="price_per_share"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Price Per Share"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                component={NumericInputField}
-                                                                                decimalScale={decimalPlaces}
-                                                                            />
-                                                                            <ErrorMessage name="bid_price"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
                                                                         </div>
                                                                     </div>
 
@@ -861,6 +865,97 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 name="business_description"
                                                                                 component="div"
                                                                                 className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box full">
+                                                                        <div className={'input__btns'}>
+                                                                            <h4 className="input__group__title">Last
+                                                                                Funding Amount:</h4>
+                                                                            <button
+                                                                                type="button"
+                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onClick={() => {
+                                                                                    const updatedPricePerShareValues = [...values.price_per_share_value, ''];
+                                                                                    const updatedPricePerShareDates = [...values.price_per_share_date, ''];
+                                                                                    setFieldValue('price_per_share_value', updatedPricePerShareValues);
+                                                                                    setFieldValue('price_per_share_date', updatedPricePerShareDates);
+                                                                                }}
+                                                                            >
+                                                                                <FontAwesomeIcon
+                                                                                    className="nav-icon"
+                                                                                    icon={faPlus}/>
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div className={'input__box full'}>
+                                                                        <div className="input">
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <div className="officer-input">
+                                                                                    {values.price_per_share_value.map((description, index) => (
+                                                                                        <React.Fragment key={index}>
+                                                                                            <div
+                                                                                                className={'input__btns gap-20 align-items-start'}
+                                                                                                key={index}>
+
+                                                                                                <Field
+                                                                                                    name={`price_per_share_value.${index}`}
+                                                                                                    id={`price_per_share_value.${index}`}
+                                                                                                    type="text"
+                                                                                                    className="input__text"
+                                                                                                    placeholder="Type Last Funding Amount"
+                                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                                    component={NumericInputField}
+                                                                                                    decimalScale={decimalPlaces}
+                                                                                                />
+
+                                                                                                <SingleDatePicker
+                                                                                                    id={`price_per_share_date.${index}`}
+                                                                                                    numberOfMonths={1}
+                                                                                                    renderMonthElement={formatterService.renderMonthElement}
+                                                                                                    date={values.price_per_share_date[index] ? moment(values.price_per_share_date[index]) : null}
+                                                                                                    onDateChange={date => setFieldValue(`price_per_share_date.${index}`, date?.format('YYYY-MM-DD').toString())}
+                                                                                                    focused={this.state.focusedInitialPricePerShare[index] || false}
+                                                                                                    onFocusChange={({focused}) => {
+                                                                                                        this.setState((prevState: any) => ({
+                                                                                                            focusedInitialPricePerShare: {
+                                                                                                                ...prevState.focusedInitialPricePerShare,
+                                                                                                                [index]: focused
+                                                                                                            }
+                                                                                                        }));
+                                                                                                    }}
+                                                                                                    displayFormat="YYYY-MM-DD"
+                                                                                                    isOutsideRange={() => false}
+                                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                                    readOnly={true}
+                                                                                                    placeholder={'Select Date'}
+                                                                                                />
+
+                                                                                                <button
+                                                                                                    type="button"
+                                                                                                    disabled={isSubmitting || this.isShow() || values.price_per_share_value.length < 2}
+                                                                                                    className={`border-grey-btn ripple ${values.price_per_share_value.length < 2 ? 'disable' : ''}`}
+                                                                                                    onClick={() => {
+                                                                                                        const updatedPricePerShareValues = [...values.price_per_share_value];
+                                                                                                        updatedPricePerShareValues.splice(index, 1)
+                                                                                                        const updatedPricePerShareDates = [...values.price_per_share_date];
+                                                                                                        updatedPricePerShareDates.splice(index, 1)
+                                                                                                        setFieldValue('price_per_share_value', updatedPricePerShareValues);
+                                                                                                        setFieldValue('price_per_share_date', updatedPricePerShareDates);
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <FontAwesomeIcon
+                                                                                                        className="nav-icon"
+                                                                                                        icon={faMinus}/>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </React.Fragment>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
 
