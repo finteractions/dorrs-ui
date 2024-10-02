@@ -808,7 +808,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             isOutsideRange={() => false}
                                                             disabled={isSubmitting || this.isShow()}
                                                             readOnly={true}
-                                                            placeholder={'Select Initial Offering Date'}
+                                                            placeholder={'Select Founded Date'}
                                                         />
                                                         <ErrorMessage name="initial_offering_date" component="div"
                                                                       className="error-message"/>
@@ -1969,7 +1969,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
-                                            <div className="view_block_title">Initial Offering Date</div>
+                                            <div className="view_block_title">Founded Date</div>
                                             <div>{this.state.formInitialValues.initial_offering_date ? formatterService.dateTimeFormat(this.state.formInitialValues.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
                                         </div>
                                     </div>

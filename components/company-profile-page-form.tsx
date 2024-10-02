@@ -780,8 +780,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     </div>
 
                                                                     <div className="input__box">
-                                                                        <div className="input__title">Total Shares
-                                                                            Outstanding
+                                                                        <div className="input__title">Total Equity Funding Amount
                                                                         </div>
                                                                         <div
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -802,8 +801,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     </div>
 
                                                                     <div className="input__box">
-                                                                        <div className="input__title">Initial
-                                                                            Offering Date
+                                                                        <div className="input__title">Founded Date
                                                                         </div>
                                                                         <div
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>

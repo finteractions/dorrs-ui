@@ -36,7 +36,7 @@ let MENU_LIST: Array<Menus> = [
         text: 'Founded Date',
         to: "initial_offering_date",
         icon: '/img/pd-ico.svg',
-        alt: 'Initial Offering Date'
+        alt: 'Founded Date'
     },
     {
         text: 'Last Funding Amount',
