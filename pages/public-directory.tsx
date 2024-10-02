@@ -7,9 +7,10 @@ import PortalLayout from "@/components/layouts/portal/portal-layout";
 const PublicDirectory: NextPageWithLayout = () => {
     const router = useRouter();
 
-    const onCallback = async (linkTo: string) => {
-        await router.push(linkTo)
+    const onCallback = (linkTo: string) => {
+        window.open(linkTo, '_blank');
     }
+
 
     return (
         <>

@@ -4953,6 +4953,10 @@ a.block-link {
     &:nth-of-type(3) {
       width: auto;
     }
+
+    .font-weight-500 {
+      font-weight: 500;
+    }
   }
 
   @media(max-width: 1145px) {
@@ -4990,10 +4994,12 @@ a.block-link {
             flex: 1 1 80%;
           }
 
-          &:last-child {
-            flex: 0;
-            justify-items: center;
-            align-items: center;
+          @media(min-width: 768px) {
+            &:last-child {
+              flex: 0;
+              justify-items: center;
+              align-items: center;
+            }
           }
         }
       }

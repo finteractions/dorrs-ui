@@ -11,6 +11,7 @@ import Table from "@/components/table/table";
 import {ICustomButtonProps} from "@/interfaces/i-custom-button-props";
 import {Button} from "react-bootstrap";
 import {FormStatus, getPublicDirectoryFormStatusNames} from "@/enums/form-status";
+import formatterService from "@/services/formatter/formatter-service";
 
 interface DirectoryBlockState extends IState {
     isLoading: boolean;
@@ -39,7 +40,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
     customBtns: Array<ICustomButtonProps> = [
         {
-            icon: <FontAwesomeIcon className="nav-icon" icon={faEarth}/>,
+            icon: <FontAwesomeIcon className="nav-icon" icon={faEarth} size={'2x'}/>,
             onCallback: 'navigate'
         }
     ]
@@ -65,7 +66,11 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                 profile_status: row.profile_status,
                 logo: row.logo,
                 network: row.network,
-                description: row.description
+                description: row.description,
+                company_type: row.company_type,
+                founding_date: row.founding_date,
+                protocol_name: row.protocol_name,
+                additional_information: row.additional_information,
             }), {
                 id: "name",
                 cell: (item) =>
@@ -104,7 +109,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
                                 </div>
                                 <div className={'d-flex align-items-center'}>
-                                    <h3 className={'mb-0'}>{item.getValue().company_name}</h3>
+                                    <h3 className={'mb-2'}>{item.getValue().company_name}</h3>
                                     <div
                                         className={`margin-left-10 table__status show table__status-${(item.getValue().profile_status).toString().replace(/ /g, '').toLowerCase()}`}>
                                         <div className={'d-flex flex-shrink-0 align-items-center'}>
@@ -119,12 +124,33 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                                 {item.getValue().description}
                             </div>
                         </div>
+                        <div className={'flex-row w-100 mt-2'}>
+                            <div className={'my-0'}>
+                                <span className={'font-weight-500'}>Founding Date: </span>
+                                <span>{formatterService.dateTimeFormat(item.getValue().founding_date, 'dd/MM/yyy') || '-'}</span>
+                            </div>
+                            <div className={'mt-2'}>
+                                <span className={'font-weight-500'}>Protocol Name: </span>
+                                <span>{item.getValue().protocol_name || '-'}</span>
+                            </div>
+                        </div>
+                        {item.getValue().additional_information && (
+                            <div className={'flex-row w-100 mt-2'}>
+                                <div>
+                                    <span
+                                        className={'font-weight-500'}>Additional Information: </span>
+                                    <span>{item.getValue().additional_information}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 ,
                 header: () => <span></span>,
             }),
+
             columnHelper.accessor((row) => ({
+                company_type: row.company_type,
                 asset_class: row.asset_class,
                 asset_region: row.asset_region,
             }), {
@@ -132,6 +158,13 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                 cell: (item) =>
                     <div
                         className={'d-flex gap-20 public-directory-col'}>
+                        <div className={'flex-1-1-100 px-1'}>
+                            <div className={'w-100 content__title'}>Company Type
+                            </div>
+                            <div className={'w-100 content__bottom tag-block mx-0'}>
+                                {item.getValue().company_type}
+                            </div>
+                        </div>
                         <div className={'flex-1-1-100 px-1'}>
                             <div className={'w-100 content__title'}>Asset
                                 Classes
@@ -176,6 +209,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
         ];
 
         tableFilters = [
+            {key: 'company_type', placeholder: 'Company Type'},
             {key: 'asset_class', placeholder: 'Asset Classes', type: 'multiSelect'},
             {key: 'asset_region', placeholder: 'Asset Regions', type: 'multiSelect'},
             {key: 'network', placeholder: 'Live Protocols', type: 'multiSelect'},
@@ -206,7 +240,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
         publicDirectoryService.getCompanyProfile()
             .then((res: Array<IDirectoryCompanyProfile>) => {
                 let data = res || [];
-                data.forEach((s:IDirectoryCompanyProfile) => {
+                data.forEach((s: IDirectoryCompanyProfile) => {
                     s.isDisabled = s.website_link === '';
                 });
                 this.handleData(data);
