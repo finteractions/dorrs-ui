@@ -5024,3 +5024,19 @@ option.divider {
   background-color: yellow;
   height: 2px;
 }
+
+.api-block {
+  background: #f3f7fc;
+  margin: 0 -25px 25px -25px;
+  padding: 0 25px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  -moz-column-gap: 20px;
+  column-gap: 20px;
+
+  & > div {
+    flex: 1;
+  }
+
+}

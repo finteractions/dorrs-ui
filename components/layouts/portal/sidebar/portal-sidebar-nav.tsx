@@ -142,6 +142,14 @@ const MENU_LIST: MenuItem[] = [
         permission_key: 'algorand_data_feed',
         isPublic: false,
     },
+    {
+        text: 'DOCs',
+        href: "/docs",
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(113, 132, 148, 1);transform: ;msFilter:;"><path d="M19 2H6c-1.206 0-3 .799-3 3v14c0 2.201 1.794 3 3 3h15v-2H6.012C5.55 19.988 5 19.806 5 19s.55-.988 1.012-1H21V4c0-1.103-.897-2-2-2zm0 14H5V5c0-.806.55-.988 1-1h13v12z"></path></svg>`,
+        submenus: [],
+        permission_key: '',
+        isPublic: false,
+    },
 ]
 const PortalSidebarNavItem = (props: PortalSidebarNavItemProps) => {
     const {
