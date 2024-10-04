@@ -175,7 +175,7 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                         </div>
                                         <div className={'content__bottom'}>
                                             {this.dataFeedProvider?.description.map((description, index) => (
-                                                <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'} key={index}>
+                                                <div className={'d-flex gap-20 flex-wrap'} key={index}>
                                                     {this.dataFeedProvider?.images[index] && (
                                                         <div
                                                             className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
