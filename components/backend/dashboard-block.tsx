@@ -44,11 +44,11 @@ class DashboardBlock extends React.Component<{}> {
         }
     }
 
-    async componentDidMount() {
-        await this.getUsers()
-        await this.getSymbols()
-        await this.getOrders()
-        await this.getMemberDistribution()
+    componentDidMount() {
+        this.getUsers();
+        this.getSymbols();
+        this.getOrders();
+        this.getMemberDistribution();
     }
 
     getUsers = () => {
