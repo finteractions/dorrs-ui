@@ -59,6 +59,7 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
         this.setState({isLoadingHeatMap: true}, async () => {
             await this.getHeatMap()
             this.subscriptions();
+
         });
 
         window.addEventListener('themeToggle', this.handleTheme);
@@ -101,7 +102,10 @@ class HeatMapAndPerformanceBlock extends React.Component<{}, HeatMapAndPerforman
 
                 })
                 .finally(() => {
-                    this.setState({isLoadingHeatMap: false}, () => resolve(true))
+                    this.setState({isLoadingHeatMap: false}, () => {
+                        this.handleTheme();
+                        resolve(true)
+                    })
                 });
         })
     }
