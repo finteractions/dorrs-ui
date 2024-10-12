@@ -833,7 +833,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             {this.companyProfile?.issuer_profile_description.map((description, index) => (
                                                                 <React.Fragment key={index}>
                                                                     <div
-                                                                        className={'d-flex gap-20 flex-wrap flex-md-nowrap'}>
+                                                                        className={'d-flex gap-20 flex-wrap'}>
                                                                         {this.companyProfile?.issuer_profile_images && this.companyProfile?.issuer_profile_images[index] && (
                                                                             <div
                                                                                 className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
