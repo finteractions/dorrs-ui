@@ -300,15 +300,18 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             }
                         }
 
-                        if (typeof s.company_profile?.asset_type_images === 'string') {
+                        if (s.company_profile && typeof s.company_profile.asset_type_images === 'string') {
                             try {
-                                const str = (s.company_profile.asset_type_images as string).toString()
+                                const str = (s.company_profile.asset_type_images as string).toString();
                                 const asset_type_images = JSON.parse(str.replace(/'/g, '"'));
                                 s.company_profile.asset_type_images = asset_type_images;
                             } catch (error) {
-                                s.company_profile.asset_type_images = [];
+                                s.company_profile.asset_type_images = [""];
                             }
+                        } else if (s.company_profile) {
+                            s.company_profile.asset_type_images = [""];
                         }
+
 
                         if (typeof s.company_profile?.issuer_profile_description === 'string') {
                             try {
@@ -660,7 +663,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         </div>
                                                     </div>
                                                     <div className={'content__bottom'}>
-                                                        {this.companyProfile?.asset_type_description ? (
+                                                        {this.companyProfile?.asset_type_description.every(description => !description) &&
+                                                        this.companyProfile?.asset_type_images.every(image => !image) ? (
+                                                            <>not filled</>
+                                                        ) : (
                                                             <>
                                                                 {this.companyProfile?.asset_type_description.map((description, index) => (
                                                                     <div
@@ -672,7 +678,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                                 <div
                                                                                     className={'logo p-0 align-items-baseline '}>
                                                                                     <img
-                                                                                        src={this.companyProfile?.asset_type_images[index]}/>
+                                                                                        src={this.companyProfile?.asset_type_images[index]}
+                                                                                        alt={`Asset type ${index}`}/>
                                                                                 </div>
                                                                             </div>
                                                                         )}
@@ -681,10 +688,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                     </div>
                                                                 ))}
                                                             </>
-                                                        ) : (
-                                                            <>not filled</>
                                                         )}
-
                                                     </div>
                                                 </div>
                                             )}
@@ -828,7 +832,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    {this.companyProfile?.issuer_profile_description ? (
+                                                    {this.companyProfile?.issuer_profile_description.every(description => !description) &&
+                                                    this.companyProfile?.issuer_profile_images.every(image => !image) ? (
+                                                        <>not filled</>
+                                                    ) : (
                                                         <>
                                                             {this.companyProfile?.issuer_profile_description.map((description, index) => (
                                                                 <React.Fragment key={index}>
@@ -863,8 +870,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                 </React.Fragment>
                                                             ))}
                                                         </>
-                                                    ) : (
-                                                        <>not filled</>
                                                     )}
                                                 </div>
                                             </div>
@@ -960,16 +965,17 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Company Officers & Contacts</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    {this.companyProfile.company_officers_and_contacts.length > 0 && this.companyProfile.company_officers_and_contacts.every((value) => value !== "") ? (
-
-                                                        this.companyProfile.company_officers_and_contacts.map((officer, index) => (
-                                                            <React.Fragment key={index}>
-                                                                <div>{officer}</div>
-                                                            </React.Fragment>
-                                                        ))
-
-                                                    ) : (
+                                                    {this.companyProfile.company_officers_and_contacts.length === 0 ||
+                                                    this.companyProfile.company_officers_and_contacts.every(officer => officer.length === 0) ? (
                                                         <>not filled</>
+                                                    ) : (
+                                                        this.companyProfile.company_officers_and_contacts.map((officer, index) => (
+                                                            officer.length > 0 && (
+                                                                <React.Fragment key={index}>
+                                                                    <div>{officer}</div>
+                                                                </React.Fragment>
+                                                            )
+                                                        ))
                                                     )}
                                                 </div>
                                             </div>

@@ -1038,6 +1038,11 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                                 const updatedDescriptions = [...values.asset_type_description];
                                                                                                                 updatedDescriptions.splice(index, 1);
                                                                                                                 setFieldValue('asset_type_description', updatedDescriptions);
+
+                                                                                                                const updatedImages = [...values.asset_type_images];
+                                                                                                                updatedImages.splice(index, 1);
+                                                                                                                setFieldValue('asset_type_images', updatedImages);
+
                                                                                                                 this.handleAssetTypeImageRemove(index)
                                                                                                             }}
                                                                                                         >
@@ -1172,14 +1177,24 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                         const updatedDescriptions = [...values.issuer_profile_description];
                                                                                                         updatedDescriptions.splice(index, 1);
                                                                                                         setFieldValue('issuer_profile_description', updatedDescriptions);
-                                                                                                        this.handleIssuerProfileImageRemove(index)
-                                                                                                        this.handleIssuerProfileFileRemove(index)
+
+                                                                                                        const updatedImages = [...values.issuer_profile_images];
+                                                                                                        updatedImages.splice(index, 1);
+                                                                                                        setFieldValue('issuer_profile_images', updatedImages);
+
+                                                                                                        const updatedFiles = [...values.issuer_profile_files];
+                                                                                                        updatedFiles.splice(index, 1);
+                                                                                                        setFieldValue('issuer_profile_files', updatedFiles);
+
+                                                                                                        this.handleIssuerProfileImageRemove(index);
+                                                                                                        this.handleIssuerProfileFileRemove(index);
                                                                                                     }}
                                                                                                 >
                                                                                                     <FontAwesomeIcon
                                                                                                         className="nav-icon"
                                                                                                         icon={faMinus}/>
                                                                                                 </button>
+
                                                                                             </div>
                                                                                             {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
                                                                                                 <div

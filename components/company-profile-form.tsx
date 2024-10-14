@@ -1011,6 +1011,11 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                         const updatedDescriptions = [...values.asset_type_description];
                                                                                         updatedDescriptions.splice(index, 1);
                                                                                         setFieldValue('asset_type_description', updatedDescriptions);
+
+                                                                                        const updatedImages = [...values.asset_type_images];
+                                                                                        updatedImages.splice(index, 1);
+                                                                                        setFieldValue('asset_type_images', updatedImages);
+
                                                                                         this.handleAssetTypeImageRemove(index)
                                                                                     }}
                                                                                 >
@@ -1131,6 +1136,15 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 const updatedDescriptions = [...values.issuer_profile_description];
                                                                                 updatedDescriptions.splice(index, 1);
                                                                                 setFieldValue('issuer_profile_description', updatedDescriptions);
+
+                                                                                const updatedImages = [...values.issuer_profile_images];
+                                                                                updatedImages.splice(index, 1);
+                                                                                setFieldValue('issuer_profile_images', updatedImages);
+
+                                                                                const updatedFiles = [...values.issuer_profile_files];
+                                                                                updatedFiles.splice(index, 1);
+                                                                                setFieldValue('issuer_profile_files', updatedFiles);
+
                                                                                 this.handleIssuerProfileImageRemove(index)
                                                                                 this.handleIssuerProfileFileRemove(index)
                                                                             }}
