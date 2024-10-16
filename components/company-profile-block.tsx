@@ -683,23 +683,25 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                         ) : (
                                                             <>
                                                                 {this.companyProfile?.asset_type_description.map((description, index) => (
-                                                                    <div
-                                                                        className={'d-flex gap-20 flex-wrap'}
-                                                                        key={index}>
-                                                                        {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
-                                                                            <div
-                                                                                className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                                                <div
-                                                                                    className={'logo p-0 align-items-baseline '}>
-                                                                                    <img
-                                                                                        src={this.companyProfile?.asset_type_images[index]}
-                                                                                        alt={`Asset type ${index}`}/>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
+                                                                    <React.Fragment key={index}>
                                                                         <div
-                                                                            className={'d-flex mb-2'}>{description}</div>
-                                                                    </div>
+                                                                            className={'d-flex gap-20 flex-wrap'}>
+                                                                            {this.companyProfile?.asset_type_images && this.companyProfile?.asset_type_images[index] && (
+                                                                                <div
+                                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                                    <div
+                                                                                        className={'logo p-0 align-items-baseline '}>
+                                                                                        <img
+                                                                                            src={this.companyProfile?.asset_type_images[index]}
+                                                                                            alt={`Asset type ${index}`}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                            <div
+                                                                                className={'d-flex mb-2'}>{description}</div>
+                                                                        </div>
+                                                                        <div className={'divider iterate'}></div>
+                                                                    </React.Fragment>
                                                                 ))}
                                                             </>
                                                         )}
@@ -881,6 +883,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
 
                                                                         </div>
                                                                     </div>
+                                                                    <div className={'divider iterate'}></div>
                                                                 </React.Fragment>
                                                             ))}
                                                         </>
