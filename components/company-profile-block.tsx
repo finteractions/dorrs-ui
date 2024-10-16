@@ -298,6 +298,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.asset_type_description = [""];
                             }
+                        } else if (s.company_profile?.asset_type_description === null) {
+                            s.company_profile.asset_type_description = [""];
                         }
 
                         if (s.company_profile && typeof s.company_profile.asset_type_images === 'string') {
@@ -308,7 +310,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.asset_type_images = [""];
                             }
-                        } else if (s.company_profile) {
+                        } else if (s.company_profile?.asset_type_images === null) {
                             s.company_profile.asset_type_images = [""];
                         }
 
@@ -321,6 +323,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.issuer_profile_description = [""];
                             }
+                        } else if (s.company_profile?.issuer_profile_description === null) {
+                            s.company_profile.issuer_profile_description = [""];
                         }
 
                         if (typeof s.company_profile?.issuer_profile_images === 'string') {
@@ -331,6 +335,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.issuer_profile_images = [];
                             }
+                        } else if (s.company_profile?.issuer_profile_images === null) {
+                            s.company_profile.issuer_profile_images = [];
                         }
 
                         if (typeof s.company_profile?.issuer_profile_files === 'string') {
@@ -341,6 +347,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.issuer_profile_files = [];
                             }
+                        } else if (s.company_profile?.issuer_profile_files === null) {
+                            s.company_profile.issuer_profile_files = [];
                         }
 
                         if (typeof s.company_profile?.sec_description === 'string') {
@@ -351,6 +359,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.sec_description = [""];
                             }
+                        } else if (s.company_profile?.sec_description === null) {
+                            s.company_profile.sec_description = [""];
                         }
 
                         if (typeof s.company_profile?.sec_images === 'string') {
@@ -361,6 +371,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.sec_images = [];
                             }
+                        } else if (s.company_profile?.sec_images === null) {
+                            s.company_profile.sec_images = [];
                         }
 
                         if (typeof s.company_profile?.sec_files === 'string') {
@@ -371,6 +383,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.sec_files = [];
                             }
+                        } else if (s.company_profile?.sec_files === null) {
+                            s.company_profile.sec_files = [];
                         }
                     });
 
