@@ -30,11 +30,11 @@ import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 
 
-const allowedImageFileSizeMB = 1
+const allowedImageFileSizeMB = 5
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
 const allowedImageExt = ['png', 'jpg', 'jpeg']
 const allowedFileSizeMB = 5
-const allowedFileSize = allowedImageFileSizeMB * 1024 * 1024;
+const allowedFileSize = allowedFileSizeMB * 1024 * 1024;
 const allowedFileExt = ['pdf']
 
 const selectedCountry = 'US';
@@ -59,7 +59,7 @@ const formSchema = Yup.object().shape({
             })
             .test('asset_type_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
                 if (!value) return true;
-                return value.size <= allowedFileSize;
+                return value.size <= allowedImageFileSize;
             })
     ),
     issuer_profile_image_tmp: Yup.array().of(
@@ -70,7 +70,7 @@ const formSchema = Yup.object().shape({
             })
             .test('issuer_profile_image_tmp', `File is too large. Maximum size: ${allowedImageFileSizeMB} MB`, (value: any) => {
                 if (!value) return true;
-                return value.size <= allowedFileSize;
+                return value.size <= allowedImageFileSize;
             })
     ),
     issuer_profile_file_tmp: Yup.array().of(
