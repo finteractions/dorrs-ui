@@ -262,6 +262,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.company_officers_and_contacts = [""];
                             }
+                        } else if (s.company_profile?.company_officers_and_contacts === null) {
+                            s.company_profile.company_officers_and_contacts = [""];
                         }
 
                         if (typeof s.company_profile?.board_of_directors === 'string') {
@@ -270,6 +272,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.board_of_directors = [""];
                             }
+                        }else if (s.company_profile?.board_of_directors === null) {
+                            s.company_profile.board_of_directors = [""];
                         }
 
                         if (typeof s.company_profile?.price_per_share_value === 'string') {
@@ -279,6 +283,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.price_per_share_value = [""];
                             }
+                        }else if (s.company_profile?.price_per_share_value === null) {
+                            s.company_profile.price_per_share_value = [""];
                         }
 
                         if (typeof s.company_profile?.price_per_share_date === 'string') {
@@ -288,6 +294,8 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.price_per_share_date = [""];
                             }
+                        }else if (s.company_profile?.price_per_share_date === null) {
+                            s.company_profile.price_per_share_date = [""];
                         }
 
                         if (typeof s.company_profile?.asset_type_description === 'string') {
@@ -594,7 +602,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                 <h2 className={'view_block_main_title mb-0'}>
                                                                     {this.companyProfile.company_name}
                                                                 </h2>
-                                                                {!this.companyProfile.is_approved && this.props.access.edit && (
+                                                                {this.props.access.edit && (
                                                                     <>
                                                                         <button
                                                                             className={`d-none d-md-block b-btn ripple`}
@@ -729,7 +737,10 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Last Funding Amount</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    {this.companyProfile?.price_per_share_value ? (
+                                                    {this.companyProfile?.price_per_share_value.every(value => !value) &&
+                                                    this.companyProfile?.price_per_share_date.every(date => !date) ? (
+                                                        <>not filled</>
+                                                    ) : (
                                                         <>
                                                             {this.companyProfile?.price_per_share_value.map((description, index) => (
                                                                 <div key={index}>
@@ -743,8 +754,6 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                 </div>
                                                             ))}
                                                         </>
-                                                    ) : (
-                                                        <>not filled</>
                                                     )}
                                                 </div>
                                             </div>
@@ -1004,9 +1013,9 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     {this.companyProfile.board_of_directors.length > 0 && this.companyProfile.board_of_directors.every((value) => value !== "") ? (
 
                                                         this.companyProfile.board_of_directors.map((director, index) => (
-                                                            <>
+                                                            <React.Fragment key={index}>
                                                                 <div>{director}</div>
-                                                            </>
+                                                            </React.Fragment>
                                                         ))
 
                                                     ) : (

@@ -19,6 +19,7 @@ import Select from "react-select";
 import {FederalExemptionType} from "@/enums/federal-exemption-type";
 import {SingleDatePicker} from "react-dates";
 import moment from "moment/moment";
+import formValidator from "@/services/form-validator/form-validator";
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required('Required').label('Type'),
@@ -200,6 +201,7 @@ class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingF
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema, values, errors);
                                         return (
                                             <Form id="company-profile-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (

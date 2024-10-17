@@ -167,6 +167,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             } catch (error) {
                 initialData.company_officers_and_contacts = [""];
             }
+        } else if (initialData?.company_officers_and_contacts === null) {
+            initialData.company_officers_and_contacts = [""];
         }
 
         if (typeof initialData?.board_of_directors === 'string') {
@@ -177,6 +179,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             } catch (error) {
                 initialData.board_of_directors = [""];
             }
+        } else if (initialData?.board_of_directors === null) {
+            initialData.board_of_directors = [""];
         }
 
         if (typeof initialData?.price_per_share_value === 'string') {
@@ -186,6 +190,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             } catch (error) {
                 initialData.price_per_share_value = [""];
             }
+        } else if (initialData?.price_per_share_value === null) {
+            initialData.price_per_share_value = [""];
         }
 
         if (typeof initialData?.price_per_share_date === 'string') {
@@ -195,6 +201,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             } catch (error) {
                 initialData.price_per_share_date = [""];
             }
+        } else if (initialData?.price_per_share_date === null) {
+            initialData.price_per_share_date = [""];
         }
 
         try {
@@ -823,6 +831,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="company_name"
                                                             id="company_name"
                                                             type="text"
+                                                            maxLength={50}
                                                             className="input__text"
                                                             placeholder="Type Company Name"
                                                             disabled={isSubmitting || this.isShow()}
@@ -839,8 +848,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         <Field
                                                             name="business_description"
                                                             id="business_description"
-                                                            type="text"
-                                                            className="input__text"
+                                                            as="textarea"
+                                                            rows="3"
+                                                            className="input__textarea no-bgarea"
                                                             placeholder="Type Business Description"
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
@@ -1183,6 +1193,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     name="spv_name"
                                                                     id="spv_name"
                                                                     type="text"
+                                                                    maxLength={50}
                                                                     className="input__text no-bg"
                                                                     placeholder="Type SPV Name"
                                                                     disabled={isSubmitting || this.isShow()}
@@ -1204,6 +1215,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     name="fund_manager"
                                                                     id="fund_manager"
                                                                     type="text"
+                                                                    maxLength={50}
                                                                     className="input__text no-bg"
                                                                     placeholder="Type Fund Manager"
                                                                     disabled={isSubmitting || this.isShow()}
@@ -1226,6 +1238,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     name="investment_objective"
                                                                     id="investment_objective"
                                                                     type="text"
+                                                                    maxLength={50}
                                                                     className="input__text no-bg"
                                                                     placeholder="Type Investment Objective"
                                                                     disabled={isSubmitting || this.isShow()}
@@ -1407,6 +1420,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="street_address_1"
                                                                 id="street_address_1"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Street Address 1"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1425,6 +1439,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="street_address_2"
                                                                 id="street_address_2"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Street Address 2"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1443,6 +1458,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="city"
                                                                 id="city"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type City"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1487,6 +1503,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="zip_code"
                                                                 id="zip_code"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Zip Code"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1567,6 +1584,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="web_address"
                                                             id="web_address"
                                                             type="text"
+                                                            maxLength={50}
                                                             className="input__text"
                                                             placeholder="Type Web Address"
                                                             disabled={isSubmitting || this.isShow()}
@@ -1681,6 +1699,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     <Field
                                                                         name={`company_officers_and_contacts.${index}`}
                                                                         type="text"
+                                                                        maxLength={50}
                                                                         className="input__text"
                                                                         placeholder="Type Company Officers & Contacts"
                                                                         disabled={isSubmitting || this.isShow()}
@@ -1729,6 +1748,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     <Field
                                                                         name={`board_of_directors.${index}`}
                                                                         type="text"
+                                                                        maxLength={50}
                                                                         className="input__text"
                                                                         placeholder="Type Board of Directors"
                                                                         disabled={isSubmitting || this.isShow()}
@@ -1765,6 +1785,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="product_and_services"
                                                             id="product_and_services"
                                                             type="text"
+                                                            maxLength={50}
                                                             className="input__text"
                                                             placeholder="Type Product & Services"
                                                             disabled={isSubmitting || this.isShow()}
@@ -1782,6 +1803,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="company_facilities"
                                                             id="company_facilities"
                                                             type="text"
+                                                            maxLength={50}
                                                             className="input__text"
                                                             placeholder="Type Company Facilities"
                                                             disabled={isSubmitting || this.isShow()}
@@ -1801,6 +1823,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="transfer_agent"
                                                                 id="transfer_agent"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Transfer Agent"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1818,6 +1841,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="accounting_auditing_firm"
                                                                 id="accounting_auditing_firm"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Accounting / Auditing Firm"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1838,6 +1862,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="investor_relations_marketing_communications"
                                                                 id="investor_relations_marketing_communications"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Investor Relations / Marketing / Communications"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1857,6 +1882,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="securities_counsel"
                                                                 id="securities_counsel"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Securities Counsel"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1878,6 +1904,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="us_reporting"
                                                                 id="us_reporting"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type US Reporting"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1902,6 +1929,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="edgar_cik"
                                                                 id="edgar_cik"
                                                                 type="text"
+                                                                maxLength={50}
                                                                 className="input__text"
                                                                 placeholder="Type Edgar CIK"
                                                                 disabled={isSubmitting || this.isShow()}
@@ -1990,7 +2018,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Last Funding Amount</div>
-                                            {this.state.formInitialValues?.price_per_share_value ? (
+                                            {this.state.formInitialValues?.price_per_share_value.every(value => !value) &&
+                                            this.state.formInitialValues?.price_per_share_date.every(date => !date) ? (
+                                                <>not filled</>
+                                            ) : (
                                                 <>
                                                     {this.state.formInitialValues?.price_per_share_value.map((description, index) => (
                                                         <div key={index}>
@@ -2003,8 +2034,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         </div>
                                                     ))}
                                                 </>
-                                            ) : (
-                                                <>not filled</>
                                             )}
                                         </div>
                                     </div>
@@ -2035,7 +2064,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             )}
                                         </div>
                                     </div>
-                                    <div className="view_block">
+                                    <div className="view_block full_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Business Description</div>
                                             <div>{this.state.formInitialValues?.business_description || 'not filled'}</div>
@@ -2050,21 +2079,29 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         className="view_block_title">{this.state.formInitialValues?.asset_type} Additional
                                                         Info
                                                     </div>
-                                                    {this.state.formInitialValues?.asset_type_description.map((description, index) => (
-                                                        <div className={'d-flex gap-20 flex-wrap mb-2'}
-                                                             key={index}>
-                                                            {this.state.formInitialValues?.asset_type_images && this.state.formInitialValues?.asset_type_images[index] && (
-                                                                <div
-                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                                    <div className={'logo p-0 align-items-baseline '}>
-                                                                        <img
-                                                                            src={this.state.formInitialValues?.asset_type_images[index]}/>
-                                                                    </div>
+                                                    {this.state.formInitialValues?.asset_type_description.every(description => !description) &&
+                                                    this.state.formInitialValues?.asset_type_images.every(image => !image) ? (
+                                                        <>not filled</>
+                                                    ) : (
+                                                        <>
+                                                            {this.state.formInitialValues?.asset_type_description.map((description, index) => (
+                                                                <div className={'d-flex gap-20 flex-wrap mb-2'}
+                                                                     key={index}>
+                                                                    {this.state.formInitialValues?.asset_type_images && this.state.formInitialValues?.asset_type_images[index] && (
+                                                                        <div
+                                                                            className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                            <div
+                                                                                className={'logo p-0 align-items-baseline '}>
+                                                                                <img
+                                                                                    src={this.state.formInitialValues?.asset_type_images[index]}/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className={'d-flex mb-2'}>{description}</div>
                                                                 </div>
-                                                            )}
-                                                            <div className={'d-flex mb-2'}>{description}</div>
-                                                        </div>
-                                                    ))}
+                                                            ))}
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </>
@@ -2076,36 +2113,42 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div
                                                 className="view_block_title">Issuer Profile
                                             </div>
-                                            {this.state.formInitialValues?.issuer_profile_description.map((description, index) => (
-                                                <div className={'d-flex gap-20 flex-wrap mb-2'}
-                                                     key={index}>
-                                                    {this.state.formInitialValues?.issuer_profile_images && this.state.formInitialValues?.issuer_profile_images[index] && (
-                                                        <div
-                                                            className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
-                                                            <div className={'logo p-0 align-items-baseline '}>
-                                                                <img
-                                                                    src={this.state.formInitialValues?.issuer_profile_images[index]}/>
+                                            {this.state.formInitialValues?.issuer_profile_description.every(description => !description) &&
+                                            this.state.formInitialValues?.issuer_profile_images.every(image => !image) ? (
+                                                <>not filled</>
+                                            ) : (
+                                                <>
+                                                    {this.state.formInitialValues?.issuer_profile_description.map((description, index) => (
+                                                        <div className={'d-flex gap-20 flex-wrap mb-2'}
+                                                             key={index}>
+                                                            {this.state.formInitialValues?.issuer_profile_images && this.state.formInitialValues?.issuer_profile_images[index] && (
+                                                                <div
+                                                                    className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                                    <div className={'logo p-0 align-items-baseline '}>
+                                                                        <img
+                                                                            src={this.state.formInitialValues?.issuer_profile_images[index]}/>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            <div className={'d-flex mb-2 flex-column'}>
+                                                                <p className={'w-100 mb-1'}>{description}</p>
+                                                                {this.state.formInitialValues?.issuer_profile_files && this.state.formInitialValues?.issuer_profile_files[index] && (
+                                                                    <p className={'w-100 mb-1'}><Link
+                                                                        className={'link info-panel-title-link'}
+                                                                        href={`${this.host}${this.state.formInitialValues?.issuer_profile_files[index]}`}
+                                                                        target={'_blank'}>
+                                                                        File{' '}
+                                                                        <FontAwesomeIcon
+                                                                            className="nav-icon"
+                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                    </Link></p>
+                                                                )}
                                                             </div>
                                                         </div>
-                                                    )}
-                                                    <div className={'d-flex mb-2 flex-column'}>
-                                                        <p className={'w-100 mb-1'}>{description}</p>
-                                                        {this.state.formInitialValues?.issuer_profile_files && this.state.formInitialValues?.issuer_profile_files[index] && (
-                                                            <p className={'w-100 mb-1'}><Link
-                                                                className={'link info-panel-title-link'}
-                                                                href={`${this.host}${this.state.formInitialValues?.issuer_profile_files[index]}`}
-                                                                target={'_blank'}>
-                                                                File{' '}
-                                                                <FontAwesomeIcon
-                                                                    className="nav-icon"
-                                                                    icon={faArrowUpRightFromSquare}/>
-                                                            </Link></p>
-                                                        )}
+                                                    ))}
+                                                </>
+                                            )}
 
-                                                    </div>
-
-                                                </div>
-                                            ))}
                                         </div>
                                     </div>
 
@@ -2211,18 +2254,17 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                         <div className="view_block_body">
                                             <div className="view_block_title">Company Officers & Contacts
                                             </div>
-
-                                            {this.state.formInitialValues.company_officers_and_contacts.length ? (
-
+                                            {this.state.formInitialValues.company_officers_and_contacts.length === 0 ||
+                                            this.state.formInitialValues.company_officers_and_contacts.every(officer => officer.length === 0) ? (
+                                                <>not filled</>
+                                            ) : (
                                                 this.state.formInitialValues.company_officers_and_contacts.map((officer, index) => (
                                                     <>
                                                         <div>{officer}</div>
                                                     </>
                                                 ))
-
-                                            ) : (
-                                                <>not filled</>
                                             )}
+
                                         </div>
                                     </div>
                                     <div className="view_block">
@@ -2230,14 +2272,12 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="view_block_title">Board of Directors
                                             </div>
 
-                                            {this.state.formInitialValues.board_of_directors.length ? (
-
+                                            {this.state.formInitialValues.board_of_directors.length > 0 && this.state.formInitialValues.board_of_directors.every((value) => value !== "") ? (
                                                 this.state.formInitialValues.board_of_directors.map((director, index) => (
                                                     <>
                                                         <div>{director}</div>
                                                     </>
                                                 ))
-
                                             ) : (
                                                 <>not filled</>
                                             )}

@@ -678,7 +678,11 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                 const symbol = this.symbols.find((s: ISymbol) => s.symbol === this.props.symbol);
 
                 this.symbol = symbol || null;
-                this.masterSymbols = this.symbols.filter(s => !s.symbol_id)
+                this.masterSymbols = this.symbols
+                    .filter(s => !s.symbol_id)
+                    .filter(s => s.id !== symbol?.id)
+                    .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
                 this.companyProfile = symbol?.company_profile || null;
 
                 this.setState({symbol: this.symbol})

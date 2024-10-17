@@ -604,7 +604,11 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                 primaryATS.unshift({value: PrimaryATS.NONE.value, label: PrimaryATS.NONE.label});
                 this.primaryATS = primaryATS;
 
-                this.masterSymbols = data.filter(s => !s.symbol_id)
+                this.masterSymbols = data
+                    .filter(s => !s.symbol_id)
+                    .filter(s => s.symbol !== this.state.symbolCode)
+                    .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
             })
             .catch((errors: IError) => {
 

@@ -16,6 +16,7 @@ import {getYesNoTypeName, YesNoType} from "@/enums/yes-no-type";
 import {UsaStates} from "usa-states";
 import PhoneInputField from "@/components/phone-input-field";
 import {RegType} from "@/enums/reg-type";
+import formValidator from "@/services/form-validator/form-validator";
 
 const formSchema = Yup.object().shape({
     type: Yup.string().required('Required').label('Type'),
@@ -191,6 +192,7 @@ class SECIssuerForm extends React.Component<SECIssuerFormProps, SECIssuerFormSta
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema, values, errors);
                                         return (
                                             <Form id="company-profile-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (

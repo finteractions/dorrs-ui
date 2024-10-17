@@ -11,6 +11,7 @@ import formService from "@/services/form/form-service";
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
 import NumericInputField from "@/components/numeric-input-field";
+import formValidator from "@/services/form-validator/form-validator";
 
 const formSchema = Yup.object().shape({
     issuer_name: Yup.string().required('Required').label('Issuer Name'),
@@ -144,6 +145,7 @@ class FINRACatRegAForm extends React.Component<FINRACAtRegAFormProps, FINRACatRe
                                     onSubmit={this.handleSubmit}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
+                                        formValidator.requiredFields(formSchema, values, errors);
                                         return (
                                             <Form id="company-profile-form">
                                                 {this.props.isAdmin && this.props.action !== 'add' && (
