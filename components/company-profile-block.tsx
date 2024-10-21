@@ -272,7 +272,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.board_of_directors = [""];
                             }
-                        }else if (s.company_profile?.board_of_directors === null) {
+                        } else if (s.company_profile?.board_of_directors === null) {
                             s.company_profile.board_of_directors = [""];
                         }
 
@@ -283,7 +283,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.price_per_share_value = [""];
                             }
-                        }else if (s.company_profile?.price_per_share_value === null) {
+                        } else if (s.company_profile?.price_per_share_value === null) {
                             s.company_profile.price_per_share_value = [""];
                         }
 
@@ -294,7 +294,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                             } catch (error) {
                                 s.company_profile.price_per_share_date = [""];
                             }
-                        }else if (s.company_profile?.price_per_share_date === null) {
+                        } else if (s.company_profile?.price_per_share_date === null) {
                             s.company_profile.price_per_share_date = [""];
                         }
 
@@ -722,6 +722,24 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                                 <div className={'content__bottom'}>
                                                     <div>{this.companyProfile?.total_shares_outstanding ? formatterService.numberFormat(Number(this.companyProfile.total_shares_outstanding)) : 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'last_market_valuation'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Last Market Valuation of Company
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile?.last_market_valuation ? formatterService.numberFormat(Number(this.companyProfile.last_market_valuation), 4) : 'not filled'}</div>
+                                                </div>
+                                            </div>
+                                            <div id={'last_sale_price'} className={'panel'}>
+                                                <div className={'content__top'}>
+                                                    <div className={'content__title'}>Last Sale Price of Company Stock
+                                                    </div>
+                                                </div>
+                                                <div className={'content__bottom'}>
+                                                    <div>{this.companyProfile?.last_sale_price ? formatterService.numberFormat(Number(this.companyProfile.last_sale_price), 4) : 'not filled'}</div>
                                                 </div>
                                             </div>
                                             <div id={'initial_offering_date'} className={'panel'}>

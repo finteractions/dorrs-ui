@@ -33,6 +33,18 @@ let MENU_LIST: Array<Menus> = [
         alt: 'Total Equity Funding Amount'
     },
     {
+        text: 'Last Market Valuation of Company',
+        to: "last_market_valuation",
+        icon: '/img/pd-ico.svg',
+        alt: 'Last Market Valuation of Company'
+    },
+    {
+        text: 'Last Sale Price of Company Stock',
+        to: "last_sale_price",
+        icon: '/img/pd-ico.svg',
+        alt: 'Last Sale Price of Company Stock'
+    },
+    {
         text: 'Founded Date',
         to: "initial_offering_date",
         icon: '/img/pd-ico.svg',

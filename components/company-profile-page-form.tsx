@@ -110,6 +110,12 @@ const formSchema = Yup.object().shape({
     number_of_employees: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Number of Employees').label('Number of Employees'),
+    last_market_valuation: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Last Market Valuation of Company').label('Last Market Valuation of Company'),
+    last_sale_price: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Last Sale Price of Company Stock').label('Last Sale Price of Company Stock'),
 });
 
 interface CompanyProfilePageFormProps extends ICallback {
@@ -286,6 +292,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             asset_type_description: string[];
             asset_type_images: string[];
             total_shares_outstanding: string;
+            last_market_valuation: string;
+            last_sale_price: string;
             initial_offering_date: string;
             price_per_share_value: string[];
             price_per_share_date: string[];
@@ -328,6 +336,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         } = {
             symbol: initialData?.symbol || this.props.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
+            last_market_valuation: initialData?.last_market_valuation || '',
+            last_sale_price: initialData?.last_sale_price || '',
             initial_offering_date: initialData?.initial_offering_date || '',
             price_per_share_value: initialData?.price_per_share_value || [""],
             price_per_share_date: initialData?.price_per_share_date || [""],
@@ -437,6 +447,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
         data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
+        data.last_market_valuation = (Number(data.last_market_valuation) == 0 ? '' : data.last_market_valuation).toString()
+        data.last_sale_price = (Number(data.last_sale_price) == 0 ? '' : data.last_sale_price).toString()
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -780,13 +792,14 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     </div>
 
                                                                     <div className="input__box">
-                                                                        <div className="input__title">Total Equity Funding Amount
+                                                                        <div className="input__title">Total Equity
+                                                                            Funding Amount
                                                                         </div>
                                                                         <div
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                             <Field
                                                                                 name="total_shares_outstanding"
-                                                                                id="number_of_employees"
+                                                                                id="total_shares_outstanding"
                                                                                 type="text"
                                                                                 className="input__text"
                                                                                 placeholder="Type Total Equity Funding Amount"
@@ -795,7 +808,54 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 disabled={isSubmitting || this.isShow()}
                                                                                 maxLength={50}
                                                                             />
-                                                                            <ErrorMessage name="number_of_employees"
+                                                                            <ErrorMessage
+                                                                                name="total_shares_outstanding"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Last Market
+                                                                            Valuation of Company
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="last_market_valuation"
+                                                                                id="last_market_valuation"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Last Market Valuation of Company"
+                                                                                component={NumericInputField}
+                                                                                decimalScale={4}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                maxLength={50}
+                                                                            />
+                                                                            <ErrorMessage name="last_market_valuation"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Last Sale Price of
+                                                                            Company Stock
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="last_sale_price"
+                                                                                id="last_sale_price"
+                                                                                type="text"
+                                                                                className="input__text"
+                                                                                placeholder="Type Last Sale Price of Company Stock "
+                                                                                component={NumericInputField}
+                                                                                decimalScale={4}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                maxLength={50}
+                                                                            />
+                                                                            <ErrorMessage name="last_sale_price"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>

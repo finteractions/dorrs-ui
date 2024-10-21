@@ -14,6 +14,8 @@ export interface ICompanyProfile {
     issuer_profile_files: string[];
     issuer_profile_file_tmp?: string;
     total_shares_outstanding: string;
+    last_market_valuation: string;
+    last_sale_price: string;
     symbol: string;
     security_name: string;
     company_name: string;

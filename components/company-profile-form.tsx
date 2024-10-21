@@ -115,6 +115,12 @@ const formSchema = Yup.object().shape({
     number_of_employees: Yup.number().transform((value, originalValue) => {
         return Number(originalValue.toString().replace(/,/g, ''));
     }).typeError('Invalid Number of Employees').label('Number of Employees'),
+    last_market_valuation: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Invalid Last Market Valuation of Company').label('Last Market Valuation of Company'),
+    last_sale_price: Yup.number().transform((value, originalValue) => {
+        return Number(originalValue.toString().replace(/,/g, ''));
+    }).typeError('Last Sale Price of Company Stock').label('Last Sale Price of Company Stock'),
 });
 
 interface CompanyProfileFormState extends IState {
@@ -268,6 +274,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             asset_type_description: string[];
             asset_type_images: string[];
             total_shares_outstanding: string;
+            last_market_valuation: string;
+            last_sale_price: string;
             initial_offering_date: string;
             price_per_share_value: string[];
             price_per_share_date: string[];
@@ -311,6 +319,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         } = {
             symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
+            last_market_valuation: initialData?.last_market_valuation || '',
+            last_sale_price: initialData?.last_sale_price || '',
             initial_offering_date: initialData?.initial_offering_date || '',
             price_per_share_value: initialData?.price_per_share_value || [""],
             price_per_share_date: initialData?.price_per_share_date || [""],
@@ -392,7 +402,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         data = formValidator.castFormValues(data, formSchema);
 
         data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
-        data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
+        data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
+        data.last_market_valuation = (Number(data.last_market_valuation) == 0 ? '' : data.last_market_valuation).toString()
+        data.last_sale_price = (Number(data.last_sale_price) == 0 ? '' : data.last_sale_price).toString()
 
         const formData = new FormData();
         for (const [key, value] of Object.entries(data)) {
@@ -786,7 +798,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
                                                             name="total_shares_outstanding"
-                                                            id="number_of_employees"
+                                                            id="total_shares_outstanding"
                                                             type="text"
                                                             className="input__text"
                                                             placeholder="Type Total Equity Funding Amount"
@@ -795,6 +807,44 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             disabled={isSubmitting || this.isShow()}
                                                         />
                                                         <ErrorMessage name="number_of_employees" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Last Sale Price of Company Stock</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="last_market_valuation"
+                                                            id="last_market_valuation"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Last Sale Price of Company Stock"
+                                                            component={NumericInputField}
+                                                            decimalScale={4}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="last_market_valuation" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
+                                                </div>
+
+                                                <div className="input">
+                                                    <div className="input__title">Last Sale Price of Company Stock</div>
+                                                    <div
+                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                        <Field
+                                                            name="last_sale_price"
+                                                            id="last_sale_price"
+                                                            type="text"
+                                                            className="input__text"
+                                                            placeholder="Type Last Sale Price of Company Stock "
+                                                            component={NumericInputField}
+                                                            decimalScale={4}
+                                                            disabled={isSubmitting || this.isShow()}
+                                                        />
+                                                        <ErrorMessage name="last_sale_price" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
@@ -2007,6 +2057,18 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                         <div className="view_block_body">
                                             <div className="view_block_title">Total Equity Funding Amount</div>
                                             <div>{this.state.formInitialValues.total_shares_outstanding ? formatterService.numberFormat(Number(this.state.formInitialValues.total_shares_outstanding)) : 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Last Market Valuation of Company</div>
+                                            <div>{this.state.formInitialValues.last_market_valuation ? formatterService.numberFormat(Number(this.state.formInitialValues.last_market_valuation), 4) : 'not filled'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="view_block">
+                                        <div className="view_block_body">
+                                            <div className="view_block_title">Last Sale Price of Company Stock</div>
+                                            <div>{this.state.formInitialValues.last_sale_price ? formatterService.numberFormat(Number(this.state.formInitialValues.last_sale_price), 4) : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
