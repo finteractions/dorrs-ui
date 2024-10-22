@@ -269,7 +269,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                           errors
                                       }) => {
                                         return (
-                                            <Form style={{maxWidth: '350px'}}>
+                                            <Form>
 
                                                 <div className="input">
                                                     <div
@@ -317,7 +317,7 @@ class OrderGeneratorBlock extends React.Component<{}> {
                                                             isDisabled={isSubmitting}
                                                             options={Object.values(this.state.symbols).map((item) => ({
                                                                 value: item.symbol,
-                                                                label:item.symbol
+                                                                label: item.symbol
                                                             }))}
                                                             value={values.symbol ? {
                                                                 value: values.symbol,
@@ -377,7 +377,6 @@ class OrderGeneratorBlock extends React.Component<{}> {
 
                             </div>
                         </div>
-
 
 
                     </div>

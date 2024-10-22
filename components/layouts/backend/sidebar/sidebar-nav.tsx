@@ -6,35 +6,30 @@ import {
     faChevronUp,
     faUserTie,
     faGauge,
-    faDollarSign,
     faBuilding,
     faBook,
     faFileArchive,
     faHandHoldingUsd,
-    faMoneyBillWave,
     faUsersRectangle,
-    faCalendarAlt,
     faRss,
-    faHandshake,
-    faArrowsUpToLine,
-    faList,
     faFolderOpen,
     faTools,
     faUsers,
     faBriefcase,
-    faTag,
     faTags,
     faReceipt,
     faBookOpen,
     faBookOpenReader,
     faFileLines,
-    faWallet, faFileSignature
+    faWallet,
+    faFileSignature,
+    faRobot
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
 } from 'react'
 import {
-    Accordion, AccordionContext, Badge, Button, Nav, useAccordionButton,
+    Accordion, AccordionContext, Button, Nav, useAccordionButton,
 } from 'react-bootstrap'
 import classNames from 'classnames'
 import Link from 'next/link'

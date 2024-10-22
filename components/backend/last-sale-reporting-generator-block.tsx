@@ -269,7 +269,7 @@ class LastSaleGeneratorBlock extends React.Component<{}> {
                                           errors
                                       }) => {
                                         return (
-                                            <Form style={{maxWidth: '350px'}}>
+                                            <Form>
 
                                                 <div className="input">
                                                     <div
@@ -377,7 +377,6 @@ class LastSaleGeneratorBlock extends React.Component<{}> {
 
                             </div>
                         </div>
-
 
 
                     </div>

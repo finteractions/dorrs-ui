@@ -54,7 +54,7 @@ export interface ICompanyProfile {
     logo_tmp?: string;
     symbol_data?: ISymbol;
     company_profile_status?: string;
-
+    fill_out_percentage?: string;
     // Topology
     spv_name: string;
     fund_manager: string;
