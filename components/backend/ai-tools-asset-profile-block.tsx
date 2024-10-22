@@ -250,9 +250,12 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                 </Formik>
                             </div>
 
-                            <div className="text-break">
-                                <div className="content__top">Result:</div>
-                                {this.state.result}
+                            <div className="input">
+                                <div className="input__title">Result:</div>
+                                <div className="input__wrap">
+                                    {this.state.result}
+                                </div>
+
                                 {/*<CompanyProfileForm*/}
                                 {/*    data={null}*/}
                                 {/*    action={'add'}*/}
