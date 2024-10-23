@@ -382,7 +382,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                             <ErrorMessage name={`social_media_link.${social.key}`}
                                                                           component="div"
                                                                           className="error-message"/>
-                                                            <div className={'icon-block icon-block-show'}
+                                                            <div className={'icons-block icons-block-show'}
                                                                  dangerouslySetInnerHTML={{__html: social?.icon || ''}}/>
                                                         </div>
                                                     </div>
@@ -680,7 +680,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
 
                                     {(this.state.formInitialValues?.socials as any).map((social: ISocialMediaLink) => (
                                         <div key={social.key} className="d-flex mb-2">
-                                            <div className={'icon-block-show'}
+                                            <div className={'icons-block-show'}
                                                  dangerouslySetInnerHTML={{__html: social?.icon || ''}}/>
 
                                             <div>

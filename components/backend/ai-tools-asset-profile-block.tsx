@@ -18,6 +18,7 @@ interface AIToolsAssetProfileState {
     errors: string[];
     formInitialValues: {},
     result: any;
+    isResultLoader: boolean;
 }
 
 const formSchema = Yup.object().shape({
@@ -48,6 +49,7 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
             formInitialValues: initialValues,
             aiToolGeneratorSymbols: [],
             result: '',
+            isResultLoader: false
         }
 
         this.formRef = React.createRef();
@@ -91,7 +93,7 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
     handleSubmit = async (values: IAiToolGenerator, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-        this.setState({result: ''});
+        this.setState({isResultLoader: true, result: '', errors: []});
         setSubmitting(true)
         const body = {
             symbol: values.symbol,
@@ -99,13 +101,16 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
         }
         await adminService.aiToolsAssetProfile(body)
             .then((res: any) => {
-                this.setState({result: res});
+                const result = res?.[0] ?? '';
+                this.setState({result: result});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
             })
             .finally(async () => {
-                setSubmitting(false)
+                this.setState({isResultLoader: false}, () => {
+                    setSubmitting(false);
+                })
             });
     }
 
@@ -240,10 +245,6 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                                     Submit
                                                 </button>
-
-                                                {this.state.errors && (
-                                                    <AlertBlock type={"error"} messages={this.state.errors}/>
-                                                )}
                                             </Form>
                                         );
                                     }}
@@ -253,7 +254,16 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                             <div className="input">
                                 <div className="input__title">Result:</div>
                                 <div className="input__wrap">
-                                    {this.state.result}
+                                    {this.state.isResultLoader ? (
+                                        <LoaderBlock/>
+                                    ) : (
+                                        <>
+                                            {this.state.result}
+                                            {this.state.errors.length > 0 && (
+                                                <AlertBlock type={"error"} messages={this.state.errors}/>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
 
                                 {/*<CompanyProfileForm*/}

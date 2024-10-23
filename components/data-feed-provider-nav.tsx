@@ -99,7 +99,7 @@ const DataFeedProviderNav = () => {
                                               href={social.link}
                                               target={'_blank'}>
                                             <div className={''}>
-                                                <div className={'icon-block-show'}
+                                                <div className={'icons-block-show'}
                                                      dangerouslySetInnerHTML={{__html: social?.icon || ''}}/>
                                                 {social.name} {' '}
 

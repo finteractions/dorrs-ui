@@ -513,7 +513,6 @@ class AdminService extends BaseService {
         return apiWebBackendService.post(`${this.PATH}notification_mark_as_read/`, {}, {}, this.getAdminToken())
     }
 
-
     public async getDirectoryProfile(): Promise<Array<IDirectoryCompanyProfile>> {
         return (await apiWebBackendService.get<IResponse<Array<IDirectoryCompanyProfile>>>(`${this.PATH}directory_profile/`, {}, this.getAdminToken())).data;
     }
@@ -538,12 +537,13 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}approve_directory_profile/`, data, {}, this.getAdminToken()));
     }
 
-    public aiToolsAssetProfile(data: any): Promise<any> {
-        return new Promise<any>(resolve => {
-            setTimeout(() => {
-                resolve("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-            }, 1000);
-        });
+    public async aiToolsAssetProfile(data: any): Promise<any> {
+        return (await apiWebBackendService.post<IResponse<string>>(`${this.PATH}ai_asset_profile/`, data, {}, this.getAdminToken())).data;
+        // return new Promise<any>(resolve => {
+        //     setTimeout(() => {
+        //         resolve("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        //     }, 1000);
+        // });
     }
 
 }
