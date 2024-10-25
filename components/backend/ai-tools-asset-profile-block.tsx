@@ -29,7 +29,7 @@ const formSchema = Yup.object().shape({
 });
 
 
-const prompt = 'Provide the following company "{{__security__name__}}" information:\n' +
+const prompt = 'Provide the following company "{{__security__name__}}" information (Market Sector is {{__market_sector__}}):\n' +
     'Total Equity Funding Amount, Founded Date, Company Name, Business Description, Last Funding Amount, Last Funding Date, Last Market Valuation of Company, Last Sale Price of Company Stock, Company Address (Street, City, State, Zip Code, Country), Email, Phone, Web Address, SIC Industry Classification, Incorporation State Information, Number of Employees, Company Officers & Contacts, Board of Directors, Product & Services, Company Facilities, Service Providers (Transfer Agent, Accounting / Auditing Firm, Investor Relations / Marketing / Communications, Securities Counsel), Financial Reporting Information, US Reporting Status, SEC CIK Number.\n' +
     '\n' +
     'Requirements:\n' +
@@ -199,7 +199,8 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
         const symbol = selectedOption?.value || null;
         const symbolData = selectedOption?.data || null;
         const securityName = selectedOption?.data?.security_name ?? '';
-        const promptValue = prompt.replace('{{__security__name__}}', securityName);
+        const marketSector = selectedOption?.data?.market_sector ?? '';
+        const promptValue = prompt.replace('{{__security__name__}}', securityName). replace('{{__market_sector__}}', marketSector);
 
         this.setState({symbol: symbolData});
 
