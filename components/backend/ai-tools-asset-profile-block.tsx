@@ -44,7 +44,7 @@ const prompt = 'Provide the following company "{{__security__name__}}" informati
     '- price_per_share_value - array of string values\n' +
     'These 2 array associated - each value of  price_per_share_date is for index of price_per_share_value\n' +
     '8 Company Address fields are not company_address. Fields only\n' +
-    '9 be ensure the data is valid. If the value is incorrect set is empty\n' +
+    '9 be ensure the data is valid. If the value is incorrect set is empty. Try to find all information\n' +
     '10 if no information about the company return response {}\n' +
     '\n' +
     'Associated fields to JSON-format response:\n' +
