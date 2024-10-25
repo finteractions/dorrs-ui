@@ -14,6 +14,9 @@ export enum MarketSector {
     MATERIALS = 'Materials',
     REAL_ESTATE = 'Real Estate',
     UTILITIES = 'Utilities',
+    CONSUMER = 'Consumer',
+    FINANCIAL_SERVICES = 'Financial Services',
+    ENERGY_AND_MATERIALS = 'Energy & Materials',
 }
 
 export enum MarketSectorCategory_1 {
