@@ -38,7 +38,7 @@ const prompt = 'Provide the following company "{{__security__name__}}" informati
     '3 dollar values without commas and $\n' +
     '4 if no public information the value is empty\n' +
     '5 Company Officers & Contacts and Board of Directors is array of string values\n' +
-    '6 Company Facilities is string value\n' +
+    '6 Product & Services and Company Facilities are string value\n' +
     '7 Last Funding Amount based on 2 arrays of \n' +
     '- price_per_share_date - array of string dates in format YYYY-MM-DD\n' +
     '- price_per_share_value - array of string values\n' +
