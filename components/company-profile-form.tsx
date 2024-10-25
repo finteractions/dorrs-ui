@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {RefObject, useEffect} from 'react';
 import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
@@ -28,6 +28,9 @@ import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
 import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
+import {UserType} from "@/enums/user-type";
+import downloadFile from "@/services/download-file/download-file";
+import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
 
 
 const allowedImageFileSizeMB = 5
@@ -123,6 +126,16 @@ const formSchema = Yup.object().shape({
     }).typeError('Last Sale Price of Company Stock').label('Last Sale Price of Company Stock'),
 });
 
+const AIFormSchema = Yup.object().shape({
+    agreement: Yup.boolean()
+        .oneOf([true],
+            "Required"),
+});
+
+const AIInitialValues = {
+    agreement: false,
+};
+
 interface CompanyProfileFormState extends IState {
     formInitialValues: ICompanyProfile,
     isConfirmedApproving: boolean;
@@ -152,13 +165,16 @@ interface CompanyProfileFormProps extends ICallback {
     data: ICompanyProfile | null;
     symbolData: ISymbol | null;
     onCancel?: () => void;
+    readonly?: boolean;
+    isAIGeneration?: boolean;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class CompanyProfileForm extends React.Component<CompanyProfileFormProps, CompanyProfileFormState> {
-
     state: CompanyProfileFormState;
+    formRefCompanyProfile: RefObject<any>;
+    formRefAICompanyProfile: RefObject<any>;
     host = `${window.location.protocol}//${window.location.host}`;
 
     constructor(props: CompanyProfileFormProps) {
@@ -391,18 +407,22 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             selectedSecFiles: [],
             selectedSecImages: []
         };
+
+        this.formRefCompanyProfile = React.createRef();
+        this.formRefAICompanyProfile = React.createRef();
     }
 
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
         this.setState({errorMessages: null});
+        setSubmitting(true)
 
         let data = {...values};
         data = formValidator.castFormValues(data, formSchema);
 
         data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
-        data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
+        data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
         data.last_market_valuation = (Number(data.last_market_valuation) == 0 ? '' : data.last_market_valuation).toString()
         data.last_sale_price = (Number(data.last_sale_price) == 0 ? '' : data.last_sale_price).toString()
 
@@ -502,9 +522,123 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             });
     };
 
+    handleSubmitAI = async (actions: { setSubmitting: (isSubmitting: boolean) => void }) => {
+        const {setSubmitting} = actions;
+        setSubmitting(true);
+        this.setState({errorMessages: null, success: false});
+        const values = this.formRefCompanyProfile?.current?.values
+
+        let data = {...values} as ICompanyProfile;
+        data = formValidator.castFormValues(data, formSchema);
+
+        data.total_shares_outstanding = (Number(data.total_shares_outstanding) == 0 ? '' : data.total_shares_outstanding).toString()
+        data.number_of_employees = (Number(data.number_of_employees) == 0 ? '' : data.number_of_employees).toString()
+        data.last_market_valuation = (Number(data.last_market_valuation) == 0 ? '' : data.last_market_valuation).toString()
+        data.last_sale_price = (Number(data.last_sale_price) == 0 ? '' : data.last_sale_price).toString()
+
+        const formData = new FormData();
+        for (const [key, value] of Object.entries(data)) {
+            formData.append(key, value as any);
+        }
+
+        formData.delete('asset_type_description');
+        const asset_type_description = data.asset_type_description;
+        formData.append('asset_type_description', JSON.stringify(asset_type_description));
+
+        formData.delete('issuer_profile_description');
+        const issuer_profile_description = data.issuer_profile_description;
+        formData.append('issuer_profile_description', JSON.stringify(issuer_profile_description));
+
+        const officerValues = data.company_officers_and_contacts;
+        formData.append('company_officers_and_contacts', JSON.stringify(officerValues));
+
+        const directorsValues = data.board_of_directors;
+        formData.append('board_of_directors', JSON.stringify(directorsValues));
+
+        const pricePerShareValues = data.price_per_share_value;
+        pricePerShareValues.forEach((s, index) => {
+            const value = Number((pricePerShareValues[index]).toString().replace(/,/g, ''));
+            pricePerShareValues[index] = (Number(value) === 0 ? '' : s).toString();
+        });
+        formData.append('price_per_share_value', JSON.stringify(pricePerShareValues));
+
+        const pricePerShareDates = data.price_per_share_date;
+        formData.append('price_per_share_date', JSON.stringify(pricePerShareDates));
+
+        formData.delete('sec_description');
+        const sec_description = data.sec_description;
+        formData.append('sec_description', JSON.stringify(sec_description));
+
+        formData.delete('logo');
+        formData.delete('logo_tmp');
+        formData.delete('asset_type_images');
+        formData.delete('asset_type_image_tmp');
+        formData.delete('issuer_profile_images');
+        formData.delete('issuer_profile_image_tmp');
+        formData.delete('issuer_profile_files');
+        formData.delete('issuer_profile_file_tmp');
+        formData.delete('sec_images');
+        formData.delete('sec_image_tmp');
+        formData.delete('sec_files');
+        formData.delete('sec_file_tmp');
+
+
+        if (this.state.selectedFile) {
+            formData.append('logo', this.state.selectedFile);
+        }
+
+        if (this.state.selectedAssetTypeImages && this.state.selectedAssetTypeImages.length > 0) {
+            for (const file of Array.from(this.state.selectedAssetTypeImages)) {
+                formData.append('asset_type_images[]', file);
+            }
+        }
+
+        if (this.state.selectedIssuerProfileImages && this.state.selectedIssuerProfileImages.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileImages)) {
+                formData.append('issuer_profile_images[]', file);
+            }
+        }
+
+        if (this.state.selectedIssuerProfileFiles && this.state.selectedIssuerProfileFiles.length > 0) {
+            for (const file of Array.from(this.state.selectedIssuerProfileFiles)) {
+                formData.append('issuer_profile_files[]', file);
+            }
+        }
+
+        if (this.state.selectedSecImages && this.state.selectedSecImages.length > 0) {
+            for (const file of Array.from(this.state.selectedSecImages)) {
+                formData.append('sec_images[]', file);
+            }
+        }
+
+        if (this.state.selectedSecFiles && this.state.selectedSecFiles.length > 0) {
+            for (const file of Array.from(this.state.selectedSecFiles)) {
+                formData.append('sec_files[]', file);
+            }
+        }
+
+        adminService.exportCompanyProfileToGoogleSpreadsheets(formData)
+            .then(((res: any) => {
+                this.setState({success: true})
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            }).finally(() => {
+            setSubmitting(false);
+
+            this.formRefAICompanyProfile?.current?.resetForm();
+
+            setTimeout(() => {
+                this.setState({success: false});
+            }, 5000)
+
+        });
+    };
+
     isShow(): boolean {
-        return this.props.action === 'view';
+        return this.props?.action === 'view';
     }
+
 
     handleApprove = async (values: any) => {
         this.setState({loading: true});
@@ -643,6 +777,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     initialValues={this.state.formInitialValues as ICompanyProfile}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
+                                    innerRef={this.formRefCompanyProfile}
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
 
@@ -719,6 +854,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             as="select"
                                                             className="b-select"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            onChange={(e: any) => {
+                                                                if (this.props?.readonly) {
+                                                                    e.preventDefault();
+                                                                } else {
+                                                                    setFieldValue('asset_type', e.target.value);
+                                                                }
+                                                            }}
                                                         >
                                                             <option value="">Select Asset Type
                                                             </option>
@@ -766,7 +908,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 type="file"
                                                                 accept={'.' + allowedImageExt.join(',.')}
                                                                 className="input__file"
-                                                                disabled={isSubmitting}
+                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                                 onChange={(event) => {
                                                                     setFieldValue('logo_tmp', event.target?.files?.[0] || '');
                                                                     this.handleFileChange(event);
@@ -788,6 +932,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="symbol"
                                                             id="symbol"
                                                             type="hidden"
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                     </div>
                                                 </div>
@@ -805,6 +951,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             component={NumericInputField}
                                                             decimalScale={0}
                                                             disabled={isSubmitting || this.isShow()}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="number_of_employees" component="div"
                                                                       className="error-message"/>
@@ -824,6 +971,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             component={NumericInputField}
                                                             decimalScale={4}
                                                             disabled={isSubmitting || this.isShow()}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="last_market_valuation" component="div"
                                                                       className="error-message"/>
@@ -843,6 +991,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             component={NumericInputField}
                                                             decimalScale={4}
                                                             disabled={isSubmitting || this.isShow()}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="last_sale_price" component="div"
                                                                       className="error-message"/>
@@ -864,7 +1013,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             id="initial_offering_date"
                                                             displayFormat="YYYY-MM-DD"
                                                             isOutsideRange={() => false}
-                                                            disabled={isSubmitting || this.isShow()}
+                                                            disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                             readOnly={true}
                                                             placeholder={'Select Founded Date'}
                                                         />
@@ -885,6 +1034,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__text"
                                                             placeholder="Type Company Name"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="company_name" component="div"
                                                                       className="error-message"/>
@@ -903,6 +1054,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__textarea no-bgarea"
                                                             placeholder="Type Business Description"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="business_description" component="div"
                                                                       className="error-message"/>
@@ -913,8 +1066,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <h4 className="input__group__title">Last Funding Amount:</h4>
                                                     <button
                                                         type="button"
-                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                        disabled={isSubmitting || this.isShow()}
+                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() || this.props?.readonly === true ? 'disable' : ''}`}
+                                                        disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                         onClick={() => {
                                                             const updatedPricePerShareValues = [...values.price_per_share_value, ''];
                                                             const updatedPricePerShareDates = [...values.price_per_share_date, ''];
@@ -948,6 +1101,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 disabled={isSubmitting || this.isShow()}
                                                                                 component={NumericInputField}
                                                                                 decimalScale={decimalPlaces}
+                                                                                readOnly={this.props?.readonly === true}
                                                                             />
 
                                                                             <SingleDatePicker
@@ -967,15 +1121,15 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 }}
                                                                                 displayFormat="YYYY-MM-DD"
                                                                                 isOutsideRange={() => false}
-                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly}
                                                                                 readOnly={true}
                                                                                 placeholder={'Select Date'}
                                                                             />
 
                                                                             <button
                                                                                 type="button"
-                                                                                disabled={isSubmitting || this.isShow() || values.price_per_share_value.length < 2}
-                                                                                className={`border-grey-btn ripple ${values.price_per_share_value.length < 2 ? 'disable' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow() || values.price_per_share_value.length < 2 || this.props?.readonly === true}
+                                                                                className={`border-grey-btn ripple ${values.price_per_share_value.length < 2 || isSubmitting || this.isShow() || this.props?.readonly === true ? 'disable' : ''}`}
                                                                                 onClick={() => {
                                                                                     const updatedPricePerShareValues = [...values.price_per_share_value];
                                                                                     updatedPricePerShareValues.splice(index, 1)
@@ -1004,8 +1158,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 Fields:</h4>
                                                             <button
                                                                 type="button"
-                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                disabled={isSubmitting || this.isShow()}
+                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() || this.props?.readonly === true ? 'disable' : ''}`}
+                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                 onClick={() => {
                                                                     const updatedDescriptions = [...values.asset_type_description, ''];
                                                                     const index = updatedDescriptions.length - 1 || 0
@@ -1047,7 +1201,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                         type="file"
                                                                                         accept={'.' + allowedImageExt.join(',.')}
                                                                                         className="input__file"
-                                                                                        disabled={isSubmitting}
+                                                                                        disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                                         onChange={(event) => {
                                                                                             setFieldValue(`asset_type_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                             this.handleAssetTypeImageChange(event, index);
@@ -1061,12 +1215,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                     className="input__textarea"
                                                                                     placeholder={''}
                                                                                     disabled={isSubmitting || this.isShow()}
+                                                                                    aria-readonly={this.props?.readonly === true}
+                                                                                    readOnly={this.props?.readonly === true}
                                                                                 />
 
                                                                                 <button
                                                                                     type="button"
-                                                                                    disabled={isSubmitting || this.isShow() || values.asset_type_description.length < 2}
-                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.asset_type_description.length < 2 ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || this.isShow() || values.asset_type_description.length < 2 || this.props?.readonly === true}
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.asset_type_description.length < 2 || this.props?.readonly === true ? 'disable' : ''}`}
                                                                                     onClick={() => {
                                                                                         const updatedDescriptions = [...values.asset_type_description];
                                                                                         updatedDescriptions.splice(index, 1);
@@ -1101,8 +1257,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <h4 className="input__group__title">Issuer Profile Fields:</h4>
                                                     <button
                                                         type="button"
-                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                        disabled={isSubmitting || this.isShow()}
+                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() || this.props?.readonly === true ? 'disable' : ''}`}
+                                                        disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                         onClick={() => {
                                                             const updatedDescriptions = [...values.issuer_profile_description, ''];
                                                             const index = updatedDescriptions.length - 1 || 0
@@ -1145,7 +1301,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 type="file"
                                                                                 accept={'.' + allowedImageExt.join(',.')}
                                                                                 className="input__file"
-                                                                                disabled={isSubmitting}
+                                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                                 onChange={(event) => {
                                                                                     setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                     this.handleIssuerProfileImageChange(event, index);
@@ -1159,6 +1315,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                             className="input__textarea"
                                                                             placeholder={''}
                                                                             disabled={isSubmitting || this.isShow()}
+                                                                            aria-readonly={this.props?.readonly === true}
+                                                                            readOnly={this.props?.readonly === true}
                                                                         />
                                                                         <div className={'input__wrap'}>
                                                                             {!this.isShow() && values.issuer_profile_files[index] && (
@@ -1181,7 +1339,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 type="file"
                                                                                 accept={'.' + allowedFileExt.join(',.')}
                                                                                 className="input__file"
-                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                                 onChange={(event) => {
                                                                                     setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                     this.handleIssuerProfileFileChange(event, index);
@@ -1190,8 +1348,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                         </div>
                                                                         <button
                                                                             type="button"
-                                                                            disabled={isSubmitting || this.isShow() || values.issuer_profile_description.length < 2}
-                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
+                                                                            disabled={isSubmitting || this.isShow() || values.issuer_profile_description.length < 2 || this.props?.readonly === true}
+                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.issuer_profile_description.length < 2 || this.props?.readonly === true ? 'disable' : ''}`}
                                                                             onClick={() => {
                                                                                 const updatedDescriptions = [...values.issuer_profile_description];
                                                                                 updatedDescriptions.splice(index, 1);
@@ -1247,6 +1405,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     className="input__text no-bg"
                                                                     placeholder="Type SPV Name"
                                                                     disabled={isSubmitting || this.isShow()}
+                                                                    aria-readonly={this.props?.readonly === true}
+                                                                    readOnly={this.props?.readonly === true}
                                                                 />
                                                                 <ErrorMessage
                                                                     name="spv_name"
@@ -1269,6 +1429,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     className="input__text no-bg"
                                                                     placeholder="Type Fund Manager"
                                                                     disabled={isSubmitting || this.isShow()}
+                                                                    aria-readonly={this.props?.readonly === true}
+                                                                    readOnly={this.props?.readonly === true}
                                                                 />
                                                                 <ErrorMessage
                                                                     name="fund_manager"
@@ -1292,6 +1454,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     className="input__text no-bg"
                                                                     placeholder="Type Investment Objective"
                                                                     disabled={isSubmitting || this.isShow()}
+                                                                    aria-readonly={this.props?.readonly === true}
+                                                                    readOnly={this.props?.readonly === true}
                                                                 />
                                                                 <ErrorMessage
                                                                     name="investment_objective"
@@ -1317,6 +1481,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                             placeholder="Type SEC Filing"
                                                                             className="input__text"
                                                                             disabled={isSubmitting || this.isShow()}
+                                                                            aria-readonly={this.props?.readonly === true}
+                                                                            readOnly={this.props?.readonly === true}
                                                                         />
                                                                     )}
                                                                 />
@@ -1382,7 +1548,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                     type="file"
                                                                                     accept={'.' + allowedImageExt.join(',.')}
                                                                                     className="input__file"
-                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                                     onChange={(event) => {
                                                                                         setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                         this.handleSecImageChange(event, index);
@@ -1396,6 +1562,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                 className="input__textarea"
                                                                                 placeholder={''}
                                                                                 disabled={isSubmitting || this.isShow()}
+                                                                                aria-readonly={this.props?.readonly === true}
+                                                                                readOnly={this.props?.readonly === true}
                                                                             />
                                                                             <div className={'input__wrap'}>
                                                                                 {!this.isShow() && values.sec_files[index] && (
@@ -1419,7 +1587,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                     type="file"
                                                                                     accept={'.' + allowedFileExt.join(',.')}
                                                                                     className="input__file"
-                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                                     onChange={(event) => {
                                                                                         setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                         this.handleSecFileChange(event, index);
@@ -1474,6 +1642,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Street Address 1"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="street_address_1" component="div"
                                                                           className="error-message"/>
@@ -1493,6 +1663,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Street Address 2"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="street_address_2" component="div"
                                                                           className="error-message"/>
@@ -1512,6 +1684,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type City"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="city" component="div"
                                                                           className="error-message"/>
@@ -1529,6 +1703,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     as="select"
                                                                     className="b-select"
                                                                     disabled={isSubmitting || this.isShow()}
+                                                                    onChange={(e: any) => {
+                                                                        if (this.props?.readonly) {
+                                                                            e.preventDefault();
+                                                                        } else {
+                                                                            setFieldValue('state', e.target.value);
+                                                                        }
+                                                                    }}
                                                                 >
                                                                     <option value="">Select a State</option>
                                                                     {this.state.usaStates.map((state) => (
@@ -1557,6 +1738,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Zip Code"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="zip_code" component="div"
                                                                           className="error-message"/>
@@ -1573,7 +1756,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 as="select"
                                                                 className="b-select"
                                                                 disabled={isSubmitting || this.isShow()}
-                                                                onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
+                                                                onChange={(e: any) => {
+                                                                    if (this.props?.readonly) {
+                                                                        e.preventDefault();
+                                                                    } else {
+                                                                        this.handleRegionChange(e, setFieldValue)
+                                                                    }
+                                                                }}
                                                             >
                                                                 <option value="">Select a Country</option>
                                                                 {Object.keys(countries)
@@ -1602,6 +1791,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Type an Email Address"
                                                                 autoComplete="username"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="email"
                                                                           component="div"
@@ -1618,13 +1809,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 name="phone"
                                                                 id="phone"
                                                                 component={PhoneInputField}
-                                                                disabled={isSubmitting || this.isShow()}
+                                                                disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                                 country="us"
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                         </div>
                                                     </div>
                                                 </div>
-
 
                                                 <div className="input">
                                                     <div className="input__title">Web Address</div>
@@ -1638,6 +1830,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__text"
                                                             placeholder="Type Web Address"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="web_address" component="div"
                                                                       className="error-message"/>
@@ -1658,7 +1852,9 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="b-select-search"
                                                                 placeholder="Select SIC Industry Classification"
                                                                 classNamePrefix="select__react"
-                                                                disabled={isSubmitting || this.isShow()}
+                                                                isDisabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                                 options={Object.values(SicIndustryClassification).map((item) => ({
                                                                     value: item,
                                                                     label: item,
@@ -1690,6 +1886,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 as="select"
                                                                 className="b-select"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                onChange={(e: any) => {
+                                                                    if (this.props?.readonly) {
+                                                                        e.preventDefault();
+                                                                    } else {
+                                                                        setFieldValue('incorporation_information', e.target.value);
+                                                                    }
+                                                                }}
                                                             >
                                                                 <option value="">Select Incorporation Information
                                                                 </option>
@@ -1719,13 +1922,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Number of Employees"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="number_of_employees" component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
                                                 </div>
-
 
                                                 <div className="input">
                                                     <div className="input__title input__btns">Company Officers &
@@ -1753,6 +1956,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                         className="input__text"
                                                                         placeholder="Type Company Officers & Contacts"
                                                                         disabled={isSubmitting || this.isShow()}
+                                                                        aria-readonly={this.props?.readonly === true}
+                                                                        readOnly={this.props?.readonly === true}
                                                                     />
                                                                     <button
                                                                         type="button"
@@ -1802,6 +2007,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                         className="input__text"
                                                                         placeholder="Type Board of Directors"
                                                                         disabled={isSubmitting || this.isShow()}
+                                                                        aria-readonly={this.props?.readonly === true}
+                                                                        readOnly={this.props?.readonly === true}
                                                                     />
                                                                     <button
                                                                         type="button"
@@ -1826,7 +2033,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-
                                                 <div className="input">
                                                     <div className="input__title">Product & Services</div>
                                                     <div
@@ -1839,6 +2045,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__text"
                                                             placeholder="Type Product & Services"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="product_and_services" component="div"
                                                                       className="error-message"/>
@@ -1857,6 +2065,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__text"
                                                             placeholder="Type Company Facilities"
                                                             disabled={isSubmitting || this.isShow()}
+                                                            aria-readonly={this.props?.readonly === true}
+                                                            readOnly={this.props?.readonly === true}
                                                         />
                                                         <ErrorMessage name="company_facilities" component="div"
                                                                       className="error-message"/>
@@ -1877,6 +2087,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Transfer Agent"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="transfer_agent" component="div"
                                                                           className="error-message"/>
@@ -1895,6 +2107,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Accounting / Auditing Firm"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="accounting_auditing_firm"
                                                                           component="div"
@@ -1916,6 +2130,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Investor Relations / Marketing / Communications"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage
                                                                 name="investor_relations_marketing_communications"
@@ -1936,15 +2152,15 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Securities Counsel"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
-                                                            <ErrorMessage name="securities_counsel" component="div"
-                                                                          className="error-message"/>
                                                         </div>
                                                     </div>
                                                 </div>
 
-
-                                                <div className="input">
+                                                <div
+                                                    className={`input ${this.props?.isAIGeneration ? 'margin-bottom-14px' : ''}`}>
                                                     <h4 className="input__group__title">Financial Reporting</h4>
                                                     <div className="input">
                                                         <div className="input__title">US Reporting</div>
@@ -1958,13 +2174,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type US Reporting"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="us_reporting" component="div"
                                                                           className="error-message"/>
                                                         </div>
                                                     </div>
 
-                                                    <div className="input">
+                                                    <div
+                                                        className={`input ${this.props?.isAIGeneration ? 'margin-bottom-14px' : ''}`}>
                                                         <div className="input__title">Edgar CIK
                                                             <Link className={'link info-panel-title-link'}
                                                                   href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
@@ -1983,6 +2202,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className="input__text"
                                                                 placeholder="Type Edgar CIK"
                                                                 disabled={isSubmitting || this.isShow()}
+                                                                aria-readonly={this.props?.readonly === true}
+                                                                readOnly={this.props?.readonly === true}
                                                             />
                                                             <ErrorMessage name="edgar_cik" component="div"
                                                                           className="error-message"/>
@@ -1990,26 +2211,80 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     </div>
                                                 </div>
 
-                                                {this.props.action !== 'view' && (
-                                                    <button
-                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                                        Save Asset Profile
-                                                    </button>
+                                                {!this.props?.isAIGeneration && (
+                                                    <>
+                                                        {this.props.action !== 'view' && (
+                                                            <button
+                                                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                                type="submit"
+                                                                disabled={isSubmitting || !isValid || !dirty}>
+                                                                Save Asset Profile
+                                                            </button>
+                                                        )}
+
+                                                        {this.state.errorMessages && (
+                                                            <AlertBlock type={"error"}
+                                                                        messages={this.state.errorMessages}/>
+                                                        )}
+                                                    </>
                                                 )}
 
-                                                {this.state.errorMessages && (
-                                                    <AlertBlock type={"error"} messages={this.state.errorMessages}/>
-                                                )}
                                             </Form>
                                         );
                                     }}
                                 </Formik>
                             </>
-                        )
-                        }
+                        )}
 
+                        {this.props?.isAIGeneration === true && (
+                            <Formik<any>
+                                initialValues={AIInitialValues}
+                                validationSchema={AIFormSchema}
+                                onSubmit={(values, actions) => {
+                                    this.handleSubmitAI(actions);
+                                }}
+                                innerRef={this.formRefAICompanyProfile}
+                            >
+                                {({isSubmitting, isValid, dirty, values, setFieldValue, errors}) => {
+                                    return (
+                                        <Form id="company-profile-form-ai">
+                                            <div className="input">
+                                                <div
+                                                    className={`b-checkbox b-checkbox${isSubmitting ? ' disable' : ''}`}>
+                                                    <Field
+                                                        type="checkbox"
+                                                        name="agreement"
+                                                        id="agreement"
+                                                        disabled={isSubmitting}
+                                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                            const isChecked = e.target.checked;
+                                                            setFieldValue("agreement", isChecked);
+                                                        }}
+                                                    />
+                                                    <label htmlFor="agreement">
+                                                        <span></span><i> I agree with filled out form</i>
+                                                    </label>
+                                                    <ErrorMessage name="agreement" component="div"
+                                                                  className="error-message"/>
+                                                </div>
+                                            </div>
 
+                                            <button id="add-bank-acc"
+                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                    type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                                Export Asset Profile to Google Spreadsheets
+                                            </button>
+
+                                            {this.state.success && (
+                                                <AlertBlock type={'success'}
+                                                            messages={['Asset Profile has been successfully exported to Google Spreadsheet']}/>
+                                            )}
+
+                                        </Form>
+                                    );
+                                }}
+                            </Formik>
+                        )}
                     </>
                 )
             case 'view':

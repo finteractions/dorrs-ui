@@ -31,6 +31,10 @@ class AlertBlock extends React.Component<AlertBlockProps> {
                     return {logo: 'check-ex.svg', width: 19, height: 13};
                 case 'error':
                     return {logo: 'error.svg', width: 15, height: 15};
+                case 'warning':
+                    return {logo: 'warning.svg', width: 35, height: 35};
+                case 'info':
+                    return {logo: 'info-i.svg', width: 35, height: 35};
                 default:
                     return {logo: '', width: 0, height: 0};
             }

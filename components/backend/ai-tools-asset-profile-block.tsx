@@ -10,22 +10,73 @@ import {IAiToolGenerator} from "@/interfaces/i-ai-tool-generator";
 import CompanyProfileForm from "@/components/company-profile-form";
 import AssetImage from "@/components/asset-image";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 interface AIToolsAssetProfileState {
     isLoading: boolean;
     symbols: ISymbol[];
-    aiToolGeneratorSymbols: Array<string>,
     errors: string[];
     formInitialValues: {},
-    result: any;
+    symbol: ISymbol | null;
+    companyProfile: ICompanyProfile | null;
     isResultLoader: boolean;
 }
 
 const formSchema = Yup.object().shape({
     symbol: Yup.string().required('Required').label('Symbol'),
     prompt: Yup.string().required('Required').label('Prompt'),
+    is_enable: Yup.boolean()
 });
 
+
+const prompt = 'Provide the following company "{{__security__name__}}" information:\n' +
+    'Total Equity Funding Amount, Founded Date, Company Name, Business Description, Last Funding Amount, Last Funding Date, Last Market Valuation of Company, Last Sale Price of Company Stock, Company Address (Street, City, State, Zip Code, Country), Email, Phone, Web Address, SIC Industry Classification, Incorporation State Information, Number of Employees, Company Officers & Contacts, Board of Directors, Product & Services, Company Facilities, Service Providers (Transfer Agent, Accounting / Auditing Firm, Investor Relations / Marketing / Communications, Securities Counsel), Financial Reporting Information, US Reporting Status, SEC CIK Number.\n' +
+    '\n' +
+    'Requirements:\n' +
+    '1 JSON-format\n' +
+    '2 date format is YYYY-MM-DD\n' +
+    '3 dollar values without commas and $\n' +
+    '4 if no public information the value is empty\n' +
+    '5 Company Officers & Contacts and Board of Directors is array of string values\n' +
+    '6 Company Facilities is string value\n' +
+    '7 Last Funding Amount based on 2 arrays of \n' +
+    '- price_per_share_date - array of string dates in format YYYY-MM-DD\n' +
+    '- price_per_share_value - array of string values\n' +
+    'These 2 array associated - each value of  price_per_share_date is for index of price_per_share_value\n' +
+    '8 Company Address fields are not company_address. Fields only\n' +
+    '9 be ensure the data is valid. If the value is incorrect set is empty\n' +
+    '10 if no information about the company return response {}\n' +
+    '\n' +
+    'Associated fields to JSON-format response:\n' +
+    'Total Equity Funding Amount: total_shares_outstanding\n' +
+    'Founded Date: initial_offering_date\n' +
+    'Company Name: company_name\n' +
+    'Business Description: business_description\n' +
+    'Last Funding Date: price_per_share_date\n' +
+    'Last Funding Amount: price_per_share_value\n' +
+    'Last Market Valuation of Company: last_market_valuation\n' +
+    'Last Sale Price of Company Stock: last_sale_price\n' +
+    'Company Address (Street): street_address_1\n' +
+    'Company Address (City): city\n' +
+    'Company Address (State): state\n' +
+    'Company Address (Zip Code): zip_code\n' +
+    'Company Address (Country): country\n' +
+    'Email: email\n' +
+    'Phone: phone\n' +
+    'Web Address: web_address\n' +
+    'SIC Industry Classification: sic_industry_classification\n' +
+    'Incorporation State Information: incorporation_information\n' +
+    'Number of Employees: number_of_employees\n' +
+    'Company Officers & Contacts: company_officers_and_contacts\n' +
+    'Board of Directors: board_of_directors\n' +
+    'Product & Services: product_and_services\n' +
+    'Company Facilities: company_facilities\n' +
+    'Service Providers (Transfer Agent): transfer_agent\n' +
+    'Service Providers (Accounting / Auditing Firm): accounting_auditing_firm\n' +
+    'Service Providers (Investor Relations / Marketing / Communications): investor_relations_marketing_communications\n' +
+    'Service Providers (Securities Counsel): securities_counsel\n' +
+    'Financial Reporting Information (US Reporting Status): us_reporting\n' +
+    'Financial Reporting Information (SEC CIK Number): edgar_cik'
 
 class AIToolsAssetProfileBlock extends React.Component<{}> {
     state: AIToolsAssetProfileState;
@@ -47,9 +98,9 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
             symbols: [],
             errors: [],
             formInitialValues: initialValues,
-            aiToolGeneratorSymbols: [],
-            result: '',
-            isResultLoader: false
+            isResultLoader: false,
+            symbol: null,
+            companyProfile: null
         }
 
         this.formRef = React.createRef();
@@ -77,8 +128,6 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
             adminService.getAssets()
                 .then((res: ISymbol[]) => {
                     let data = res || [];
-                    data = data.filter(s => s.is_approved).filter(s => !this.state.aiToolGeneratorSymbols.includes(s.symbol))
-
                     this.setState({symbols: data});
                 })
                 .catch((errors: IError) => {
@@ -93,16 +142,17 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
     handleSubmit = async (values: IAiToolGenerator, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-        this.setState({isResultLoader: true, result: '', errors: []});
+        this.setState({isResultLoader: true, result: '', errors: [], companyProfile: null});
         setSubmitting(true)
         const body = {
-            symbol: values.symbol,
             prompt: values.prompt
         }
         await adminService.aiToolsAssetProfile(body)
             .then((res: any) => {
                 const result = res?.[0] ?? '';
-                this.setState({result: result});
+                // this.setState({result: result});
+                const companyProfile = result as ICompanyProfile;
+                this.setState({companyProfile: companyProfile});
             })
             .catch((errors: IError) => {
                 this.setState({errors: errors.messages});
@@ -141,6 +191,30 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
         }
     );
 
+    fillAssetProfileForm = async (
+        selectedOption: any,
+        setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void,
+        setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => void
+    ) => {
+        const symbol = selectedOption?.value || null;
+        const symbolData = selectedOption?.data || null;
+        const securityName = selectedOption?.data?.security_name ?? '';
+        const promptValue = prompt.replace('{{__security__name__}}', securityName);
+
+        this.setState({symbol: symbolData});
+
+        await Promise.all([
+            setFieldValue('symbol', symbol),
+            setFieldValue('prompt', promptValue),
+        ]);
+
+        setTimeout(() => {
+            setFieldTouched('symbol', true, true);
+            setFieldTouched('prompt', true, true);
+        }, 0);
+    }
+
+
     render() {
         return (
 
@@ -168,6 +242,7 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                           isSubmitting,
                                           setSubmitting,
                                           setFieldValue,
+                                          setFieldTouched,
                                           isValid,
                                           dirty,
                                           values,
@@ -190,6 +265,7 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                                             isDisabled={isSubmitting}
                                                             options={Object.values(this.state.symbols).map((item) => ({
                                                                 value: item.symbol,
+                                                                data: item,
                                                                 label: (
                                                                     <div className={'flex-panel-box'}>
                                                                         <div className={'panel'}>
@@ -210,9 +286,8 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                                                     </div>
                                                                 ),
                                                             }))}
-                                                            onChange={(selectedOption: any) => {
-                                                                const value = selectedOption?.value || null
-                                                                setFieldValue('symbol', value);
+                                                            onChange={async (selectedOption: any) => {
+                                                                await this.fillAssetProfileForm(selectedOption, setFieldValue, setFieldTouched);
                                                             }}
                                                             value={
                                                                 Object.values(this.state.symbols).filter(i => i.symbol === values.symbol).map((item) => (this.renderOption(item)))?.[0] || null
@@ -230,15 +305,36 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                                             name="prompt"
                                                             id="prompt"
                                                             as="textarea"
-                                                            rows="10"
+                                                            rows="20"
                                                             className="input__textarea"
                                                             placeholder="Type Prompt"
                                                             disabled={isSubmitting}
+                                                            aria-readonly={!values.is_enable}
+                                                            readOnly={!values.is_enable}
                                                         />
-                                                        <ErrorMessage name="prompt" component="div"
+                                                    </div>
+                                                </div>
+                                                <div className="input">
+                                                    <div
+                                                        className={`b-checkbox b-checkbox${isSubmitting ? ' disable' : ''}`}>
+                                                        <Field
+                                                            type="checkbox"
+                                                            name="is_enable"
+                                                            id="is_enable_ai_asset_profiler"
+                                                            disabled={isSubmitting}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                                const isChecked = e.target.checked;
+                                                                setFieldValue("is_enable", isChecked);
+                                                            }}
+                                                        />
+                                                        <label htmlFor="is_enable_ai_asset_profiler">
+                                                            <span></span><i> Edit prompt</i>
+                                                        </label>
+                                                        <ErrorMessage name="is_enable" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
+
 
                                                 <button id="add-bank-acc"
                                                         className={`mt-2 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
@@ -252,27 +348,31 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                             </div>
 
                             <div className="input">
-                                <div className="input__title">Result:</div>
-                                <div className="input__wrap">
-                                    {this.state.isResultLoader ? (
-                                        <LoaderBlock/>
-                                    ) : (
-                                        <>
-                                            {this.state.result}
-                                            {this.state.errors.length > 0 && (
-                                                <AlertBlock type={"error"} messages={this.state.errors}/>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
+                                {this.state.isResultLoader ? (
+                                    <LoaderBlock/>
+                                ) : (
+                                    <>
+                                        {this.state.companyProfile && (
+                                            <>
+                                                <AlertBlock type={'info'} messages={["This form is readonly"]}/>
 
-                                {/*<CompanyProfileForm*/}
-                                {/*    data={null}*/}
-                                {/*    action={'add'}*/}
-                                {/*    isAdmin={true}*/}
-                                {/*    onCallback={() => console.log('123')}*/}
-                                {/*    symbolData={null}*/}
-                                {/*/>*/}
+                                                <CompanyProfileForm
+                                                    data={this.state.companyProfile}
+                                                    symbolData={this.state.symbol}
+                                                    action={'add'}
+                                                    isAdmin={true}
+                                                    onCallback={() => {}}
+                                                    readonly={true}
+                                                    isAIGeneration={true}
+                                                />
+                                            </>
+                                        )}
+                                        {this.state.errors && (
+                                            <AlertBlock type={"error"} messages={this.state.errors}/>
+                                        )}
+                                    </>
+                                )}
+
                             </div>
 
                         </div>

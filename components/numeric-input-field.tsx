@@ -13,12 +13,13 @@ interface NumericInputFieldProps {
     disabled?: boolean,
     isThousandSeparator?: boolean
     maxLength?: number
+    readOnly?: boolean;
 }
 
 class NumericInputField extends React.Component<NumericInputFieldProps> {
 
     handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {field, form, handleChange} = this.props;
+        const {field, form, handleChange, readOnly} = this.props;
         const {name} = field;
 
         if (event.target) {
@@ -43,32 +44,34 @@ class NumericInputField extends React.Component<NumericInputFieldProps> {
             disabled,
             handleChange,
             isThousandSeparator,
-            maxLength
+            maxLength,
+            readOnly,
         } = this.props;
         const {name} = field;
         field.value = field.value !== '' ? formatterService.numberDown(field.value, decimalScale || 0) : field.value;
         const isSeparator = isThousandSeparator ?? true;
 
         return (
-           <>
-               <NumericFormat
-                   name={name}
-                   allowLeadingZeros
-                   thousandSeparator={isSeparator ? ',' : ''}
-                   className={className}
-                   placeholder={placeholder}
-                   decimalScale={decimalScale}
-                   disabled={disabled}
-                   maxLength={maxLength}
-                   onChange={this.handleChange}
-                   onBlur={field.onBlur}
-                   value={field.value}
-               />
+            <>
+                <NumericFormat
+                    name={name}
+                    allowLeadingZeros
+                    thousandSeparator={isSeparator ? ',' : ''}
+                    className={className}
+                    placeholder={placeholder}
+                    decimalScale={decimalScale}
+                    disabled={disabled}
+                    maxLength={maxLength}
+                    onChange={this.handleChange}
+                    onBlur={field.onBlur}
+                    value={field.value}
+                    readOnly={readOnly}
+                />
 
-               <ErrorMessage name={name} component="div" className="error-message"/>
-           </>
-    )
-        ;
+                <ErrorMessage name={name} component="div" className="error-message"/>
+            </>
+        )
+            ;
     }
 }
 

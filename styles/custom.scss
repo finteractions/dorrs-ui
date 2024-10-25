@@ -6,7 +6,7 @@ $color-border: rgb(197, 202, 207);
 $color-asterisk: #dc3545;
 $color-white: #ffff;
 $color-light: #EEF2F6;
-$color-warning: #F4CC72;
+$color-warning: #FFA800;
 
 :root {
   /*react-tooltip*/
@@ -300,6 +300,24 @@ textarea.input__textarea {
 
     .icon {
       border-color: $color-error;
+    }
+  }
+
+  &-warning {
+    color: $color-warning;
+    border-color: $color-warning;
+
+    .icon {
+      border-color: $color-warning;
+    }
+  }
+
+  &-info {
+    color: $color-primary;
+    border-color: $color-primary;
+
+    .icon {
+      border-color: $color-primary;
     }
   }
 }
