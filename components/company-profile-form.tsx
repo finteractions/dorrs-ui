@@ -216,15 +216,32 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             initialData.price_per_share_value = [""];
         }
 
+        if (typeof initialData?.price_per_share_value === 'string') {
+            try {
+                const parsed = JSON.parse(initialData.price_per_share_value);
+
+                initialData.price_per_share_value = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (error) {
+                initialData.price_per_share_value = [String(initialData.price_per_share_value)];
+            }
+        } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
+            initialData.price_per_share_value = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_value = [String(initialData.price_per_share_value)];
+        }
+
         if (typeof initialData?.price_per_share_date === 'string') {
             try {
-                const price_per_share_date = JSON.parse(initialData.price_per_share_date)
-                initialData.price_per_share_date = price_per_share_date;
+                const parsed = JSON.parse(initialData.price_per_share_date);
+
+                initialData.price_per_share_date = Array.isArray(parsed) ? parsed : [parsed];
             } catch (error) {
-                initialData.price_per_share_date = [""];
+                initialData.price_per_share_date = [String(initialData.price_per_share_date)];
             }
-        } else if (initialData?.price_per_share_date === null) {
+        } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
             initialData.price_per_share_date = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
         try {
@@ -762,6 +779,10 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         });
     };
 
+    getLogoURL = (logo: string) => {
+        return logo.startsWith('https://') ? logo : `${this.host}${logo}`
+    }
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -888,18 +909,30 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                         <div className="input__wrap">
 
                                                             {initialValues?.logo && (
-                                                                <div
-                                                                    className="mb-2 d-flex">
-                                                                    <Link
-                                                                        className={'link info-panel-title-link'}
-                                                                        href={`${this.host}${initialValues?.logo}`}
-                                                                        target={'_blank'}>
-                                                                        Image {' '}
-                                                                        <FontAwesomeIcon
-                                                                            className="nav-icon"
-                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                    </Link>
-                                                                </div>
+                                                                <>
+                                                                    <div
+                                                                        className="mb-2 d-flex">
+                                                                        <Link
+                                                                            className={'link info-panel-title-link'}
+                                                                            href={this.getLogoURL(initialValues.logo)}
+                                                                            target={'_blank'}>
+                                                                            Image {' '}
+                                                                            <FontAwesomeIcon
+                                                                                className="nav-icon"
+                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                        </Link>
+                                                                    </div>
+
+                                                                    {this.props?.isAIGeneration && (
+                                                                        <div
+                                                                            className="mb-2 d-flex">
+                                                                            <AssetImage alt=''
+                                                                                        src={this.getLogoURL(initialValues.logo)}
+                                                                                        width={100} height={100}/>
+                                                                        </div>
+                                                                    )}
+                                                                </>
+
                                                             )}
 
                                                             <input
@@ -1853,8 +1886,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 placeholder="Select SIC Industry Classification"
                                                                 classNamePrefix="select__react"
                                                                 isDisabled={isSubmitting || this.isShow()}
-                                                                aria-readonly={this.props?.readonly === true}
                                                                 readOnly={this.props?.readonly === true}
+                                                                aria-readonly={this.props?.readonly === true}
                                                                 options={Object.values(SicIndustryClassification).map((item) => ({
                                                                     value: item,
                                                                     label: item,
@@ -2237,53 +2270,55 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                         )}
 
                         {this.props?.isAIGeneration === true && (
-                            <Formik<any>
-                                initialValues={AIInitialValues}
-                                validationSchema={AIFormSchema}
-                                onSubmit={(values, actions) => {
-                                    this.handleSubmitAI(actions);
-                                }}
-                                innerRef={this.formRefAICompanyProfile}
-                            >
-                                {({isSubmitting, isValid, dirty, values, setFieldValue, errors}) => {
-                                    return (
-                                        <Form id="company-profile-form-ai">
-                                            <div className="input">
-                                                <div
-                                                    className={`b-checkbox b-checkbox${isSubmitting ? ' disable' : ''}`}>
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="agreement"
-                                                        id="agreement"
-                                                        disabled={isSubmitting}
-                                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                                            const isChecked = e.target.checked;
-                                                            setFieldValue("agreement", isChecked);
-                                                        }}
-                                                    />
-                                                    <label htmlFor="agreement">
-                                                        <span></span><i> I agree with filled out form</i>
-                                                    </label>
-                                                    <ErrorMessage name="agreement" component="div"
-                                                                  className="error-message"/>
+                            <div className={'d-none'}>
+                                <Formik<any>
+                                    initialValues={AIInitialValues}
+                                    validationSchema={AIFormSchema}
+                                    onSubmit={(values, actions) => {
+                                        this.handleSubmitAI(actions);
+                                    }}
+                                    innerRef={this.formRefAICompanyProfile}
+                                >
+                                    {({isSubmitting, isValid, dirty, values, setFieldValue, errors}) => {
+                                        return (
+                                            <Form id="company-profile-form-ai">
+                                                <div className="input">
+                                                    <div
+                                                        className={`b-checkbox b-checkbox${isSubmitting ? ' disable' : ''}`}>
+                                                        <Field
+                                                            type="checkbox"
+                                                            name="agreement"
+                                                            id="agreement"
+                                                            disabled={isSubmitting}
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                                const isChecked = e.target.checked;
+                                                                setFieldValue("agreement", isChecked);
+                                                            }}
+                                                        />
+                                                        <label htmlFor="agreement">
+                                                            <span></span><i> I agree with filled out form</i>
+                                                        </label>
+                                                        <ErrorMessage name="agreement" component="div"
+                                                                      className="error-message"/>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <button id="add-bank-acc"
-                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
-                                                    type="submit" disabled={isSubmitting || !isValid || !dirty}>
-                                                Export Asset Profile to Google Spreadsheets
-                                            </button>
+                                                <button id="add-bank-acc"
+                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                        type="submit" disabled={isSubmitting || !isValid || !dirty}>
+                                                    Export Asset Profile to Google Spreadsheets
+                                                </button>
 
-                                            {this.state.success && (
-                                                <AlertBlock type={'success'}
-                                                            messages={['Asset Profile has been successfully exported to Google Spreadsheet']}/>
-                                            )}
+                                                {this.state.success && (
+                                                    <AlertBlock type={'success'}
+                                                                messages={['Asset Profile has been successfully exported to Google Spreadsheet']}/>
+                                                )}
 
-                                        </Form>
-                                    );
-                                }}
-                            </Formik>
+                                            </Form>
+                                        );
+                                    }}
+                                </Formik>
+                            </div>
                         )}
                     </>
                 )

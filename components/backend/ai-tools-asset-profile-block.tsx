@@ -29,54 +29,59 @@ const formSchema = Yup.object().shape({
 });
 
 
-const prompt = 'Provide the following company "{{__security__name__}}" information (Market Sector is {{__market_sector__}}):\n' +
-    'Total Equity Funding Amount, Founded Date, Company Name, Business Description, Last Funding Amount, Last Funding Date, Last Market Valuation of Company, Last Sale Price of Company Stock, Company Address (Street, City, State, Zip Code, Country), Email, Phone, Web Address, SIC Industry Classification, Incorporation State Information, Number of Employees, Company Officers & Contacts, Board of Directors, Product & Services, Company Facilities, Service Providers (Transfer Agent, Accounting / Auditing Firm, Investor Relations / Marketing / Communications, Securities Counsel), Financial Reporting Information, US Reporting Status, SEC CIK Number.\n' +
-    '\n' +
-    'Requirements:\n' +
-    '1 JSON-format\n' +
-    '2 date format is YYYY-MM-DD\n' +
-    '3 dollar values without commas and $\n' +
-    '4 if no public information the value is empty\n' +
-    '5 Company Officers & Contacts and Board of Directors is array of string values\n' +
-    '6 Product & Services and Company Facilities are string value\n' +
-    '7 Last Funding Amount based on 2 arrays of \n' +
-    '- price_per_share_date - array of string dates in format YYYY-MM-DD\n' +
-    '- price_per_share_value - array of string values\n' +
-    'These 2 array associated - each value of  price_per_share_date is for index of price_per_share_value\n' +
-    '8 Company Address fields are not company_address. Fields only\n' +
-    '9 be ensure the data is valid. If the value is incorrect set is empty. Try to find all information\n' +
-    '10 if no information about the company return response {}\n' +
-    '\n' +
-    'Associated fields to JSON-format response:\n' +
-    'Total Equity Funding Amount: total_shares_outstanding\n' +
-    'Founded Date: initial_offering_date\n' +
-    'Company Name: company_name\n' +
-    'Business Description: business_description\n' +
-    'Last Funding Date: price_per_share_date\n' +
-    'Last Funding Amount: price_per_share_value\n' +
-    'Last Market Valuation of Company: last_market_valuation\n' +
-    'Last Sale Price of Company Stock: last_sale_price\n' +
-    'Company Address (Street): street_address_1\n' +
-    'Company Address (City): city\n' +
-    'Company Address (State): state\n' +
-    'Company Address (Zip Code): zip_code\n' +
-    'Company Address (Country): country\n' +
-    'Email: email\n' +
-    'Phone: phone\n' +
-    'Web Address: web_address\n' +
-    'SIC Industry Classification: sic_industry_classification\n' +
-    'Incorporation State Information: incorporation_information\n' +
-    'Number of Employees: number_of_employees\n' +
-    'Company Officers & Contacts: company_officers_and_contacts\n' +
-    'Board of Directors: board_of_directors\n' +
-    'Product & Services: product_and_services\n' +
-    'Company Facilities: company_facilities\n' +
-    'Service Providers (Transfer Agent): transfer_agent\n' +
-    'Service Providers (Accounting / Auditing Firm): accounting_auditing_firm\n' +
-    'Service Providers (Investor Relations / Marketing / Communications): investor_relations_marketing_communications\n' +
-    'Service Providers (Securities Counsel): securities_counsel\n' +
-    'Financial Reporting Information (US Reporting Status): us_reporting\n' +
-    'Financial Reporting Information (SEC CIK Number): edgar_cik'
+const prompt = `
+Provide the following company "{{__security__name__}}" information (Market Sector is {{__market_sector__}})::
+Total Equity Funding Amount, Founded Date, Company Name, Business Description, Last Funding Amount, Last Funding Date, Last Market Valuation of Company, Last Sale Price of Company Stock, Company Address (Street, City, State, Zip Code, Country), Email, Phone, Web Address, SIC Industry Classification, Incorporation State Information, Number of Employees, Company Officers & Contacts, Board of Directors, Product & Services, Company Facilities, Service Providers (Transfer Agent, Accounting / Auditing Firm, Investor Relations / Marketing / Communications, Securities Counsel), Financial Reporting Information, US Reporting Status, SEC CIK Number.
+
+Requirements:
+1 JSON-format
+2 add "company_name". Set the Company Name
+3 add "logo" attribute to JSON-response. Use the following URL format to retrieve the logo: 'https://logo.clearbit.com/{{__domain_name__}}?size=500&format=png'. Replace '{{__domain_name__}}' with the company's domain name. The logo should be visually appealing, square-shaped, minimalistic, and suitable for web use. If no domain name the value is empty.
+4 date format is YYYY-MM-DD
+5 dollar values without commas and $
+6 if no public information the value is empty
+7 Company Officers & Contacts and Board of Directors is array of string values
+8 Product & Services and Company Facilities are string value
+9 Last Funding Amount based on 2 arrays of 
+- price_per_share_date - array of string dates in format YYYY-MM-DD
+- price_per_share_value - array of string values
+These 2 array associated - each value of price_per_share_date is for index of price_per_share_value
+10 Company Address fields are not company_address. Fields only
+11 be ensure the data is valid. If the value is incorrect set is empty. Try to find all information
+12 if no information about the company return response {}
+
+Associated fields to JSON-format response:
+Total Equity Funding Amount: total_shares_outstanding
+Founded Date: initial_offering_date
+Company Name: company_name
+Business Description: business_description
+Last Funding Date: price_per_share_date
+Last Funding Amount: price_per_share_value
+Last Market Valuation of Company: last_market_valuation
+Last Sale Price of Company Stock: last_sale_price
+Company Address (Street): street_address_1
+Company Address (City): city
+Company Address (State): state
+Company Address (Zip Code): zip_code
+Company Address (Country): country
+Email: email
+Phone: phone
+Web Address: web_address
+SIC Industry Classification: sic_industry_classification
+Incorporation State Information: incorporation_information
+Number of Employees: number_of_employees
+Company Officers & Contacts: company_officers_and_contacts
+Board of Directors: board_of_directors
+Product & Services: product_and_services
+Company Facilities: company_facilities
+Service Providers (Transfer Agent): transfer_agent
+Service Providers (Accounting / Auditing Firm): accounting_auditing_firm
+Service Providers (Investor Relations / Marketing / Communications): investor_relations_marketing_communications
+Service Providers (Securities Counsel): securities_counsel
+Financial Reporting Information (US Reporting Status): us_reporting
+Financial Reporting Information (SEC CIK Number): edgar_cik
+`;
+
 
 class AIToolsAssetProfileBlock extends React.Component<{}> {
     state: AIToolsAssetProfileState;
@@ -200,7 +205,7 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
         const symbolData = selectedOption?.data || null;
         const securityName = selectedOption?.data?.security_name ?? '';
         const marketSector = selectedOption?.data?.market_sector ?? '';
-        const promptValue = prompt.replace('{{__security__name__}}', securityName). replace('{{__market_sector__}}', marketSector);
+        const promptValue = prompt.replace('{{__security__name__}}', securityName).replace('{{__market_sector__}}', marketSector);
 
         this.setState({symbol: symbolData});
 
@@ -362,7 +367,8 @@ class AIToolsAssetProfileBlock extends React.Component<{}> {
                                                     symbolData={this.state.symbol}
                                                     action={'add'}
                                                     isAdmin={true}
-                                                    onCallback={() => {}}
+                                                    onCallback={() => {
+                                                    }}
                                                     readonly={true}
                                                     isAIGeneration={true}
                                                 />
