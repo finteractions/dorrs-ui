@@ -11,8 +11,8 @@ class AIToolService extends BaseService {
         super();
     }
 
-    public aiGenerateCompanyProfile(data: any): Promise<any> {
-        return apiWebBackendService.post(`${this.PATH}company_profile/`, data, {}, this.getUserAccessToken())
+    public async aiGenerateCompanyProfile(id: number): Promise<Array<ICompanyProfile>> {
+        return (await apiWebBackendService.put<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/${id}/`, {}, {}, this.getUserAccessToken())).data;
     }
 
 }

@@ -1,4 +1,4 @@
-import React, {RefObject} from 'react';
+import React, {RefObject, useEffect} from 'react';
 import symbolService from "@/services/symbol/symbol-service";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
@@ -8,7 +8,12 @@ import {useRouter} from "next/router";
 import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {
+    faArrowUpRightFromSquare, faClose, faEdit,
+    faMagicWandSparkles,
+    faMinus,
+    faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import * as Yup from "yup";
 import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import {SingleDatePicker} from "react-dates";
@@ -24,6 +29,11 @@ import 'react-dates/initialize';
 import InputMask from "react-input-mask";
 import formatterService from "@/services/formatter/formatter-service";
 import formValidator from "@/services/form-validator/form-validator";
+import {Button} from "react-bootstrap";
+import aiToolService from "@/services/ai-tool/ai-tool-service";
+import downloadFile from "@/services/download-file/download-file";
+import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
+import AssetImage from "@/components/asset-image";
 
 const allowedImageFileSizeMB = 5
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -132,6 +142,7 @@ interface CompanyProfilePageFormState extends IState {
         name: string;
     }[],
     formInitialValues: {},
+    formAIInitialValues: any,
     selectedCountry: string;
     selectedFile: File | null;
     selectedAssetTypeImages: File[] | null;
@@ -143,6 +154,8 @@ interface CompanyProfilePageFormState extends IState {
     };
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
+    isAILoader: boolean;
+    agreement: Record<string, boolean>;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
@@ -173,6 +186,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             action: this.props.action,
             usaStates: usaStatesList,
             formInitialValues: {},
+            formAIInitialValues: {},
             selectedCountry: '',
             selectedFile: null,
             selectedAssetTypeImages: [],
@@ -181,7 +195,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             focusedInitialOfferingDate: null,
             focusedInitialPricePerShare: {},
             selectedSecFiles: [],
-            selectedSecImages: []
+            selectedSecImages: [],
+            isAILoader: false,
+            agreement: {},
         }
 
         this.formRef = React.createRef();
@@ -212,20 +228,30 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         if (typeof initialData?.price_per_share_value === 'string') {
             try {
-                const price_per_share_value = JSON.parse(initialData.price_per_share_value)
-                initialData.price_per_share_value = price_per_share_value;
+                const parsed = JSON.parse(initialData.price_per_share_value);
+
+                initialData.price_per_share_value = Array.isArray(parsed) ? parsed : [parsed];
             } catch (error) {
-                initialData.price_per_share_value = [""];
+                initialData.price_per_share_value = [String(initialData.price_per_share_value)];
             }
+        } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
+            initialData.price_per_share_value = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_value = [String(initialData.price_per_share_value)];
         }
 
         if (typeof initialData?.price_per_share_date === 'string') {
             try {
-                const price_per_share_date = JSON.parse(initialData.price_per_share_date)
-                initialData.price_per_share_date = price_per_share_date;
+                const parsed = JSON.parse(initialData.price_per_share_date);
+
+                initialData.price_per_share_date = Array.isArray(parsed) ? parsed : [parsed];
             } catch (error) {
-                initialData.price_per_share_date = [""];
+                initialData.price_per_share_date = [String(initialData.price_per_share_date)];
             }
+        } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
+            initialData.price_per_share_date = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
         try {
@@ -394,6 +420,224 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             selectedAssetTypeImages: selectedAssetTypeImages,
             selectedIssuerProfileImages: selectedIssuerProfileImages,
             selectedIssuerProfileFiles: selectedIssuerProfileFiles,
+        })
+    }
+
+    initAIForm(data?: ICompanyProfile | null) {
+
+        const initialData = {...data || {}} as ICompanyProfile;
+
+        if (typeof initialData?.company_officers_and_contacts === 'string') {
+            try {
+                const company_officers_and_contacts = JSON.parse(initialData.company_officers_and_contacts);
+                initialData.company_officers_and_contacts = company_officers_and_contacts;
+            } catch (error) {
+                initialData.company_officers_and_contacts = [""];
+            }
+        }
+
+        if (typeof initialData?.board_of_directors === 'string') {
+            try {
+                const board_of_directors = JSON.parse(initialData.board_of_directors)
+                initialData.board_of_directors = board_of_directors;
+            } catch (error) {
+                initialData.board_of_directors = [""];
+            }
+        }
+
+        if (typeof initialData?.price_per_share_value === 'string') {
+            try {
+                const parsed = JSON.parse(initialData.price_per_share_value);
+
+                initialData.price_per_share_value = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (error) {
+                initialData.price_per_share_value = [String(initialData.price_per_share_value)];
+            }
+        } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
+            initialData.price_per_share_value = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_value = [String(initialData.price_per_share_value)];
+        }
+
+        if (typeof initialData?.price_per_share_date === 'string') {
+            try {
+                const parsed = JSON.parse(initialData.price_per_share_date);
+
+                initialData.price_per_share_date = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (error) {
+                initialData.price_per_share_date = [String(initialData.price_per_share_date)];
+            }
+        } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
+            initialData.price_per_share_date = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date)) {
+            initialData.price_per_share_date = [String(initialData.price_per_share_date)];
+        }
+
+        try {
+            const asset_type_description = JSON.parse(initialData.asset_type_description.toString());
+            initialData.asset_type_description = asset_type_description;
+        } catch (error) {
+            initialData.asset_type_description = [""];
+        }
+
+        try {
+            const asset_type_images = JSON.parse(initialData.asset_type_images.toString().replace(/'/g, '"'));
+            initialData.asset_type_images = asset_type_images;
+        } catch (error) {
+            initialData.asset_type_images = [];
+        }
+
+        try {
+            const issuer_profile_description = JSON.parse(initialData.issuer_profile_description.toString());
+            initialData.issuer_profile_description = issuer_profile_description;
+        } catch (error) {
+            initialData.issuer_profile_description = [""];
+        }
+
+        try {
+            const issuer_profile_images = JSON.parse(initialData.issuer_profile_images.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_images = issuer_profile_images;
+        } catch (error) {
+            initialData.issuer_profile_images = [];
+        }
+
+        try {
+            const issuer_profile_files = JSON.parse(initialData.issuer_profile_files.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_files = issuer_profile_files;
+        } catch (error) {
+            initialData.issuer_profile_files = [];
+        }
+
+        try {
+            const sec_description = JSON.parse(initialData.sec_description.toString());
+            initialData.sec_description = sec_description;
+        } catch (error) {
+            initialData.sec_description = [""];
+        }
+
+        try {
+            const sec_images = JSON.parse(initialData.sec_images.toString().replace(/'/g, '"'));
+            initialData.sec_images = sec_images;
+        } catch (error) {
+            initialData.sec_images = [];
+        }
+
+        try {
+            const sec_files = JSON.parse(initialData.sec_files.toString().replace(/'/g, '"'));
+            initialData.sec_files = sec_files;
+        } catch (error) {
+            initialData.sec_files = [];
+        }
+
+
+        const initialValues: {
+            symbol: string;
+            asset_type: string;
+            asset_type_option: string;
+            asset_type_description: string[];
+            asset_type_images: string[];
+            total_shares_outstanding: string;
+            last_market_valuation: string;
+            last_sale_price: string;
+            initial_offering_date: string;
+            price_per_share_value: string[];
+            price_per_share_date: string[];
+            company_name: string;
+            business_description: string;
+            street_address_1: string;
+            street_address_2: string;
+            city: string;
+            state: string;
+            zip_code: string;
+            country: string;
+            email: string;
+            phone: string;
+            web_address: string;
+            sic_industry_classification: string;
+            incorporation_information: string;
+            number_of_employees: string;
+            company_officers_and_contacts: string[];
+            board_of_directors: string[];
+            product_and_services: string;
+            company_facilities: string;
+            transfer_agent: string;
+            accounting_auditing_firm: string;
+            investor_relations_marketing_communications: string;
+            securities_counsel: string;
+            us_reporting: string;
+            edgar_cik: string;
+            logo: string;
+            issuer_profile_option: string;
+            issuer_profile_description: string[];
+            issuer_profile_images: string[];
+            issuer_profile_files: string[];
+            spv_name: string;
+            fund_manager: string;
+            investment_objective: string;
+            sec_filing: string;
+            sec_description: string[];
+            sec_images: string[];
+            sec_files: string[];
+        } = {
+            symbol: initialData?.symbol || this.props.symbol || '',
+            total_shares_outstanding: initialData?.total_shares_outstanding || '',
+            last_market_valuation: initialData?.last_market_valuation || '',
+            last_sale_price: initialData?.last_sale_price || '',
+            initial_offering_date: initialData?.initial_offering_date || '',
+            price_per_share_value: initialData?.price_per_share_value || [""],
+            price_per_share_date: initialData?.price_per_share_date || [""],
+            asset_type: initialData?.asset_type || '',
+            asset_type_option: initialData?.asset_type_option || '',
+            asset_type_description: initialData?.asset_type_description || [""],
+            asset_type_images: initialData?.asset_type_images || [],
+            issuer_profile_option: initialData?.issuer_profile_option || '',
+            issuer_profile_description: initialData?.issuer_profile_description || [""],
+            issuer_profile_images: initialData?.issuer_profile_images || [],
+            issuer_profile_files: initialData?.issuer_profile_files || [],
+            company_name: initialData?.company_name || '',
+            business_description: initialData?.business_description || '',
+            street_address_1: initialData?.street_address_1 || '',
+            street_address_2: initialData?.street_address_2 || '',
+            city: initialData?.city || '',
+            state: initialData?.state || '',
+            zip_code: initialData?.zip_code || '',
+            country: initialData?.country || selectedCountry,
+            email: initialData?.email || '',
+            phone: initialData?.phone || '',
+            web_address: initialData?.web_address || '',
+            sic_industry_classification: initialData?.sic_industry_classification || '',
+            incorporation_information: initialData?.incorporation_information || '',
+            number_of_employees: initialData?.number_of_employees || '',
+            company_officers_and_contacts: initialData?.company_officers_and_contacts || [""],
+            board_of_directors: initialData?.board_of_directors || [""],
+            product_and_services: initialData?.product_and_services || '',
+            company_facilities: initialData?.company_facilities || '',
+            transfer_agent: initialData?.transfer_agent || '',
+            accounting_auditing_firm: initialData?.accounting_auditing_firm || '',
+            investor_relations_marketing_communications: initialData?.investor_relations_marketing_communications || '',
+            securities_counsel: initialData?.securities_counsel || '',
+            us_reporting: initialData?.us_reporting || '',
+            edgar_cik: initialData?.edgar_cik || '',
+            logo: initialData?.logo || '',
+            spv_name: initialData?.spv_name || '',
+            fund_manager: initialData?.fund_manager || '',
+            investment_objective: initialData?.investment_objective || '',
+            sec_filing: initialData?.sec_filing || '',
+            sec_description: initialData?.sec_description || [""],
+            sec_images: initialData?.sec_images || [],
+            sec_files: initialData?.sec_files || [],
+        };
+
+        const keys = Object.keys(initialValues);
+
+        const agreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
+            acc[key] = false;
+            return acc;
+        }, {} as Record<string, boolean>);
+
+        this.setState({
+            formAIInitialValues: initialValues,
+            agreement: agreement
         })
     }
 
@@ -659,6 +903,211 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         });
     };
 
+    aiAssetProfileGenerate = () => {
+        this.setState({isAILoader: true, errors: null});
+        this.formRef?.current?.setSubmitting(true);
+
+        const {id} = this.symbol!;
+
+        aiToolService.aiGenerateCompanyProfile(id)
+            .then(((res: Array<ICompanyProfile>) => {
+                const aiCompanyProfile = res?.[0] || null;
+                this.initAIForm(aiCompanyProfile);
+            }))
+            .catch((errors: IError) => {
+                this.setState({errorMessages: errors.messages});
+            })
+            .finally(() => {
+                this.setState({isAILoader: false});
+                this.formRef?.current?.setSubmitting(false);
+            });
+    }
+
+    getAIValue = (field: string): string => {
+        const excludedNumericFields = ['zip_code', 'phone', 'sic_industry_classification'];
+        const aiCompanyProfile = {...this.state.formAIInitialValues} as any;
+        let value = '';
+        const aiValue = aiCompanyProfile[field];
+
+        if (aiValue) {
+            if (Array.isArray(aiValue)) {
+                if (aiValue.length > 0) {
+                    value = aiValue.join(', ');
+                }
+            } else {
+                const numberValue = Number(aiValue);
+                if (!isNaN(numberValue) && !excludedNumericFields.includes(field)) {
+                    const decimals = (numberValue.toString().split('.')[1] || '').length;
+                    value = formatterService.numberFormat(numberValue, decimals);
+                } else {
+                    value = aiValue;
+                }
+            }
+        }
+
+        return value;
+    };
+
+
+    getRenderedAIField = (field: string) => {
+        const value = this.getAIValue(field);
+        const checked = this.state.agreement[field] ?? false;
+        const self = this;
+
+        const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const {checked} = event.target;
+            this.setState((prevState: any) => ({
+                agreement: {
+                    ...prevState.agreement,
+                    [field]: checked
+                }
+            }));
+        };
+
+        const applyChanges = () => {
+            this.setState((prevState: any) => ({
+                formInitialValues: {
+                    ...prevState.formInitialValues,
+                    [field]: (this.state.formAIInitialValues as any)[field]
+                },
+                formAIInitialValues: {
+                    ...prevState.formAIInitialValues,
+                    [field]: ""
+                }
+            }), async () => {
+                this.formRef?.current.setFieldTouched(field, true);
+                switch (field) {
+                    case 'country':
+                        const country = findCountry((this.state.formInitialValues as any)[field]);
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: country
+                            },
+                            selectedCountry: country
+                        }));
+                        break;
+                    case 'state':
+                    case 'incorporation_information':
+                        const state = findState((this.state.formInitialValues as any)[field]);
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: state
+                            },
+                        }));
+                        break;
+                    case 'sic_industry_classification':
+                        const sicIndustryClassification = findSicIndustryClassification((this.state.formInitialValues as any)[field])
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: sicIndustryClassification
+                            },
+                        }));
+                        break;
+                    case 'logo':
+                        const response = await fetch((this.state.formInitialValues as any)[field]);
+                        const blob = await response.blob();
+
+                        const timestamp = Date.now();
+                        const fileName = `image_${timestamp}.png`;
+
+                        const file = new File([blob], fileName, {type: blob.type});
+                        const fileInput = document.getElementById('logo_tmp') as HTMLInputElement;
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+
+                        fileInput.files = dataTransfer.files;
+
+                        self.formRef?.current.setFieldValue(field, file);
+
+                        this.handleFileChange({
+                            target: {files: [file]},
+                        } as unknown as React.ChangeEvent<HTMLInputElement>);
+
+
+                        break;
+                }
+            });
+        }
+
+        const findCountry = (name: string) => {
+            return Object.keys(countries).find(
+                key => ((countries as any)[key] as any).name === name
+            );
+        }
+
+        function findState(name: string) {
+            const state = self.state.usaStates.find((state: any) => state.name === name);
+            return state ? state.abbreviation : null;
+        }
+
+        function findSicIndustryClassification(name: string) {
+            const sicIndustryClassifications = Object.values(SicIndustryClassification);
+            const result = sicIndustryClassifications.find(value =>
+                value.toLowerCase().includes(name.toLowerCase())
+            );
+
+            return result || "";
+        }
+
+
+        return (
+            <>
+                {value && value.length > 0 && (
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2`}>
+                        <div className={'d-flex gap-10 align-items-center'}>
+                            <div>
+                                <FontAwesomeIcon icon={faMagicWandSparkles} title={'AI Generated'}/>
+                            </div>
+                            {field !== 'logo' ? (
+                                <div>{value}</div>
+                            ) : (
+                                <div
+                                    className="my-2 d-flex">
+                                    <AssetImage alt=''
+                                                src={this.getLogoURL(this.state.formAIInitialValues.logo)}
+                                                width={100}
+                                                height={100}/>
+                                </div>
+                            )}
+
+                        </div>
+                        <div className={'flex-1'}>
+                            <div className="b-checkbox b-checkbox">
+                                <input
+                                    type={'checkbox'}
+                                    id={`checkbox_${field}`}
+                                    checked={checked}
+                                    onChange={handleCheckboxChange}
+                                />
+                                <label htmlFor={`checkbox_${field}`}>
+                                    <span></span><i> I agree with generated data</i>
+                                </label>
+                            </div>
+                        </div>
+                        <div className='admin-table-actions'>
+                            <button
+                                className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
+                                disabled={!checked}
+                                onClick={applyChanges}
+                                type={'button'}>
+                                Apply changes
+                                <FontAwesomeIcon
+                                    className="nav-icon" icon={faEdit}/></button>
+                        </div>
+                    </div>
+                )}
+            </>
+        );
+    };
+
+    getLogoURL = (logo: string) => {
+        return logo.startsWith('https://') ? logo : `${this.host}${logo}`
+    }
+
     render() {
         return (
             <>
@@ -678,6 +1127,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                 </p>
                             </div>
                         </div>
+
                         <div className={'profile section'}>
                             {this.symbol ? (
                                 <Formik<ICompanyProfile>
@@ -688,15 +1138,52 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                         formValidator.requiredFields(formSchema, values, errors);
+
+                                        useEffect(() => {
+                                            if (this.state.formInitialValues) {
+                                                Object.keys(this.state.formInitialValues).forEach((field) => {
+                                                    if ((this.state.formInitialValues as any)[field] !== (values as any)[field] && !(values as any)[field]) {
+                                                        setFieldValue(field, (this.state.formInitialValues as any)[field]);
+                                                    }
+                                                });
+                                            }
+                                        }, [this.state.formInitialValues]);
+
                                         return (
                                             <Form id="bank-form">
                                                 <div className="flex-panel-box">
                                                     <div className={'panel'}>
                                                         <div
                                                             className={'content__bottom d-flex justify-content-between'}>
-                                                            <h2 className={'view_block_main_title'}>
+                                                            <h2 className={'view_block_main_title my-0'}>
                                                                 {this.companyProfile?.company_name || this.symbol?.security_name} ({this.symbol?.symbol})
                                                             </h2>
+
+                                                            <div
+                                                                className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                                {this.state.isAILoader && (
+                                                                    <LoaderBlock height={50}
+                                                                                 className={'p-0 m-0 d-flex-1 pre-loader'}/>
+                                                                )}
+                                                                <button
+                                                                    type="button"
+                                                                    className={`d-none d-md-block b-btn ripple`}
+                                                                    disabled={this.state.isAILoader}
+                                                                    onClick={() => this.aiAssetProfileGenerate()}
+                                                                >AI Assistant <FontAwesomeIcon
+                                                                    icon={faMagicWandSparkles}/>
+                                                                </button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="link"
+                                                                    className="d-md-none admin-table-btn ripple"
+                                                                    disabled={this.state.isAILoader}
+                                                                    onClick={() => this.aiAssetProfileGenerate()}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faMagicWandSparkles}/>
+                                                                </Button>
+
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className={'profile__right'}>
@@ -745,18 +1232,20 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             <div className="input__wrap">
 
                                                                                 {this.companyProfile?.logo && (
-                                                                                    <div
-                                                                                        className="mb-2 d-flex">
-                                                                                        <Link
-                                                                                            className={'link info-panel-title-link'}
-                                                                                            href={`${this.host}${this.companyProfile?.logo}`}
-                                                                                            target={'_blank'}>
-                                                                                            Image {' '}
-                                                                                            <FontAwesomeIcon
-                                                                                                className="nav-icon"
-                                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                                        </Link>
-                                                                                    </div>
+                                                                                    <>
+                                                                                        <div
+                                                                                            className="mb-2 d-flex">
+                                                                                            <Link
+                                                                                                className={'link info-panel-title-link'}
+                                                                                                href={`${this.host}${this.companyProfile?.logo}`}
+                                                                                                target={'_blank'}>
+                                                                                                Image {' '}
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                            </Link>
+                                                                                        </div>
+                                                                                    </>
                                                                                 )}
 
                                                                                 <input
@@ -774,6 +1263,11 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 {errors.logo_tmp && (
                                                                                     <div
                                                                                         className="error-message">{errors.logo_tmp.toString()}</div>
+                                                                                )}
+                                                                                {this.state.formAIInitialValues.logo && (
+                                                                                    <>
+                                                                                        {this.getRenderedAIField('logo')}
+                                                                                    </>
                                                                                 )}
                                                                             </div>
                                                                         </div>
@@ -813,6 +1307,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('total_shares_outstanding')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -836,6 +1331,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('last_market_valuation')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -885,6 +1381,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('initial_offering_date')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -905,6 +1402,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('company_name')}
                                                                     </div>
 
                                                                     <div className="input__box full">
@@ -927,6 +1425,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('business_description')}
                                                                     </div>
 
                                                                     <div className="input__box full">
@@ -1016,6 +1515,10 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         </React.Fragment>
                                                                                     ))}
                                                                                 </div>
+                                                                            </div>
+                                                                            <div className={'d-flex flex-group'}>
+                                                                                {this.getRenderedAIField('price_per_share_value')}
+                                                                                {this.getRenderedAIField('price_per_share_date')}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1536,6 +2039,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('street_address_1')}
+
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1558,6 +2063,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('street_address_2')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1578,6 +2084,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('city')}
                                                                     </div>
 
                                                                     {this.state.selectedCountry === selectedCountry && (
@@ -1609,6 +2116,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                               component="div"
                                                                                               className="error-message"/>
                                                                             </div>
+                                                                            {this.getRenderedAIField('state')}
                                                                         </div>
                                                                     )}
 
@@ -1630,6 +2138,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('zip_code')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1662,6 +2171,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('country')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1682,6 +2192,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('email')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1697,6 +2208,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 country="us"
                                                                             />
                                                                         </div>
+                                                                        {this.getRenderedAIField('phone')}
                                                                     </div>
 
 
@@ -1718,6 +2230,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('web_address')}
                                                                     </div>
 
                                                                     <div className="input__box full">
@@ -1738,7 +2251,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 className="b-select-search"
                                                                                 placeholder="Select SIC Industry Classification"
                                                                                 classNamePrefix="select__react"
-                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                isDisabled={isSubmitting || this.isShow()}
                                                                                 options={Object.values(SicIndustryClassification).map((item) => ({
                                                                                     value: item,
                                                                                     label: item,
@@ -1759,6 +2272,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('sic_industry_classification')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1791,6 +2305,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('incorporation_information')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1814,6 +2329,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('number_of_employees')}
                                                                     </div>
 
 
@@ -1871,6 +2387,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     className="error-message">{errors.company_officers_and_contacts.toString()}</div>
                                                                             )}
                                                                         </div>
+                                                                        {this.getRenderedAIField('company_officers_and_contacts')}
                                                                     </div>
 
                                                                     <div className="input__box full">
@@ -1926,6 +2443,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     className="error-message">{errors.board_of_directors.toString()}</div>
                                                                             )}
                                                                         </div>
+                                                                        {this.getRenderedAIField('board_of_directors')}
                                                                     </div>
 
 
@@ -1949,6 +2467,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('product_and_services')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1970,6 +2489,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('company_facilities')}
                                                                     </div>
 
                                                                     <div className="input__box full">
@@ -1996,6 +2516,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('transfer_agent')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -2018,6 +2539,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('accounting_auditing_firm')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -2041,6 +2563,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('investor_relations_marketing_communications')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -2063,6 +2586,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 component="div"
                                                                                 className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('securities_counsel')}
                                                                     </div>
 
 
@@ -2090,6 +2614,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('us_reporting')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -2118,6 +2643,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('edgar_cik')}
                                                                     </div>
 
                                                                     {this.state.action !== 'view' && (

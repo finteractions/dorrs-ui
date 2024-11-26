@@ -5052,3 +5052,44 @@ option.divider {
     }
   }
 }
+
+.d-flex-1 {
+  flex: 1 !important;
+}
+
+.loader-block.pre-loader {
+  min-height: unset;
+  max-height: 40px;
+}
+
+.ai-info-block {
+  flex-direction: column;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-colour-5);
+  display: flex;
+  gap: 10px;
+
+  svg > path {
+    fill: var(--text-colour-1);
+  }
+
+  .admin-table-actions {
+    max-width: 215px;
+    width: 100%;
+
+    > button {
+      width: 100%;
+      gap: 10px;
+    }
+  }
+}
+
+.flex-group {
+  padding-right: 35px;
+
+  .ai-info-block {
+    flex: 1;
+  }
+}
