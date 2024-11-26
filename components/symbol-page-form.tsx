@@ -852,7 +852,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
                                                         <div
                                                             className={'justify-content-end d-flex align-items-center gap-10'}>
-                                                            {this.symbol?.company_profile ? (
+                                                            {this.symbol?.company_profile && (
                                                                 <>
                                                                     <div className="d-flex gap-10">
                                                                         <div className={'d-flex bold'}>Asset Profile:
@@ -860,22 +860,6 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                         <div
                                                                             className={`font-weight-normal d-flex table__status table__status-${this.symbol?.company_profile?.status.toLowerCase()}`}>{this.symbol?.company_profile?.status}</div>
                                                                     </div>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <button
-                                                                        className={`d-none d-md-block b-btn ripple`}
-                                                                        onClick={() => this.navigateToAssetProfile()}
-                                                                    >Add Asset Profile
-                                                                    </button>
-                                                                    <Button
-                                                                        variant="link"
-                                                                        className="d-md-none admin-table-btn ripple"
-                                                                        type="button"
-                                                                        onClick={() => this.navigateToAssetProfile()}
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faPlus}/>
-                                                                    </Button>
                                                                 </>
                                                             )}
                                                         </div>
