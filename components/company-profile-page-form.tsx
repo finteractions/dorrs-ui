@@ -1131,6 +1131,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         <div className={'profile section'}>
                             {this.symbol ? (
                                 <Formik<ICompanyProfile>
+                                    key={JSON.stringify(this.state.formInitialValues)}
                                     initialValues={this.state.formInitialValues as ICompanyProfile}
                                     validationSchema={formSchema}
                                     onSubmit={this.handleSubmit}
@@ -1138,16 +1139,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                 >
                                     {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
                                         formValidator.requiredFields(formSchema, values, errors);
-
-                                        useEffect(() => {
-                                            if (this.state.formInitialValues) {
-                                                Object.keys(this.state.formInitialValues).forEach((field) => {
-                                                    if ((this.state.formInitialValues as any)[field] !== (values as any)[field] && !(values as any)[field]) {
-                                                        setFieldValue(field, (this.state.formInitialValues as any)[field]);
-                                                    }
-                                                });
-                                            }
-                                        }, [this.state.formInitialValues]);
 
                                         return (
                                             <Form id="bank-form">
@@ -2650,9 +2641,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                         <div className="input__box full">
                                                                             <div className="input__box">
                                                                                 <button
-                                                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
+                                                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : 'no-border'}`}
                                                                                     type="submit"
-                                                                                    disabled={isSubmitting || !isValid || !dirty}>
+                                                                                    disabled={isSubmitting || !isValid}>
                                                                                     Save Asset Profile
                                                                                 </button>
                                                                             </div>
