@@ -184,6 +184,7 @@ const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 
 class CompanyProfileForm extends React.Component<CompanyProfileFormProps, CompanyProfileFormState> {
     state: CompanyProfileFormState;
+    companyProfile: ICompanyProfile | null;
     formRefCompanyProfile: RefObject<any>;
     formRefAICompanyProfile: RefObject<any>;
     host = `${window.location.protocol}//${window.location.host}`;
@@ -192,6 +193,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         super(props);
 
         const initialData = {...this.props.data || {}} as ICompanyProfile;
+
+        this.companyProfile = initialData;
 
         if (typeof initialData?.company_officers_and_contacts === 'string') {
             try {
@@ -1014,8 +1017,17 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     }
 
     aiAssetProfileGenerate = () => {
-        this.setState({isAILoader: true, errorMessages: null});
-        this.formRefCompanyProfile?.current?.setSubmitting(true);
+        this.setState((prevState: any) => ({
+            isAILoader: true,
+            errorMessages: null,
+            formInitialValues: {
+                ...prevState.formInitialValues,
+                ['logo']: ''
+            },
+        }), () => {
+            this.initAIForm();
+            this.formRefCompanyProfile?.current?.setSubmitting(true);
+        });
 
         const {id} = this.props.symbolData!;
         aiToolService.aiGenerateCompanyProfile(id ?? 0)
@@ -1185,7 +1197,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         return (
             <>
                 {value && value.length > 0 && (
-                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2`}>
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
                         <div className={'d-flex gap-10 align-items-center'}>
                             <div>
                                 <FontAwesomeIcon icon={faMagicWandSparkles} title={'AI Generated'}/>
@@ -1205,7 +1217,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                         </div>
                         {(field !== 'logo' || (this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo']) && (
                             <>
-                                <div className={'flex-1'}>
+                                <div className={'d-flex-1'}>
                                     <div className="b-checkbox b-checkbox">
                                         <input
                                             type={'checkbox'}
@@ -1326,7 +1338,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 className={'justify-content-end d-flex align-items-center gap-10'}>
                                                                 {this.state.isAILoader && (
                                                                     <LoaderBlock height={50}
-                                                                                 className={'p-0 m-0 d-flex-1 pre-loader-btn'}/>
+                                                                                 className={'p-0 m-0 d-d-flex-1 pre-loader-btn'}/>
                                                                 )}
                                                                 <button
                                                                     type="button"
@@ -1392,34 +1404,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     <div className="input">
                                                         <div className="input__title">Logo</div>
                                                         <div className="input__wrap">
-
-                                                            {initialValues?.logo && (
-                                                                <>
-                                                                    <div
-                                                                        className="mb-2 d-flex">
-                                                                        <Link
-                                                                            className={'link info-panel-title-link'}
-                                                                            href={this.getLogoURL(initialValues.logo)}
-                                                                            target={'_blank'}>
-                                                                            Image {' '}
-                                                                            <FontAwesomeIcon
-                                                                                className="nav-icon"
-                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                        </Link>
-                                                                    </div>
-
-                                                                    {this.props?.isAIGeneration && (
-                                                                        <div
-                                                                            className="mb-2 d-flex">
-                                                                            <AssetImage alt=''
-                                                                                        src={this.getLogoURL(initialValues.logo)}
-                                                                                        width={100} height={100}/>
-                                                                        </div>
-                                                                    )}
-                                                                </>
-
-                                                            )}
-
                                                             <input
                                                                 id="logo_tmp"
                                                                 name="logo_tmp"
@@ -1438,11 +1422,31 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 <div
                                                                     className="error-message">{errors.logo_tmp.toString()}</div>
                                                             )}
-                                                            {this.state.formAIInitialValues.logo && (
-                                                                <>
-                                                                    {this.getRenderedAIField('logo')}
-                                                                </>
-                                                            )}
+                                                            <div className={'d-flex'}>
+                                                                {this.companyProfile?.logo &&
+                                                                    (((this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo'] && !this.state.isAILoader)
+                                                                        || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
+                                                                    && (
+                                                                        <div
+                                                                            className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
+                                                                            <div
+                                                                                className={'d-flex gap-10 align-items-center'}>
+                                                                                <div
+                                                                                    className="my-2 d-flex">
+                                                                                    <AssetImage alt=''
+                                                                                                src={this.getLogoURL(this.companyProfile?.logo)}
+                                                                                                width={100}
+                                                                                                height={100}/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                {this.state.formAIInitialValues.logo && (
+                                                                    <>
+                                                                        {this.getRenderedAIField('logo')}
+                                                                    </>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}

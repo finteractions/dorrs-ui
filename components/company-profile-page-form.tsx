@@ -902,8 +902,17 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     };
 
     aiAssetProfileGenerate = () => {
-        this.setState({isAILoader: true, errors: null});
-        this.formRef?.current?.setSubmitting(true);
+        this.setState((prevState: any) => ({
+            isAILoader: true,
+            errors: null,
+            formInitialValues: {
+                ...prevState.formInitialValues,
+                ['logo']: ''
+            },
+        }), () => {
+            this.initAIForm();
+            this.formRef?.current?.setSubmitting(true);
+        });
 
         const {id} = this.symbol!;
 
@@ -1074,7 +1083,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
         return (
             <>
                 {value && value.length > 0 && (
-                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2`}>
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2 flex-1`}>
                         <div className={'d-flex gap-10 align-items-center'}>
                             <div>
                                 <FontAwesomeIcon icon={faMagicWandSparkles} title={'AI Generated'}/>
@@ -1092,6 +1101,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                             )}
 
                         </div>
+
                         {(field !== 'logo' || (this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo']) && (
                             <>
                                 <div className={'flex-1'}>
@@ -1242,25 +1252,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                     {!this.isShow() && (
                                                                         <div className="input__box">
                                                                             <div className="input__title">Logo</div>
-                                                                            <div className="input__wrap">
-
-                                                                                {this.companyProfile?.logo && (
-                                                                                    <>
-                                                                                        <div
-                                                                                            className="mb-2 d-flex">
-                                                                                            <Link
-                                                                                                className={'link info-panel-title-link'}
-                                                                                                href={`${this.host}${this.companyProfile?.logo}`}
-                                                                                                target={'_blank'}>
-                                                                                                Image {' '}
-                                                                                                <FontAwesomeIcon
-                                                                                                    className="nav-icon"
-                                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                            </Link>
-                                                                                        </div>
-                                                                                    </>
-                                                                                )}
-
+                                                                            <div className="input__wrap no-border">
                                                                                 <input
                                                                                     id="logo_tmp"
                                                                                     name="logo_tmp"
@@ -1277,11 +1269,33 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     <div
                                                                                         className="error-message">{errors.logo_tmp.toString()}</div>
                                                                                 )}
-                                                                                {this.state.formAIInitialValues.logo && (
-                                                                                    <>
-                                                                                        {this.getRenderedAIField('logo')}
-                                                                                    </>
-                                                                                )}
+                                                                                <div className={'d-flex'}>
+                                                                                    {this.companyProfile?.logo &&
+                                                                                        (((this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo'] && !this.state.isAILoader)
+                                                                                        || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
+                                                                                        && (
+                                                                                            <div
+                                                                                                className={`ai-info-block input__wrap no-border mt-3 mb-2 flex-1`}>
+                                                                                                <div
+                                                                                                    className={'d-flex gap-10 align-items-center'}>
+                                                                                                    <div
+                                                                                                        className="my-2 d-flex">
+                                                                                                        <AssetImage
+                                                                                                            alt=''
+                                                                                                            src={this.getLogoURL(this.companyProfile?.logo)}
+                                                                                                            width={100}
+                                                                                                            height={100}/>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    {this.state.formAIInitialValues.logo && (
+                                                                                        <>
+                                                                                            {this.getRenderedAIField('logo')}
+                                                                                        </>
+                                                                                    )}
+                                                                                </div>
+
                                                                             </div>
                                                                         </div>
                                                                     )}
