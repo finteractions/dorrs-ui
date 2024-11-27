@@ -3991,7 +3991,11 @@
 
   .admin-table-btn:active, .admin-table-btn:focus, .admin-table-btn:hover:not(:disabled) {
     background: #1c4a7e;
-    color: #fff
+    color: #fff;
+
+    svg > path {
+      fill: #fff;
+    }
   }
 
   .confirm-btns-panel {
@@ -5131,6 +5135,49 @@
 
   .margin-bottom-14px {
     margin-bottom: 14px !important;
+  }
+
+  .loader-block.pre-loader-btn {
+    min-height: unset;
+    max-height: 35px;
+    max-width: 50px;
+    justify-content: end;
+  }
+
+  .ai-info-block {
+    flex-direction: column;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    color: #828c97;
+    display: flex;
+    gap: 10px;
+
+    svg > path {
+      fill: var(--text-colour-1);
+    }
+
+    .admin-table-actions {
+      max-width: 215px;
+      width: 100%;
+
+      > button {
+        width: 100%;
+        gap: 10px;
+      }
+    }
+  }
+
+  .flex-group {
+    padding-right: 35px;
+
+    .ai-info-block {
+      flex: 1;
+    }
+  }
+
+  .gap-10 {
+    gap: 10px;
   }
 
 }

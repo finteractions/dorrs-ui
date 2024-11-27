@@ -9,7 +9,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {UsaStates} from "usa-states";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faArrowUpRightFromSquare, faClose, faEdit,
+    faArrowUpRightFromSquare, faEdit,
     faMagicWandSparkles,
     faMinus,
     faPlus,
@@ -31,8 +31,6 @@ import formatterService from "@/services/formatter/formatter-service";
 import formValidator from "@/services/form-validator/form-validator";
 import {Button} from "react-bootstrap";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
-import downloadFile from "@/services/download-file/download-file";
-import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
 import AssetImage from "@/components/asset-image";
 
 const allowedImageFileSizeMB = 5
@@ -915,7 +913,14 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                 this.initAIForm(aiCompanyProfile);
             }))
             .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
+                this.setState({errorMessages: errors.messages}, () => {
+                    const errorBlock = document.querySelector('.alert-block-error');
+                    if (errorBlock) {
+                        errorBlock.scrollIntoView({
+                            behavior: 'smooth',
+                        });
+                    }
+                });
             })
             .finally(() => {
                 this.setState({isAILoader: false});
@@ -970,10 +975,12 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                     ...prevState.formInitialValues,
                     [field]: (this.state.formAIInitialValues as any)[field]
                 },
-                formAIInitialValues: {
-                    ...prevState.formAIInitialValues,
-                    [field]: ""
-                }
+                formAIInitialValues: field === "logo"
+                    ? prevState.formAIInitialValues
+                    : {
+                        ...prevState.formAIInitialValues,
+                        [field]: "",
+                    },
             }), async () => {
                 this.formRef?.current.setFieldTouched(field, true);
                 switch (field) {
@@ -1014,7 +1021,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         const fileName = `image_${timestamp}.png`;
 
                         const file = new File([blob], fileName, {type: blob.type});
-                        const fileInput = document.getElementById('logo_tmp') as HTMLInputElement;
+                        const fileInput = document.getElementById(`${field}_tmp`) as HTMLInputElement;
 
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(file);
@@ -1022,15 +1029,25 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         fileInput.files = dataTransfer.files;
 
                         self.formRef?.current.setFieldValue(field, file);
+                        self.formRef?.current.setFieldValue(`${field}_tmp`, file);
 
                         this.handleFileChange({
                             target: {files: [file]},
                         } as unknown as React.ChangeEvent<HTMLInputElement>);
 
-
                         break;
                 }
             });
+
+            setTimeout(() => {
+                self.formRef?.current.handleChange({
+                    target: {
+                        name: 'time',
+                        value: Date.now(),
+                    },
+                });
+            });
+
         }
 
         const findCountry = (name: string) => {
@@ -1075,29 +1092,34 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                             )}
 
                         </div>
-                        <div className={'flex-1'}>
-                            <div className="b-checkbox b-checkbox">
-                                <input
-                                    type={'checkbox'}
-                                    id={`checkbox_${field}`}
-                                    checked={checked}
-                                    onChange={handleCheckboxChange}
-                                />
-                                <label htmlFor={`checkbox_${field}`}>
-                                    <span></span><i> I agree with generated data</i>
-                                </label>
-                            </div>
-                        </div>
-                        <div className='admin-table-actions'>
-                            <button
-                                className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
-                                disabled={!checked}
-                                onClick={applyChanges}
-                                type={'button'}>
-                                Apply changes
-                                <FontAwesomeIcon
-                                    className="nav-icon" icon={faEdit}/></button>
-                        </div>
+                        {(field !== 'logo' || (this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo']) && (
+                            <>
+                                <div className={'flex-1'}>
+                                    <div className="b-checkbox b-checkbox">
+                                        <input
+                                            type={'checkbox'}
+                                            id={`checkbox_${field}`}
+                                            checked={checked}
+                                            onChange={handleCheckboxChange}
+                                        />
+                                        <label htmlFor={`checkbox_${field}`}>
+                                            <span></span><i> I agree with generated data</i>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className='admin-table-actions'>
+                                    <button
+                                        className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
+                                        disabled={!checked}
+                                        onClick={applyChanges}
+                                        type={'button'}>
+                                        Apply changes
+                                        <FontAwesomeIcon
+                                            className="nav-icon" icon={faEdit}/></button>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 )}
             </>
@@ -1154,7 +1176,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                 className={'justify-content-end d-flex align-items-center gap-10'}>
                                                                 {this.state.isAILoader && (
                                                                     <LoaderBlock height={50}
-                                                                                 className={'p-0 m-0 d-flex-1 pre-loader'}/>
+                                                                                 className={'p-0 m-0 d-flex-1 pre-loader-btn'}/>
                                                                 )}
                                                                 <button
                                                                     type="button"
@@ -1346,6 +1368,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
+                                                                        {this.getRenderedAIField('last_sale_price')}
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -1439,7 +1462,6 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     icon={faPlus}/>
                                                                             </button>
                                                                         </div>
-
                                                                     </div>
                                                                     <div className={'input__box full'}>
                                                                         <div className="input">
@@ -1522,7 +1544,8 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         Fields:</h4>
                                                                                     <button
                                                                                         type="button"
-                                                                                        className='border-grey-btn ripple'
+                                                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                        disabled={isSubmitting || this.isShow()}
                                                                                         onClick={() => {
                                                                                             const updatedDescriptions = [...values.asset_type_description, ''];
                                                                                             const index = updatedDescriptions.length - 1 || 0
@@ -2636,14 +2659,17 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                         </div>
                                                                         {this.getRenderedAIField('edgar_cik')}
                                                                     </div>
-
+                                                                    <Field
+                                                                        name={'time'}
+                                                                        type={'hidden'}
+                                                                    />
                                                                     {this.state.action !== 'view' && (
                                                                         <div className="input__box full">
                                                                             <div className="input__box">
                                                                                 <button
-                                                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : 'no-border'}`}
+                                                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
                                                                                     type="submit"
-                                                                                    disabled={isSubmitting || !isValid}>
+                                                                                    disabled={isSubmitting || !isValid || !dirty}>
                                                                                     Save Asset Profile
                                                                                 </button>
                                                                             </div>

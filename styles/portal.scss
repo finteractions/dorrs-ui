@@ -5057,9 +5057,11 @@ option.divider {
   flex: 1 !important;
 }
 
-.loader-block.pre-loader {
+.loader-block.pre-loader-btn {
   min-height: unset;
-  max-height: 40px;
+  max-height: 35px;
+  max-width: 50px;
+  justify-content: end;
 }
 
 .ai-info-block {
@@ -5085,6 +5087,7 @@ option.divider {
     }
   }
 }
+
 
 .flex-group {
   padding-right: 35px;
