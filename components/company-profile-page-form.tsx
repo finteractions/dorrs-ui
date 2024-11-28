@@ -1208,6 +1208,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                         {this.state.aiErrorMessages && (
                                                             <div className={'f-flex padding-10'}>
                                                                 <AlertBlock type={"warning"}
+                                                                            className={'m-0'}
                                                                             messages={this.state.aiErrorMessages}
                                                                 />
                                                             </div>
