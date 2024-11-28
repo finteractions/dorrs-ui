@@ -182,7 +182,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             success: false,
             isLoading: true,
             errors: [],
-            aiErrorMessages: [],
+            aiErrorMessages: null,
             action: this.props.action,
             usaStates: usaStatesList,
             formInitialValues: {},

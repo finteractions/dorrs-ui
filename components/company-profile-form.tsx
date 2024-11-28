@@ -426,7 +426,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             formInitialValues: initialValues as any,
             formAIInitialValues: {},
             loading: false,
-            aiErrorMessages: [],
+            aiErrorMessages: null,
             isApproving: null,
             isConfirmedApproving: false,
             isDeleting: false,
