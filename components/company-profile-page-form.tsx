@@ -154,6 +154,7 @@ interface CompanyProfilePageFormState extends IState {
     selectedSecFiles: File[] | null;
     isAILoader: boolean;
     agreement: Record<string, boolean>;
+    aiErrorMessages: Array<string> | null;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
@@ -181,6 +182,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             success: false,
             isLoading: true,
             errors: [],
+            aiErrorMessages: [],
             action: this.props.action,
             usaStates: usaStatesList,
             formInitialValues: {},
@@ -904,6 +906,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     aiAssetProfileGenerate = () => {
         this.setState((prevState: any) => ({
             isAILoader: true,
+            aiErrorMessages: null,
             errors: null,
             formInitialValues: {
                 ...prevState.formInitialValues,
@@ -922,14 +925,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                 this.initAIForm(aiCompanyProfile);
             }))
             .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages}, () => {
-                    const errorBlock = document.querySelector('.alert-block-error');
-                    if (errorBlock) {
-                        errorBlock.scrollIntoView({
-                            behavior: 'smooth',
-                        });
-                    }
-                });
+                this.setState({aiErrorMessages: errors.messages});
             })
             .finally(() => {
                 this.setState({isAILoader: false});
@@ -1207,8 +1203,18 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                 </Button>
 
                                                             </div>
+
                                                         </div>
+                                                        {this.state.aiErrorMessages && (
+                                                            <div className={'f-flex padding-10'}>
+                                                                <AlertBlock type={"warning"}
+                                                                            messages={this.state.aiErrorMessages}
+                                                                />
+                                                            </div>
+                                                        )}
+
                                                     </div>
+
                                                     <div className={'profile__right'}>
                                                         <div className={'profile__right-wrap-full'}>
                                                             <div className={'profile__panel'}>
@@ -1272,7 +1278,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 <div className={'d-flex'}>
                                                                                     {this.companyProfile?.logo &&
                                                                                         (((this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo'] && !this.state.isAILoader)
-                                                                                        || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
+                                                                                            || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
                                                                                         && (
                                                                                             <div
                                                                                                 className={`ai-info-block input__wrap no-border mt-3 mb-2 flex-1`}>

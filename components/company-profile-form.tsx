@@ -168,6 +168,7 @@ interface CompanyProfileFormState extends IState {
     selectedSecFiles: File[] | null;
     isAILoader: boolean;
     agreement: Record<string, boolean>;
+    aiErrorMessages: Array<string> | null;
 }
 
 interface CompanyProfileFormProps extends ICallback {
@@ -425,6 +426,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             formInitialValues: initialValues as any,
             formAIInitialValues: {},
             loading: false,
+            aiErrorMessages: [],
             isApproving: null,
             isConfirmedApproving: false,
             isDeleting: false,
@@ -1020,6 +1022,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState((prevState: any) => ({
             isAILoader: true,
             errorMessages: null,
+            aiErrorMessages: null,
             formInitialValues: {
                 ...prevState.formInitialValues,
                 ['logo']: ''
@@ -1029,20 +1032,14 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             this.formRefCompanyProfile?.current?.setSubmitting(true);
         });
 
-        const {id} = this.props.symbolData!;
-        aiToolService.aiGenerateCompanyProfile(id ?? 0)
+        const {symbol} = this.props.data!;
+        aiToolService.aiGenerateCompanyProfile(Number(symbol) ?? 0)
             .then(((res: Array<ICompanyProfile>) => {
                 const aiCompanyProfile = res?.[0] || null;
                 this.initAIForm(aiCompanyProfile);
             }))
             .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages}, () => {
-                    const errorBlock = document.querySelector('.alert-block-error');
-                    if (errorBlock) {
-                        errorBlock.scrollIntoView({
-                            behavior: 'smooth',
-                        });
-                    }
+                this.setState({aiErrorMessages: errors.messages}, () => {
                 });
             })
             .finally(() => {
@@ -1359,8 +1356,15 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 </Button>
 
                                                             </div>
+
+                                                            {this.state.aiErrorMessages && (
+                                                                <AlertBlock type={"warning"}
+                                                                            messages={this.state.aiErrorMessages}/>
+                                                            )}
                                                         </div>
                                                     )}
+
+
 
                                                     <div className="input__title">Asset Type
                                                     </div>

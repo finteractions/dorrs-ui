@@ -4,6 +4,7 @@ import Image from 'next/image';
 interface AlertBlockProps {
     type: 'success' | 'error' | 'warning' | 'info';
     messages: Array<string>;
+    className?: string;
 }
 
 interface AlertBlockIcon {
@@ -20,10 +21,13 @@ class AlertBlock extends React.Component<AlertBlockProps> {
 
     icon: AlertBlockIcon;
 
+    className: string;
+
     constructor(props: AlertBlockProps) {
         super(props);
         this.type = this.props.type;
         this.messages = this.props.messages;
+        this.className = this.props.className || '';
 
         const icon = (type: string): AlertBlockIcon => {
             switch (type) {
@@ -46,7 +50,7 @@ class AlertBlock extends React.Component<AlertBlockProps> {
         return (
             <>
                 {this.messages.map((message, index) => (
-                    <div key={index} className={`alert-block alert-block-${this.type}`}>
+                    <div key={index} className={`alert-block alert-block-${this.type} ${this.className}`}>
                         {this.icon.logo !== '' && (
                             <div className="icon-block">
                                 <div className="icon">

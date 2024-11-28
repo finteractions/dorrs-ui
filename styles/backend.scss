@@ -5180,6 +5180,10 @@
     gap: 10px;
   }
 
+  .alert-block .message-block {
+    max-width: calc(100% - 55px);
+  }
+
 }
 
 
