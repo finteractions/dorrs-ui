@@ -184,8 +184,9 @@ const CompanyProfileNav = () => {
     useEffect(() => {
         if (context && context.getSharedData()) {
             const isLinkedSymbol = context.getSharedData().isLinkedSymbol;
-
-            if (!isLinkedSymbol) {
+            const isSymbolMenuExists = menus.some(menu => menu.to === "symbols");
+            console.log(isSymbolMenuExists)
+            if (isLinkedSymbol && !isSymbolMenuExists) {
                 const menuItems = menus;
 
                 menuItems.push({

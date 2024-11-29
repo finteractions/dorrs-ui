@@ -17,7 +17,7 @@ import {IDataContext} from "@/interfaces/i-data-context";
 import * as Yup from "yup";
 import {getLotSize} from "@/enums/lot-size";
 import dsinService from "@/services/dsin/dsin-service";
-import {FormStatus, getApprovedFormStatus, getBuildableFormStatuses} from "@/enums/form-status";
+import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
 import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import moment from 'moment';
 import 'moment-timezone';

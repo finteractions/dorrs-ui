@@ -1253,7 +1253,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                             </div>
 
-                                            {!this.symbol.symbol_id && (
+                                            {this.symbol.symbol_id && (
                                                 <div id={'symbols'} className={'panel'}>
                                                     <div className={'content__top'}>
                                                         <div className={'content__title'}>Symbols
