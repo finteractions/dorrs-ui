@@ -2504,7 +2504,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     <Field
                                                                         name={`company_officers_and_contacts.${index}`}
                                                                         type="text"
-                                                                        maxLength={50}
+                                                                        maxLength={255}
                                                                         className="input__text"
                                                                         placeholder="Type Company Officers & Contacts"
                                                                         disabled={isSubmitting || this.isShow()}
@@ -2556,7 +2556,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                     <Field
                                                                         name={`board_of_directors.${index}`}
                                                                         type="text"
-                                                                        maxLength={50}
+                                                                        maxLength={255}
                                                                         className="input__text"
                                                                         placeholder="Type Board of Directors"
                                                                         disabled={isSubmitting || this.isShow()}
@@ -2595,7 +2595,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             name="product_and_services"
                                                             id="product_and_services"
                                                             type="text"
-                                                            maxLength={50}
+                                                            maxLength={255}
                                                             className="input__text"
                                                             placeholder="Type Product & Services"
                                                             disabled={isSubmitting || this.isShow()}
