@@ -2395,7 +2395,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         <Field
                                                                                             name={`company_officers_and_contacts.${index}`}
                                                                                             type="text"
-                                                                                            maxLength={50}
+                                                                                            maxLength={255}
                                                                                             className="input__text"
                                                                                             placeholder="Type Company Officers & Contacts"
                                                                                             disabled={isSubmitting || this.isShow()}
@@ -2451,7 +2451,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         <Field
                                                                                             name={`board_of_directors.${index}`}
                                                                                             type="text"
-                                                                                            maxLength={50}
+                                                                                            maxLength={255}
                                                                                             className="input__text"
                                                                                             placeholder="Type Board of Directors"
                                                                                             disabled={isSubmitting || this.isShow()}
@@ -2492,7 +2492,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 name="product_and_services"
                                                                                 id="product_and_services"
                                                                                 type="text"
-                                                                                maxLength={50}
+                                                                                maxLength={255}
                                                                                 className="input__text"
                                                                                 placeholder="Type Product & Services"
                                                                                 disabled={isSubmitting || this.isShow()}
