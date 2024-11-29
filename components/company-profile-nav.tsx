@@ -185,7 +185,6 @@ const CompanyProfileNav = () => {
         if (context && context.getSharedData()) {
             const isLinkedSymbol = context.getSharedData().isLinkedSymbol;
             const isSymbolMenuExists = menus.some(menu => menu.to === "symbols");
-            console.log(isSymbolMenuExists)
             if (isLinkedSymbol && !isSymbolMenuExists) {
                 const menuItems = menus;
 

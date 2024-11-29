@@ -407,7 +407,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                 })
                 .finally(() => {
                     resolve(true);
-                    this.props.onCallback({logo: this.companyProfile?.logo, isLinkedSymbol: !!this.symbol?.symbol_id});
+                    this.props.onCallback({logo: this.companyProfile?.logo, isLinkedSymbol: this.symbol?.linked_symbol_count && this.symbol?.linked_symbol_count > 0});
                 });
         })
 
@@ -1253,7 +1253,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                             </div>
 
-                                            {this.symbol.symbol_id && (
+                                            {this.symbol.linked_symbol_count && this.symbol.linked_symbol_count > 0 && (
                                                 <div id={'symbols'} className={'panel'}>
                                                     <div className={'content__top'}>
                                                         <div className={'content__title'}>Symbols

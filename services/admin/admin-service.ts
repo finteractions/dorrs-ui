@@ -135,11 +135,15 @@ class AdminService extends BaseService {
         return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}fiat_change_status/`, data, {}, this.getAdminToken()));
     }
 
-    public async getAssets(symbol?: string | null): Promise<ISymbol[]> {
+    public async getAssets(symbol?: string | null, linked = false): Promise<ISymbol[]> {
         let queryString = "";
         if (symbol) {
             queryString += `&symbol=${symbol}`;
         }
+        if (linked) {
+            queryString += `&linked=true`;
+        }
+
         return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management/?limit=${this.queryLimit}${queryString}`, {}, this.getAdminToken())).results;
     }
 

@@ -674,7 +674,8 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                     </>
                                 </div>
 
-                                {!this.symbol?.symbol_id && (
+                                {this.symbol?.linked_symbol_count && this.symbol.linked_symbol_count > 0
+                                    && (
                                     <div className={'profile__right'}>
                                         <div className={'profile__right-wrap-full'}>
                                             <div className={'profile__panel'}>

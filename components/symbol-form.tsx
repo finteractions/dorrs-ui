@@ -2561,8 +2561,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         );
                                     }}
                                 </Formik>
-
-                                {!this.props.data?.symbol_id && this.props.action === 'view' && (
+                                {JSON.stringify(this.props.data?.symbol)}
+                                {this.props.data?.linked_symbol_count && this.props.data?.linked_symbol_count > 0 && this.props.action === 'view' && (
                                     <div className={'input'}>
                                         <h4 className="input__group__title">Symbols</h4>
                                         <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>

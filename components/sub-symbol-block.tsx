@@ -216,7 +216,7 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
     }
 
     getSymbols = () => {
-        symbolService.getSymbols(this.props.symbol)
+        symbolService.getSymbols(this.props.symbol, true)
             .then((res: Array<ISymbol>) => {
                 let data = res || [];
                 data = data.filter(s => s.symbol_id)

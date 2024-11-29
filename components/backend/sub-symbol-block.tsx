@@ -135,7 +135,7 @@ class SubSymbolBlock extends React.Component<SubSymbolBlockProps, SubSymbolBlock
 
 
     getAssets = () => {
-        adminService.getAssets(this.props.symbol)
+        adminService.getAssets(this.props.symbol, true)
             .then((res: ISymbol[]) => {
 
                 let data = res || [];
