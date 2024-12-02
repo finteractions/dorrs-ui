@@ -114,7 +114,7 @@ class CompanyProfileSliderBlock extends React.Component<CompanyProfileSliderProp
         return (
             <>
                 {this.state.isLoading ? (
-                    <LoaderBlock/>
+                    <LoaderBlock height={70}/>
                 ) : (
                     <>
                         {data.length > 0 && (
@@ -132,7 +132,7 @@ class CompanyProfileSliderBlock extends React.Component<CompanyProfileSliderProp
                                         return (
                                             <div
                                                 key={item.symbol}
-                                                className={`indicator__item-dashboard ${
+                                                className={`indicator__item-dashboard justify-content-between ${
                                                     isCurrent ? 'current' : ''
                                                 }`}
                                             >

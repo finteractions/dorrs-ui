@@ -156,6 +156,7 @@ interface CompanyProfilePageFormState extends IState {
     isAILoader: boolean;
     agreement: Record<string, boolean>;
     aiErrorMessages: Array<string> | null;
+    isAssetProfileLoader: boolean;
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
@@ -199,6 +200,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             selectedSecImages: [],
             isAILoader: false,
             agreement: {},
+            isAssetProfileLoader: true,
         }
 
         this.formRef = React.createRef();
@@ -650,13 +652,23 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
     componentDidUpdate(prevProps: CompanyProfilePageFormProps) {
         if (prevProps.symbol !== this.props.symbol) {
-            this.processAssetProfile();
+            this.setState(
+                {
+                    aiErrorMessages: null,
+                    errors: null,
+                    formInitialValues: {},
+                    formAIInitialValues: {},
+                    isAssetProfileLoader: true
+                }, () => {
+                    this.initAIForm()
+                    this.processAssetProfile();
+                })
         }
     }
 
     processAssetProfile = () => {
         this.getSymbols()
-            .finally(() => this.setState({isLoading: false}));
+            .finally(() => this.setState({isLoading: false, isAssetProfileLoader: false}));
     };
 
     getSymbols = () => {
@@ -1177,776 +1189,545 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                             )}
                         </div>
 
-                        <div className={'profile section'}>
-                            {this.symbol ? (
-                                <Formik<ICompanyProfile>
-                                    key={JSON.stringify(this.state.formInitialValues)}
-                                    initialValues={this.state.formInitialValues as ICompanyProfile}
-                                    validationSchema={formSchema}
-                                    onSubmit={this.handleSubmit}
-                                    innerRef={this.formRef}
-                                >
-                                    {({initialValues, isSubmitting, setFieldValue, isValid, dirty, values, errors}) => {
-                                        formValidator.requiredFields(formSchema, values, errors);
+                        {this.state.isAssetProfileLoader ? (
+                            <LoaderBlock/>
+                        ) : (
+                            <div className={'profile section'}>
+                                {this.symbol ? (
+                                    <Formik<ICompanyProfile>
+                                        key={JSON.stringify(this.state.formInitialValues)}
+                                        initialValues={this.state.formInitialValues as ICompanyProfile}
+                                        validationSchema={formSchema}
+                                        onSubmit={this.handleSubmit}
+                                        innerRef={this.formRef}
+                                    >
+                                        {({
+                                              initialValues,
+                                              isSubmitting,
+                                              setFieldValue,
+                                              isValid,
+                                              dirty,
+                                              values,
+                                              errors
+                                          }) => {
+                                            formValidator.requiredFields(formSchema, values, errors);
 
-                                        return (
-                                            <Form id="bank-form">
-                                                <div className="flex-panel-box">
-                                                    <div className={'panel'}>
-                                                        <div
-                                                            className={'content__bottom d-flex justify-content-between'}>
-                                                            <h2 className={'view_block_main_title my-0'}>
-                                                                {this.companyProfile?.company_name || this.symbol?.security_name} ({this.symbol?.symbol})
-                                                            </h2>
-
+                                            return (
+                                                <Form id="bank-form">
+                                                    <div className="flex-panel-box">
+                                                        <div className={'panel'}>
                                                             <div
-                                                                className={'justify-content-end d-flex align-items-center gap-10'}>
-                                                                {this.state.isAILoader && (
-                                                                    <LoaderBlock height={50}
-                                                                                 className={'p-0 m-0 d-flex-1 pre-loader-btn'}/>
-                                                                )}
-                                                                <button
-                                                                    type="button"
-                                                                    className={`d-none d-md-block b-btn ripple`}
-                                                                    disabled={this.state.isAILoader}
-                                                                    onClick={() => this.aiAssetProfileGenerate()}
-                                                                >AI Assistant <FontAwesomeIcon
-                                                                    icon={faMagicWandSparkles}/>
-                                                                </button>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="link"
-                                                                    className="d-md-none admin-table-btn ripple"
-                                                                    disabled={this.state.isAILoader}
-                                                                    onClick={() => this.aiAssetProfileGenerate()}
-                                                                >
-                                                                    <FontAwesomeIcon icon={faMagicWandSparkles}/>
-                                                                </Button>
+                                                                className={'content__bottom d-flex justify-content-between'}>
+                                                                <h2 className={'view_block_main_title my-0'}>
+                                                                    {this.companyProfile?.company_name || this.symbol?.security_name} ({this.symbol?.symbol})
+                                                                </h2>
+
+                                                                <div
+                                                                    className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                                    {this.state.isAILoader && (
+                                                                        <LoaderBlock height={50}
+                                                                                     className={'p-0 m-0 d-flex-1 pre-loader-btn'}/>
+                                                                    )}
+                                                                    <button
+                                                                        type="button"
+                                                                        className={`d-none d-md-block b-btn ripple`}
+                                                                        disabled={this.state.isAILoader}
+                                                                        onClick={() => this.aiAssetProfileGenerate()}
+                                                                    >AI Assistant <FontAwesomeIcon
+                                                                        icon={faMagicWandSparkles}/>
+                                                                    </button>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="link"
+                                                                        className="d-md-none admin-table-btn ripple"
+                                                                        disabled={this.state.isAILoader}
+                                                                        onClick={() => this.aiAssetProfileGenerate()}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faMagicWandSparkles}/>
+                                                                    </Button>
+
+                                                                </div>
 
                                                             </div>
+                                                            {this.state.aiErrorMessages && (
+                                                                <div className={'f-flex padding-10'}>
+                                                                    <AlertBlock type={"warning"}
+                                                                                className={'m-0'}
+                                                                                messages={this.state.aiErrorMessages}
+                                                                    />
+                                                                </div>
+                                                            )}
 
                                                         </div>
-                                                        {this.state.aiErrorMessages && (
-                                                            <div className={'f-flex padding-10'}>
-                                                                <AlertBlock type={"warning"}
-                                                                            className={'m-0'}
-                                                                            messages={this.state.aiErrorMessages}
-                                                                />
-                                                            </div>
-                                                        )}
 
-                                                    </div>
-
-                                                    <div className={'profile__right'}>
-                                                        <div className={'profile__right-wrap-full'}>
-                                                            <div className={'profile__panel'}>
-                                                                <div
-                                                                    className={'profile__info__panel view__input__box'}>
+                                                        <div className={'profile__right'}>
+                                                            <div className={'profile__right-wrap-full'}>
+                                                                <div className={'profile__panel'}>
+                                                                    <div
+                                                                        className={'profile__info__panel view__input__box'}>
 
 
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Asset Type
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="asset_type"
-                                                                                id="asset_type"
-                                                                                as="select"
-                                                                                className="b-select"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            >
-                                                                                <option value="">Select Asset Type
-                                                                                </option>
-                                                                                {Object.values(AssetType).map((type) => (
-                                                                                    <option key={type} value={type}>
-                                                                                        {type}
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Asset Type
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="asset_type"
+                                                                                    id="asset_type"
+                                                                                    as="select"
+                                                                                    className="b-select"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                >
+                                                                                    <option value="">Select Asset Type
                                                                                     </option>
-                                                                                ))}
-                                                                            </Field>
-                                                                            <ErrorMessage name="asset_type"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {(this.isShow() && initialValues?.logo) && (
-                                                                        <div
-                                                                            className={"input__box d-flex justify-content-center company-profile-logo"}>
-                                                                            <img src={initialValues?.logo}
-                                                                                 alt="Logo"/>
-                                                                        </div>
-                                                                    )}
-                                                                    {!this.isShow() && (
-                                                                        <div className="input__box">
-                                                                            <div className="input__title">Logo</div>
-                                                                            <div className="input__wrap no-border">
-                                                                                <input
-                                                                                    id="logo_tmp"
-                                                                                    name="logo_tmp"
-                                                                                    type="file"
-                                                                                    accept={'.' + allowedImageExt.join(',.')}
-                                                                                    className="input__file"
-                                                                                    disabled={isSubmitting}
-                                                                                    onChange={(event) => {
-                                                                                        setFieldValue('logo_tmp', event.target?.files?.[0] || '');
-                                                                                        this.handleFileChange(event);
-                                                                                    }}
-                                                                                />
-                                                                                {errors.logo_tmp && (
-                                                                                    <div
-                                                                                        className="error-message">{errors.logo_tmp.toString()}</div>
-                                                                                )}
-                                                                                <div className={'d-flex'}>
-                                                                                    {this.companyProfile?.logo &&
-                                                                                        (((this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo'] && !this.state.isAILoader)
-                                                                                            || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
-                                                                                        && (
-                                                                                            <div
-                                                                                                className={`ai-info-block input__wrap no-border mt-3 mb-2 flex-1`}>
-                                                                                                <div
-                                                                                                    className={'d-flex gap-10 align-items-center'}>
-                                                                                                    <div
-                                                                                                        className="my-2 d-flex">
-                                                                                                        <AssetImage
-                                                                                                            alt=''
-                                                                                                            src={this.getLogoURL(this.companyProfile?.logo)}
-                                                                                                            width={100}
-                                                                                                            height={100}/>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    {this.state.formAIInitialValues.logo && (
-                                                                                        <>
-                                                                                            {this.getRenderedAIField('logo')}
-                                                                                        </>
-                                                                                    )}
-                                                                                </div>
-
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Symbol</div>
-                                                                        <div className="input__wrap mt-2">
-                                                                            {this.symbol?.security_name} ({this.symbol?.symbol})
-                                                                            <Field
-                                                                                name="symbol"
-                                                                                id="symbol"
-                                                                                type="hidden"
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Total Equity
-                                                                            Funding Amount
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="total_shares_outstanding"
-                                                                                id="total_shares_outstanding"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Total Equity Funding Amount"
-                                                                                component={NumericInputField}
-                                                                                decimalScale={0}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                maxLength={50}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="total_shares_outstanding"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('total_shares_outstanding')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Last Market
-                                                                            Valuation of Company
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="last_market_valuation"
-                                                                                id="last_market_valuation"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Last Market Valuation of Company"
-                                                                                component={NumericInputField}
-                                                                                decimalScale={4}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                maxLength={50}
-                                                                            />
-                                                                            <ErrorMessage name="last_market_valuation"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('last_market_valuation')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Last Sale Price of
-                                                                            Company Stock
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="last_sale_price"
-                                                                                id="last_sale_price"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Last Sale Price of Company Stock "
-                                                                                component={NumericInputField}
-                                                                                decimalScale={4}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                maxLength={50}
-                                                                            />
-                                                                            <ErrorMessage name="last_sale_price"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('last_sale_price')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Founded Date
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <SingleDatePicker
-                                                                                numberOfMonths={1}
-                                                                                renderMonthElement={formatterService.renderMonthElement}
-                                                                                date={values.initial_offering_date ? moment(values.initial_offering_date) : null}
-                                                                                onDateChange={date => setFieldValue('initial_offering_date', date?.format('YYYY-MM-DD').toString())}
-                                                                                focused={this.state.focusedInitialOfferingDate}
-                                                                                onFocusChange={({focused}) => this.setState({focusedInitialOfferingDate: focused})}
-                                                                                id="initial_offering_date"
-                                                                                displayFormat="YYYY-MM-DD"
-                                                                                isOutsideRange={() => false}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                readOnly={true}
-                                                                                placeholder={'Select Founded Date'}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="initial_offering_date"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('initial_offering_date')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Company
-                                                                            Name <i>*</i></div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="company_name"
-                                                                                id="company_name"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Company Name"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="company_name"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('company_name')}
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <div className="input__title">Business
-                                                                            Description
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="business_description"
-                                                                                id="business_description"
-                                                                                as="textarea"
-                                                                                rows="3"
-                                                                                className="input__textarea no-bgarea"
-                                                                                placeholder="Type Business Description"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="business_description"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('business_description')}
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <div className={'input__btns'}>
-                                                                            <h4 className="input__group__title">Last
-                                                                                Funding Amount:</h4>
-                                                                            <button
-                                                                                type="button"
-                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onClick={() => {
-                                                                                    const updatedPricePerShareValues = [...values.price_per_share_value, ''];
-                                                                                    const updatedPricePerShareDates = [...values.price_per_share_date, ''];
-                                                                                    setFieldValue('price_per_share_value', updatedPricePerShareValues);
-                                                                                    setFieldValue('price_per_share_date', updatedPricePerShareDates);
-                                                                                }}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faPlus}/>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className={'input__box full'}>
-                                                                        <div className="input">
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <div className="officer-input">
-                                                                                    {values.price_per_share_value.map((description, index) => (
-                                                                                        <React.Fragment key={index}>
-                                                                                            <div
-                                                                                                className={'input__btns gap-20 align-items-start'}
-                                                                                                key={index}>
-
-                                                                                                <Field
-                                                                                                    name={`price_per_share_value.${index}`}
-                                                                                                    id={`price_per_share_value.${index}`}
-                                                                                                    type="text"
-                                                                                                    className="input__text"
-                                                                                                    placeholder="Type Last Funding Amount"
-                                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                                    component={NumericInputField}
-                                                                                                    decimalScale={decimalPlaces}
-                                                                                                />
-
-                                                                                                <SingleDatePicker
-                                                                                                    id={`price_per_share_date.${index}`}
-                                                                                                    numberOfMonths={1}
-                                                                                                    renderMonthElement={formatterService.renderMonthElement}
-                                                                                                    date={values.price_per_share_date[index] ? moment(values.price_per_share_date[index]) : null}
-                                                                                                    onDateChange={date => setFieldValue(`price_per_share_date.${index}`, date?.format('YYYY-MM-DD').toString())}
-                                                                                                    focused={this.state.focusedInitialPricePerShare[index] || false}
-                                                                                                    onFocusChange={({focused}) => {
-                                                                                                        this.setState((prevState: any) => ({
-                                                                                                            focusedInitialPricePerShare: {
-                                                                                                                ...prevState.focusedInitialPricePerShare,
-                                                                                                                [index]: focused
-                                                                                                            }
-                                                                                                        }));
-                                                                                                    }}
-                                                                                                    displayFormat="YYYY-MM-DD"
-                                                                                                    isOutsideRange={() => false}
-                                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                                    readOnly={true}
-                                                                                                    placeholder={'Select Date'}
-                                                                                                />
-
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    disabled={isSubmitting || this.isShow() || values.price_per_share_value.length < 2}
-                                                                                                    className={`border-grey-btn ripple ${values.price_per_share_value.length < 2 ? 'disable' : ''}`}
-                                                                                                    onClick={() => {
-                                                                                                        const updatedPricePerShareValues = [...values.price_per_share_value];
-                                                                                                        updatedPricePerShareValues.splice(index, 1)
-                                                                                                        const updatedPricePerShareDates = [...values.price_per_share_date];
-                                                                                                        updatedPricePerShareDates.splice(index, 1)
-                                                                                                        setFieldValue('price_per_share_value', updatedPricePerShareValues);
-                                                                                                        setFieldValue('price_per_share_date', updatedPricePerShareDates);
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <FontAwesomeIcon
-                                                                                                        className="nav-icon"
-                                                                                                        icon={faMinus}/>
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </React.Fragment>
+                                                                                    {Object.values(AssetType).map((type) => (
+                                                                                        <option key={type} value={type}>
+                                                                                            {type}
+                                                                                        </option>
                                                                                     ))}
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className={'d-flex flex-group'}>
-                                                                                {this.getRenderedAIField('price_per_share_value')}
-                                                                                {this.getRenderedAIField('price_per_share_date')}
+                                                                                </Field>
+                                                                                <ErrorMessage name="asset_type"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
 
-                                                                    {values.asset_type !== '' && (
-                                                                        <>
-                                                                            <div className="input__box full">
-                                                                                <div className={'input__btns'}>
-                                                                                    <h4 className="input__group__title">{values.asset_type} Additional
-                                                                                        Fields:</h4>
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                                        disabled={isSubmitting || this.isShow()}
-                                                                                        onClick={() => {
-                                                                                            const updatedDescriptions = [...values.asset_type_description, ''];
-                                                                                            const index = updatedDescriptions.length - 1 || 0
-                                                                                            setFieldValue('asset_type_description', updatedDescriptions);
-                                                                                            this.handleAssetTypeImageChange(null, index);
+                                                                        {(this.isShow() && initialValues?.logo) && (
+                                                                            <div
+                                                                                className={"input__box d-flex justify-content-center company-profile-logo"}>
+                                                                                <img src={initialValues?.logo}
+                                                                                     alt="Logo"/>
+                                                                            </div>
+                                                                        )}
+                                                                        {!this.isShow() && (
+                                                                            <div className="input__box">
+                                                                                <div className="input__title">Logo</div>
+                                                                                <div className="input__wrap no-border">
+                                                                                    <input
+                                                                                        id="logo_tmp"
+                                                                                        name="logo_tmp"
+                                                                                        type="file"
+                                                                                        accept={'.' + allowedImageExt.join(',.')}
+                                                                                        className="input__file"
+                                                                                        disabled={isSubmitting}
+                                                                                        onChange={(event) => {
+                                                                                            setFieldValue('logo_tmp', event.target?.files?.[0] || '');
+                                                                                            this.handleFileChange(event);
                                                                                         }}
-                                                                                    >
-                                                                                        <FontAwesomeIcon
-                                                                                            className="nav-icon"
-                                                                                            icon={faPlus}/>
-                                                                                    </button>
-                                                                                </div>
-
-                                                                            </div>
-                                                                            <div className={'input__box full'}>
-                                                                                <div className="input">
-                                                                                    <div
-                                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                        <div className="officer-input">
-                                                                                            {values.asset_type_description.map((description, index) => (
-                                                                                                <React.Fragment
-                                                                                                    key={index}>
-                                                                                                    <div
-                                                                                                        className={'input__btns gap-20'}>
-                                                                                                        <div
-                                                                                                            className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                            {!this.isShow() && values.asset_type_images[index] && (
-                                                                                                                <div
-                                                                                                                    key={index}
-                                                                                                                    className="mb-2 d-flex">
-                                                                                                                    <Link
-                                                                                                                        className={'link info-panel-title-link'}
-                                                                                                                        href={`${this.host}${values.asset_type_images[index]}`}
-                                                                                                                        target={'_blank'}>
-                                                                                                                        Image
-                                                                                                                        #{index + 1} {' '}
-                                                                                                                        <FontAwesomeIcon
-                                                                                                                            className="nav-icon"
-                                                                                                                            icon={faArrowUpRightFromSquare}/>
-                                                                                                                    </Link>
-                                                                                                                </div>
-                                                                                                            )}
-                                                                                                            <input
-                                                                                                                id={`asset_type_image_tmp.${index}`}
-                                                                                                                name={`asset_type_image_tmp.${index}`}
-                                                                                                                type="file"
-                                                                                                                accept={'.' + allowedImageExt.join(',.')}
-                                                                                                                className={`input__file`}
-                                                                                                                disabled={isSubmitting}
-                                                                                                                onChange={(event) => {
-                                                                                                                    setFieldValue(`asset_type_image_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                                    this.handleAssetTypeImageChange(event, index);
-                                                                                                                }}
-                                                                                                            />
-                                                                                                        </div>
-                                                                                                        <Field
-                                                                                                            name={`asset_type_description.${index}`}
-                                                                                                            as="textarea"
-                                                                                                            rows={4}
-                                                                                                            className="input__textarea"
-                                                                                                            placeholder={''}
-                                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                                        />
-
-                                                                                                        <button
-                                                                                                            type="button"
-                                                                                                            disabled={isSubmitting || this.isShow() || values.asset_type_description.length < 2}
-                                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.asset_type_description.length < 2 ? 'disable' : ''}`}
-                                                                                                            onClick={() => {
-                                                                                                                const updatedDescriptions = [...values.asset_type_description];
-                                                                                                                updatedDescriptions.splice(index, 1);
-                                                                                                                setFieldValue('asset_type_description', updatedDescriptions);
-
-                                                                                                                const updatedImages = [...values.asset_type_images];
-                                                                                                                updatedImages.splice(index, 1);
-                                                                                                                setFieldValue('asset_type_images', updatedImages);
-
-                                                                                                                this.handleAssetTypeImageRemove(index)
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            <FontAwesomeIcon
-                                                                                                                className="nav-icon"
-                                                                                                                icon={faMinus}/>
-                                                                                                        </button>
-                                                                                                    </div>
-                                                                                                    {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
-                                                                                                        <div
-                                                                                                            className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
-                                                                                                    )}
-                                                                                                </React.Fragment>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-
-
-                                                                            </div>
-                                                                        </>
-                                                                    )}
-
-                                                                    <div className="input__box full">
-                                                                        <div className={'input__btns'}>
-                                                                            <h4 className="input__group__title">Issuer
-                                                                                Profile Fields:</h4>
-                                                                            <button
-                                                                                type="button"
-                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onClick={() => {
-                                                                                    const updatedDescriptions = [...values.issuer_profile_description, ''];
-                                                                                    const index = updatedDescriptions.length - 1 || 0
-                                                                                    setFieldValue('issuer_profile_description', updatedDescriptions);
-                                                                                    this.handleIssuerProfileImageChange(null, index);
-                                                                                    this.handleIssuerProfileFileChange(null, index);
-                                                                                }}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faPlus}/>
-                                                                            </button>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div className={'input__box full'}>
-                                                                        <div className="input">
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <div className="officer-input">
-                                                                                    {values.issuer_profile_description.map((description, index) => (
-                                                                                        <React.Fragment key={index}>
-                                                                                            <div
-                                                                                                className={'input__btns gap-20'}
-                                                                                                key={index}>
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                    {!this.isShow() && values.issuer_profile_images[index] && (
-                                                                                                        <div key={index}
-                                                                                                             className="mb-2 d-flex">
-                                                                                                            <Link
-                                                                                                                className={'link info-panel-title-link'}
-                                                                                                                href={`${this.host}${values.asset_type_images[index]}`}
-                                                                                                                target={'_blank'}>
-                                                                                                                Image
-                                                                                                                #{index + 1} {' '}
-                                                                                                                <FontAwesomeIcon
-                                                                                                                    className="nav-icon"
-                                                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                                            </Link>
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                    <input
-                                                                                                        id={`issuer_profile_image_tmp.${index}`}
-                                                                                                        name={`issuer_profile_image_tmp.${index}`}
-                                                                                                        type="file"
-                                                                                                        accept={'.' + allowedImageExt.join(',.')}
-                                                                                                        className={`input__file`}
-                                                                                                        disabled={isSubmitting}
-                                                                                                        onChange={(event) => {
-                                                                                                            setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                            this.handleIssuerProfileImageChange(event, index);
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-
-                                                                                                <Field
-                                                                                                    name={`issuer_profile_description.${index}`}
-                                                                                                    as="textarea"
-                                                                                                    rows={4}
-                                                                                                    className="input__textarea"
-                                                                                                    placeholder={''}
-                                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                                />
-                                                                                                <div
-                                                                                                    className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                    {!this.isShow() && values.issuer_profile_files[index] && (
-                                                                                                        <div key={index}
-                                                                                                             className="mb-2 d-flex">
-                                                                                                            <Link
-                                                                                                                className={'link info-panel-title-link'}
-                                                                                                                href={`${this.host}${values.issuer_profile_files[index]}`}
-                                                                                                                target={'_blank'}>
-                                                                                                                File
-                                                                                                                {' '}
-                                                                                                                <FontAwesomeIcon
-                                                                                                                    className="nav-icon"
-                                                                                                                    icon={faArrowUpRightFromSquare}/>
-                                                                                                            </Link>
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                    <input
-                                                                                                        id={`issuer_profile_file_tmp.${index}`}
-                                                                                                        name={`issuer_profile_file_tmp.${index}`}
-                                                                                                        type="file"
-                                                                                                        accept={'.' + allowedFileExt.join(',.')}
-                                                                                                        className={`input__file`}
-                                                                                                        disabled={isSubmitting}
-                                                                                                        onChange={(event) => {
-                                                                                                            setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                            this.handleIssuerProfileFileChange(event, index);
-                                                                                                        }}
-                                                                                                    />
-                                                                                                </div>
-
-                                                                                                <button
-                                                                                                    type="button"
-                                                                                                    disabled={isSubmitting || this.isShow() || values.issuer_profile_description.length < 2}
-                                                                                                    className={`border-grey-btn ripple ${values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
-                                                                                                    onClick={() => {
-                                                                                                        const updatedDescriptions = [...values.issuer_profile_description];
-                                                                                                        updatedDescriptions.splice(index, 1);
-                                                                                                        setFieldValue('issuer_profile_description', updatedDescriptions);
-
-                                                                                                        const updatedImages = [...values.issuer_profile_images];
-                                                                                                        updatedImages.splice(index, 1);
-                                                                                                        setFieldValue('issuer_profile_images', updatedImages);
-
-                                                                                                        const updatedFiles = [...values.issuer_profile_files];
-                                                                                                        updatedFiles.splice(index, 1);
-                                                                                                        setFieldValue('issuer_profile_files', updatedFiles);
-
-                                                                                                        this.handleIssuerProfileImageRemove(index);
-                                                                                                        this.handleIssuerProfileFileRemove(index);
-                                                                                                    }}
-                                                                                                >
-                                                                                                    <FontAwesomeIcon
-                                                                                                        className="nav-icon"
-                                                                                                        icon={faMinus}/>
-                                                                                                </button>
-
-                                                                                            </div>
-                                                                                            {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
-                                                                                                <div
-                                                                                                    className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
-                                                                                            )}
-                                                                                        </React.Fragment>
-                                                                                    ))}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                    </div>
-
-                                                                    <div className={'d-none'}>
-                                                                        <div
-                                                                            className={'input__box full'}>
-                                                                            <h4 className={'input__group__title'}>Details:</h4>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">SPV
-                                                                                Name
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="spv_name"
-                                                                                    id="spv_name"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type SPV Name"
-                                                                                    maxLength={50}
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage
-                                                                                    name="spv_name"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Fund
-                                                                                Manager
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="fund_manager"
-                                                                                    id="fund_manager"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Fund Manager"
-                                                                                    maxLength={50}
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage
-                                                                                    name="fund_manager"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">Investment
-                                                                                Objective
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="investment_objective"
-                                                                                    id="investment_objective"
-                                                                                    type="text"
-                                                                                    className="input__text no-bg"
-                                                                                    placeholder="Type Investment Objective"
-                                                                                    maxLength={50}
-                                                                                    disabled={isSubmitting || this.isShow()}
-                                                                                />
-                                                                                <ErrorMessage
-                                                                                    name="investment_objective"
-                                                                                    component="div"
-                                                                                    className="error-message"/>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="input__box">
-                                                                            <div
-                                                                                className="input__title">SEC
-                                                                                Filing
-                                                                            </div>
-                                                                            <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                <Field
-                                                                                    name="sec_filing"
-                                                                                    id="sec_filing"
-                                                                                    render={({field}: FieldProps<any>) => (
-                                                                                        <InputMask
-                                                                                            {...field}
-                                                                                            mask="9999-9999-99"
-                                                                                            placeholder="Type SEC Filing"
-                                                                                            className="input__text"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                        />
+                                                                                    />
+                                                                                    {errors.logo_tmp && (
+                                                                                        <div
+                                                                                            className="error-message">{errors.logo_tmp.toString()}</div>
                                                                                     )}
+                                                                                    <div className={'d-flex'}>
+                                                                                        {this.companyProfile?.logo &&
+                                                                                            (((this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo'] && !this.state.isAILoader)
+                                                                                                || ((this.state.formInitialValues as any)['logo'] === (this.state.formAIInitialValues as any)['logo'] && this.state.isAILoader))
+                                                                                            && (
+                                                                                                <div
+                                                                                                    className={`ai-info-block input__wrap no-border mt-3 mb-2 flex-1`}>
+                                                                                                    <div
+                                                                                                        className={'d-flex gap-10 align-items-center'}>
+                                                                                                        <div
+                                                                                                            className="my-2 d-flex">
+                                                                                                            <AssetImage
+                                                                                                                alt=''
+                                                                                                                src={this.getLogoURL(this.companyProfile?.logo)}
+                                                                                                                width={100}
+                                                                                                                height={100}/>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        {this.state.formAIInitialValues.logo && (
+                                                                                            <>
+                                                                                                {this.getRenderedAIField('logo')}
+                                                                                            </>
+                                                                                        )}
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Symbol</div>
+                                                                            <div className="input__wrap mt-2">
+                                                                                {this.symbol?.security_name} ({this.symbol?.symbol})
+                                                                                <Field
+                                                                                    name="symbol"
+                                                                                    id="symbol"
+                                                                                    type="hidden"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Total Equity
+                                                                                Funding Amount
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="total_shares_outstanding"
+                                                                                    id="total_shares_outstanding"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Total Equity Funding Amount"
+                                                                                    component={NumericInputField}
+                                                                                    decimalScale={0}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    maxLength={50}
                                                                                 />
                                                                                 <ErrorMessage
-                                                                                    name="sec_filing"
+                                                                                    name="total_shares_outstanding"
                                                                                     component="div"
                                                                                     className="error-message"/>
                                                                             </div>
+                                                                            {this.getRenderedAIField('total_shares_outstanding')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Last Market
+                                                                                Valuation of Company
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="last_market_valuation"
+                                                                                    id="last_market_valuation"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Last Market Valuation of Company"
+                                                                                    component={NumericInputField}
+                                                                                    decimalScale={4}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    maxLength={50}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="last_market_valuation"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('last_market_valuation')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Last Sale
+                                                                                Price of
+                                                                                Company Stock
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="last_sale_price"
+                                                                                    id="last_sale_price"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Last Sale Price of Company Stock "
+                                                                                    component={NumericInputField}
+                                                                                    decimalScale={4}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    maxLength={50}
+                                                                                />
+                                                                                <ErrorMessage name="last_sale_price"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('last_sale_price')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Founded Date
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <SingleDatePicker
+                                                                                    numberOfMonths={1}
+                                                                                    renderMonthElement={formatterService.renderMonthElement}
+                                                                                    date={values.initial_offering_date ? moment(values.initial_offering_date) : null}
+                                                                                    onDateChange={date => setFieldValue('initial_offering_date', date?.format('YYYY-MM-DD').toString())}
+                                                                                    focused={this.state.focusedInitialOfferingDate}
+                                                                                    onFocusChange={({focused}) => this.setState({focusedInitialOfferingDate: focused})}
+                                                                                    id="initial_offering_date"
+                                                                                    displayFormat="YYYY-MM-DD"
+                                                                                    isOutsideRange={() => false}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    readOnly={true}
+                                                                                    placeholder={'Select Founded Date'}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="initial_offering_date"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('initial_offering_date')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Company
+                                                                                Name <i>*</i></div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="company_name"
+                                                                                    id="company_name"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Company Name"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="company_name"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('company_name')}
+                                                                        </div>
+
+                                                                        <div className="input__box full">
+                                                                            <div className="input__title">Business
+                                                                                Description
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="business_description"
+                                                                                    id="business_description"
+                                                                                    as="textarea"
+                                                                                    rows="3"
+                                                                                    className="input__textarea no-bgarea"
+                                                                                    placeholder="Type Business Description"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="business_description"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('business_description')}
                                                                         </div>
 
                                                                         <div className="input__box full">
                                                                             <div className={'input__btns'}>
-                                                                                <h4 className="input__group__title">SEC
-                                                                                    Documents:</h4>
+                                                                                <h4 className="input__group__title">Last
+                                                                                    Funding Amount:</h4>
                                                                                 <button
                                                                                     type="button"
                                                                                     className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                     onClick={() => {
-                                                                                        const updatedDescriptions = [...values.sec_description, ''];
+                                                                                        const updatedPricePerShareValues = [...values.price_per_share_value, ''];
+                                                                                        const updatedPricePerShareDates = [...values.price_per_share_date, ''];
+                                                                                        setFieldValue('price_per_share_value', updatedPricePerShareValues);
+                                                                                        setFieldValue('price_per_share_date', updatedPricePerShareDates);
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faPlus}/>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className={'input__box full'}>
+                                                                            <div className="input">
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <div className="officer-input">
+                                                                                        {values.price_per_share_value.map((description, index) => (
+                                                                                            <React.Fragment key={index}>
+                                                                                                <div
+                                                                                                    className={'input__btns gap-20 align-items-start'}
+                                                                                                    key={index}>
+
+                                                                                                    <Field
+                                                                                                        name={`price_per_share_value.${index}`}
+                                                                                                        id={`price_per_share_value.${index}`}
+                                                                                                        type="text"
+                                                                                                        className="input__text"
+                                                                                                        placeholder="Type Last Funding Amount"
+                                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                                        component={NumericInputField}
+                                                                                                        decimalScale={decimalPlaces}
+                                                                                                    />
+
+                                                                                                    <SingleDatePicker
+                                                                                                        id={`price_per_share_date.${index}`}
+                                                                                                        numberOfMonths={1}
+                                                                                                        renderMonthElement={formatterService.renderMonthElement}
+                                                                                                        date={values.price_per_share_date[index] ? moment(values.price_per_share_date[index]) : null}
+                                                                                                        onDateChange={date => setFieldValue(`price_per_share_date.${index}`, date?.format('YYYY-MM-DD').toString())}
+                                                                                                        focused={this.state.focusedInitialPricePerShare[index] || false}
+                                                                                                        onFocusChange={({focused}) => {
+                                                                                                            this.setState((prevState: any) => ({
+                                                                                                                focusedInitialPricePerShare: {
+                                                                                                                    ...prevState.focusedInitialPricePerShare,
+                                                                                                                    [index]: focused
+                                                                                                                }
+                                                                                                            }));
+                                                                                                        }}
+                                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                                        isOutsideRange={() => false}
+                                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                                        readOnly={true}
+                                                                                                        placeholder={'Select Date'}
+                                                                                                    />
+
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        disabled={isSubmitting || this.isShow() || values.price_per_share_value.length < 2}
+                                                                                                        className={`border-grey-btn ripple ${values.price_per_share_value.length < 2 ? 'disable' : ''}`}
+                                                                                                        onClick={() => {
+                                                                                                            const updatedPricePerShareValues = [...values.price_per_share_value];
+                                                                                                            updatedPricePerShareValues.splice(index, 1)
+                                                                                                            const updatedPricePerShareDates = [...values.price_per_share_date];
+                                                                                                            updatedPricePerShareDates.splice(index, 1)
+                                                                                                            setFieldValue('price_per_share_value', updatedPricePerShareValues);
+                                                                                                            setFieldValue('price_per_share_date', updatedPricePerShareDates);
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <FontAwesomeIcon
+                                                                                                            className="nav-icon"
+                                                                                                            icon={faMinus}/>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </React.Fragment>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className={'d-flex flex-group'}>
+                                                                                    {this.getRenderedAIField('price_per_share_value')}
+                                                                                    {this.getRenderedAIField('price_per_share_date')}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {values.asset_type !== '' && (
+                                                                            <>
+                                                                                <div className="input__box full">
+                                                                                    <div className={'input__btns'}>
+                                                                                        <h4 className="input__group__title">{values.asset_type} Additional
+                                                                                            Fields:</h4>
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                            onClick={() => {
+                                                                                                const updatedDescriptions = [...values.asset_type_description, ''];
+                                                                                                const index = updatedDescriptions.length - 1 || 0
+                                                                                                setFieldValue('asset_type_description', updatedDescriptions);
+                                                                                                this.handleAssetTypeImageChange(null, index);
+                                                                                            }}
+                                                                                        >
+                                                                                            <FontAwesomeIcon
+                                                                                                className="nav-icon"
+                                                                                                icon={faPlus}/>
+                                                                                        </button>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className={'input__box full'}>
+                                                                                    <div className="input">
+                                                                                        <div
+                                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                            <div
+                                                                                                className="officer-input">
+                                                                                                {values.asset_type_description.map((description, index) => (
+                                                                                                    <React.Fragment
+                                                                                                        key={index}>
+                                                                                                        <div
+                                                                                                            className={'input__btns gap-20'}>
+                                                                                                            <div
+                                                                                                                className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                                {!this.isShow() && values.asset_type_images[index] && (
+                                                                                                                    <div
+                                                                                                                        key={index}
+                                                                                                                        className="mb-2 d-flex">
+                                                                                                                        <Link
+                                                                                                                            className={'link info-panel-title-link'}
+                                                                                                                            href={`${this.host}${values.asset_type_images[index]}`}
+                                                                                                                            target={'_blank'}>
+                                                                                                                            Image
+                                                                                                                            #{index + 1} {' '}
+                                                                                                                            <FontAwesomeIcon
+                                                                                                                                className="nav-icon"
+                                                                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                                                                        </Link>
+                                                                                                                    </div>
+                                                                                                                )}
+                                                                                                                <input
+                                                                                                                    id={`asset_type_image_tmp.${index}`}
+                                                                                                                    name={`asset_type_image_tmp.${index}`}
+                                                                                                                    type="file"
+                                                                                                                    accept={'.' + allowedImageExt.join(',.')}
+                                                                                                                    className={`input__file`}
+                                                                                                                    disabled={isSubmitting}
+                                                                                                                    onChange={(event) => {
+                                                                                                                        setFieldValue(`asset_type_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                        this.handleAssetTypeImageChange(event, index);
+                                                                                                                    }}
+                                                                                                                />
+                                                                                                            </div>
+                                                                                                            <Field
+                                                                                                                name={`asset_type_description.${index}`}
+                                                                                                                as="textarea"
+                                                                                                                rows={4}
+                                                                                                                className="input__textarea"
+                                                                                                                placeholder={''}
+                                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                                            />
+
+                                                                                                            <button
+                                                                                                                type="button"
+                                                                                                                disabled={isSubmitting || this.isShow() || values.asset_type_description.length < 2}
+                                                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.asset_type_description.length < 2 ? 'disable' : ''}`}
+                                                                                                                onClick={() => {
+                                                                                                                    const updatedDescriptions = [...values.asset_type_description];
+                                                                                                                    updatedDescriptions.splice(index, 1);
+                                                                                                                    setFieldValue('asset_type_description', updatedDescriptions);
+
+                                                                                                                    const updatedImages = [...values.asset_type_images];
+                                                                                                                    updatedImages.splice(index, 1);
+                                                                                                                    setFieldValue('asset_type_images', updatedImages);
+
+                                                                                                                    this.handleAssetTypeImageRemove(index)
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <FontAwesomeIcon
+                                                                                                                    className="nav-icon"
+                                                                                                                    icon={faMinus}/>
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                        {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
+                                                                                                            <div
+                                                                                                                className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
+                                                                                                        )}
+                                                                                                    </React.Fragment>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+
+                                                                        <div className="input__box full">
+                                                                            <div className={'input__btns'}>
+                                                                                <h4 className="input__group__title">Issuer
+                                                                                    Profile Fields:</h4>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    onClick={() => {
+                                                                                        const updatedDescriptions = [...values.issuer_profile_description, ''];
                                                                                         const index = updatedDescriptions.length - 1 || 0
-                                                                                        setFieldValue('sec_description', updatedDescriptions);
-                                                                                        this.handleSecImageChange(null, index);
-                                                                                        this.handleSecFileChange(null, index);
+                                                                                        setFieldValue('issuer_profile_description', updatedDescriptions);
+                                                                                        this.handleIssuerProfileImageChange(null, index);
+                                                                                        this.handleIssuerProfileFileChange(null, index);
                                                                                     }}
                                                                                 >
                                                                                     <FontAwesomeIcon
@@ -1956,26 +1737,25 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             </div>
 
                                                                         </div>
-
                                                                         <div className={'input__box full'}>
                                                                             <div className="input">
                                                                                 <div
                                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                                    <div
-                                                                                        className="officer-input">
-                                                                                        {values.sec_description.map((description, index) => (
+                                                                                    <div className="officer-input">
+                                                                                        {values.issuer_profile_description.map((description, index) => (
                                                                                             <React.Fragment key={index}>
                                                                                                 <div
-                                                                                                    className={'input__btns gap-20'}>
+                                                                                                    className={'input__btns gap-20'}
+                                                                                                    key={index}>
                                                                                                     <div
                                                                                                         className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                        {!this.isShow() && values.sec_images[index] && (
+                                                                                                        {!this.isShow() && values.issuer_profile_images[index] && (
                                                                                                             <div
                                                                                                                 key={index}
                                                                                                                 className="mb-2 d-flex">
                                                                                                                 <Link
                                                                                                                     className={'link info-panel-title-link'}
-                                                                                                                    href={`${this.host}${values.sec_images[index]}`}
+                                                                                                                    href={`${this.host}${values.asset_type_images[index]}`}
                                                                                                                     target={'_blank'}>
                                                                                                                     Image
                                                                                                                     #{index + 1} {' '}
@@ -1986,21 +1766,21 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                             </div>
                                                                                                         )}
                                                                                                         <input
-                                                                                                            id={`sec_image_tmp.${index}`}
-                                                                                                            name={`sec_image_tmp.${index}`}
+                                                                                                            id={`issuer_profile_image_tmp.${index}`}
+                                                                                                            name={`issuer_profile_image_tmp.${index}`}
                                                                                                             type="file"
                                                                                                             accept={'.' + allowedImageExt.join(',.')}
                                                                                                             className={`input__file`}
-                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                            disabled={isSubmitting}
                                                                                                             onChange={(event) => {
-                                                                                                                setFieldValue(`sec_image_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                                this.handleSecImageChange(event, index);
+                                                                                                                setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                this.handleIssuerProfileImageChange(event, index);
                                                                                                             }}
                                                                                                         />
                                                                                                     </div>
 
                                                                                                     <Field
-                                                                                                        name={`sec_description.${index}`}
+                                                                                                        name={`issuer_profile_description.${index}`}
                                                                                                         as="textarea"
                                                                                                         rows={4}
                                                                                                         className="input__textarea"
@@ -2009,13 +1789,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                     />
                                                                                                     <div
                                                                                                         className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
-                                                                                                        {!this.isShow() && values.sec_files[index] && (
+                                                                                                        {!this.isShow() && values.issuer_profile_files[index] && (
                                                                                                             <div
                                                                                                                 key={index}
                                                                                                                 className="mb-2 d-flex">
                                                                                                                 <Link
                                                                                                                     className={'link info-panel-title-link'}
-                                                                                                                    href={`${this.host}${values.sec_files[index]}`}
+                                                                                                                    href={`${this.host}${values.issuer_profile_files[index]}`}
                                                                                                                     target={'_blank'}>
                                                                                                                     File
                                                                                                                     {' '}
@@ -2026,39 +1806,49 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                             </div>
                                                                                                         )}
                                                                                                         <input
-                                                                                                            id={`sec_file_tmp.${index}`}
-                                                                                                            name={`sec_file_tmp.${index}`}
+                                                                                                            id={`issuer_profile_file_tmp.${index}`}
+                                                                                                            name={`issuer_profile_file_tmp.${index}`}
                                                                                                             type="file"
                                                                                                             accept={'.' + allowedFileExt.join(',.')}
                                                                                                             className={`input__file`}
-                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                            disabled={isSubmitting}
                                                                                                             onChange={(event) => {
-                                                                                                                setFieldValue(`sec_file_tmp.${index}`, event.target?.files?.[0] || '');
-                                                                                                                this.handleSecFileChange(event, index);
+                                                                                                                setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                this.handleIssuerProfileFileChange(event, index);
                                                                                                             }}
                                                                                                         />
                                                                                                     </div>
 
                                                                                                     <button
                                                                                                         type="button"
-                                                                                                        disabled={isSubmitting || this.isShow() || values.sec_description.length < 2}
-                                                                                                        className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
+                                                                                                        disabled={isSubmitting || this.isShow() || values.issuer_profile_description.length < 2}
+                                                                                                        className={`border-grey-btn ripple ${values.issuer_profile_description.length < 2 ? 'disable' : ''}`}
                                                                                                         onClick={() => {
-                                                                                                            const updatedDescriptions = [...values.sec_description];
+                                                                                                            const updatedDescriptions = [...values.issuer_profile_description];
                                                                                                             updatedDescriptions.splice(index, 1);
-                                                                                                            setFieldValue('sec_description', updatedDescriptions);
-                                                                                                            this.handleSecImageRemove(index)
-                                                                                                            this.handleSecFileRemove(index)
+                                                                                                            setFieldValue('issuer_profile_description', updatedDescriptions);
+
+                                                                                                            const updatedImages = [...values.issuer_profile_images];
+                                                                                                            updatedImages.splice(index, 1);
+                                                                                                            setFieldValue('issuer_profile_images', updatedImages);
+
+                                                                                                            const updatedFiles = [...values.issuer_profile_files];
+                                                                                                            updatedFiles.splice(index, 1);
+                                                                                                            setFieldValue('issuer_profile_files', updatedFiles);
+
+                                                                                                            this.handleIssuerProfileImageRemove(index);
+                                                                                                            this.handleIssuerProfileFileRemove(index);
                                                                                                         }}
                                                                                                     >
                                                                                                         <FontAwesomeIcon
                                                                                                             className="nav-icon"
                                                                                                             icon={faMinus}/>
                                                                                                     </button>
+
                                                                                                 </div>
-                                                                                                {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
+                                                                                                {errors.asset_type_image_tmp && errors.asset_type_image_tmp[index] && (
                                                                                                     <div
-                                                                                                        className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
+                                                                                                        className="error-message input__btns">{errors.asset_type_image_tmp[index].toString()}</div>
                                                                                                 )}
                                                                                             </React.Fragment>
                                                                                         ))}
@@ -2068,97 +1858,524 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
 
                                                                         </div>
-                                                                    </div>
 
-                                                                    <div className="input__box full">
-                                                                        <h4 className="input__group__title">Company
-                                                                            Address:</h4>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Street
-                                                                            Address 1
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="street_address_1"
-                                                                                id="street_address_1"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Street Address 1"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="street_address_1"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('street_address_1')}
-
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Street
-                                                                            Address 2
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="street_address_2"
-                                                                                id="street_address_2"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Street Address 2"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="street_address_2"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('street_address_2')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">City
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="city"
-                                                                                id="city"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type City"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="city"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('city')}
-                                                                    </div>
-
-                                                                    {this.state.selectedCountry === selectedCountry && (
-                                                                        <div className="input__box">
+                                                                        <div className={'d-none'}>
                                                                             <div
-                                                                                className="input__title">State
+                                                                                className={'input__box full'}>
+                                                                                <h4 className={'input__group__title'}>Details:</h4>
+                                                                            </div>
+
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">SPV
+                                                                                    Name
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="spv_name"
+                                                                                        id="spv_name"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type SPV Name"
+                                                                                        maxLength={50}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="spv_name"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Fund
+                                                                                    Manager
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="fund_manager"
+                                                                                        id="fund_manager"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Fund Manager"
+                                                                                        maxLength={50}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="fund_manager"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Investment
+                                                                                    Objective
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="investment_objective"
+                                                                                        id="investment_objective"
+                                                                                        type="text"
+                                                                                        className="input__text no-bg"
+                                                                                        placeholder="Type Investment Objective"
+                                                                                        maxLength={50}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="investment_objective"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">SEC
+                                                                                    Filing
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="sec_filing"
+                                                                                        id="sec_filing"
+                                                                                        render={({field}: FieldProps<any>) => (
+                                                                                            <InputMask
+                                                                                                {...field}
+                                                                                                mask="9999-9999-99"
+                                                                                                placeholder="Type SEC Filing"
+                                                                                                className="input__text"
+                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                            />
+                                                                                        )}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="sec_filing"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="input__box full">
+                                                                                <div className={'input__btns'}>
+                                                                                    <h4 className="input__group__title">SEC
+                                                                                        Documents:</h4>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        onClick={() => {
+                                                                                            const updatedDescriptions = [...values.sec_description, ''];
+                                                                                            const index = updatedDescriptions.length - 1 || 0
+                                                                                            setFieldValue('sec_description', updatedDescriptions);
+                                                                                            this.handleSecImageChange(null, index);
+                                                                                            this.handleSecFileChange(null, index);
+                                                                                        }}
+                                                                                    >
+                                                                                        <FontAwesomeIcon
+                                                                                            className="nav-icon"
+                                                                                            icon={faPlus}/>
+                                                                                    </button>
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <div className={'input__box full'}>
+                                                                                <div className="input">
+                                                                                    <div
+                                                                                        className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                        <div
+                                                                                            className="officer-input">
+                                                                                            {values.sec_description.map((description, index) => (
+                                                                                                <React.Fragment
+                                                                                                    key={index}>
+                                                                                                    <div
+                                                                                                        className={'input__btns gap-20'}>
+                                                                                                        <div
+                                                                                                            className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                            {!this.isShow() && values.sec_images[index] && (
+                                                                                                                <div
+                                                                                                                    key={index}
+                                                                                                                    className="mb-2 d-flex">
+                                                                                                                    <Link
+                                                                                                                        className={'link info-panel-title-link'}
+                                                                                                                        href={`${this.host}${values.sec_images[index]}`}
+                                                                                                                        target={'_blank'}>
+                                                                                                                        Image
+                                                                                                                        #{index + 1} {' '}
+                                                                                                                        <FontAwesomeIcon
+                                                                                                                            className="nav-icon"
+                                                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                                                    </Link>
+                                                                                                                </div>
+                                                                                                            )}
+                                                                                                            <input
+                                                                                                                id={`sec_image_tmp.${index}`}
+                                                                                                                name={`sec_image_tmp.${index}`}
+                                                                                                                type="file"
+                                                                                                                accept={'.' + allowedImageExt.join(',.')}
+                                                                                                                className={`input__file`}
+                                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                                                onChange={(event) => {
+                                                                                                                    setFieldValue(`sec_image_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                    this.handleSecImageChange(event, index);
+                                                                                                                }}
+                                                                                                            />
+                                                                                                        </div>
+
+                                                                                                        <Field
+                                                                                                            name={`sec_description.${index}`}
+                                                                                                            as="textarea"
+                                                                                                            rows={4}
+                                                                                                            className="input__textarea"
+                                                                                                            placeholder={''}
+                                                                                                            disabled={isSubmitting || this.isShow()}
+                                                                                                        />
+                                                                                                        <div
+                                                                                                            className={`input__wrap no-border margin-top-unset ${(isSubmitting || this.isShow()) ? 'disable' : ''} pb-0`}>
+                                                                                                            {!this.isShow() && values.sec_files[index] && (
+                                                                                                                <div
+                                                                                                                    key={index}
+                                                                                                                    className="mb-2 d-flex">
+                                                                                                                    <Link
+                                                                                                                        className={'link info-panel-title-link'}
+                                                                                                                        href={`${this.host}${values.sec_files[index]}`}
+                                                                                                                        target={'_blank'}>
+                                                                                                                        File
+                                                                                                                        {' '}
+                                                                                                                        <FontAwesomeIcon
+                                                                                                                            className="nav-icon"
+                                                                                                                            icon={faArrowUpRightFromSquare}/>
+                                                                                                                    </Link>
+                                                                                                                </div>
+                                                                                                            )}
+                                                                                                            <input
+                                                                                                                id={`sec_file_tmp.${index}`}
+                                                                                                                name={`sec_file_tmp.${index}`}
+                                                                                                                type="file"
+                                                                                                                accept={'.' + allowedFileExt.join(',.')}
+                                                                                                                className={`input__file`}
+                                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                                                onChange={(event) => {
+                                                                                                                    setFieldValue(`sec_file_tmp.${index}`, event.target?.files?.[0] || '');
+                                                                                                                    this.handleSecFileChange(event, index);
+                                                                                                                }}
+                                                                                                            />
+                                                                                                        </div>
+
+                                                                                                        <button
+                                                                                                            type="button"
+                                                                                                            disabled={isSubmitting || this.isShow() || values.sec_description.length < 2}
+                                                                                                            className={`border-grey-btn ripple ${values.sec_description.length < 2 ? 'disable' : ''}`}
+                                                                                                            onClick={() => {
+                                                                                                                const updatedDescriptions = [...values.sec_description];
+                                                                                                                updatedDescriptions.splice(index, 1);
+                                                                                                                setFieldValue('sec_description', updatedDescriptions);
+                                                                                                                this.handleSecImageRemove(index)
+                                                                                                                this.handleSecFileRemove(index)
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <FontAwesomeIcon
+                                                                                                                className="nav-icon"
+                                                                                                                icon={faMinus}/>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    {errors.sec_image_tmp && errors.sec_image_tmp[index] && (
+                                                                                                        <div
+                                                                                                            className="error-message input__btns">{errors.sec_image_tmp[index].toString()}</div>
+                                                                                                    )}
+                                                                                                </React.Fragment>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="input__box full">
+                                                                            <h4 className="input__group__title">Company
+                                                                                Address:</h4>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Street
+                                                                                Address 1
                                                                             </div>
                                                                             <div
                                                                                 className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
-                                                                                    name="state"
-                                                                                    id="state"
+                                                                                    name="street_address_1"
+                                                                                    id="street_address_1"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Street Address 1"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="street_address_1"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('street_address_1')}
+
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Street
+                                                                                Address 2
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="street_address_2"
+                                                                                    id="street_address_2"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Street Address 2"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="street_address_2"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('street_address_2')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">City
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="city"
+                                                                                    id="city"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type City"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="city"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('city')}
+                                                                        </div>
+
+                                                                        {this.state.selectedCountry === selectedCountry && (
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">State
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                    <Field
+                                                                                        name="state"
+                                                                                        id="state"
+                                                                                        as="select"
+                                                                                        className="b-select"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    >
+                                                                                        <option value="">Select a
+                                                                                            State
+                                                                                        </option>
+                                                                                        {this.state.usaStates.map((state) => (
+                                                                                            <option
+                                                                                                key={state.abbreviation}
+                                                                                                value={state.abbreviation}>
+                                                                                                {state.name} ({state.abbreviation})
+                                                                                            </option>
+                                                                                        ))}
+                                                                                    </Field>
+                                                                                    <ErrorMessage name="state"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+                                                                                {this.getRenderedAIField('state')}
+                                                                            </div>
+                                                                        )}
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Zip Code
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="zip_code"
+                                                                                    id="zip_code"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Zip Code"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="zip_code"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('zip_code')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Country
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="country"
+                                                                                    id="country"
+                                                                                    as="select"
+                                                                                    className="b-select"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
+                                                                                >
+                                                                                    <option value="">Select a
+                                                                                        Country
+                                                                                    </option>
+                                                                                    {Object.keys(countries)
+                                                                                        .sort((a, b) => countries[a as keyof typeof countries]?.name.localeCompare(countries[b as keyof typeof countries]?.name))
+                                                                                        .map((countryCode: string) => (
+                                                                                            <option
+                                                                                                key={countryCode}
+                                                                                                value={countryCode}>
+                                                                                                {countries[countryCode as keyof typeof countries]?.name}
+                                                                                            </option>
+                                                                                        ))}
+                                                                                </Field>
+                                                                                <ErrorMessage name="country"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('country')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Email
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="email"
+                                                                                    id="email"
+                                                                                    type="email"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type an Email Address"
+                                                                                    autoComplete="username"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="email"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('email')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Phone
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="phone"
+                                                                                    id="phone"
+                                                                                    component={PhoneInputField}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    country="us"
+                                                                                />
+                                                                            </div>
+                                                                            {this.getRenderedAIField('phone')}
+                                                                        </div>
+
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Web Address
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="web_address"
+                                                                                    id="web_address"
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Web Address"
+                                                                                    maxLength={50}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="web_address"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('web_address')}
+                                                                        </div>
+
+                                                                        <div className="input__box full">
+                                                                            <h4 className="input__group__title">Asset
+                                                                                Profile Data</h4>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">SIC
+                                                                                Industry Classification
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="sic_industry_classification"
+                                                                                    id="sic_industry_classification"
+                                                                                    as={Select}
+                                                                                    className="b-select-search"
+                                                                                    placeholder="Select SIC Industry Classification"
+                                                                                    classNamePrefix="select__react"
+                                                                                    isDisabled={isSubmitting || this.isShow()}
+                                                                                    options={Object.values(SicIndustryClassification).map((item) => ({
+                                                                                        value: item,
+                                                                                        label: item,
+                                                                                    }))}
+                                                                                    onChange={(selectedOption: any) => {
+                                                                                        setFieldValue('sic_industry_classification', selectedOption.value);
+                                                                                    }}
+                                                                                    value={
+                                                                                        Object.values(SicIndustryClassification).filter(i => i === values.sic_industry_classification).map((item) => ({
+                                                                                            value: item,
+                                                                                            label: item,
+                                                                                        }))?.[0] || null
+                                                                                    }
+                                                                                />
+
+                                                                                <ErrorMessage
+                                                                                    name="sic_industry_classification"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('sic_industry_classification')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Incorporation
+                                                                                Information
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="incorporation_information"
+                                                                                    id="incorporation_information"
                                                                                     as="select"
                                                                                     className="b-select"
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                 >
-                                                                                    <option value="">Select a
-                                                                                        State
+                                                                                    <option value="">Select
+                                                                                        Incorporation Information
                                                                                     </option>
                                                                                     {this.state.usaStates.map((state) => (
                                                                                         <option
@@ -2168,579 +2385,393 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                         </option>
                                                                                     ))}
                                                                                 </Field>
-                                                                                <ErrorMessage name="state"
+                                                                                <ErrorMessage
+                                                                                    name="incorporation_information"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('incorporation_information')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Number of
+                                                                                Employees
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="number_of_employees"
+                                                                                    id="number_of_employees"
+                                                                                    component={NumericInputField}
+                                                                                    decimalScale={0}
+                                                                                    type="text"
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Number of Employees"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="number_of_employees"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('number_of_employees')}
+                                                                        </div>
+
+
+                                                                        <div className="input__box full">
+                                                                            <div
+                                                                                className="input__title input__btns">Company
+                                                                                Officers &
+                                                                                Contacts
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    onClick={() => {
+                                                                                        const updatedOfficers = [...values.company_officers_and_contacts, ''];
+                                                                                        setFieldValue('company_officers_and_contacts', updatedOfficers);
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faPlus}/>
+                                                                                </button></div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <div className="officer-input">
+                                                                                    {values.company_officers_and_contacts.map((officer, index) => (
+                                                                                        <div className={'input__btns'}
+                                                                                             key={index}>
+                                                                                            <Field
+                                                                                                name={`company_officers_and_contacts.${index}`}
+                                                                                                type="text"
+                                                                                                maxLength={255}
+                                                                                                className="input__text"
+                                                                                                placeholder="Type Company Officers & Contacts"
+                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                            />
+                                                                                            <button
+                                                                                                type="button"
+                                                                                                disabled={isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2}
+                                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2 ? 'disable' : ''}`}
+                                                                                                onClick={() => {
+                                                                                                    const updatedOfficers = [...values.company_officers_and_contacts];
+                                                                                                    updatedOfficers.splice(index, 1);
+                                                                                                    setFieldValue('company_officers_and_contacts', updatedOfficers);
+                                                                                                }}
+                                                                                            >
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faMinus}/>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                {errors.company_officers_and_contacts && (
+                                                                                    <div
+                                                                                        className="error-message">{errors.company_officers_and_contacts.toString()}</div>
+                                                                                )}
+                                                                            </div>
+                                                                            {this.getRenderedAIField('company_officers_and_contacts')}
+                                                                        </div>
+
+                                                                        <div className="input__box full">
+                                                                            <div
+                                                                                className="input__title input__btns">Board
+                                                                                of Directors
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                    onClick={() => {
+                                                                                        const updatedBoardOfDirectors = [...values.board_of_directors, ''];
+                                                                                        setFieldValue('board_of_directors', updatedBoardOfDirectors);
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon
+                                                                                        className="nav-icon"
+                                                                                        icon={faPlus}/>
+                                                                                </button></div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <div className="officer-input">
+                                                                                    {values.board_of_directors.map((director, index) => (
+                                                                                        <div className={'input__btns'}
+                                                                                             key={index}>
+                                                                                            <Field
+                                                                                                name={`board_of_directors.${index}`}
+                                                                                                type="text"
+                                                                                                maxLength={255}
+                                                                                                className="input__text"
+                                                                                                placeholder="Type Board of Directors"
+                                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                            />
+                                                                                            <button
+                                                                                                type="button"
+                                                                                                disabled={isSubmitting || this.isShow() || values.board_of_directors.length < 2}
+                                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.board_of_directors.length < 2 ? 'disable' : ''}`}
+                                                                                                onClick={() => {
+                                                                                                    const updatedBoardOfDirectors = [...values.board_of_directors];
+                                                                                                    updatedBoardOfDirectors.splice(index, 1);
+                                                                                                    setFieldValue('board_of_directors', updatedBoardOfDirectors);
+                                                                                                }}
+                                                                                            >
+                                                                                                <FontAwesomeIcon
+                                                                                                    className="nav-icon"
+                                                                                                    icon={faMinus}/>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                {errors.board_of_directors && (
+                                                                                    <div
+                                                                                        className="error-message">{errors.board_of_directors.toString()}</div>
+                                                                                )}
+                                                                            </div>
+                                                                            {this.getRenderedAIField('board_of_directors')}
+                                                                        </div>
+
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Product &
+                                                                                Services
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="product_and_services"
+                                                                                    id="product_and_services"
+                                                                                    type="text"
+                                                                                    maxLength={255}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Product & Services"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="product_and_services"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('product_and_services')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Company
+                                                                                Facilities
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="company_facilities"
+                                                                                    id="company_facilities"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Company Facilities"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="company_facilities"
                                                                                               component="div"
                                                                                               className="error-message"/>
                                                                             </div>
-                                                                            {this.getRenderedAIField('state')}
+                                                                            {this.getRenderedAIField('company_facilities')}
                                                                         </div>
-                                                                    )}
 
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Zip Code
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="zip_code"
-                                                                                id="zip_code"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Zip Code"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="zip_code"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('zip_code')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Country
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="country"
-                                                                                id="country"
-                                                                                as="select"
-                                                                                className="b-select"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onChange={(e: any) => this.handleRegionChange(e, setFieldValue)}
-                                                                            >
-                                                                                <option value="">Select a
-                                                                                    Country
-                                                                                </option>
-                                                                                {Object.keys(countries)
-                                                                                    .sort((a, b) => countries[a as keyof typeof countries]?.name.localeCompare(countries[b as keyof typeof countries]?.name))
-                                                                                    .map((countryCode: string) => (
-                                                                                        <option
-                                                                                            key={countryCode}
-                                                                                            value={countryCode}>
-                                                                                            {countries[countryCode as keyof typeof countries]?.name}
-                                                                                        </option>
-                                                                                    ))}
-                                                                            </Field>
-                                                                            <ErrorMessage name="country"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('country')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Email
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="email"
-                                                                                id="email"
-                                                                                type="email"
-                                                                                className="input__text"
-                                                                                placeholder="Type an Email Address"
-                                                                                autoComplete="username"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="email"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('email')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Phone
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="phone"
-                                                                                id="phone"
-                                                                                component={PhoneInputField}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                country="us"
-                                                                            />
-                                                                        </div>
-                                                                        {this.getRenderedAIField('phone')}
-                                                                    </div>
-
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Web Address
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="web_address"
-                                                                                id="web_address"
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Web Address"
-                                                                                maxLength={50}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="web_address"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('web_address')}
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <h4 className="input__group__title">Asset
-                                                                            Profile Data</h4>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">SIC
-                                                                            Industry Classification
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="sic_industry_classification"
-                                                                                id="sic_industry_classification"
-                                                                                as={Select}
-                                                                                className="b-select-search"
-                                                                                placeholder="Select SIC Industry Classification"
-                                                                                classNamePrefix="select__react"
-                                                                                isDisabled={isSubmitting || this.isShow()}
-                                                                                options={Object.values(SicIndustryClassification).map((item) => ({
-                                                                                    value: item,
-                                                                                    label: item,
-                                                                                }))}
-                                                                                onChange={(selectedOption: any) => {
-                                                                                    setFieldValue('sic_industry_classification', selectedOption.value);
-                                                                                }}
-                                                                                value={
-                                                                                    Object.values(SicIndustryClassification).filter(i => i === values.sic_industry_classification).map((item) => ({
-                                                                                        value: item,
-                                                                                        label: item,
-                                                                                    }))?.[0] || null
-                                                                                }
-                                                                            />
-
-                                                                            <ErrorMessage
-                                                                                name="sic_industry_classification"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('sic_industry_classification')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div
-                                                                            className="input__title">Incorporation
-                                                                            Information
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="incorporation_information"
-                                                                                id="incorporation_information"
-                                                                                as="select"
-                                                                                className="b-select"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            >
-                                                                                <option value="">Select
-                                                                                    Incorporation Information
-                                                                                </option>
-                                                                                {this.state.usaStates.map((state) => (
-                                                                                    <option
-                                                                                        key={state.abbreviation}
-                                                                                        value={state.abbreviation}>
-                                                                                        {state.name} ({state.abbreviation})
-                                                                                    </option>
-                                                                                ))}
-                                                                            </Field>
-                                                                            <ErrorMessage
-                                                                                name="incorporation_information"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('incorporation_information')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Number of
-                                                                            Employees
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="number_of_employees"
-                                                                                id="number_of_employees"
-                                                                                component={NumericInputField}
-                                                                                decimalScale={0}
-                                                                                type="text"
-                                                                                className="input__text"
-                                                                                placeholder="Type Number of Employees"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="number_of_employees"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('number_of_employees')}
-                                                                    </div>
-
-
-                                                                    <div className="input__box full">
-                                                                        <div
-                                                                            className="input__title input__btns">Company
-                                                                            Officers &
-                                                                            Contacts
-                                                                            <button
-                                                                                type="button"
-                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onClick={() => {
-                                                                                    const updatedOfficers = [...values.company_officers_and_contacts, ''];
-                                                                                    setFieldValue('company_officers_and_contacts', updatedOfficers);
-                                                                                }}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faPlus}/>
-                                                                            </button></div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <div className="officer-input">
-                                                                                {values.company_officers_and_contacts.map((officer, index) => (
-                                                                                    <div className={'input__btns'}
-                                                                                         key={index}>
-                                                                                        <Field
-                                                                                            name={`company_officers_and_contacts.${index}`}
-                                                                                            type="text"
-                                                                                            maxLength={255}
-                                                                                            className="input__text"
-                                                                                            placeholder="Type Company Officers & Contacts"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                        />
-                                                                                        <button
-                                                                                            type="button"
-                                                                                            disabled={isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2}
-                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.company_officers_and_contacts.length < 2 ? 'disable' : ''}`}
-                                                                                            onClick={() => {
-                                                                                                const updatedOfficers = [...values.company_officers_and_contacts];
-                                                                                                updatedOfficers.splice(index, 1);
-                                                                                                setFieldValue('company_officers_and_contacts', updatedOfficers);
-                                                                                            }}
-                                                                                        >
-                                                                                            <FontAwesomeIcon
-                                                                                                className="nav-icon"
-                                                                                                icon={faMinus}/>
-                                                                                        </button>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                            {errors.company_officers_and_contacts && (
-                                                                                <div
-                                                                                    className="error-message">{errors.company_officers_and_contacts.toString()}</div>
-                                                                            )}
-                                                                        </div>
-                                                                        {this.getRenderedAIField('company_officers_and_contacts')}
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <div
-                                                                            className="input__title input__btns">Board
-                                                                            of Directors
-                                                                            <button
-                                                                                type="button"
-                                                                                className={`border-grey-btn ripple ${isSubmitting || this.isShow() ? 'disable' : ''}`}
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                                onClick={() => {
-                                                                                    const updatedBoardOfDirectors = [...values.board_of_directors, ''];
-                                                                                    setFieldValue('board_of_directors', updatedBoardOfDirectors);
-                                                                                }}
-                                                                            >
-                                                                                <FontAwesomeIcon
-                                                                                    className="nav-icon"
-                                                                                    icon={faPlus}/>
-                                                                            </button></div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <div className="officer-input">
-                                                                                {values.board_of_directors.map((director, index) => (
-                                                                                    <div className={'input__btns'}
-                                                                                         key={index}>
-                                                                                        <Field
-                                                                                            name={`board_of_directors.${index}`}
-                                                                                            type="text"
-                                                                                            maxLength={255}
-                                                                                            className="input__text"
-                                                                                            placeholder="Type Board of Directors"
-                                                                                            disabled={isSubmitting || this.isShow()}
-                                                                                        />
-                                                                                        <button
-                                                                                            type="button"
-                                                                                            disabled={isSubmitting || this.isShow() || values.board_of_directors.length < 2}
-                                                                                            className={`border-grey-btn ripple ${isSubmitting || this.isShow() || values.board_of_directors.length < 2 ? 'disable' : ''}`}
-                                                                                            onClick={() => {
-                                                                                                const updatedBoardOfDirectors = [...values.board_of_directors];
-                                                                                                updatedBoardOfDirectors.splice(index, 1);
-                                                                                                setFieldValue('board_of_directors', updatedBoardOfDirectors);
-                                                                                            }}
-                                                                                        >
-                                                                                            <FontAwesomeIcon
-                                                                                                className="nav-icon"
-                                                                                                icon={faMinus}/>
-                                                                                        </button>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                            {errors.board_of_directors && (
-                                                                                <div
-                                                                                    className="error-message">{errors.board_of_directors.toString()}</div>
-                                                                            )}
-                                                                        </div>
-                                                                        {this.getRenderedAIField('board_of_directors')}
-                                                                    </div>
-
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Product &
-                                                                            Services
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="product_and_services"
-                                                                                id="product_and_services"
-                                                                                type="text"
-                                                                                maxLength={255}
-                                                                                className="input__text"
-                                                                                placeholder="Type Product & Services"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="product_and_services"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('product_and_services')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Company
-                                                                            Facilities
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="company_facilities"
-                                                                                id="company_facilities"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Company Facilities"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="company_facilities"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('company_facilities')}
-                                                                    </div>
-
-                                                                    <div className="input__box full">
-                                                                        <h4 className="input__group__title">Service
-                                                                            Providers</h4>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Transfer
-                                                                            Agent
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="transfer_agent"
-                                                                                id="transfer_agent"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Transfer Agent"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="transfer_agent"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('transfer_agent')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Accounting
-                                                                            / Auditing Firm
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="accounting_auditing_firm"
-                                                                                id="accounting_auditing_firm"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Accounting / Auditing Firm"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="accounting_auditing_firm"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('accounting_auditing_firm')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Investor
-                                                                            Relations / Marketing /
-                                                                            Communications
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="investor_relations_marketing_communications"
-                                                                                id="investor_relations_marketing_communications"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Investor Relations / Marketing / Communications"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="investor_relations_marketing_communications"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('investor_relations_marketing_communications')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Securities
-                                                                            Counsel
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="securities_counsel"
-                                                                                id="securities_counsel"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Securities Counsel"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage
-                                                                                name="securities_counsel"
-                                                                                component="div"
-                                                                                className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('securities_counsel')}
-                                                                    </div>
-
-
-                                                                    <div className="input__box full">
-                                                                        <h4 className="input__group__title">Financial
-                                                                            Reporting</h4>
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">US
-                                                                            Reporting
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="us_reporting"
-                                                                                id="us_reporting"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type US Reporting"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="us_reporting"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('us_reporting')}
-                                                                    </div>
-
-                                                                    <div className="input__box">
-                                                                        <div className="input__title">Edgar CIK
-                                                                            <Link
-                                                                                className={'link info-panel-title-link'}
-                                                                                href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
-                                                                                target={'_blank'}>
-                                                                                Company Filings <FontAwesomeIcon
-                                                                                className="nav-icon"
-                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                            </Link>
-                                                                        </div>
-                                                                        <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
-                                                                            <Field
-                                                                                name="edgar_cik"
-                                                                                id="edgar_cik"
-                                                                                type="text"
-                                                                                maxLength={50}
-                                                                                className="input__text"
-                                                                                placeholder="Type Edgar CIK"
-                                                                                disabled={isSubmitting || this.isShow()}
-                                                                            />
-                                                                            <ErrorMessage name="edgar_cik"
-                                                                                          component="div"
-                                                                                          className="error-message"/>
-                                                                        </div>
-                                                                        {this.getRenderedAIField('edgar_cik')}
-                                                                    </div>
-                                                                    <Field
-                                                                        name={'time'}
-                                                                        type={'hidden'}
-                                                                    />
-                                                                    {this.state.action !== 'view' && (
                                                                         <div className="input__box full">
-                                                                            <div className="input__box">
-                                                                                <button
-                                                                                    className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
-                                                                                    type="submit"
-                                                                                    disabled={isSubmitting || !isValid || !dirty}>
-                                                                                    Save Asset Profile
-                                                                                </button>
-                                                                            </div>
+                                                                            <h4 className="input__group__title">Service
+                                                                                Providers</h4>
                                                                         </div>
-                                                                    )}
 
-                                                                    {this.state.errorMessages && (
-                                                                        <AlertBlock type={"error"}
-                                                                                    messages={this.state.errorMessages}/>
-                                                                    )}
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Transfer
+                                                                                Agent
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="transfer_agent"
+                                                                                    id="transfer_agent"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Transfer Agent"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="transfer_agent"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('transfer_agent')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Accounting
+                                                                                / Auditing Firm
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="accounting_auditing_firm"
+                                                                                    id="accounting_auditing_firm"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Accounting / Auditing Firm"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="accounting_auditing_firm"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('accounting_auditing_firm')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Investor
+                                                                                Relations / Marketing /
+                                                                                Communications
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="investor_relations_marketing_communications"
+                                                                                    id="investor_relations_marketing_communications"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Investor Relations / Marketing / Communications"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="investor_relations_marketing_communications"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('investor_relations_marketing_communications')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Securities
+                                                                                Counsel
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="securities_counsel"
+                                                                                    id="securities_counsel"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Securities Counsel"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="securities_counsel"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('securities_counsel')}
+                                                                        </div>
+
+
+                                                                        <div className="input__box full">
+                                                                            <h4 className="input__group__title">Financial
+                                                                                Reporting</h4>
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">US
+                                                                                Reporting
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="us_reporting"
+                                                                                    id="us_reporting"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type US Reporting"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="us_reporting"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('us_reporting')}
+                                                                        </div>
+
+                                                                        <div className="input__box">
+                                                                            <div className="input__title">Edgar CIK
+                                                                                <Link
+                                                                                    className={'link info-panel-title-link'}
+                                                                                    href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
+                                                                                    target={'_blank'}>
+                                                                                    Company Filings <FontAwesomeIcon
+                                                                                    className="nav-icon"
+                                                                                    icon={faArrowUpRightFromSquare}/>
+                                                                                </Link>
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="edgar_cik"
+                                                                                    id="edgar_cik"
+                                                                                    type="text"
+                                                                                    maxLength={50}
+                                                                                    className="input__text"
+                                                                                    placeholder="Type Edgar CIK"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage name="edgar_cik"
+                                                                                              component="div"
+                                                                                              className="error-message"/>
+                                                                            </div>
+                                                                            {this.getRenderedAIField('edgar_cik')}
+                                                                        </div>
+                                                                        <Field
+                                                                            name={'time'}
+                                                                            type={'hidden'}
+                                                                        />
+                                                                        {this.state.action !== 'view' && (
+                                                                            <div className="input__box full">
+                                                                                <div className="input__box">
+                                                                                    <button
+                                                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : 'no-border'}`}
+                                                                                        type="submit"
+                                                                                        disabled={isSubmitting || !isValid || !dirty}>
+                                                                                        Save Asset Profile
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {this.state.errorMessages && (
+                                                                            <AlertBlock type={"error"}
+                                                                                        messages={this.state.errorMessages}/>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </Form>
-                                        );
-                                    }}
-                                </Formik>
-                            ) : (
-                                <div className={'flex-panel-box'}>
-                                    <div className={'panel'}>
-                                        <div className={'content__bottom'}>
-                                            <NoDataBlock/>
+                                                </Form>
+                                            );
+                                        }}
+                                    </Formik>
+                                ) : (
+                                    <div className={'flex-panel-box'}>
+                                        <div className={'panel'}>
+                                            <div className={'content__bottom'}>
+                                                <NoDataBlock/>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )}
+
                     </>
                 )}
             </>
