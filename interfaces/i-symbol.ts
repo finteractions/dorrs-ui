@@ -93,5 +93,5 @@ export interface ISymbol {
     sec_files: string[];
     sec_file_tmp?: string;
 
-    linked_symbol_count?: number | null
+    linked_symbol_count?: number
 }

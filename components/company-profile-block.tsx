@@ -1253,20 +1253,20 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                 </div>
                                             </div>
 
-                                            {this.symbol.linked_symbol_count && this.symbol.linked_symbol_count > 0 && (
+                                            {this.symbol?.linked_symbol_count && this.symbol?.linked_symbol_count > 0 ? (
                                                 <div id={'symbols'} className={'panel'}>
                                                     <div className={'content__top'}>
-                                                        <div className={'content__title'}>Symbols
-                                                        </div>
+                                                        <div className={'content__title'}>Symbols</div>
                                                     </div>
                                                     <div className={'content__bottom'}>
                                                         <SubSymbolBlock
                                                             isDashboard={false}
                                                             symbol={this.props.symbol}
-                                                            onCallback={this.onCallbackSubSymbol}/>
+                                                            onCallback={this.onCallbackSubSymbol}
+                                                        />
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                         </>
 
                                     ) : (

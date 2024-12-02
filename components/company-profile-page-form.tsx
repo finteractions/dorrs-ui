@@ -32,6 +32,7 @@ import formValidator from "@/services/form-validator/form-validator";
 import {Button} from "react-bootstrap";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
 import AssetImage from "@/components/asset-image";
+import CompanyProfileSliderBlock from "@/components/company-profile-slider-block-block";
 
 const allowedImageFileSizeMB = 5
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -782,7 +783,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(this.symbol?.symbol, 'view');
+                this.onCallback(this.symbol?.symbol ?? '', 'view');
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -790,6 +791,10 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                 setSubmitting(false);
             });
     };
+
+    onCallback = (symbol: string, mode: string) => {
+        this.props.onCallback(symbol, mode);
+    }
 
     isShow(): boolean {
         return this.state.action === 'view';
@@ -1154,6 +1159,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                 </Link>
                                 </p>
                             </div>
+                            {this.state.action === 'edit' && (
+                                <div className={'ml-auto d-none d-xl-block'}>
+                                    <CompanyProfileSliderBlock
+                                        symbol={this.symbol?.symbol ?? ''}
+                                        onCallback={(symbol) => this.onCallback(symbol, 'edit')}/>
+                                </div>
+                            )}
                         </div>
 
                         <div className={'profile section'}>

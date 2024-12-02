@@ -3241,7 +3241,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                         </div>
                                     </div>
 
-                                    {this.props.symbolData?.linked_symbol_count && this.props.symbolData?.linked_symbol_count > 0 && (
+                                    {this.props.symbolData?.linked_symbol_count && this.props.symbolData?.linked_symbol_count > 0 ? (
                                         <div className="view_block full_block">
                                             <div className="view_block_body">
                                                 <div className="view_block_title">Symbols</div>
@@ -3250,7 +3250,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
                                             </div>
                                         </div>
-                                    )}
+                                    ): null}
                                 </div>
                             </div>
                         ) : (
