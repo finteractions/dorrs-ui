@@ -644,11 +644,20 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
 
     componentDidMount() {
         this.setState({isLoading: true}, () => {
-            this.getSymbols()
-                .finally(() => this.setState({isLoading: false}))
+            this.processAssetProfile();
         });
-
     }
+
+    componentDidUpdate(prevProps: CompanyProfilePageFormProps) {
+        if (prevProps.symbol !== this.props.symbol) {
+            this.processAssetProfile();
+        }
+    }
+
+    processAssetProfile = () => {
+        this.getSymbols()
+            .finally(() => this.setState({isLoading: false}));
+    };
 
     getSymbols = () => {
         return new Promise(resolve => {

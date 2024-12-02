@@ -12,36 +12,24 @@ const Edit: NextPageWithLayout = () => {
     const [currentSymbol, setCurrentSymbol] = useState(symbol);
 
     useEffect(() => {
-        if (symbol && symbol !== currentSymbol) {
-            setFormMounted(false);
-            setTimeout(() => {
-                setCurrentSymbol(symbol);
-                setFormMounted(true);
-            }, 100);
-        } else if (symbol && !isFormMounted) {
-            setFormMounted(true);
-        }
-    }, [symbol, currentSymbol, isFormMounted]);
+        setCurrentSymbol(symbol);
+    }, [symbol]);
 
     const onCallback = (symbol: string, mode?: string) => {
         let queryString = "";
         if (mode) {
             queryString += `/${mode}`;
+            setCurrentSymbol(symbol);
             router.push(`/asset-profiles/${symbol}${queryString}`);
         }
     };
 
     return (
         <>
-            {!isFormMounted ? (
-                <LoaderBlock/>
-            ) : (
-        <CompanyProfilePageForm action={'edit'} symbol={symbol} onCallback={onCallback} />
-            )}
+            <CompanyProfilePageForm action={'edit'} symbol={currentSymbol} onCallback={onCallback}/>
         </>
     );
 };
-
 
 
 Edit.getLayout = function getLayout(page: ReactElement) {
