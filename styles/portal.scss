@@ -2074,6 +2074,10 @@ body {
         padding: 0;
         max-width: 100%;
 
+        &:has(table) {
+          margin-bottom: 60px;
+        }
+
         .content__top {
           padding: 10px 10px;
           margin: 0;

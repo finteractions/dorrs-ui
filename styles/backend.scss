@@ -5184,6 +5184,16 @@
     max-width: calc(100% - 55px);
   }
 
+  .flex-panel-box {
+
+    .panel {
+
+      &:has(table) {
+        margin-bottom: 25px;
+      }
+    }
+  }
+
 }
 
 
