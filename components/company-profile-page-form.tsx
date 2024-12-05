@@ -2532,7 +2532,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                         </div>
 
 
-                                                                        <div className="input__box">
+                                                                        <div className="input__box full">
                                                                             <div className="input__title">Product &
                                                                                 Services
                                                                             </div>
@@ -2541,9 +2541,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                 <Field
                                                                                     name="product_and_services"
                                                                                     id="product_and_services"
-                                                                                    type="text"
-                                                                                    maxLength={255}
-                                                                                    className="input__text"
+                                                                                    as="textarea"
+                                                                                    rows={3}
+                                                                                    className="input__textarea"
                                                                                     placeholder="Type Product & Services"
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                 />
@@ -2555,7 +2555,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                             {this.getRenderedAIField('product_and_services')}
                                                                         </div>
 
-                                                                        <div className="input__box">
+                                                                        <div className="input__box full">
                                                                             <div className="input__title">Company
                                                                                 Facilities
                                                                             </div>

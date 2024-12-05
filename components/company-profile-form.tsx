@@ -2587,16 +2587,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     {this.getRenderedAIField('board_of_directors')}
                                                 </div>
 
-                                                <div className="input">
+                                                <div className="input full">
                                                     <div className="input__title">Product & Services</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                         <Field
                                                             name="product_and_services"
                                                             id="product_and_services"
-                                                            type="text"
-                                                            maxLength={255}
-                                                            className="input__text"
+                                                            as="textarea"
+                                                            rows={3}
+                                                            className="input__textarea"
                                                             placeholder="Type Product & Services"
                                                             disabled={isSubmitting || this.isShow()}
                                                             aria-readonly={this.props?.readonly === true}
@@ -2608,7 +2608,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     {this.getRenderedAIField('product_and_services')}
                                                 </div>
 
-                                                <div className="input">
+                                                <div className="input full">
                                                     <div className="input__title">Company Facilities</div>
                                                     <div
                                                         className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
