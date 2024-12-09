@@ -1546,6 +1546,7 @@ body {
     .container-fluid {
       padding-right: 25px;
       padding-left: 25px;
+      margin-bottom: 60px;
     }
 
     .sidebar {
@@ -2073,10 +2074,6 @@ body {
         border-radius: 12px;
         padding: 0;
         max-width: 100%;
-
-        &:last-child {
-          margin-bottom: 60px;
-        }
 
         .content__top {
           padding: 10px 10px;
@@ -3729,12 +3726,6 @@ body {
 
           > .no-chart {
             justify-content: center;
-          }
-
-          &.indicator__item {
-            &:last-child {
-              margin-bottom: 60px;
-            }
           }
         }
 
