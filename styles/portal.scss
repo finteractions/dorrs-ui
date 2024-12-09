@@ -813,6 +813,10 @@ body {
         .select__react__single-value {
           color: #718494;
         }
+
+        .select__react__input {
+          color:var(--text-colour-4)!important;
+        }
       }
 
       .select__react__menu {

@@ -83,6 +83,10 @@ html.dark {
         &.required {
           border: 1px solid var(--error-colour)!important;
         }
+
+        &:not(.no-bg) {
+          background: var(--form-background-colour) !important;
+        }
       }
 
       .modal__content {

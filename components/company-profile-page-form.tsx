@@ -1013,7 +1013,9 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         [field]: "",
                     },
             }), async () => {
-                this.formRef?.current.setFieldTouched(field, true);
+                await this.formRef?.current.setFieldValue(field, (this.state.formInitialValues as any)[field]);
+                await this.formRef?.current.setFieldTouched(field, true);
+
                 switch (field) {
                     case 'country':
                         const country = findCountry((this.state.formInitialValues as any)[field]);
