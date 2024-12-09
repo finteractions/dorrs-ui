@@ -5188,7 +5188,7 @@
 
     .panel {
 
-      &:has(table) {
+      &:last-child {
         margin-bottom: 25px;
       }
     }

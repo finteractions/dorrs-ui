@@ -2073,9 +2073,8 @@ body {
         border-radius: 12px;
         padding: 0;
         max-width: 100%;
-        //word-break: break-all;
 
-        &:has(table) {
+        &:last-child {
           margin-bottom: 60px;
         }
 
@@ -3730,6 +3729,12 @@ body {
 
           > .no-chart {
             justify-content: center;
+          }
+
+          &.indicator__item {
+            &:last-child {
+              margin-bottom: 60px;
+            }
           }
         }
 
