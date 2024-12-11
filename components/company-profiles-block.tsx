@@ -178,11 +178,6 @@ class CompanyProfilesBlock extends React.Component<CompanyProfilesBlockProps, Co
                 )),
                 header: () => <span>State </span>,
             }),
-            columnHelper.accessor((row) => row.state, {
-                id: "city",
-                cell: (item) => item.getValue(),
-                header: () => <span>City </span>,
-            }),
             columnHelper.accessor((row) => row.company_profile_status, {
                 id: "company_profile_status",
                 cell: (item) =>

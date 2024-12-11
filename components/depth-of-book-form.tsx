@@ -24,6 +24,7 @@ import {IBestBidAndBestOffer} from "@/interfaces/i-best-bid-and-best-offer";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBroom} from "@fortawesome/free-solid-svg-icons";
 import formValidator from "@/services/form-validator/form-validator";
+import AssetImage from "@/components/asset-image";
 
 
 const formSchema = Yup.object().shape({
@@ -65,6 +66,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
     symbols: Array<ISymbol> = new Array<ISymbol>();
     state: DepthOfBookState;
     formRef: RefObject<any>;
+    host: string = '';
 
     constructor(props: DepthOfBookProps) {
         super(props);
@@ -215,7 +217,8 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
     }
 
     async componentDidMount() {
-        await this.getSymbols();
+        this.host = `${window.location.protocol}//${window.location.host}`;
+        this.getSymbols();
     }
 
     cancel = () => {
@@ -252,6 +255,33 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
         this.props.onCancel();
 
     }
+
+    renderOption = (item: ISymbol) => (
+        {
+            value: item.symbol,
+            id: item.id,
+            label: (
+                <div
+                    className={'flex-panel-box'}>
+                    <div
+                        className={'panel'}>
+                        <div
+                            className={'content__bottom d-flex justify-content-between font-size-18'}>
+                            <div
+                                className={'view_block_main_title'}>
+                                <AssetImage
+                                    alt=''
+                                    src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                    width={28}
+                                    height={28}/>
+                                {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ),
+        }
+    );
 
 
     render() {
@@ -339,10 +369,7 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                 placeholder="Select Symbol"
                                                                 classNamePrefix="select__react"
                                                                 isDisabled={isSubmitting || this.isShow()}
-                                                                options={Object.values(this.symbols).map((item) => ({
-                                                                    value: item.symbol,
-                                                                    label: item.symbol
-                                                                }))}
+                                                                options={Object.values(this.symbols).map((item) => (this.renderOption(item)))}
                                                                 onChange={(selectedOption: any) => {
                                                                     setFieldValue('symbol', selectedOption.value);
                                                                 }}
@@ -352,6 +379,19 @@ class DepthOfBookForm extends React.Component<DepthOfBookProps, DepthOfBookState
                                                                         label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
                                                                     }))?.[0] || null
                                                                 }
+                                                                filterOption={(option: any, rawInput: any) => {
+                                                                    const input = rawInput.toLowerCase();
+                                                                    const currentItem = this.symbols.find(i => i.symbol === option.value);
+                                                                    const securityName = currentItem?.security_name.toLowerCase() || '';
+                                                                    const companyName = currentItem?.company_profile?.company_name.toLowerCase() || '';
+                                                                    const symbol = option.value.toLowerCase();
+
+                                                                    return (
+                                                                        symbol.includes(input) ||
+                                                                        securityName.includes(input) ||
+                                                                        companyName.includes(input)
+                                                                    );
+                                                                }}
                                                             />
                                                             <Field type="hidden" name="symbol" id="symbol"/>
                                                             <ErrorMessage name="symbol" component="div"

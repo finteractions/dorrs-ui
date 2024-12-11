@@ -10,6 +10,7 @@ import Table from "@/components/table/table";
 import Select from "react-select";
 import {createColumnHelper} from "@tanstack/react-table";
 import Modal from "@/components/modal";
+import AssetImage from "@/components/asset-image";
 
 interface BestBidAndBestOfferGeneratorState {
     isLoading: boolean;
@@ -36,6 +37,7 @@ const pageLength = Number(process.env.AZ_PAGE_LENGTH)
 class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
     state: BestBidAndBestOfferGeneratorState;
     formRef: RefObject<any>;
+    host: string = '';
 
     constructor(props: {}) {
         super(props);
@@ -71,6 +73,7 @@ class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
     }
 
     async componentDidMount() {
+        this.host = `${window.location.protocol}//${window.location.host}`;
         await this.load()
     }
 
@@ -235,6 +238,33 @@ class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
             });
     }
 
+    renderOption = (item: ISymbol) => (
+        {
+            value: item.symbol,
+            id: item.id,
+            label: (
+                <div
+                    className={'flex-panel-box'}>
+                    <div
+                        className={'panel'}>
+                        <div
+                            className={'content__bottom d-flex justify-content-between font-size-18'}>
+                            <div
+                                className={'view_block_main_title'}>
+                                <AssetImage
+                                    alt=''
+                                    src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
+                                    width={28}
+                                    height={28}/>
+                                {item.company_profile?.company_name || item.security_name} ({item.symbol})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ),
+        }
+    );
+
     render() {
         return (
 
@@ -308,23 +338,35 @@ class BestBidAndBestOfferGeneratorBlock extends React.Component<{}> {
                                                     <div
                                                         className={`input__wrap ${isSubmitting ? 'disable' : ''}`}>
                                                         <Field
-                                                            name="symbol"
-                                                            id="symbol"
+                                                            name="symbol_tmp"
+                                                            id="symbol_tmp"
                                                             as={Select}
                                                             className="b-select-search"
                                                             placeholder="Select Symbol"
                                                             classNamePrefix="select__react"
                                                             isDisabled={isSubmitting}
-                                                            options={Object.values(this.state.symbols).map((item) => ({
-                                                                value: item.symbol,
-                                                                label: item.symbol
-                                                            }))}
-                                                            value={values.symbol ? {
-                                                                value: values.symbol,
-                                                                label: values.symbol
-                                                            } : null}
+                                                            options={Object.values(this.state.symbols).map((item) => (this.renderOption(item)))}
                                                             onChange={(selectedOption: any) => {
                                                                 setFieldValue('symbol', selectedOption.value);
+                                                            }}
+                                                            value={
+                                                                Object.values(this.state.symbols).filter(i => i.symbol === values.symbol).map((item) => ({
+                                                                    value: item.symbol,
+                                                                    label: `${item.company_profile?.company_name || ''} ${item.symbol}`,
+                                                                }))?.[0] || null
+                                                            }
+                                                            filterOption={(option: any, rawInput: any) => {
+                                                                const input = rawInput.toLowerCase();
+                                                                const currentItem = this.state.symbols.find(i => i.symbol === option.value);
+                                                                const securityName = currentItem?.security_name.toLowerCase() || '';
+                                                                const companyName = currentItem?.company_profile?.company_name.toLowerCase() || '';
+                                                                const symbol = option.value.toLowerCase();
+
+                                                                return (
+                                                                    symbol.includes(input) ||
+                                                                    securityName.includes(input) ||
+                                                                    companyName.includes(input)
+                                                                );
                                                             }}
                                                         />
 

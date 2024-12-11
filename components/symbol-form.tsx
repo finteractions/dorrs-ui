@@ -799,7 +799,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                     src={item.company_profile?.logo ? `${this.host}${item.company_profile?.logo}` : ''}
                                     width={28}
                                     height={28}/>
-                                {item.security_name} ({item.symbol})
+                                {item.company_profile?.company_name || item.security_name} ({item.symbol})
                             </div>
                         </div>
                     </div>
@@ -892,7 +892,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                 {values.version && (
                                                     <div className={'symbol-version'}>
                                                         <div className={'bg-light-blue p-2 bold'}>
-                                                           Version: {values.version}
+                                                            Version: {values.version}
                                                         </div>
                                                     </div>
                                                 )}
@@ -1146,6 +1146,19 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             value={
                                                                                 Object.values(this.masterSymbols).filter(i => i.id === values.symbol_id).map((item) => (this.renderOption(item)))?.[0] || null
                                                                             }
+                                                                            filterOption={(option: any, rawInput: any) => {
+                                                                                const input = rawInput.toLowerCase();
+                                                                                const currentItem = this.masterSymbols.find(i => i.symbol === option.value);
+                                                                                const securityName = currentItem?.security_name.toLowerCase() || '';
+                                                                                const companyName = currentItem?.company_profile?.company_name.toLowerCase() || '';
+                                                                                const symbol = option.value.toLowerCase();
+
+                                                                                return (
+                                                                                    symbol.includes(input) ||
+                                                                                    securityName.includes(input) ||
+                                                                                    companyName.includes(input)
+                                                                                );
+                                                                            }}
                                                                         />
                                                                         <ErrorMessage
                                                                             name="symbol_id"
