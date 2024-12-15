@@ -2680,7 +2680,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                             />
                                         ) : (
                                             <NoDataBlock
-                                                primaryText="No history available yet"/>
+                                                primaryText="No data available yet"/>
                                         )}
                                     </div>
                                 </div>
