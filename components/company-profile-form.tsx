@@ -3145,7 +3145,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                             <div className="ver">
                                                 <div className="view_block_sub_title">Number of Employees</div>
                                                 <div
-                                                    className="">{this.state.formInitialValues?.number_of_employees ? formatterService.numberFormat(Number(this.state.formInitialValues?.number_of_employees)) : 'not filled'}</div>
+                                                    className="">{this.state.formInitialValues?.number_of_employees ? formatterService.numberFormat(Number(this.state.formInitialValues?.number_of_employees), 0) : 'not filled'}</div>
                                             </div>
                                         </div>
                                     </div>
