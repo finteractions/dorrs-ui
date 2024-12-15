@@ -40,7 +40,6 @@ const PhoneInputField: React.FC<{ field: any; form: any; disabled: boolean; heig
 
         if (value.length > defaultCountryCode.length) {
             const isValid = isValidPhoneNumber(value);
-            console.log(`Validating phone number: ${value}, Is valid: ${isValid}`);
             if (!isValid) {
                 await form.setFieldError(field.name, "Invalid Phone Number");
             } else {

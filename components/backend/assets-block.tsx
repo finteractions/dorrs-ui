@@ -200,7 +200,8 @@ class AssetsBlock extends React.Component<{}> {
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
                     }
-                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-'
+                    s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-';
+                    s.isAdmin = true;
                 })
 
                 this.setState({data: data});

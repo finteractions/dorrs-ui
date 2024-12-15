@@ -94,4 +94,6 @@ export interface ISymbol {
     sec_file_tmp?: string;
 
     linked_symbol_count?: number
+    linked_data?: [],
+    isAdmin?: boolean;
 }

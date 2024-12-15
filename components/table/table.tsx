@@ -382,7 +382,7 @@ const Table = forwardRef<TableRef, ITableProps>(({
     };
 
     const isButtonDeleteDisabled = (row: any) => {
-        return row && [FormStatus.DELETED].includes(row['status']?.toLowerCase());
+        return row && !row.isAdmin && [FormStatus.DELETED].includes(row['status']?.toLowerCase());
     };
 
     const dataLabel = (cell: any) => {

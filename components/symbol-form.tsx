@@ -226,6 +226,7 @@ interface SymbolFormState extends IState {
     getSymbolProcessing: boolean;
     isSymbolCodeChange: boolean;
     symbolCode: string;
+    symbol?: ISymbol | null;
 }
 
 interface SymbolFormProps extends ICallback {
@@ -237,6 +238,9 @@ interface SymbolFormProps extends ICallback {
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
+
+const columnDeleteHelper = createColumnHelper<any>();
+let deleteColumns: any[] = [];
 
 class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
@@ -422,7 +426,8 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             selectedSecImages: [],
             getSymbolProcessing: false,
             isSymbolCodeChange: false,
-            symbolCode: initialValues.symbol
+            symbolCode: initialValues.symbol,
+            symbol: null
         };
 
         columns = [
@@ -456,6 +461,19 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                 id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Created Date</span>,
+            }),
+        ]
+
+        deleteColumns = [
+            columnDeleteHelper.accessor((row) => row.name, {
+                id: "name",
+                cell: (item) => item.getValue(),
+                header: () => <span>Source</span>,
+            }),
+            columnDeleteHelper.accessor((row) => row.count, {
+                id: "count",
+                cell: (item) => item.getValue(),
+                header: () => <span>Count</span>,
             }),
         ]
 
@@ -587,9 +605,19 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
     }
 
     getAssets = () => {
-        adminService.getAssets()
+        const isDelete = this.isDelete()
+        let symbol = null;
+        let linked = false;
+        if (isDelete) {
+            symbol = this.props?.data?.symbol;
+        }
+
+        adminService.getAssets(symbol)
             .then((res: ISymbol[]) => {
                 const data = res || [];
+
+                const symbol = res?.[0] || null;
+                this.setState({symbol: symbol});
 
                 const primaryATS: Array<{
                     value: string,
@@ -620,6 +648,10 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     isShow(): boolean {
         return this.props.action === 'view'
+    }
+
+    isDelete(): boolean {
+        return this.props.action === 'delete'
     }
 
     handleApprove = async (values: any) => {
@@ -2574,13 +2606,16 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                         );
                                     }}
                                 </Formik>
-                                {JSON.stringify(this.props.data?.symbol)}
-                                {this.props.data?.linked_symbol_count && this.props.data?.linked_symbol_count > 0 && this.props.action === 'view' && (
-                                    <div className={'input'}>
-                                        <h4 className="input__group__title">Symbols</h4>
-                                        <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
-                                    </div>
-                                )}
+
+                                {this.props.data?.linked_symbol_count !== undefined &&
+                                    this.props.data?.linked_symbol_count !== null &&
+                                    this.props.data?.linked_symbol_count > 0 &&
+                                    this.props.action === 'view' && (
+                                        <div className={'input'}>
+                                            <h4 className="input__group__title">Symbols</h4>
+                                            <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
+                                        </div>
+                                    )}
 
                                 {['edit', 'view'].includes(this.props.action) && (
                                     <>
@@ -2622,17 +2657,48 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
             :
                 return (
                     <>
-                        <div className="confirm-btns-panel">
-                            {this.props?.onCancel && (
-                                <button className="border-btn ripple"
-                                        onClick={() => this.props.onCancel?.()}>Cancel</button>
-                            )}
-                            <button
-                                className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
-                                type="button" disabled={this.state.isDeleting}
-                                onClick={() => this.handleDelete(this.props.data)}>Confirm
-                            </button>
-                        </div>
+                        {this.state.loading ? (
+                            <LoaderBlock/>
+                        ) : (
+                            <>
+                                <div className={'panel'}>
+                                    <div className={'content__top'}>
+                                        <div className={'content__title'}>Data to be deleted
+                                            for {this.state.symbol?.security_name} ({this.state.symbol?.symbol}):</div>
+                                    </div>
+
+                                    <div className={'content__bottom'}>
+                                        {this.state.symbol?.linked_data && this.state.symbol?.linked_data?.length > 0 ? (
+                                            <Table columns={deleteColumns}
+                                                   data={this.state.symbol?.linked_data}
+                                                   searchPanel={false}
+                                                   block={this}
+                                                   viewBtn={false}
+                                                   editBtn={false}
+                                                   deleteBtn={false}
+                                                   pageLength={10}
+                                            />
+                                        ) : (
+                                            <NoDataBlock
+                                                primaryText="No history available yet"/>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="confirm-btns-panel mt-4">
+                                    {this.props?.onCancel && (
+                                        <button className="border-btn ripple"
+                                                onClick={() => this.props.onCancel?.()}>Cancel</button>
+                                    )}
+                                    <button
+                                        className={`b-btn ripple ${(this.state.isDeleting) ? 'disable' : ''}`}
+                                        type="button" disabled={this.state.isDeleting}
+                                        onClick={() => this.handleDelete(this.props.data)}>Confirm
+                                    </button>
+                                </div>
+                            </>
+
+                        )}
+
                     </>
                 );
         }
