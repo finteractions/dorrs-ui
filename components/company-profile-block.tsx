@@ -721,7 +721,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Total Equity Funding Amount</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{this.companyProfile?.total_shares_outstanding ? formatterService.numberFormat(Number(this.companyProfile.total_shares_outstanding)) : 'not filled'}</div>
+                                                    <div>{this.companyProfile?.total_shares_outstanding ? formatterService.numberFormat(Number(this.companyProfile.total_shares_outstanding), 0) : 'not filled'}</div>
                                                 </div>
                                             </div>
                                             <div id={'last_market_valuation'} className={'panel'}>
@@ -730,7 +730,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     </div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{this.companyProfile?.last_market_valuation ? formatterService.numberFormat(Number(this.companyProfile.last_market_valuation), 4) : 'not filled'}</div>
+                                                    <div>{this.companyProfile?.last_market_valuation ? formatterService.numberFormat(Number(this.companyProfile.last_market_valuation), 0) : 'not filled'}</div>
                                                 </div>
                                             </div>
                                             <div id={'last_sale_price'} className={'panel'}>

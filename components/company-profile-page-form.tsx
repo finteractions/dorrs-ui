@@ -1403,7 +1403,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     className="input__text"
                                                                                     placeholder="Type Last Market Valuation of Company"
                                                                                     component={NumericInputField}
-                                                                                    decimalScale={4}
+                                                                                    decimalScale={0}
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                     maxLength={50}
                                                                                 />

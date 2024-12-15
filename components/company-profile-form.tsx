@@ -1500,7 +1500,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             className="input__text"
                                                             placeholder="Type Last Sale Price of Company Stock"
                                                             component={NumericInputField}
-                                                            decimalScale={4}
+                                                            decimalScale={0}
                                                             disabled={isSubmitting || this.isShow()}
                                                             readOnly={this.props?.readonly === true}
                                                         />
@@ -2895,13 +2895,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Total Equity Funding Amount</div>
-                                            <div>{this.state.formInitialValues.total_shares_outstanding ? formatterService.numberFormat(Number(this.state.formInitialValues.total_shares_outstanding)) : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.total_shares_outstanding ? formatterService.numberFormat(Number(this.state.formInitialValues.total_shares_outstanding), 0) : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Last Market Valuation of Company</div>
-                                            <div>{this.state.formInitialValues.last_market_valuation ? formatterService.numberFormat(Number(this.state.formInitialValues.last_market_valuation), 4) : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.last_market_valuation ? formatterService.numberFormat(Number(this.state.formInitialValues.last_market_valuation), 0) : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
