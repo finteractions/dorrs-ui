@@ -930,13 +930,13 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
     };
 
     aiAssetProfileGenerate = () => {
+        const initialValues = this.formRef?.current.values
         this.setState((prevState: any) => ({
             isAILoader: true,
             aiErrorMessages: null,
             errors: null,
             formInitialValues: {
-                ...prevState.formInitialValues,
-                ['logo']: ''
+                ...initialValues
             },
         }), () => {
             this.initAIForm();
@@ -1000,10 +1000,11 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             }));
         };
 
-        const applyChanges = () => {
+        const applyChanges = async () => {
+            const initialValues = this.formRef?.current.values;
             this.setState((prevState: any) => ({
                 formInitialValues: {
-                    ...prevState.formInitialValues,
+                    ...initialValues,
                     [field]: (this.state.formAIInitialValues as any)[field]
                 },
                 formAIInitialValues: field === "logo"
@@ -1021,7 +1022,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         const country = findCountry((this.state.formInitialValues as any)[field]);
                         this.setState((prevState: any) => ({
                             formInitialValues: {
-                                ...prevState.formInitialValues,
+                                ...initialValues,
                                 [field]: country
                             },
                             selectedCountry: country
@@ -1032,7 +1033,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         const state = findState((this.state.formInitialValues as any)[field]);
                         this.setState((prevState: any) => ({
                             formInitialValues: {
-                                ...prevState.formInitialValues,
+                                ...initialValues,
                                 [field]: state
                             },
                         }));
@@ -1041,36 +1042,17 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                         const sicIndustryClassification = findSicIndustryClassification((this.state.formInitialValues as any)[field])
                         this.setState((prevState: any) => ({
                             formInitialValues: {
-                                ...prevState.formInitialValues,
+                                ...initialValues,
                                 [field]: sicIndustryClassification
                             },
                         }));
                         break;
-                    case 'logo':
-                        const response = await fetch((this.state.formInitialValues as any)[field]);
-                        const blob = await response.blob();
-
-                        const timestamp = Date.now();
-                        const fileName = `image_${timestamp}.png`;
-
-                        const file = new File([blob], fileName, {type: blob.type});
-                        const fileInput = document.getElementById(`${field}_tmp`) as HTMLInputElement;
-
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(file);
-
-                        fileInput.files = dataTransfer.files;
-
-                        self.formRef?.current.setFieldValue(field, file);
-                        self.formRef?.current.setFieldValue(`${field}_tmp`, file);
-
-                        this.handleFileChange({
-                            target: {files: [file]},
-                        } as unknown as React.ChangeEvent<HTMLInputElement>);
-
-                        break;
                 }
             });
+
+            if (field === 'logo' || this.state.formAIInitialValues.logo) {
+                await handleLogoProcessing();
+            }
 
             setTimeout(() => {
                 self.formRef?.current.handleChange({
@@ -1082,6 +1064,29 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
             });
 
         }
+
+        const handleLogoProcessing = async () => {
+            const response = await fetch((this.state.formInitialValues as any)['logo']);
+            const blob = await response.blob();
+
+            const timestamp = Date.now();
+            const fileName = `image_${timestamp}.png`;
+
+            const file = new File([blob], fileName, {type: blob.type});
+            const fileInput = document.getElementById(`logo_tmp`) as HTMLInputElement;
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+
+            fileInput.files = dataTransfer.files;
+
+            // this.formRef?.current.setFieldValue('logo', file);
+            this.formRef?.current.setFieldValue('logo_tmp', file);
+
+            this.handleFileChange({
+                target: {files: [file]},
+            } as unknown as React.ChangeEvent<HTMLInputElement>);
+        };
 
         const findCountry = (name: string) => {
             return Object.keys(countries).find(
