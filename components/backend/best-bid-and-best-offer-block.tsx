@@ -416,7 +416,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Date</div>
                                         <div
-                                            className="box__wrap">{this.state.formData?.bid_date}</div>
+                                            className="box__wrap">{formatterService.dateTimeFormat(this.state.formData?.bid_date || '', 'MM/dd/yyyy')}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Bid Time</div>
@@ -429,7 +429,6 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                             {getOfferQuoteCondition().includes((this.state.formData?.quote_condition || '').toUpperCase() as QuoteCondition) && (
 
                                 <>
-                                    <br/>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer MPID</div>
                                         <div
@@ -448,7 +447,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                     <div className="view-form-box">
                                         <div className="box__title">Offer Date</div>
                                         <div
-                                            className="box__wrap">{this.state.formData?.offer_date}</div>
+                                            className="box__wrap">{formatterService.dateTimeFormat(this.state.formData?.offer_date || '', 'MM/dd/yyyy')}</div>
                                     </div>
                                     <div className="view-form-box">
                                         <div className="box__title">Offer Time</div>
@@ -457,7 +456,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                     </div>
                                 </>
                             )}
-                            <br/>
+
                             <div className="view-form-box">
                                 <div className="box__title">Universal Transaction ID (UTI)</div>
                                 <div

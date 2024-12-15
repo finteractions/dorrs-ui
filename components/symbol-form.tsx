@@ -242,6 +242,8 @@ let columns: any[] = [];
 const columnDeleteHelper = createColumnHelper<any>();
 let deleteColumns: any[] = [];
 
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
+
 class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     state: SymbolFormState;
@@ -1020,7 +1022,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             focused={this.state.focusedInputDateEntered}
                                                                             onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
                                                                             id="date_entered_delete"
-                                                                            displayFormat="YYYY-MM-DD"
+                                                                            displayFormat={dateFormat}
                                                                             isOutsideRange={() => false}
                                                                             readOnly={true}
                                                                             disabled={true}
@@ -1067,7 +1069,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             focused={this.state.focusedInputDateEffectiveDelete}
                                                                             onFocusChange={({focused}) => this.setState({focusedInputDateEffectiveDelete: focused})}
                                                                             id="date_effective_delete"
-                                                                            displayFormat="YYYY-MM-DD"
+                                                                            displayFormat={dateFormat}
                                                                             isOutsideRange={() => false}
                                                                             readOnly={true}
                                                                             placeholder={'Select Date'}
@@ -1556,7 +1558,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                         focused={this.state.focusedInputDateEntered}
                                                                                         onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
                                                                                         id="date_entered_change"
-                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        displayFormat={dateFormat}
                                                                                         isOutsideRange={() => false}
                                                                                         readOnly={true}
                                                                                         disabled={true}
@@ -1608,7 +1610,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                                         focused={this.state.focusedInputDateEffective}
                                                                                         onFocusChange={({focused}) => this.setState({focusedInputDateEffective: focused})}
                                                                                         id="date_effective_change"
-                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                        displayFormat={dateFormat}
                                                                                         isOutsideRange={() => false}
                                                                                         readOnly={true}
                                                                                         placeholder={'Select Date'}

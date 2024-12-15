@@ -78,6 +78,8 @@ interface PublicDirectoryFormProps extends ICallback {
     onCancel?: () => void;
 }
 
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
+
 class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, PublicDirectoryFormState> {
 
     state: PublicDirectoryFormState;
@@ -558,7 +560,7 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                             focused={this.state.focusedInputDateEntered}
                                                             onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
                                                             id="founding_date"
-                                                            displayFormat="YYYY-MM-DD"
+                                                            displayFormat={dateFormat}
                                                             isOutsideRange={() => false}
                                                             disabled={isSubmitting || this.isShow()}
                                                             readOnly={true}

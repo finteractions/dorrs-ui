@@ -76,6 +76,8 @@ interface PublicDirectoryPageFormState extends IState {
     selectedFile: File | null;
 }
 
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
+
 class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormProps> {
     host: string = '';
     state: PublicDirectoryPageFormState;
@@ -486,7 +488,7 @@ class PublicDirectoryPageForm extends React.Component<PublicDirectoryPageFormPro
                                                                 focused={this.state.focusedInputDateEntered}
                                                                 onFocusChange={({focused}) => this.setState({focusedInputDateEntered: focused})}
                                                                 id="founding_date"
-                                                                displayFormat="YYYY-MM-DD"
+                                                                displayFormat={dateFormat}
                                                                 isOutsideRange={() => false}
                                                                 disabled={isSubmitting || this.isShow()}
                                                                 readOnly={true}

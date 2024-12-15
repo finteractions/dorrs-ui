@@ -34,9 +34,6 @@ import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
 import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
-import {UserType} from "@/enums/user-type";
-import downloadFile from "@/services/download-file/download-file";
-import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
 import {Button} from "react-bootstrap";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
 
@@ -182,6 +179,7 @@ interface CompanyProfileFormProps extends ICallback {
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
 
 class CompanyProfileForm extends React.Component<CompanyProfileFormProps, CompanyProfileFormState> {
     state: CompanyProfileFormState;
@@ -1544,7 +1542,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                             focused={this.state.focusedInitialOfferingDate}
                                                             onFocusChange={({focused}) => this.setState({focusedInitialOfferingDate: focused})}
                                                             id="initial_offering_date"
-                                                            displayFormat="YYYY-MM-DD"
+                                                            displayFormat={dateFormat}
                                                             isOutsideRange={() => false}
                                                             disabled={isSubmitting || this.isShow() || this.props?.readonly === true}
                                                             readOnly={true}
@@ -1655,7 +1653,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                                         }
                                                                                     }));
                                                                                 }}
-                                                                                displayFormat="YYYY-MM-DD"
+                                                                                displayFormat={dateFormat}
                                                                                 isOutsideRange={() => false}
                                                                                 disabled={isSubmitting || this.isShow() || this.props?.readonly}
                                                                                 readOnly={true}
@@ -2913,7 +2911,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                     <div className="view_block">
                                         <div className="view_block_body">
                                             <div className="view_block_title">Founded Date</div>
-                                            <div>{this.state.formInitialValues.initial_offering_date ? formatterService.dateTimeFormat(this.state.formInitialValues.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
+                                            <div>{this.state.formInitialValues.initial_offering_date ? formatterService.dateTimeFormat(this.state.formInitialValues.initial_offering_date, 'MM/dd/yyyy') : 'not filled'}</div>
                                         </div>
                                     </div>
                                     <div className="view_block">
@@ -2930,7 +2928,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 <>{this.state.formInitialValues?.price_per_share_value[index]}</>
                                                             )}
                                                             {this.state.formInitialValues?.price_per_share_date && this.state.formInitialValues?.price_per_share_date[index] && (
-                                                                <> on {formatterService.dateTimeFormat(this.state.formInitialValues?.price_per_share_date[index], 'dd/MM/yyyy')}</>
+                                                                <> on {formatterService.dateTimeFormat(this.state.formInitialValues?.price_per_share_date[index], 'MM/dd/yyyy')}</>
                                                             )}
                                                         </div>
                                                     ))}

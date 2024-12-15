@@ -49,6 +49,8 @@ interface SECOfferingFormProps extends ICallback {
     onCancel?: () => void;
 }
 
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
+
 class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingFormState> {
 
     state: SECOfferingFormState;
@@ -393,7 +395,7 @@ class SECOfferingForm extends React.Component<SECOfferingFormProps, SECOfferingF
                                                             focused={this.state.focusedDate}
                                                             onFocusChange={({focused}) => this.setState({focusedDate: focused})}
                                                             id="sale_date"
-                                                            displayFormat="YYYY-MM-DD"
+                                                            displayFormat={dateFormat}
                                                             isOutsideRange={() => false}
                                                             disabled={isSubmitting || this.isShow()}
                                                             readOnly={true}

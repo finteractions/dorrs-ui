@@ -61,6 +61,7 @@ interface LastSaleReportingProps extends ICallback {
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const PATH = `${getGlobalConfig().host}-last-sale-reporting-form`;
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
 
 class LastSaleReportingForm extends React.Component<LastSaleReportingProps, LastSaleReportingState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -496,7 +497,7 @@ class LastSaleReportingForm extends React.Component<LastSaleReportingProps, Last
                                                                     focused={this.state.focusedInput}
                                                                     onFocusChange={({focused}) => this.setState({focusedInput: focused})}
                                                                     id="date"
-                                                                    displayFormat="YYYY-MM-DD"
+                                                                    displayFormat={dateFormat}
                                                                     isOutsideRange={() => false}
                                                                     disabled={isSubmitting || this.isShow()}
                                                                     readOnly={true}

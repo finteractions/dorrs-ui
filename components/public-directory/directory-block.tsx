@@ -127,7 +127,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
                         <div className={'flex-row w-100 mt-2'}>
                             <div className={'my-0'}>
                                 <span className={'font-weight-500'}>Founding Date: </span>
-                                <span>{formatterService.dateTimeFormat(item.getValue().founding_date, 'dd/MM/yyy') || '-'}</span>
+                                <span>{formatterService.dateTimeFormat(item.getValue().founding_date, 'MM/dd/yyyy') || '-'}</span>
                             </div>
                             <div className={'mt-2'}>
                                 <span className={'font-weight-500'}>Protocol Name: </span>

@@ -115,6 +115,7 @@ interface BestBidAndBestOfferFormProps extends ICallback {
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const PATH = `${getGlobalConfig().host}-best-bid-and-best-offer-form`;
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
 
 class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormProps, BestBidAndBestOfferFormState> {
     symbols: Array<ISymbol> = new Array<ISymbol>();
@@ -575,7 +576,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                             focused={this.state.focusedInputBidDate}
                                                                             onFocusChange={({focused}) => this.setState({focusedInputBidDate: focused})}
                                                                             id="bid_date"
-                                                                            displayFormat="YYYY-MM-DD"
+                                                                            displayFormat={dateFormat}
                                                                             isOutsideRange={() => false}
                                                                             disabled={isSubmitting || this.isShow()}
                                                                             readOnly={true}
@@ -676,7 +677,7 @@ class BestBidAndBestOfferForm extends React.Component<BestBidAndBestOfferFormPro
                                                                             focused={this.state.focusedInputOfferDate}
                                                                             onFocusChange={({focused}) => this.setState({focusedInputOfferDate: focused})}
                                                                             id="offer_date"
-                                                                            displayFormat="YYYY-MM-DD"
+                                                                            displayFormat={dateFormat}
                                                                             isOutsideRange={() => false}
                                                                             disabled={isSubmitting || this.isShow()}
                                                                             readOnly={true}

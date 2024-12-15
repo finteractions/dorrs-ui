@@ -41,7 +41,7 @@ function numberDown(number: number | string, decimals: number) {
     return `${decimalParts[0]}.${decimalParts[1].substring(0, decimals)}`;
 }
 
-function dateTimeFormat(datetime: string, pattern: string = 'dd/MM/yyyy HH:mm:ss'): string {
+function dateTimeFormat(datetime: string, pattern: string = 'MM/dd/yyyy HH:mm:ss'): string {
     if ([undefined, null, ''].includes(datetime)) return '';
     return format(new Date(datetime), pattern);
 }

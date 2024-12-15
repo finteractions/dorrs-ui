@@ -747,7 +747,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                     <div className={'content__title'}>Founded Date</div>
                                                 </div>
                                                 <div className={'content__bottom'}>
-                                                    <div>{this.companyProfile?.initial_offering_date ? formatterService.dateTimeFormat(this.companyProfile?.initial_offering_date, 'dd/MM/yyyy') : 'not filled'}</div>
+                                                    <div>{this.companyProfile?.initial_offering_date ? formatterService.dateTimeFormat(this.companyProfile?.initial_offering_date, 'MM/dd/yyyy') : 'not filled'}</div>
                                                 </div>
                                             </div>
                                             <div id={'price_per_share'} className={'panel'}>
@@ -766,7 +766,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                                         <>{this.companyProfile?.price_per_share_value[index]}</>
                                                                     )}
                                                                     {this.companyProfile?.price_per_share_date && this.companyProfile?.price_per_share_date[index] && (
-                                                                        <> on {formatterService.dateTimeFormat(this.companyProfile?.price_per_share_date[index], 'dd/MM/yyyy')}</>
+                                                                        <> on {formatterService.dateTimeFormat(this.companyProfile?.price_per_share_date[index], 'MM/dd/yyyy')}</>
                                                                     )}
 
                                                                 </div>

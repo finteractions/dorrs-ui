@@ -390,7 +390,7 @@ class LastSalesBlock extends React.Component<{}> {
                             <div className="view-form-box">
                                 <div className="box__title">Date</div>
                                 <div
-                                    className="box__wrap">{this.state.formData?.date}</div>
+                                    className="box__wrap">{formatterService.dateTimeFormat(this.state.formData?.date || '', 'MM/dd/yyyy')}</div>
                             </div>
                             <div className="view-form-box">
                                 <div className="box__title">Time</div>

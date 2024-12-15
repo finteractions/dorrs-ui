@@ -160,7 +160,7 @@ interface CompanyProfilePageFormState extends IState {
 }
 
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
-
+const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
 
 class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageFormProps> {
 
@@ -1458,7 +1458,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                     focused={this.state.focusedInitialOfferingDate}
                                                                                     onFocusChange={({focused}) => this.setState({focusedInitialOfferingDate: focused})}
                                                                                     id="initial_offering_date"
-                                                                                    displayFormat="YYYY-MM-DD"
+                                                                                    displayFormat={dateFormat}
                                                                                     isOutsideRange={() => false}
                                                                                     disabled={isSubmitting || this.isShow()}
                                                                                     readOnly={true}
@@ -1574,7 +1574,7 @@ class CompanyProfilePageFormBlock extends React.Component<CompanyProfilePageForm
                                                                                                                 }
                                                                                                             }));
                                                                                                         }}
-                                                                                                        displayFormat="YYYY-MM-DD"
+                                                                                                        displayFormat={dateFormat}
                                                                                                         isOutsideRange={() => false}
                                                                                                         disabled={isSubmitting || this.isShow()}
                                                                                                         readOnly={true}
