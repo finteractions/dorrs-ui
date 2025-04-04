@@ -26,6 +26,7 @@ import Image from "next/image";
 import DoughnutChartPercentage from "@/components/chart/doughnut-chart-percentage";
 import {FormStatus} from "@/enums/form-status";
 import {OrderStatus} from "@/enums/order-status";
+import {BackingCollateralDetails} from "@/enums/backing-collateral-details";
 
 
 interface SymbolInfoProps extends ICallback {
@@ -401,7 +402,7 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                         <div className={'profile__right-wrap-full'}>
                                             <div className={'profile__panel'}>
                                                 <div
-                                                    className={'profile__info__panel view__input__box align-items-end'}>
+                                                    className={'profile__info__panel view__input__box align-items-start'}>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Reason for Entry</div>
                                                         <div
@@ -513,6 +514,11 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         </div>
                                                     </div>
                                                     <div className={'input__box'}>
+                                                        <div className={'input__title'}>Asset Status</div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.asset_status || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
                                                         <div className={'input__title'}>Does it have cusip number?</div>
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.is_cusip ? 'Yes' : 'No' || 'not filled'}</div>
@@ -550,6 +556,34 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.alternative_asset_category || 'not filled'} {this.symbol.alternative_asset_subcategory ? ` / ${this.symbol.alternative_asset_subcategory}` : ''}</div>
                                                     </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Debt Instrument
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.debt_instrument || 'not filled'}</div>
+                                                    </div>
+                                                    {this.symbol?.debt_instrument && (
+                                                        <>
+                                                            <div className={'input__box'}>
+                                                                <div className={'input__title'}>Face Value/Par Value
+                                                                </div>
+                                                                <div
+                                                                    className={'input__wrap'}>{this.symbol?.face_value_par_value ? formatterService.numberFormat(Number(this.symbol.face_value_par_value), 2) : 'not filled'}</div>
+                                                            </div>
+                                                            <div className={'input__box'}>
+                                                                <div className={'input__title'}>Coupon/Interest Rate
+                                                                </div>
+                                                                <div
+                                                                    className={'input__wrap'}>{this.symbol?.coupon_interest_rate ? formatterService.numberFormat(Number(this.symbol.coupon_interest_rate), 3) : 'not filled'}</div>
+                                                            </div>
+                                                            <div className={'input__box'}>
+                                                                <div className={'input__title'}>Maturity Date
+                                                                </div>
+                                                                <div
+                                                                    className={'input__wrap'}>{this.symbol?.maturity_date ? formatterService.dateTimeFormat(this.symbol?.maturity_date, 'MM/dd/yyyy') : 'not filled'}</div>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Exempted Offerings
                                                         </div>
@@ -603,9 +637,26 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.custodian || 'not filled'}</div>
                                                     </div>
-
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Edgar CIK
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.edgar_cik || 'not filled'}</div>
+                                                    </div>
                                                     <div className={'input__box full'}>
                                                         <h4 className={''}>Digital Asset</h4>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Date of Issue / Creation
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.issue_date ? formatterService.dateTimeFormat(this.symbol?.issue_date, 'MM/dd/yyyy') : 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Issuance / Governance Notes
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol.governance_notes || 'not filled'}</div>
                                                     </div>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Digital Asset Category
@@ -631,6 +682,24 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                         </div>
                                                         <div
                                                             className={'input__wrap'}>{this.symbol.underpinning_asset_value || 'not filled'} {(this.symbol.underpinning_asset_value === UnderpinningAssetValue.PEGGED && this.symbol.reference_asset) ? ` / ${this.symbol.reference_asset || 'not filled'}` : ''}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Backing / Collateral Details
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>
+                                                            {this.symbol?.backing_collateral_details && this.symbol?.backing_collateral_details !== '' ? (
+                                                                <>
+                                                                    {this.symbol.backing_collateral_details !== BackingCollateralDetails.ENTER_TEXT ? (
+                                                                        <>{this.symbol.backing_collateral_details || 'not filled'}</>
+                                                                    ) : (
+                                                                        <>{this.symbol.backing_collateral_details_text || 'not filled'}</>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <>{this.symbol.backing_collateral_details || 'not filled'}</>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <div className={'input__box'}>
                                                         <div className={'input__title'}>Rights Type
@@ -663,11 +732,30 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
                                                             className={'input__wrap'}>{this.symbol.nature_of_record || 'not filled'}</div>
                                                     </div>
                                                     <div className={'input__box'}>
-                                                        <div className={'input__title'}>Edgar CIK
+                                                        <div className={'input__title'}>Settlement Method
                                                         </div>
                                                         <div
-                                                            className={'input__wrap'}>{this.symbol.edgar_cik || 'not filled'}</div>
+                                                            className={'input__wrap'}>{this.symbol?.settlement_method || 'not filled'}</div>
                                                     </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Custody Arrangements
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.custody_arrangement || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Associated Network / Ledger
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.associated_network || 'not filled'}</div>
+                                                    </div>
+                                                    <div className={'input__box'}>
+                                                        <div className={'input__title'}>Free-Form Notes
+                                                        </div>
+                                                        <div
+                                                            className={'input__wrap'}>{this.symbol?.notes || 'not filled'}</div>
+                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -676,26 +764,26 @@ class SymbolInfoBlock extends React.Component<SymbolInfoProps> {
 
                                 {this.symbol?.linked_symbol_count && this.symbol.linked_symbol_count > 0
                                     ? (
-                                    <div className={'profile__right'}>
-                                        <div className={'profile__right-wrap-full'}>
-                                            <div className={'profile__panel'}>
-                                                <div className={'profile__info__panel view__input__box'}>
-                                                    <div className={'input__box full'}>
-                                                        <h4 className={''}>Symbols</h4>
-                                                    </div>
-                                                    <div className={'input__box full'}>
-                                                        <SubSymbolBlock
-                                                            isDashboard={false}
-                                                            symbol={this.props.symbol}
-                                                            onCallback={this.onCallbackSubSymbol}
-                                                        />
-                                                    </div>
+                                        <div className={'profile__right'}>
+                                            <div className={'profile__right-wrap-full'}>
+                                                <div className={'profile__panel'}>
+                                                    <div className={'profile__info__panel view__input__box'}>
+                                                        <div className={'input__box full'}>
+                                                            <h4 className={''}>Symbols</h4>
+                                                        </div>
+                                                        <div className={'input__box full'}>
+                                                            <SubSymbolBlock
+                                                                isDashboard={false}
+                                                                symbol={this.props.symbol}
+                                                                onCallback={this.onCallbackSubSymbol}
+                                                            />
+                                                        </div>
 
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ): null}
+                                    ) : null}
                             </div>
 
                         ) : (

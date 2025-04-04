@@ -40,10 +40,16 @@ import Select from "react-select";
 
 import AssetImage from "@/components/asset-image";
 import InputMask from "react-input-mask";
-import {Button} from "react-bootstrap";
 import formValidator from "@/services/form-validator/form-validator";
 import formService from "@/services/form/form-service";
 import {PrimaryATS} from "@/constants/primary-ats";
+import {AssetStatus} from "@/enums/asset-status";
+import {DebtInstrument} from "@/enums/debt-instrument";
+import {PaymentFrequency} from "@/enums/payment-frequency";
+import {BackingCollateralDetails} from "@/enums/backing-collateral-details";
+import {SettlementMethod} from "@/enums/settlement-method";
+import {CustodyArrangement} from "@/enums/custody-arrangement";
+import {AssociatedNetwork} from "@/enums/associated-network";
 
 const allowedImageFileSizeMB = 1
 const allowedImageFileSize = allowedImageFileSizeMB * 1024 * 1024;
@@ -56,6 +62,57 @@ const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
     is_cusip: Yup.boolean().label('CUSIP'),
     symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
+
+    asset_status: Yup.string().label('Asset Status'),
+    debt_instrument: Yup.string().label('Debt Instrument'),
+    face_value_par_value: Yup.number()
+        .when('debt_instrument', {
+            is: (v: string | null | undefined) => !!v && v.trim() !== '',
+            then: (schema) =>
+                schema
+                    .transform((value, originalValue) => {
+                        return Number(originalValue.toString().replace(/,/g, ''));
+                    })
+                    .required('Required')
+                    .moreThan(0, 'Must be greater than 0')
+                    .label('Face Value/Par Value'),
+        }),
+    coupon_interest_rate: Yup.number()
+        .when('debt_instrument', {
+            is: (v: string | null | undefined) => !!v && v.trim() !== '',
+            then: (schema) =>
+                schema
+                    .transform((value, originalValue) => {
+                        return Number(originalValue.toString().replace(/,/g, ''));
+                    })
+                    .required('Required')
+                    .moreThan(0, 'Must be greater than 0')
+                    .label('Coupon/Interest Rate'),
+        }),
+    maturity_date: Yup.string()
+        .when('debt_instrument', {
+            is: (v: string | null | undefined) => !!v && v.trim() !== '',
+            then: (schema) =>
+                schema
+                    .required('Required')
+                    .label('Maturity Date'),
+        }),
+    payment_frequency: Yup.string()
+        .when('debt_instrument', {
+            is: (v: string | null | undefined) => !!v && v.trim() !== '',
+            then: (schema) =>
+                schema
+                    .required('Required')
+                    .label('Payment Frequency'),
+        }),
+    issue_date: Yup.string().label('Date of Issue / Creation'),
+    governance_notes: Yup.string().label('Issuance / Governance Notes'),
+    backing_collateral_details: Yup.string().label('Backing / Collateral Details'),
+    backing_collateral_details_text: Yup.string().label('Backing / Collateral Details Text'),
+    settlement_method: Yup.string().label('Settlement Method'),
+    custody_arrangement: Yup.string().label('Custody Arrangements'),
+    associated_network: Yup.string().label('Associated Network / Ledger'),
+    notes: Yup.string().label('Free-Form Notes'),
     symbol_id: Yup.string().nullable(),
     spv_name: Yup.string().label('SPV Name'),
     fund_manager: Yup.string().label('Fund Manager'),
@@ -247,6 +304,8 @@ interface SymbolPageFormState extends IState, IModalState {
     getSymbolProcessing: boolean;
     isSymbolCodeChange: boolean;
     symbolCode: string;
+    focusedMaturityDate: any;
+    focusedIssueDate: any;
 }
 
 const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
@@ -305,7 +364,9 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             selectedSecImages: [],
             getSymbolProcessing: false,
             isSymbolCodeChange: false,
-            symbolCode: ''
+            symbolCode: '',
+            focusedMaturityDate: null,
+            focusedIssueDate: null
         }
 
         this.formRef = React.createRef();
@@ -353,6 +414,20 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
             sec_images: string[];
             sec_files: string[];
             symbol: string;
+            asset_status: string;
+            debt_instrument: string;
+            face_value_par_value: string;
+            coupon_interest_rate: string;
+            maturity_date: string;
+            payment_frequency: string;
+            issue_date: string;
+            governance_notes: string;
+            backing_collateral_details: string;
+            backing_collateral_details_text: string;
+            settlement_method: string;
+            custody_arrangement: string;
+            associated_network: string;
+            notes: string;
             is_cusip: boolean;
             cusip: string;
             dsin: string;
@@ -402,6 +477,20 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         } = {
             reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
             symbol: initialData?.symbol || '',
+            asset_status: initialData?.asset_status || '',
+            debt_instrument: initialData?.debt_instrument || '',
+            face_value_par_value: formatterService.toPlainString(initialData?.face_value_par_value?.toString()),
+            coupon_interest_rate: formatterService.toPlainString(initialData?.coupon_interest_rate?.toString()),
+            maturity_date: initialData?.maturity_date || '',
+            payment_frequency: initialData?.payment_frequency || '',
+            issue_date: initialData?.issue_date || '',
+            governance_notes: initialData?.governance_notes || '',
+            backing_collateral_details: initialData?.backing_collateral_details || '',
+            backing_collateral_details_text: initialData?.backing_collateral_details_text || '',
+            settlement_method: initialData?.settlement_method || '',
+            custody_arrangement: initialData?.custody_arrangement || '',
+            associated_network: initialData?.associated_network || '',
+            notes: initialData?.notes || '',
             symbol_id: initialData?.symbol_id || null,
             company_profile_id: initialData?.company_profile_id || null,
             spv_name: initialData?.spv_name || '',
@@ -488,6 +577,17 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
 
     };
 
+    handleBackingCollateralDetailsChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+        let value: string | null = e.target.value;
+
+        await setFieldValue("backing_collateral_details", value);
+
+        if (value !== BackingCollateralDetails.ENTER_TEXT) {
+            await setFieldValue("backing_collateral_details_text", '');
+        }
+
+    };
+
     handleRedeemabilityChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
         let value: string | null = e.target.value;
 
@@ -563,6 +663,14 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
         this.setState({errorMessages: null});
 
         const data = {...values};
+
+        if (data.face_value_par_value.toString() !== '') {
+            data.face_value_par_value = Number(data.face_value_par_value.toString().replace(/,/g, ''));
+        }
+
+        if (data.coupon_interest_rate.toString() !== '') {
+            data.coupon_interest_rate = Number(data.coupon_interest_rate.toString().replace(/,/g, ''));
+        }
 
         if (data.primary_ats === PrimaryATS.ADD_NEW.value) {
             data.primary_ats = data.new_primary_ats.trim();
@@ -872,7 +980,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                 <div className={'profile__right-wrap-full'}>
                                                     <div className={'profile__panel'}>
                                                         <div
-                                                            className={'profile__info__panel view__input__box align-items-end'}>
+                                                            className={'profile__info__panel view__input__box align-items-start'}>
                                                             {(values.is_delete) && (
                                                                 <>
                                                                     <div className="input">
@@ -990,7 +1098,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     rows="3"
                                                                                     className="input__textarea no-bgarea"
                                                                                     placeholder="Type delete reason"
-                                                                                    disabled={isSubmitting}
+                                                                                    disabled={isSubmitting || this.isShow()}
                                                                                 />
                                                                                 <ErrorMessage name="reason_delete"
                                                                                               component="div"
@@ -1412,7 +1520,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             type="text"
                                                                                             className="input__text edit"
                                                                                             placeholder="Type Symbol"
-                                                                                            disabled={isSubmitting}
+                                                                                            disabled={isSubmitting || this.isShow()}
                                                                                             onChange={(e: any) => this.handleSymbol(e.target.value, setFieldValue, setFieldTouched)}
                                                                                         />
 
@@ -1605,7 +1713,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                                     type="text"
                                                                                                     className="input__text edit"
                                                                                                     placeholder="Type Symbol"
-                                                                                                    disabled={isSubmitting}
+                                                                                                    disabled={isSubmitting || this.isShow()}
                                                                                                     onChange={(e: any) => this.handleNewSymbol(e.target.value, setFieldValue, setFieldTouched)}
                                                                                                 />
 
@@ -1652,7 +1760,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                             rows="3"
                                                                                             className="input__textarea no-bgarea"
                                                                                             placeholder="Type change reason"
-                                                                                            disabled={isSubmitting}
+                                                                                            disabled={isSubmitting || this.isShow()}
                                                                                         />
                                                                                         <ErrorMessage
                                                                                             name="reason_change"
@@ -1764,6 +1872,34 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                             </div>
                                                                         </>
                                                                     )}
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Asset Status
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="asset_status"
+                                                                                id="asset_status"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Asset Status
+                                                                                </option>
+                                                                                {Object.values(AssetStatus).map((status) => (
+                                                                                    <option key={status}
+                                                                                            value={status}>
+                                                                                        {status}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="asset_status"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
 
                                                                     <div className={'input__box'}>
                                                                         <div className="input">
@@ -1923,6 +2059,141 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                     className="error-message"/>
                                                                             </div>
                                                                         </div>
+                                                                    )}
+
+                                                                    <div className="input__box">
+                                                                        <div
+                                                                            className="input__title">Debt Instrument
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="debt_instrument"
+                                                                                id="debt_instrument"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select
+                                                                                    Debt Instrument
+                                                                                </option>
+                                                                                {Object.values(DebtInstrument).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="debt_instrument"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.debt_instrument !== '' && (
+                                                                        <>
+                                                                            <div className="input__box">
+                                                                                <div className="input__title">Face
+                                                                                    Value/Par
+                                                                                    Value <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap no-border ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                                    <Field
+                                                                                        name="face_value_par_value"
+                                                                                        id="face_value_par_value"
+                                                                                        type="text"
+                                                                                        className="input__text"
+                                                                                        placeholder="Type Face Value/Par Value"
+                                                                                        component={NumericInputField}
+                                                                                        decimalScale={2}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="face_value_par_value"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input__box">
+                                                                                <div
+                                                                                    className="input__title">Coupon/Interest
+                                                                                    Rate <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap no-border ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                                    <Field
+                                                                                        name="coupon_interest_rate"
+                                                                                        id="coupon_interest_rate"
+                                                                                        type="text"
+                                                                                        className="input__text"
+                                                                                        placeholder="Type Coupon/Interest Rate"
+                                                                                        component={NumericInputField}
+                                                                                        decimalScale={3}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    />
+                                                                                    <ErrorMessage
+                                                                                        name="coupon_interest_rate"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input__box">
+                                                                                <div className="input__title">Maturity
+                                                                                    Date <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap no-border ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                                    <SingleDatePicker
+                                                                                        numberOfMonths={1}
+                                                                                        renderMonthElement={formatterService.renderMonthElement}
+                                                                                        date={values.maturity_date ? moment(values.maturity_date) : null}
+                                                                                        onDateChange={date => setFieldValue('maturity_date', date?.format('YYYY-MM-DD').toString())}
+                                                                                        focused={this.state.focusedMaturityDate}
+                                                                                        onFocusChange={({focused}) => this.setState({focusedMaturityDate: focused})}
+                                                                                        id="maturity_date"
+                                                                                        displayFormat={dateFormat}
+                                                                                        isOutsideRange={() => false}
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                        readOnly={true}
+                                                                                        placeholder={'Select Maturity Date'}
+                                                                                    />
+                                                                                    <ErrorMessage name="maturity_date"
+                                                                                                  component="div"
+                                                                                                  className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="input__box">
+                                                                                <div className="input__title">Payment
+                                                                                    Frequency <i>*</i>
+                                                                                </div>
+                                                                                <div
+                                                                                    className={`input__wrap no-border ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                                    <Field
+                                                                                        name="payment_frequency"
+                                                                                        id="payment_frequency"
+                                                                                        as="select"
+                                                                                        className="b-select no-bg"
+                                                                                        disabled={isSubmitting || this.isShow()}
+                                                                                    >
+                                                                                        <option value="">Select Payment
+                                                                                            Frequency
+                                                                                        </option>
+                                                                                        {Object.values(PaymentFrequency).map((frequency) => (
+                                                                                            <option key={frequency}
+                                                                                                    value={frequency}>
+                                                                                                {frequency}
+                                                                                            </option>
+                                                                                        ))}
+                                                                                    </Field>
+                                                                                    <ErrorMessage
+                                                                                        name="payment_frequency"
+                                                                                        component="div"
+                                                                                        className="error-message"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </>
                                                                     )}
 
                                                                     <div className="input__box">
@@ -2216,10 +2487,83 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                         </div>
                                                                     </div>
 
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Edgar CIK
+                                                                            <Link
+                                                                                className={'link info-panel-title-link'}
+                                                                                href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
+                                                                                target={'_blank'}>
+                                                                                Company Filings <FontAwesomeIcon
+                                                                                className="nav-icon"
+                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                            </Link>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="edgar_cik"
+                                                                                id="edgar_cik"
+                                                                                type="text"
+                                                                                className="input__text no-bg"
+                                                                                placeholder="Type Edgar CIK"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="edgar_cik"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
 
                                                                     <div className={'input__box full'}>
                                                                         <h4 className={'input__group__title'}>Digital
                                                                             Asset:</h4>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Date of Issue /
+                                                                            Creation
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap no-border ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
+                                                                            <SingleDatePicker
+                                                                                numberOfMonths={1}
+                                                                                renderMonthElement={formatterService.renderMonthElement}
+                                                                                date={values.issue_date ? moment(values.issue_date) : null}
+                                                                                onDateChange={date => setFieldValue('issue_date', date?.format('YYYY-MM-DD').toString())}
+                                                                                focused={this.state.focusedIssueDate}
+                                                                                onFocusChange={({focused}) => this.setState({focusedIssueDate: focused})}
+                                                                                id="issue_date"
+                                                                                displayFormat={dateFormat}
+                                                                                isOutsideRange={() => false}
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                readOnly={true}
+                                                                                placeholder={'Select Date of Issue / Creation'}
+                                                                            />
+                                                                            <ErrorMessage name="issue_date"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Issuance /
+                                                                            Governance Notes
+                                                                        </div>
+                                                                        <div className="input__wrap no-border">
+                                                                            <Field
+                                                                                name="governance_notes"
+                                                                                id="governance_notes"
+                                                                                as="textarea"
+                                                                                rows="3"
+                                                                                className="input__textarea no-bgarea"
+                                                                                placeholder="DAO, corporate board, free-form text"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            />
+                                                                            <ErrorMessage name="governance_notes"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
                                                                     </div>
 
                                                                     <div className="input__box">
@@ -2385,6 +2729,63 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="reference_asset"
+                                                                                    component="div"
+                                                                                    className="error-message"/>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className={'input__box'}>
+                                                                        <div
+                                                                            className="input__title">Backing /
+                                                                            Collateral Details (If Any)
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="backing_collateral_details"
+                                                                                id="backing_collateral_details"
+                                                                                as="select"
+                                                                                className="b-select no-bg"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                                onChange={(e: any) => this.handleBackingCollateralDetailsChange(e, setFieldValue)}
+                                                                            >
+                                                                                <option value="">Select Backing /
+                                                                                    Collateral Details
+                                                                                </option>
+                                                                                {Object.values(BackingCollateralDetails).map((type) => (
+                                                                                    <option key={type}
+                                                                                            value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage
+                                                                                name="backing_collateral_details"
+                                                                                component="div"
+                                                                                className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {values.backing_collateral_details === BackingCollateralDetails.ENTER_TEXT && (
+
+                                                                        <div className="input__box">
+                                                                            <div
+                                                                                className="input__title">Backing /
+                                                                                Collateral Details (Notes)
+                                                                            </div>
+                                                                            <div
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                                <Field
+                                                                                    name="backing_collateral_details_text"
+                                                                                    id="backing_collateral_details_text"
+                                                                                    as="textarea"
+                                                                                    rows="3"
+                                                                                    className="input__textarea no-bgarea"
+                                                                                    placeholder="Enter Text"
+                                                                                    disabled={isSubmitting || this.isShow()}
+                                                                                />
+                                                                                <ErrorMessage
+                                                                                    name="backing_collateral_details_text"
                                                                                     component="div"
                                                                                     className="error-message"/>
                                                                             </div>
@@ -2570,36 +2971,113 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                         </div>
                                                                     </div>
 
-
                                                                     <div className="input__box">
-                                                                        <div className="input__title">Edgar CIK
-                                                                            <Link
-                                                                                className={'link info-panel-title-link'}
-                                                                                href={'https://www.sec.gov/edgar/searchedgar/companysearch'}
-                                                                                target={'_blank'}>
-                                                                                Company Filings <FontAwesomeIcon
-                                                                                className="nav-icon"
-                                                                                icon={faArrowUpRightFromSquare}/>
-                                                                            </Link>
+                                                                        <div className="input__title">Settlement
+                                                                            Method
                                                                         </div>
                                                                         <div
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                             <Field
-                                                                                name="edgar_cik"
-                                                                                id="edgar_cik"
-                                                                                type="text"
-                                                                                className="input__text no-bg"
-                                                                                placeholder="Type Edgar CIK"
+                                                                                name="settlement_method"
+                                                                                id="settlement_method"
+                                                                                as="select"
+                                                                                className="b-select"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Settlement
+                                                                                    Method
+                                                                                </option>
+                                                                                {Object.values(SettlementMethod).map((type) => (
+                                                                                    <option key={type} value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="settlement_method"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Custody
+                                                                            Arrangements
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="custody_arrangement"
+                                                                                id="custody_arrangement"
+                                                                                as="select"
+                                                                                className="b-select"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Custody
+                                                                                    Arrangements
+                                                                                </option>
+                                                                                {Object.values(CustodyArrangement).map((type) => (
+                                                                                    <option key={type} value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="custody_arrangement"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Associated Network
+                                                                            /
+                                                                            Ledger
+                                                                        </div>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="associated_network"
+                                                                                id="associated_network"
+                                                                                as="select"
+                                                                                className="b-select"
+                                                                                disabled={isSubmitting || this.isShow()}
+                                                                            >
+                                                                                <option value="">Select Associated
+                                                                                    Network /
+                                                                                    Ledger
+                                                                                </option>
+                                                                                {Object.values(AssociatedNetwork).map((type) => (
+                                                                                    <option key={type} value={type}>
+                                                                                        {type}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Field>
+                                                                            <ErrorMessage name="associated_network"
+                                                                                          component="div"
+                                                                                          className="error-message"/>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="input__box">
+                                                                        <div className="input__title">Free-Form Notes
+                                                                        </div>
+                                                                        <div className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                            <Field
+                                                                                name="notes"
+                                                                                id="notes"
+                                                                                as="textarea"
+                                                                                rows="3"
+                                                                                className="input__textarea"
+                                                                                placeholder="Comments"
                                                                                 disabled={isSubmitting || this.isShow()}
                                                                             />
-                                                                            <ErrorMessage name="edgar_cik"
+                                                                            <ErrorMessage name="notes"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
                                                                     </div>
                                                                 </>
                                                             )}
-
+                                                            
                                                             {this.props.action !== 'view' && (
                                                                 <div className="input__box full">
                                                                     <div className="input__box">

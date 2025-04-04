@@ -78,6 +78,21 @@ export interface ISymbol {
     algorand_best_bid_and_best_offer_application_id?: string;
     algorand_best_bid_and_best_offer_application_id_link?: string;
 
+    asset_status: string
+    debt_instrument: string;
+    face_value_par_value: number;
+    coupon_interest_rate: number;
+    maturity_date: string;
+    payment_frequency: string;
+    issue_date: string;
+    governance_notes: string;
+    backing_collateral_details: string;
+    backing_collateral_details_text: string;
+    settlement_method: string;
+    custody_arrangement: string;
+    associated_network: string;
+    notes: string;
+
     // Topology
     company_profile_id: number | null;
     symbol_id: number | null;

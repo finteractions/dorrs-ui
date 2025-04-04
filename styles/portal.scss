@@ -743,6 +743,10 @@ body {
     .SingleDatePicker {
       width: 100%;
 
+      > div {
+        display: flex;
+      }
+
       .SingleDatePickerInput {
         width: 100%;
         border: 1px solid #718494;
