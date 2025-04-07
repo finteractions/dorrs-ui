@@ -43,7 +43,7 @@ import InputMask from "react-input-mask";
 import formValidator from "@/services/form-validator/form-validator";
 import formService from "@/services/form/form-service";
 import {PrimaryATS} from "@/constants/primary-ats";
-import {AssetStatus} from "@/enums/asset-status";
+import {AssetStatus, getNonEditableStatus} from "@/enums/asset-status";
 import {DebtInstrument} from "@/enums/debt-instrument";
 import {PaymentFrequency} from "@/enums/payment-frequency";
 import {BackingCollateralDetails} from "@/enums/backing-collateral-details";
@@ -63,7 +63,7 @@ const formSchema = Yup.object().shape({
     is_cusip: Yup.boolean().label('CUSIP'),
     symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
 
-    asset_status: Yup.string().label('Asset Status'),
+    asset_status: Yup.string().required('Required').label('Asset Status'),
     debt_instrument: Yup.string().label('Debt Instrument'),
     face_value_par_value: Yup.number()
         .when('debt_instrument', {
@@ -563,7 +563,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
     }
 
     isShow(): boolean {
-        return this.props.action === 'view';
+        return this.props.action === 'view' || getNonEditableStatus().includes(this.symbol?.asset_status as AssetStatus);
     }
 
     handlePeggedChange = async (e: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
@@ -1874,7 +1874,8 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                     )}
 
                                                                     <div className="input__box">
-                                                                        <div className="input__title">Asset Status
+                                                                        <div className="input__title">Asset
+                                                                            Status <i>*</i>
                                                                         </div>
                                                                         <div
                                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
@@ -1902,7 +1903,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                     </div>
 
                                                                     <div className={'input__box'}>
-                                                                        <div className="input">
+                                                                        <div className="input input__title">
                                                                             <div
                                                                                 className={`b-checkbox b-checkbox${(isSubmitting || this.isShow()) ? ' disable' : ''}`}>
                                                                                 <Field
@@ -3060,7 +3061,8 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                     <div className="input__box">
                                                                         <div className="input__title">Free-Form Notes
                                                                         </div>
-                                                                        <div className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
+                                                                        <div
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : 'no-border'}`}>
                                                                             <Field
                                                                                 name="notes"
                                                                                 id="notes"
@@ -3077,7 +3079,7 @@ class SymbolPageForm extends React.Component<SymbolPageFormProps> {
                                                                     </div>
                                                                 </>
                                                             )}
-                                                            
+
                                                             {this.props.action !== 'view' && (
                                                                 <div className="input__box full">
                                                                     <div className="input__box">

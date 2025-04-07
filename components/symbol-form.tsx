@@ -68,7 +68,7 @@ const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
     symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
 
-    asset_status: Yup.string().label('Asset Status'),
+    asset_status: Yup.string().required('Required').label('Asset Status'),
     debt_instrument: Yup.string().label('Debt Instrument'),
     face_value_par_value: Yup.number()
         .when('debt_instrument', {
@@ -1962,7 +1962,7 @@ class MembershipForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                             )}
 
                                                             <div className="input">
-                                                                <div className="input__title">Asset Status
+                                                                <div className="input__title">Asset Status <i>*</i>
                                                                 </div>
                                                                 <div
                                                                     className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>

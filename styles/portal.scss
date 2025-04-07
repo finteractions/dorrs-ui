@@ -402,11 +402,11 @@ body {
     //}
 
     .input__title {
+      line-height: 16px;
       font-weight: 400;
       font-size: 14px;
-      line-height: 1;
       color: var(--text-colour-5);
-      margin: 0 0 7px;
+      margin: 0 0 7px!important;
 
       .link {
         margin-left: 10px;
