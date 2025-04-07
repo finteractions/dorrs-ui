@@ -125,10 +125,10 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Market Sector </span>,
             }),
-            columnHelper.accessor((row) => row.digital_asset_category, {
-                id: "digital_asset_category",
+            columnHelper.accessor((row) => row.asset_status, {
+                id: "asset_status",
                 cell: (item) => item.getValue(),
-                header: () => <span>Digital Asset Category </span>,
+                header: () => <span>Asset Status </span>,
             }),
             columnHelper.accessor((row) => ({
                 comment_status: row.reason_change_status || row.reason_delete_status,
@@ -170,7 +170,7 @@ class AssetsBlock extends React.Component<{}> {
             // {key: 'reason_for_entry', placeholder: 'Reason for Entry'},
             {key: 'dsin', placeholder: 'DSIN'},
             {key: 'market_sector', placeholder: 'Market Sector'},
-            {key: 'digital_asset_category', placeholder: 'Digital Asset Category'},
+            {key: 'asset_status', placeholder: 'Asset Status'},
             {key: 'status', placeholder: 'Status'},
             {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
         ]

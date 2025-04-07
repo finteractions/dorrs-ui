@@ -1,5 +1,3 @@
-import {FormStatus} from "@/enums/form-status";
-
 export enum AssetStatus {
     ACTIVE = 'Active',
     HALTED = 'Halted',
