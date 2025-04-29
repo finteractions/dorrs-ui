@@ -88,7 +88,7 @@ class EmailConfirmationBlock extends React.Component<EmailConfirmationBlockProps
                     <>
                         <ExchangeAlertBlock success={false}
                                             title={'Email Confirmation'}
-                                            messages={['Email Confirmation link invalid or expired', 'A new link was sent to your email if account exists']}/>
+                                            messages={['Email Confirmation link invalid or expired.', 'A new link was sent to your email if account exists']}/>
                         <div className="login__bottom">
                             <p>
                                 <i className="icon-chevron-left"/>
