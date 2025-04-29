@@ -6,6 +6,7 @@ import authService from "@/services/auth/auth-service";
 import formValidator from "@/services/form-validator/form-validator";
 import AlertBlock from "@/components/alert-block";
 import adminService from "@/services/admin/admin-service";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = Yup.object().shape({
     email:
@@ -28,9 +29,13 @@ interface LoginFormState extends IState {
     showPassword: boolean;
 }
 
+const googleRecaptchaPublicKey = process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY || '';
+
 class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
 
     state: LoginFormState;
+
+    private googleRecaptchaRef = React.createRef<ReCAPTCHA>();
 
     constructor(props: LoginFormProps) {
         super(props);
@@ -45,29 +50,44 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
         this.setState({showPassword: !this.state.showPassword});
     }
 
-    handleSubmit = async (values: Record<string, string>,
-                          {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
-        this.setState({errorMessages: null});
+    handleSubmit = async (
+        values: Record<string, string>,
+        { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    ) => {
+        this.setState({ errorMessages: null });
 
-        const request: Promise<any> = this.props.isAdmin ?
-            adminService.login(values) :
-            authService.login(values)
+        try {
+            let recaptchaToken;
 
-        await request
-            .then((res: any) => {
-                values = Object.assign(values, res);
-                this.onCallback(values);
-            })
-            .catch((errors: IError) => {
-                // if (errors.messages.some(item => item.toLowerCase().includes('approve'))) {
-                //     this.props.onCallback(errors.values);
-                // } else {
-                    this.setState({errorMessages: errors.messages});
-                // }
+            if (googleRecaptchaPublicKey && this.googleRecaptchaRef.current) {
+                recaptchaToken = await this.googleRecaptchaRef.current.executeAsync();
+                this.googleRecaptchaRef.current.reset();
 
-            })
-            .finally(() => setSubmitting(false));
+                if (!recaptchaToken) {
+                    throw new Error("Failed to get reCAPTCHA token.");
+                }
+            }
+
+            const requestData = {
+                ...values,
+                recaptcha_token: recaptchaToken,
+            };
+
+            const request: Promise<any> = this.props.isAdmin
+                ? adminService.login(requestData)
+                : authService.login(requestData);
+
+            const res = await request;
+            values = Object.assign(values, res);
+            this.onCallback(values);
+
+        } catch (errors: any) {
+            this.setState({ errorMessages: errors.messages || ["Login failed"] });
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     onCallback(values: Record<string, string | boolean>) {
         this.props.onCallback(values);
@@ -129,6 +149,16 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
                                                     />
                                                 </div>
                                             </div>
+
+                                            {googleRecaptchaPublicKey && (
+                                                <ReCAPTCHA
+                                                    ref={this.googleRecaptchaRef}
+                                                    sitekey={googleRecaptchaPublicKey}
+                                                    size="invisible"
+                                                    theme="light"
+                                                />
+                                            )}
+                                            
                                             <button
                                                 className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                 type="submit"

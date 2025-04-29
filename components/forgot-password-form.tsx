@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image"
 import authService from "@/services/auth/auth-service";
 import AlertBlock from "@/components/alert-block";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = Yup.object().shape({
     email:
@@ -23,9 +24,13 @@ interface ForgotPasswordFormProps {
 interface ForgotPasswordFormState extends IState {
 }
 
+const googleRecaptchaPublicKey = process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY || '';
+
 class ForgotPasswordForm extends React.Component<ForgotPasswordFormProps, ForgotPasswordFormState> {
 
     state: ForgotPasswordFormState;
+
+    private googleRecaptchaRef = React.createRef<ReCAPTCHA>();
 
     constructor(props: ICallback) {
         super(props);
@@ -35,19 +40,41 @@ class ForgotPasswordForm extends React.Component<ForgotPasswordFormProps, Forgot
         };
     }
 
-    handleSubmit = async (values: Record<string, string>,
-                          {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
-        this.setState({errorMessages: null});
-        await authService.createPasswordForgot(values)
-            .then((res => {
-                this.setState({success: true});
-            }))
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
-            }).finally(() => {
-                setSubmitting(false);
+    handleSubmit = async (
+        values: Record<string, string>,
+        { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    ) => {
+        this.setState({ errorMessages: null });
+
+        try {
+            let recaptchaToken;
+
+            if (googleRecaptchaPublicKey && this.googleRecaptchaRef.current) {
+                recaptchaToken = await this.googleRecaptchaRef.current.executeAsync();
+                this.googleRecaptchaRef.current.reset();
+
+                if (!recaptchaToken) {
+                    throw new Error("Failed to get reCAPTCHA token.");
+                }
+            }
+
+            const requestData = {
+                ...values,
+                recaptcha_token: recaptchaToken,
+            };
+
+            await authService.createPasswordForgot(requestData);
+            this.setState({ success: true });
+
+        } catch (error: any) {
+            this.setState({
+                errorMessages: error?.messages || ["Failed to request password reset"],
             });
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     render() {
         return (
@@ -90,6 +117,16 @@ class ForgotPasswordForm extends React.Component<ForgotPasswordFormProps, Forgot
                                                                   className="error-message"/>
                                                 </div>
                                             </div>
+
+                                            {googleRecaptchaPublicKey && (
+                                                <ReCAPTCHA
+                                                    ref={this.googleRecaptchaRef}
+                                                    sitekey={googleRecaptchaPublicKey}
+                                                    size="invisible"
+                                                    theme="light"
+                                                />
+                                            )}
+
                                             <button
                                                 className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                 type="submit"

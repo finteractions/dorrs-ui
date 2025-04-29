@@ -8,10 +8,9 @@ import authService from "@/services/auth/auth-service";
 import AlertBlock from "@/components/alert-block";
 import downloadFile from "@/services/download-file/download-file";
 import {PRIVACY_POLICY, TERMS_OF_SERVICE} from "@/constants/settings";
-import {AccountType, getAccountTypeImage} from "@/enums/account-type";
 import {UserType} from "@/enums/user-type";
-import Image from "next/image";
 import dataFeedProvidersService from "@/services/data-feed-providers/data-feed-providers";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = Yup.object().shape({
     user_type: Yup.mixed<UserType>()
@@ -54,6 +53,7 @@ interface RegistrationPersonalInformationFormState extends IState {
     dataFeedProviders: Array<IDataFeedProvider>;
 }
 
+const googleRecaptchaPublicKey = process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY || '';
 
 class RegistrationPersonalInformationForm extends React.Component<{
     onCallback: (values: any, nextStep: boolean) => void,
@@ -62,6 +62,8 @@ class RegistrationPersonalInformationForm extends React.Component<{
 
     state: RegistrationPersonalInformationFormState;
     accountType = '';
+
+    private googleRecaptchaRef = React.createRef<ReCAPTCHA>();
 
     constructor(props: ICallback) {
         super(props);
@@ -96,23 +98,44 @@ class RegistrationPersonalInformationForm extends React.Component<{
             })
     }
 
-    handleSubmit = async (values: Record<string, string | boolean | string[]>, {setSubmitting}: {
-        setSubmitting: (isSubmitting: boolean) => void
-    }) => {
-        this.setState({errorMessages: null, email: String(values.email)})
+    handleSubmit = async (
+        values: Record<string, string | boolean | string[]>,
+        { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    ) => {
+        this.setState({ errorMessages: null, email: String(values.email) });
 
-        values = Object.assign(values, {account_type: this.accountType});
-        await authService.registration(values)
-            .then((res: any) => {
-                this.setState({success: true});
-                values = Object.assign(values, res)
-                this.onCallback(values, true);
-            })
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages})
-            })
-            .finally(() => setSubmitting(false))
+        try {
+            let recaptchaToken;
+
+            if (googleRecaptchaPublicKey && this.googleRecaptchaRef.current) {
+                recaptchaToken = await this.googleRecaptchaRef.current.executeAsync();
+                this.googleRecaptchaRef.current.reset();
+
+                if (!recaptchaToken) {
+                    throw new Error("Failed to get reCAPTCHA token.");
+                }
+            }
+
+            const requestData = {
+                ...values,
+                account_type: this.accountType,
+                recaptcha_token: recaptchaToken,
+            };
+
+            const response = await authService.registration(requestData);
+
+            this.setState({ success: true });
+            this.onCallback({ ...requestData, ...response }, true);
+
+        } catch (error: any) {
+            this.setState({
+                errorMessages: error?.messages || ["Registration failed"]
+            });
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     handleTogglePassword() {
         this.setState({showPassword: !this.state.showPassword});
@@ -347,6 +370,15 @@ class RegistrationPersonalInformationForm extends React.Component<{
 
                                         {this.state.errorMessages && (
                                             <AlertBlock type={"error"} messages={this.state.errorMessages}/>
+                                        )}
+
+                                        {googleRecaptchaPublicKey && (
+                                            <ReCAPTCHA
+                                                ref={this.googleRecaptchaRef}
+                                                sitekey={googleRecaptchaPublicKey}
+                                                size="invisible"
+                                                theme="light"
+                                            />
                                         )}
 
                                         <button

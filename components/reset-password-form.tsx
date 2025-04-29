@@ -8,6 +8,7 @@ import formValidator from "../services/form-validator/form-validator";
 import AlertBlock from "@/components/alert-block";
 import jwtService from "@/services/jwt/jwt-service";
 import ExchangeAlertBlock from "@/components/exchange-alert-block";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = Yup.object().shape({
     new_password: formValidator.passwordField,
@@ -30,9 +31,13 @@ interface ResetPasswordFormState extends IState {
     isTokenExpired: boolean;
 }
 
+const googleRecaptchaPublicKey = process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY || '';
+
 class ResetPasswordForm extends React.Component<ResetPasswordFormProps, ResetPasswordFormState> {
 
     state: ResetPasswordFormState;
+
+    private googleRecaptchaRef = React.createRef<ReCAPTCHA>();
 
     constructor(props: ResetPasswordFormProps) {
         super(props);
@@ -83,19 +88,41 @@ class ResetPasswordForm extends React.Component<ResetPasswordFormProps, ResetPas
         this.setState({showPasswordNewConfirm: !this.state.showPasswordNewConfirm});
     }
 
-    handleSubmit = async (values: Record<string, string>,
-                          {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
-        this.setState({errorMessages: null});
-        await authService.createPasswordReset(values, this.state.token)
-            .then((res => {
-                this.setState({success: true, token: ''});
-            }))
-            .catch((errors: IError) => {
-                this.setState({errorMessages: errors.messages});
-            }).finally(() => {
-                setSubmitting(false);
+    handleSubmit = async (
+        values: Record<string, string>,
+        { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    ) => {
+        this.setState({ errorMessages: null });
+
+        try {
+            let recaptchaToken;
+
+            if (googleRecaptchaPublicKey && this.googleRecaptchaRef.current) {
+                recaptchaToken = await this.googleRecaptchaRef.current.executeAsync();
+                this.googleRecaptchaRef.current.reset();
+
+                if (!recaptchaToken) {
+                    throw new Error("Failed to get reCAPTCHA token.");
+                }
+            }
+
+            const requestData = {
+                ...values,
+                recaptcha_token: recaptchaToken,
+            };
+
+            await authService.createPasswordReset(requestData, this.state.token);
+            this.setState({ success: true, token: '' });
+
+        } catch (error: any) {
+            this.setState({
+                errorMessages: error?.messages || ["Password reset failed"],
             });
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     render() {
         return (
@@ -183,6 +210,16 @@ class ResetPasswordForm extends React.Component<ResetPasswordFormProps, ResetPas
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
+
+                                                {googleRecaptchaPublicKey && (
+                                                    <ReCAPTCHA
+                                                        ref={this.googleRecaptchaRef}
+                                                        sitekey={googleRecaptchaPublicKey}
+                                                        size="invisible"
+                                                        theme="light"
+                                                    />
+                                                )}
+
                                                 <button
                                                     className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                     type="submit"
