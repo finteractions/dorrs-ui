@@ -418,6 +418,30 @@ const Table = forwardRef<TableRef, ITableProps>(({
         }
     }, [customSelectValue]);
 
+    React.useEffect(() => {
+        const defaultFilters: { [key: string]: any } = {};
+
+        filters?.forEach(filter => {
+            const selectedRaw = filter.condition?.selected;
+
+            if (filter.type === 'multiSelect' && typeof selectedRaw === 'string') {
+                const selectedArray = selectedRaw.split(',').map((key: string) => ({
+                    value: key,
+                    label: filter.condition?.values?.[key] ?? key
+                }));
+
+                defaultFilters[filter.key] = selectedArray;
+            }
+        });
+
+        setColumnFilters(prev => ({
+            ...prev,
+            ...defaultFilters
+        }));
+    }, []);
+
+
+
     const getCondition = () => {
         const conditionValue = filters?.find(s => s.type === 'customSelect')?.condition
         const defaultValue = conditionValue?.selected;

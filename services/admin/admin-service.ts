@@ -583,6 +583,10 @@ class AdminService extends BaseService {
 
         return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management_pending/${id}/`, data, {}, this.getAdminToken()));
     }
+
+    public async deletePendingAsset(id: number): Promise<IResponseApi> {
+        return apiWebBackendService.delete<IResponseApi>(`${this.PATH}asset_management_pending/${id}/`, {}, {}, this.getAdminToken());
+    }
 }
 
 const adminService = new AdminService();

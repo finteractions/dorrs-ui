@@ -15,6 +15,7 @@ import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import downloadFile from "@/services/download-file/download-file";
 import {faComment} from "@fortawesome/free-solid-svg-icons";
+import {getSymbolSourceTypeName, SymbolSourceType} from "@/enums/symbol-source-type";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -100,10 +101,10 @@ class AssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue().count,
                 header: () => <span>S </span>,
             }),
-            columnHelper.accessor((row) => row.cusip, {
-                id: "cusip",
+            columnHelper.accessor((row) => row.source_name, {
+                id: "source_name",
                 cell: (item) => item.getValue(),
-                header: () => <span>CUSIP</span>,
+                header: () => <span>Source </span>,
             }),
             columnHelper.accessor((row) => row.symbol_suffix, {
                 id: "symbol_suffix",
@@ -196,6 +197,7 @@ class AssetsBlock extends React.Component<{}> {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
                     s.reason_change_status = !!s.reason_change
                     s.reason_delete_status = !!s.reason_delete
+                    s.source_name = getSymbolSourceTypeName(s.source as SymbolSourceType)
 
                     if (s.company_profile && s.company_profile?.status) {
                         s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;

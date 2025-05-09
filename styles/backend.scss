@@ -2912,6 +2912,10 @@
     background: #3d7da2
   }
 
+  .table__status.table__status-pending.changed:before {
+    background: #b8bec5
+  }
+
   .table__status.table__status-inprocess:before {
     background: #3d7da2
   }

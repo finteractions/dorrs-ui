@@ -210,7 +210,7 @@ class DirectoryBlock extends React.Component<DirectoryBlockProps, DirectoryBlock
 
         tableFilters = [
             {key: 'company_type', placeholder: 'Company Type'},
-            {key: 'asset_class', placeholder: 'Asset Classes', type: 'multiSelect'},
+            {key: 'asset_class', placeholder: 'Asset Classes', type: 'multiSelect',},
             {key: 'asset_region', placeholder: 'Asset Regions', type: 'multiSelect'},
             {key: 'network', placeholder: 'Live Protocols', type: 'multiSelect'},
             {key: 'profile_status', placeholder: 'Status'},

@@ -1063,16 +1063,20 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                 {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) ? (
                                                                     <>
                                                                         <div
-                                                                            className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
+                                                                            className={`approve-form-text w-100 pb-0 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
                                                                             <>
                                                                                 Status: {this.props.data?.status} by {this.props.data?.deleted_by || this.props.data?.changed_by || this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.deleted_date_time || this.props.data?.changed_date_time || this.props.data?.approved_date_time || '')}
                                                                             </>
                                                                         </div>
+                                                                        <div
+                                                                            className={`approve-form-text w-100 pt-2 `}>Source: {this.props.data?.source_name}</div>
                                                                     </>
                                                                 ) : (
                                                                     <>
+                                                                    <div
+                                                                            className={`approve-form-text w-100 pb-0 ${this.props.data?.created_by ? 'pt-1' : ''}`}>Status: {this.props.data?.status}</div>
                                                                         <div
-                                                                            className={`approve-form-text w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>Status: {this.props.data?.status}</div>
+                                                                            className={`approve-form-text w-100 pt-2 `}>Source: {this.props.data?.source_name}</div>
                                                                         <div className='approve-form-confirm'>
                                                                             {this.state.isConfirmedApproving ? (
                                                                                 <>

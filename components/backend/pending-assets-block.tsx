@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import LoaderBlock from "@/components/loader-block";
 import AlertBlock from "@/components/alert-block";
 import NoDataBlock from "@/components/no-data-block";
@@ -9,7 +9,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import formatterService from "@/services/formatter/formatter-service";
 import Modal from "@/components/modal";
 import AssetImage from "@/components/asset-image";
-import SymbolForm from "@/components/symbol-form";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import downloadFile from "@/services/download-file/download-file";
@@ -109,9 +108,9 @@ class PendingAssetsBlock extends React.Component<{}> {
                 cell: (item) => item.getValue(),
                 header: () => <span>Security Name </span>,
             }),
-            columnHelper.accessor((row) => row.source, {
-                id: "source",
-                cell: (item) => getSymbolSourceTypeName(item.getValue()),
+            columnHelper.accessor((row) => row.source_name, {
+                id: "source_name",
+                cell: (item) => item.getValue(),
                 header: () => <span>Source </span>,
             }),
             columnHelper.accessor((row) => row.market_sector, {
@@ -127,7 +126,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                 id: "status",
                 cell: (item) =>
                     <div className='status-panel'>
-                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()}`}>
+                        <div className={`table__status table__status-${item.getValue().status.toLowerCase()} changed`}>
                             {item.getValue().status}
                         </div>
                         {item.getValue().comment_status ?
@@ -141,6 +140,11 @@ class PendingAssetsBlock extends React.Component<{}> {
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
                 header: () => <span>Created Date</span>,
             }),
+            columnHelper.accessor((row) => row.approved_date_time, {
+                id: "approved_date_time",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Approved Date</span>,
+            }),
         ];
 
         tableFilters = [
@@ -148,7 +152,24 @@ class PendingAssetsBlock extends React.Component<{}> {
             {key: 'security_name', placeholder: 'Security Name'},
             {key: 'source_name', placeholder: 'Source'},
             {key: 'market_sector', placeholder: 'Market Sector'},
-            {key: 'status', placeholder: 'Status'},
+            {
+                key: 'status',
+                placeholder: 'Status',
+                type: 'multiSelect',
+                condition: {
+                    values: {
+                        'Pending': 'Pending',
+                        'Submitted': 'Submitted',
+                        'Approved': 'Approved',
+                        'Rejected': 'Rejected',
+                    },
+                    isClearable: true,
+                    isSearchable: true,
+                    selected: 'Pending,Submitted',
+                    condition: {}
+                }
+            }
+
         ]
     }
 
@@ -214,7 +235,7 @@ class PendingAssetsBlock extends React.Component<{}> {
 
     modalTitle = (mode: string) => {
         if (mode === 'delete') {
-            return 'Do you want to delete this symbol?';
+            return 'Do you want to delete this pending symbol?';
         } else if (mode === 'view') {
             return 'View Symbol'
         } else {
@@ -339,9 +360,9 @@ class PendingAssetsBlock extends React.Component<{}> {
                                                data={this.state.data}
                                                searchPanel={true}
                                                block={this}
-                                               viewBtn={false}
+                                               viewBtn={true}
                                                editBtn={true}
-                                               deleteBtn={false}
+                                               deleteBtn={true}
                                                filters={tableFilters}
                                                ref={this.tableRef}
                                         />
@@ -365,33 +386,6 @@ class PendingAssetsBlock extends React.Component<{}> {
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-                    {(this.state.formAction === 'view') && (
-                        <div className="modal__navigate">
-                            <div className="modal__navigate__title">Asset Profile:</div>
-
-                            {this.state.formData?.company_profile ? (
-                                <>
-                                    <div
-                                        className={`table__status table__status-${this.state.formData?.company_profile?.status.toLowerCase()}`}>{this.state.formData?.company_profile?.status}</div>
-                                    <button className={'border-btn ripple'}
-                                            onClick={() => this.openCompanyModal('view', this.state.formData?.company_profile)}>
-                                        View
-                                    </button>
-                                    <button className={'border-btn ripple'}
-                                            onClick={() => this.openCompanyModal('edit', this.state.formData?.company_profile)}>
-                                        Edit
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <button className={'border-btn ripple'}
-                                            onClick={() => this.openCompanyModal('add')}>
-                                        Add
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    )}
 
                     <PendingSymbolForm action={this.state.formAction}
                                 data={this.state.formData}
