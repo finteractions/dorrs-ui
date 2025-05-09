@@ -5194,6 +5194,13 @@
     }
   }
 
+  .loader-block.small {
+    img {
+      transform: scale(2);
+      transform-origin: center;
+      margin-left: 10px;
+    }
+  }
 }
 
 

@@ -111,4 +111,8 @@ export interface ISymbol {
     linked_symbol_count?: number
     linked_data?: [],
     isAdmin?: boolean;
+
+    // Pending Symbol
+    source?: string;
+    source_name?: string;
 }

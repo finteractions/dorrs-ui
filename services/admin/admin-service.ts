@@ -549,6 +549,40 @@ class AdminService extends BaseService {
         return apiWebBackendService.post(`${this.PATH}export_ai_company_profile/`, data, {}, this.getAdminToken());
     }
 
+    public async getPendingAssets(symbol?: string | null, linked = false): Promise<ISymbol[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `&symbol=${symbol}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management_pending/?limit=${this.queryLimit}${queryString}`, {}, this.getAdminToken())).results;
+    }
+
+    public async getPendingAssetsProcessing(data: any): Promise<any> {
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}asset_management_pending/`, data, {}, this.getAdminToken()));
+    }
+
+    public async getPendingAsset(symbol?: string | null): Promise<ISymbol[]> {
+        let queryString = "";
+        if (symbol) {
+            queryString += `&symbol=${symbol}`;
+        }
+
+        return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management_pending/?limit=${this.queryLimit}${queryString}`, {}, this.getAdminToken())).results;
+    }
+
+    public async updatePendingAsset(data: any, id: number): Promise<IResponseApi> {
+        return apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management_pending/${id}/`, data, {}, this.getAdminToken());
+    }
+
+    public async approvePendingAsset(id: number, is_approved: boolean): Promise<IResponseApi> {
+        const data = {
+            status: is_approved ? 'approved' : 'rejected',
+            is_approval: true
+        }
+
+        return (await apiWebBackendService.put<IResponseApi>(`${this.PATH}asset_management_pending/${id}/`, data, {}, this.getAdminToken()));
+    }
 }
 
 const adminService = new AdminService();

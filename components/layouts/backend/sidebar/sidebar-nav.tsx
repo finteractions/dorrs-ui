@@ -23,7 +23,7 @@ import {
     faFileLines,
     faWallet,
     faFileSignature,
-    faRobot
+    faHashtag
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -98,9 +98,20 @@ const MENU_LIST: MenuItem[] = [
     },
     {
         text: 'Symbols',
-        href: "/backend/asset-management",
-        icon: faTags,
-        submenus: []
+        href: '#',
+        icon: faBriefcase,
+        submenus: [
+            {
+                text: 'Symbols',
+                href: "/backend/asset-management",
+                icon: faTags
+            },
+            {
+                text: 'Pending Symbols',
+                href: "/backend/asset-management-pending",
+                icon: faHashtag
+            },
+        ]
     },
     {
         text: 'Asset Profiles',

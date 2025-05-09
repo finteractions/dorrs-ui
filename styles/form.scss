@@ -45,6 +45,12 @@ body {
       }
     }
 
+    .b-checkbox input[type=checkbox]:disabled, .b-radio input[type=radio]:disabled {
+      + label span {
+        cursor: not-allowed;
+      }
+    }
+
     .b-select-search .select__react__value-container .select__react__single-value {
       color: inherit !important;
     }

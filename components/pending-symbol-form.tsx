@@ -55,6 +55,8 @@ import {BackingCollateralDetails} from "@/enums/backing-collateral-details";
 import {SettlementMethod} from "@/enums/settlement-method";
 import {CustodyArrangement} from "@/enums/custody-arrangement";
 import {AssociatedNetwork} from "@/enums/associated-network";
+import aiToolService from "@/services/ai-tool/ai-tool-service";
+import {ICompanyProfile} from "@/interfaces/i-company-profile";
 
 
 const allowedImageFileSizeMB = 1
@@ -273,7 +275,7 @@ const formSchema = Yup.object().shape({
 });
 
 
-interface SymbolFormState extends IState {
+interface PendingSymbolFormState extends IState {
     formInitialValues: {},
     isConfirmedApproving: boolean;
     isApproving: boolean | null;
@@ -310,9 +312,9 @@ let deleteColumns: any[] = [];
 const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD';
 
 
-class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
+class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFormState> {
 
-    state: SymbolFormState;
+    state: PendingSymbolFormState;
     masterSymbols: Array<ISymbol> = new Array<ISymbol>();
     primaryATS: Array<{ value: string, label: string }> = new Array<{ value: string, label: string }>();
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -325,8 +327,82 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
     constructor(props: SymbolFormProps) {
         super(props);
 
-        const initialData = this.props.data || {} as ISymbol;
+        const initialData = {} as ISymbol;
+        this.initForm(initialData);
+        this.state = {
+            success: false,
+            formInitialValues: {},
+            loading: true,
+            isApproving: null,
+            isConfirmedApproving: false,
+            isDeleting: false,
+            focusedInputDateEntered: null,
+            focusedInputDateEffective: null,
+            focusedInputDateEnteredDelete: null,
+            focusedInputDateEffectiveDelete: null,
+            history: [],
+            selectedSecFiles: [],
+            selectedSecImages: [],
+            getSymbolProcessing: false,
+            isSymbolCodeChange: false,
+            symbolCode: this.props.data?.symbol || '',
+            symbol: null,
+            focusedMaturityDate: null,
+            focusedIssueDate: null,
+        };
 
+        columns = [
+            columnHelper.accessor((row) => ({
+                details: row.log?.details,
+                before: row.record_before,
+                after: row.record_after,
+            }), {
+                id: "details",
+                cell: (item) => {
+                    const changes = this.getChanges(item.getValue().before, item.getValue().after) ?? []
+                    return (
+                        <>
+                            <div className={changes.length > 0 ? 'mb-2' : ''}>{item.getValue().details}</div>
+                            {changes.length > 0 && (
+                                <div className={'mb-3'}>
+                                    {changes.map((s: { key: string, value: string }, index: number) => (
+                                        <div key={index}>
+                                            <span className={'bold'}>{s.key}: </span>
+                                            <span>{s.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )
+                },
+                header: () => <span>Details</span>,
+            }),
+            columnHelper.accessor((row) => row.created_at, {
+                id: "created_at",
+                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
+                header: () => <span>Created Date</span>,
+            }),
+        ]
+
+        deleteColumns = [
+            columnDeleteHelper.accessor((row) => row.name, {
+                id: "name",
+                cell: (item) => item.getValue(),
+                header: () => <span>Source</span>,
+            }),
+            columnDeleteHelper.accessor((row) => row.count, {
+                id: "count",
+                cell: (item) => item.getValue(),
+                header: () => <span>Count</span>,
+            }),
+        ]
+
+        this.formRef = React.createRef();
+
+    }
+
+    initForm(initialData: ISymbol) {
         const currentDateTime = new Date();
         const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
         const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
@@ -506,76 +582,7 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
             version: initialData?.version || '',
         };
 
-        this.state = {
-            success: false,
-            formInitialValues: initialValues,
-            loading: false,
-            isApproving: null,
-            isConfirmedApproving: false,
-            isDeleting: false,
-            focusedInputDateEntered: null,
-            focusedInputDateEffective: null,
-            focusedInputDateEnteredDelete: null,
-            focusedInputDateEffectiveDelete: null,
-            history: initialData?.history || [],
-            selectedSecFiles: [],
-            selectedSecImages: [],
-            getSymbolProcessing: false,
-            isSymbolCodeChange: false,
-            symbolCode: initialValues.symbol,
-            symbol: null,
-            focusedMaturityDate: null,
-            focusedIssueDate: null,
-        };
-
-        columns = [
-            columnHelper.accessor((row) => ({
-                details: row.log?.details,
-                before: row.record_before,
-                after: row.record_after,
-            }), {
-                id: "details",
-                cell: (item) => {
-                    const changes = this.getChanges(item.getValue().before, item.getValue().after) ?? []
-                    return (
-                        <>
-                            <div className={changes.length > 0 ? 'mb-2' : ''}>{item.getValue().details}</div>
-                            {changes.length > 0 && (
-                                <div className={'mb-3'}>
-                                    {changes.map((s: { key: string, value: string }, index: number) => (
-                                        <div key={index}>
-                                            <span className={'bold'}>{s.key}: </span>
-                                            <span>{s.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    )
-                },
-                header: () => <span>Details</span>,
-            }),
-            columnHelper.accessor((row) => row.created_at, {
-                id: "created_at",
-                cell: (item) => formatterService.dateTimeFormat(item.getValue()),
-                header: () => <span>Created Date</span>,
-            }),
-        ]
-
-        deleteColumns = [
-            columnDeleteHelper.accessor((row) => row.name, {
-                id: "name",
-                cell: (item) => item.getValue(),
-                header: () => <span>Source</span>,
-            }),
-            columnDeleteHelper.accessor((row) => row.count, {
-                id: "count",
-                cell: (item) => item.getValue(),
-                header: () => <span>Count</span>,
-            }),
-        ]
-
-        this.formRef = React.createRef();
+        this.setState({formInitialValues: initialValues});
 
     }
 
@@ -680,13 +687,8 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
             }
         }
 
-        const request: Promise<any> = ['edit', 'delete'].includes(this.props.action) ?
-            !this.props?.isAdmin ?
-                symbolService.updateSymbol(formData, this.props.data?.id || 0) :
-                ['edit', 'delete'].includes(this.props.action) ?
-                    adminService.updateAsset(formData, this.props.data?.id || 0) :
-                    adminService.approveAsset(this.props.data?.id || 0, this.state.isApproving || false) :
-            !this.props?.isAdmin ? symbolService.createSymbol(formData) : values.is_change ? adminService.updateAsset(formData, this.props.data?.id || 0) : adminService.createAsset(formData);
+        const request: Promise<any> = adminService.updatePendingAsset(formData, this.props.data?.id || 0)
+
 
         await request
             .then(((res: any) => {
@@ -710,46 +712,27 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
         }
     }
 
+
     getAssets = () => {
-        const isDelete = this.isDelete()
-        let symbol = null;
-        let linked = false;
-        if (isDelete) {
-            symbol = this.props?.data?.symbol;
-        }
+        let symbol = this.props.data?.id;
 
-        adminService.getAssets(symbol)
-            .then((res: ISymbol[]) => {
-                const data = res || [];
-
-                const symbol = res?.[0] || null;
-                this.setState({symbol: symbol});
-
-                const primaryATS: Array<{
-                    value: string,
-                    label: string
-                }> = [...new Set(data.map(s => s.primary_ats).filter(s => s.length > 0).filter(s => s !== PrimaryATS.NONE.value))].sort().map((i) => {
-                    return {
-                        value: i,
-                        label: i
-                    }
+        const symbolData = this.props.data!;
+        if (new Date(symbolData.updated_at) > new Date(symbolData.created_at)) {
+            this.initForm(symbolData);
+            this.setState({loading: false})
+        } else {
+            aiToolService.aiGenerateSymbol(Number(symbol) ?? 0)
+                .then(((res: Array<ISymbol>) => {
+                    const symbol = res?.[0] || null;
+                    this.initForm(symbol);
+                }))
+                .catch((errors: IError) => {
+                    this.initForm(symbolData);
+                })
+                .finally(() => {
+                    this.setState({loading: false})
                 });
-                primaryATS.unshift({value: PrimaryATS.ADD_NEW.value, label: PrimaryATS.ADD_NEW.label});
-                primaryATS.unshift({value: PrimaryATS.NONE.value, label: PrimaryATS.NONE.label});
-                this.primaryATS = primaryATS;
-
-                this.masterSymbols = data
-                    .filter(s => !s.symbol_id)
-                    .filter(s => s.symbol !== this.state.symbolCode)
-                    .sort((a, b) => a.symbol.localeCompare(b.symbol));
-
-            })
-            .catch((errors: IError) => {
-
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+        }
     }
 
     isShow(): boolean {
@@ -894,16 +877,16 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     handleSecImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
-        this.setState((prevState: SymbolFormState) => {
+        this.setState((prevState: PendingSymbolFormState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedSecImages || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedSecImages: updatedFiles} as SymbolFormState;
+            return {selectedSecImages: updatedFiles} as PendingSymbolFormState;
         });
     };
 
 
     handleSecImageRemove = (index: number) => {
-        this.setState((prevState: SymbolFormState) => {
+        this.setState((prevState: PendingSymbolFormState) => {
             const updatedFiles = (prevState.selectedSecImages || []).filter((_, idx) => {
                 return idx !== index;
             });
@@ -913,16 +896,16 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
 
     handleSecFileChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
-        this.setState((prevState: SymbolFormState) => {
+        this.setState((prevState: PendingSymbolFormState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedSecFiles || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedSecFiles: updatedFiles} as SymbolFormState;
+            return {selectedSecFiles: updatedFiles} as PendingSymbolFormState;
         });
     };
 
 
     handleSecFileRemove = (index: number) => {
-        this.setState((prevState: SymbolFormState) => {
+        this.setState((prevState: PendingSymbolFormState) => {
             const updatedFiles = (prevState.selectedSecFiles || []).filter((_, idx) => {
                 return idx !== index;
             });
@@ -1273,7 +1256,7 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="input">
+                                                                <div className="input d-none">
                                                                     <div className="input__title">Link Symbol to
                                                                         Underlying Symbol
                                                                     </div>
@@ -1982,7 +1965,7 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                             </option>
                                                                         ))}
                                                                     </Field>
-                                                                    <ErrorMessage name="fifth_character_identifier"
+                                                                    <ErrorMessage name="asset_status"
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
@@ -3085,36 +3068,6 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                             <SubSymbolBlock symbol={this.props.data?.symbol || ''}/>
                                         </div>
                                     )}
-
-                                {['edit', 'view'].includes(this.props.action) && (
-                                    <>
-                                        <div className={'order-block__item mt-4'}>
-                                            <div className={'panel'}>
-                                                <div className={'content__top'}>
-                                                    <div className={'content__title'}>History Log</div>
-                                                </div>
-
-                                                <div className={'content__bottom'}>
-                                                    {this.state.history.length > 0 ? (
-                                                        <Table columns={columns}
-                                                               data={this.state.history}
-                                                               searchPanel={false}
-                                                               block={this}
-                                                               viewBtn={false}
-                                                               editBtn={false}
-                                                               deleteBtn={false}
-                                                               pageLength={5}
-                                                        />
-                                                    ) : (
-                                                        <NoDataBlock
-                                                            primaryText="No history available yet"/>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-
                             </>
                         )}
 
@@ -3177,4 +3130,4 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
     }
 }
 
-export default SymbolForm;
+export default PendingSymbolForm;

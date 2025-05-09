@@ -331,7 +331,7 @@ textarea.input__textarea {
   color: $color-primary;
 }
 
-.loader-block {
+.loader-block:not(.small) {
   width: 100%;
   min-height: 48px;
   box-sizing: border-box;
