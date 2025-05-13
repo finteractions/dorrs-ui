@@ -385,6 +385,11 @@ const Table = forwardRef<TableRef, ITableProps>(({
         return row && !row.isAdmin && [FormStatus.DELETED].includes(row['status']?.toLowerCase());
     };
 
+    const isButtonViewDisabled = (row: any) => {
+        return row?.viewDisabled === true
+    };
+
+
     const dataLabel = (cell: any) => {
         const header = (cell.column?.columnDef?.header as any);
 
@@ -607,7 +612,8 @@ const Table = forwardRef<TableRef, ITableProps>(({
                                                                 {viewBtn && (
                                                                     <button
                                                                         onClick={() => block.openModal('view', row.original, options?.type)}
-                                                                        className='admin-table-btn ripple'>
+                                                                        disabled={isButtonViewDisabled(row.original)}
+                                                                        className={`admin-table-btn ripple ${isButtonViewDisabled(row.original) ? 'disable' : ''}`}>
                                                                         <FontAwesomeIcon
                                                                             className="nav-icon" icon={faEye}/></button>
                                                                 )}

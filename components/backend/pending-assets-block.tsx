@@ -16,7 +16,7 @@ import {faComment} from "@fortawesome/free-solid-svg-icons";
 import * as Yup from "yup";
 import {getSymbolSourceTypeName, SymbolSourceType} from "@/enums/symbol-source-type";
 import {ErrorMessage, Field, Form, Formik} from "formik";
-import PendingSymbolForm from "@/components/pending-symbol-form";
+import PendingSymbolForm from "@/components/backend/pending-symbol-form";
 
 
 const columnHelper = createColumnHelper<any>();
@@ -191,6 +191,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                 }) || [];
                 data.forEach(s => {
                     s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                    s.viewDisabled = s.status.toLowerCase() === 'pending';
                     s.source_name = getSymbolSourceTypeName(s.source as SymbolSourceType)
                     s.isAdmin = true;
                 })
@@ -388,10 +389,10 @@ class PendingAssetsBlock extends React.Component<{}> {
                 >
 
                     <PendingSymbolForm action={this.state.formAction}
-                                data={this.state.formData}
-                                onCancel={() => this.cancelForm()}
-                                onCallback={() => this.submitForm()}
-                                isAdmin={true}/>
+                                       data={this.state.formData}
+                                       onCancel={() => this.cancelForm()}
+                                       onCallback={() => this.submitForm()}
+                                       isAdmin={true}/>
                 </Modal>
 
                 <Modal isOpen={this.state.isOpenSourceModal}

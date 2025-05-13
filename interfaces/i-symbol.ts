@@ -115,4 +115,5 @@ export interface ISymbol {
     // Pending Symbol
     source?: string;
     source_name?: string;
+    viewDisabled?: boolean;
 }

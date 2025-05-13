@@ -107,7 +107,7 @@ const MENU_LIST: MenuItem[] = [
                 icon: faTags
             },
             {
-                text: 'Pending Symbols',
+                text: 'Pending',
                 href: "/backend/asset-management-pending",
                 icon: faHashtag
             },
