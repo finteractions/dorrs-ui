@@ -141,7 +141,7 @@ const AIInitialValues = {
     agreement: false,
 };
 
-interface CompanyProfileFormState extends IState {
+interface PendingCompanyProfileFormState extends IState {
     formInitialValues: ICompanyProfile,
     formAIInitialValues: any,
     isConfirmedApproving: boolean;
@@ -181,8 +181,8 @@ interface CompanyProfileFormProps extends ICallback {
 const decimalPlaces = Number(process.env.PRICE_DECIMALS || '2')
 const dateFormat = process.env.FORMAT_DATE || 'YYYY-MM-DD'
 
-class CompanyProfileForm extends React.Component<CompanyProfileFormProps, CompanyProfileFormState> {
-    state: CompanyProfileFormState;
+class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps, PendingCompanyProfileFormState> {
+    state: PendingCompanyProfileFormState;
     companyProfile: ICompanyProfile | null;
     formRefCompanyProfile: RefObject<any>;
     formRefAICompanyProfile: RefObject<any>;
@@ -665,7 +665,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-        this.setState({errorMessages: null});
+        this.setState({errorMessages: null, aiErrorMessages: []});
         setSubmitting(true)
 
         let data = {...values};
@@ -756,10 +756,8 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                 formData.append('sec_files[]', file);
             }
         }
-
-        const request: Promise<any> = this.props.action == 'edit' ?
-            !this.props?.isAdmin ? symbolService.updateCompanyProfile(formData, this.props.data?.id || 0) : adminService.updateCompanyProfile(formData, this.props.data?.id || 0) :
-            !this.props?.isAdmin ? symbolService.createCompanyProfile(formData) : adminService.createCompanyProfile(formData);
+        const id = this.props.data?.id
+        const request: Promise<any> = id ? adminService.updateCompanyProfile(formData, id, true) : adminService.createCompanyProfile(formData, true);
 
         await request
             .then(((res: any) => {
@@ -921,7 +919,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState((prevState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedAssetTypeImages || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedAssetTypeImages: updatedFiles} as CompanyProfileFormState;
+            return {selectedAssetTypeImages: updatedFiles} as PendingCompanyProfileFormState;
         });
     };
 
@@ -941,7 +939,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState((prevState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileImages || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedIssuerProfileImages: updatedFiles} as CompanyProfileFormState;
+            return {selectedIssuerProfileImages: updatedFiles} as PendingCompanyProfileFormState;
         });
     };
 
@@ -960,7 +958,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         this.setState((prevState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedIssuerProfileFiles || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedIssuerProfileFiles: updatedFiles} as CompanyProfileFormState;
+            return {selectedIssuerProfileFiles: updatedFiles} as PendingCompanyProfileFormState;
         });
     };
 
@@ -976,16 +974,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
     handleSecImageChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
-        this.setState((prevState: CompanyProfileFormState) => {
+        this.setState((prevState: PendingCompanyProfileFormState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedSecImages || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedSecImages: updatedFiles} as CompanyProfileFormState;
+            return {selectedSecImages: updatedFiles} as PendingCompanyProfileFormState;
         });
     };
 
 
     handleSecImageRemove = (index: number) => {
-        this.setState((prevState: CompanyProfileFormState) => {
+        this.setState((prevState: PendingCompanyProfileFormState) => {
             const updatedFiles = (prevState.selectedSecImages || []).filter((_, idx) => {
                 return idx !== index;
             });
@@ -995,16 +993,16 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
     handleSecFileChange = (event: React.ChangeEvent<HTMLInputElement> | null, index: number) => {
         const selectedFile = event?.target?.files ? event.target.files[0] : null;
-        this.setState((prevState: CompanyProfileFormState) => {
+        this.setState((prevState: PendingCompanyProfileFormState) => {
             const updatedFiles: (File | null)[] = [...(prevState.selectedSecFiles || [])];
             updatedFiles[index] = selectedFile;
-            return {selectedSecFiles: updatedFiles} as CompanyProfileFormState;
+            return {selectedSecFiles: updatedFiles} as PendingCompanyProfileFormState;
         });
     };
 
 
     handleSecFileRemove = (index: number) => {
-        this.setState((prevState: CompanyProfileFormState) => {
+        this.setState((prevState: PendingCompanyProfileFormState) => {
             const updatedFiles = (prevState.selectedSecFiles || []).filter((_, idx) => {
                 return idx !== index;
             });
@@ -1031,7 +1029,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         });
 
         const {id} = this.props.symbolData!;
-        aiToolService.aiGenerateCompanyProfile(Number(id) ?? 0)
+        aiToolService.aiGenerateCompanyProfile(Number(id) ?? 0, true)
             .then(((res: Array<ICompanyProfile>) => {
                 const aiCompanyProfile = res?.[0] || null;
                 this.initAIForm(aiCompanyProfile);
@@ -1268,8 +1266,13 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
 
                                         return (
                                             <Form id="company-profile-form">
-                                                {this.props.isAdmin && this.props.action !== 'add' && (
-                                                    <div className='approve-form'>
+                                                {this.state.aiErrorMessages && (
+                                                    <AlertBlock type={"warning"}
+                                                                messages={this.state.aiErrorMessages}/>
+                                                )}
+
+                                                {this.props.isAdmin && (
+                                                    <div className='approve-form d-none'>
                                                         {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
                                                             <>
                                                                 <div className='approve-form-text'>
@@ -1354,11 +1357,6 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                                 </Button>
 
                                                             </div>
-
-                                                            {this.state.aiErrorMessages && (
-                                                                <AlertBlock type={"warning"}
-                                                                            messages={this.state.aiErrorMessages}/>
-                                                            )}
                                                         </div>
                                                     )}
 
@@ -3248,7 +3246,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
                                             </div>
                                         </div>
-                                    ): null}
+                                    ) : null}
                                 </div>
                             </div>
                         ) : (
@@ -3277,4 +3275,4 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
     }
 }
 
-export default CompanyProfileForm;
+export default PendingCompanyProfileForm;

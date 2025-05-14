@@ -17,6 +17,12 @@ import * as Yup from "yup";
 import {getSymbolSourceTypeName, SymbolSourceType} from "@/enums/symbol-source-type";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import PendingSymbolForm from "@/components/backend/pending-symbol-form";
+import CompanyProfile from "@/components/company-profile-form";
+import {PaymentSource} from "@/enums/payment-source";
+import PaymentMethodStripeCreditDebitCardBlock from "@/components/payment-method-stripe-credit-debit-card-block";
+import PaymentMethodStripeACHBlock from "@/components/payment-method-stripe-ach-block";
+import PaymentMethodWireBlock from "@/components/payment-method-wire-block";
+import PendingCompanyProfileForm from "@/components/backend/pending-company-profile-form";
 
 
 const columnHelper = createColumnHelper<any>();
@@ -39,8 +45,6 @@ interface PendingAssetsBlockState extends IState {
     isOpenModal: boolean;
     isOpenSourceModal: boolean;
     formData: ISymbol | null;
-    formCompanyData: ICompanyProfile | null;
-    formAction: string;
     formSourceAction: string;
     data: ISymbol[];
     errors: string[];
@@ -48,6 +52,11 @@ interface PendingAssetsBlockState extends IState {
     showSymbolForm: boolean;
     symbolSourceLoader: boolean
     symbolSourceData: [{ source: string, processing: boolean }] | [];
+    isOpenCompanyModal: boolean;
+    formCompanyData: ICompanyProfile | null;
+    formAction: string;
+    formCompanyAction: string;
+    symbolLoaded: boolean;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -67,7 +76,6 @@ class PendingAssetsBlock extends React.Component<{}> {
             isOpenModal: false,
             isOpenSourceModal: false,
             formData: null,
-            formCompanyData: null,
             formAction: 'add',
             formSourceAction: 'add',
             data: [],
@@ -76,7 +84,11 @@ class PendingAssetsBlock extends React.Component<{}> {
             showSymbolForm: true,
             success: false,
             symbolSourceLoader: false,
-            symbolSourceData: []
+            symbolSourceData: [],
+            isOpenCompanyModal: false,
+            formCompanyData: null,
+            formCompanyAction: 'add',
+            symbolLoaded: false
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -135,6 +147,15 @@ class PendingAssetsBlock extends React.Component<{}> {
                     </div>,
                 header: () => <span>Status</span>,
             }),
+            columnHelper.accessor((row) => row.company_profile_status, {
+                id: "company_profile_status",
+                cell: (item) =>
+                    <div className={`table__status table__status-${item.getValue().toLowerCase()}`}>
+                        {item.getValue()}
+                    </div>
+                ,
+                header: () => <span>Asset Profile Status</span>,
+            }),
             columnHelper.accessor((row) => row.created_at, {
                 id: "created_at",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue()),
@@ -168,8 +189,8 @@ class PendingAssetsBlock extends React.Component<{}> {
                     selected: 'Pending,Submitted',
                     condition: {}
                 }
-            }
-
+            },
+            {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
         ]
     }
 
@@ -184,26 +205,33 @@ class PendingAssetsBlock extends React.Component<{}> {
     }
 
     getAssets = () => {
-        adminService.getPendingAssets()
-            .then((res: ISymbol[]) => {
-                let data = res?.sort((a, b) => {
-                    return Date.parse(b.created_at) - Date.parse(a.created_at);
-                }) || [];
-                data.forEach(s => {
-                    s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
-                    s.viewDisabled = s.status.toLowerCase() === 'pending';
-                    s.source_name = getSymbolSourceTypeName(s.source as SymbolSourceType)
-                    s.isAdmin = true;
-                })
+        return new Promise(resolve => {
+            adminService.getPendingAssets()
+                .then((res: ISymbol[]) => {
+                    let data = res?.sort((a, b) => {
+                        return Date.parse(b.created_at) - Date.parse(a.created_at);
+                    }) || [];
+                    data.forEach(s => {
+                        s.status = `${s.status.charAt(0).toUpperCase()}${s.status.slice(1).toLowerCase()}`;
+                        s.viewDisabled = s.status.toLowerCase() === 'pending';
+                        s.source_name = getSymbolSourceTypeName(s.source as SymbolSourceType)
+                        if (s.company_profile && s.company_profile?.status) {
+                            s.company_profile.status = `${s.company_profile.status.charAt(0).toUpperCase()}${s.company_profile.status.slice(1).toLowerCase()}`;
+                        }
+                        s.company_profile_status = s.company_profile?.status ? s.company_profile.status : '-';
+                        s.isAdmin = true;
+                    })
 
-                this.setState({data: data});
-            })
-            .catch((errors: IError) => {
-                this.setState({errors: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false})
-            });
+                    this.setState({data: data});
+                })
+                .catch((errors: IError) => {
+                    this.setState({errors: errors.messages});
+                })
+                .finally(() => {
+                    this.setState({loading: false})
+                    resolve(true);
+                });
+        });
     }
 
     startAutoUpdate(): void {
@@ -214,23 +242,32 @@ class PendingAssetsBlock extends React.Component<{}> {
         if (this.getAssetsInterval) clearInterval(this.getAssetsInterval as number);
     }
 
-    openModal = (mode: string, data?: IAdminAsset) => {
-        this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+    openModal = (mode: string, data?: ISymbol) => {
+        this.setState({
+            isOpenModal: true,
+            formData: data || null,
+            formCompanyData: data?.company_profile || null,
+            formAction: mode,
+            modalTitle: this.modalTitle(mode),
+            symbolLoaded: false
+        })
         this.cancelSourceForm();
     }
 
     openSourceModal = () => {
         this.setState({isOpenSourceModal: true})
         this.cancelForm();
+        this.cancelCompanyForm();
     }
 
     openCompanyModal = (mode: string, data?: ICompanyProfile | null) => {
         this.setState({
-            isOpenSourceModal: true,
+            isOpenCompanyModal: true,
             formCompanyData: data || null,
-            formSourceAction: mode,
+            formCompanyAction: mode,
             modalTitle: this.modalTitle(mode)
         })
+        this.cancelSourceForm();
         this.cancelForm();
     }
 
@@ -240,39 +277,41 @@ class PendingAssetsBlock extends React.Component<{}> {
         } else if (mode === 'view') {
             return 'View Symbol'
         } else {
-            return `${mode === 'edit' ? 'Edit' : 'Add'} Symbol`;
+            return `${mode === 'edit' ? 'Edit' : 'Add'}`;
         }
     }
-
 
     cancelSourceForm(): void {
         this.setState({isOpenSourceModal: false});
     }
 
     cancelForm(): void {
-        this.setState({isOpenModal: false});
+        this.setState({isOpenModal: false, formData: null, formCompanyData: null});
     }
 
-    submitForm(): void {
-        this.setState({isOpenModal: false, isOpenSourceModal: false});
-        this.getAssets();
-    }
-
-    downloadSymbolsCSV = () => {
-        if (this.tableRef.current) {
-            adminService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
-                downloadFile.CSV('symbols', res);
-            })
+    submitForm(isCloseModal = false): void {
+        if (isCloseModal) {
+            this.cancelForm();
         }
+        this.getAssets()
+            .then(() => {
+                if (!isCloseModal) {
+                    setTimeout(() => {
+                        const symbolId = this.state?.formData?.id;
+                        if (symbolId) {
+                            const symbolNew = this.state.data.find(s => s.id === symbolId);
+                            this.setState({formData: symbolNew}, () => {
+                                const modalOverlay = document.querySelector('.modal-overlay.active');
+                                if (modalOverlay) {
+                                    modalOverlay.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                            })
+                        }
+                    })
+                }
+            })
     }
 
-    downloadSymbolsXLSX = () => {
-        if (this.tableRef.current) {
-            adminService.downloadSymbols(this.tableRef.current.getColumnFilters()).then((res) => {
-                downloadFile.XLSX('symbols', res);
-            })
-        }
-    }
 
     handleSubmit = async (
         values: Record<string, string[]>,
@@ -330,6 +369,25 @@ class PendingAssetsBlock extends React.Component<{}> {
         this.getAssets();
     };
 
+    modalCompanyTitle = (mode: string) => {
+        if (mode === 'view') {
+            return 'View Asset Profile'
+        } else {
+            return `${mode === 'edit' ? 'Edit' : 'Add'} Asset Profile`;
+        }
+    }
+
+    cancelCompanyForm(): void {
+        this.setState({isOpenCompanyModal: false});
+    }
+
+    onLoading = () => {
+        this.setState({symbolLoaded: true});
+    }
+
+    isAssetProfileDisabled = () => {
+        return this.state.formData?.status === 'Pending'
+    }
 
     render() {
         return (
@@ -385,14 +443,79 @@ class PendingAssetsBlock extends React.Component<{}> {
                 <Modal isOpen={this.state.isOpenModal}
                        className={this.state.formAction !== 'delete' ? `big_modal` : ``}
                        onClose={() => this.cancelForm()}
+                       isDisabled={!this.state.symbolLoaded}
                        title={this.modalTitle(this.state.formAction)}
                 >
+                    <div className={''}>
+                        {this.state.formAction !== 'delete' && (
+                            <ul className="nav nav-tabs" id="tabs">
+                                <li className="nav-item">
+                                    <a
+                                        className="nav-link active"
+                                        id="symbol-tab"
+                                        data-bs-toggle="tab"
+                                        href="#symbol"
+                                        role="tab"
+                                        aria-controls="symbol"
+                                        aria-selected="true"
+                                    >
+                                        Symbol
+                                    </a>
+                                </li>
+                                <li className="nav-item">
+                                    <a
+                                        className={`nav-link ${this.isAssetProfileDisabled() ? 'disabled' : ''}`}
+                                        id="asset-profile-tab"
+                                        data-bs-toggle={this.isAssetProfileDisabled() ? undefined : 'tab'}
+                                        href={this.isAssetProfileDisabled() ? undefined : '#asset-profile'}
+                                        role="tab"
+                                        aria-controls="asset-profile"
+                                        aria-selected="false"
+                                        aria-disabled={this.isAssetProfileDisabled() ? 'true' : 'false'}
+                                        tabIndex={this.isAssetProfileDisabled() ? -1 : 0}
+                                        onClick={(e) => {
+                                            if (this.isAssetProfileDisabled()) e.preventDefault();
+                                        }}
+                                    >
+                                        Asset Profile
+                                    </a>
 
-                    <PendingSymbolForm action={this.state.formAction}
-                                       data={this.state.formData}
-                                       onCancel={() => this.cancelForm()}
-                                       onCallback={() => this.submitForm()}
-                                       isAdmin={true}/>
+                                </li>
+                            </ul>
+                        )}
+
+                        <div className="tab-content mt-4">
+                            <div
+                                className="tab-pane fade show active"
+                                id="symbol"
+                                role="tabpanel"
+                                aria-labelledby="symbol-tab"
+                            >
+
+                                <PendingSymbolForm action={this.state.formAction}
+                                                   data={this.state.formData}
+                                                   onCancel={() => this.cancelForm()}
+                                                   onCallback={(flag:boolean) => this.submitForm(flag)}
+                                                   onLoading={() => this.onLoading()}
+                                                   isAdmin={true}/>
+                            </div>
+                            <div
+                                className="tab-pane fade"
+                                id="asset-profile"
+                                role="tabpanel"
+                                aria-labelledby="asset-profile-tab"
+                            >
+                                <PendingCompanyProfileForm action={this.state.formAction}
+                                                           data={this.state.formCompanyData}
+                                                           symbolData={this.state.formData}
+                                                           onCancel={() => this.cancelCompanyForm()}
+                                                           onCallback={() => this.submitForm()}
+                                                           isAdmin={true}/>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </Modal>
 
                 <Modal isOpen={this.state.isOpenSourceModal}

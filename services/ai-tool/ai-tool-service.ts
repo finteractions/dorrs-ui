@@ -11,8 +11,9 @@ class AIToolService extends BaseService {
         super();
     }
 
-    public async aiGenerateCompanyProfile(id: number): Promise<Array<ICompanyProfile>> {
-        return (await apiWebBackendService.put<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/${id}/`, {}, {}, this.getUserAccessToken())).data;
+    public async aiGenerateCompanyProfile(id: number, isPending=false): Promise<Array<ICompanyProfile>> {
+        const query = isPending ? '?pending=true' : '';
+        return (await apiWebBackendService.put<IResponse<Array<ICompanyProfile>>>(`${this.PATH}company_profile/${id}/${query}`, {}, {}, this.getUserAccessToken())).data;
     }
 
     public async aiGenerateSymbol(id: number): Promise<Array<ISymbol>> {

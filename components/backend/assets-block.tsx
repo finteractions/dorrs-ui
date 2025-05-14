@@ -33,6 +33,7 @@ interface AssetsBlockState {
     errors: string[];
     modalTitle: string;
     showSymbolForm: boolean;
+    symbolLoaded: boolean;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -58,7 +59,8 @@ class AssetsBlock extends React.Component<{}> {
             data: [],
             errors: [],
             modalTitle: '',
-            showSymbolForm: true
+            showSymbolForm: true,
+            symbolLoaded: false
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -225,7 +227,8 @@ class AssetsBlock extends React.Component<{}> {
     }
 
     openModal = (mode: string, data?: IAdminAsset) => {
-        this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode)})
+        this.setState({isOpenModal: true, formData: data || null, formAction: mode, modalTitle: this.modalTitle(mode),
+            symbolLoaded: true})
         this.cancelCompanyForm();
     }
 
@@ -268,6 +271,10 @@ class AssetsBlock extends React.Component<{}> {
     submitForm(): void {
         this.setState({isOpenModal: false, isOpenCompanyModal: false});
         this.getAssets();
+    }
+
+    onLoading = () => {
+        this.setState({symbolLoaded: false});
     }
 
     downloadSymbolsCSV = () => {
@@ -351,7 +358,7 @@ class AssetsBlock extends React.Component<{}> {
                        onClose={() => this.cancelForm()}
                        title={this.modalTitle(this.state.formAction)}
                 >
-                    {(this.state.formAction === 'view') && (
+                    {(this.state.formAction === 'view' && !this.state.symbolLoaded) && (
                         <div className="modal__navigate">
                             <div className="modal__navigate__title">Asset Profile:</div>
 
@@ -383,6 +390,7 @@ class AssetsBlock extends React.Component<{}> {
                                 data={this.state.formData}
                                 onCancel={() => this.cancelForm()}
                                 onCallback={() => this.submitForm()}
+                                onLoading={this.onLoading}
                                 isAdmin={true}/>
                 </Modal>
 
@@ -395,7 +403,7 @@ class AssetsBlock extends React.Component<{}> {
 
                     <div className="modal__navigate">
                         <button className={'border-btn ripple'}
-                                onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false})}>
+                                onClick={() => this.setState({isOpenModal: true, isOpenCompanyModal: false, symbolLoaded: true})}>
                             Back to Symbol
                         </button>
                     </div>

@@ -61,7 +61,7 @@ const allowedFileExt = ['pdf']
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
     is_cusip: Yup.boolean().label('CUSIP'),
-    symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
+    symbol: Yup.string().min(2).max(12).required('Required').label('Symbol'),
 
     asset_status: Yup.string().required('Required').label('Asset Status'),
     debt_instrument: Yup.string().label('Debt Instrument'),

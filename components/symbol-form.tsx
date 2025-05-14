@@ -66,7 +66,7 @@ const allowedFileExt = ['pdf']
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
-    symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
+    symbol: Yup.string().min(2).max(12).required('Required').label('Symbol'),
 
     asset_status: Yup.string().required('Required').label('Asset Status'),
     debt_instrument: Yup.string().label('Debt Instrument'),
@@ -299,6 +299,7 @@ interface SymbolFormProps extends ICallback {
     action: string;
     data: ISymbol | null;
     onCancel?: () => void;
+    onLoading?: () => void;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -749,6 +750,7 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
             })
             .finally(() => {
                 this.setState({loading: false})
+                this.props.onLoading?.();
             });
     }
 
@@ -1073,7 +1075,7 @@ class SymbolForm extends React.Component<SymbolFormProps, SymbolFormState> {
                                                                     </>
                                                                 ) : (
                                                                     <>
-                                                                    <div
+                                                                        <div
                                                                             className={`approve-form-text w-100 pb-0 ${this.props.data?.created_by ? 'pt-1' : ''}`}>Status: {this.props.data?.status}</div>
                                                                         <div
                                                                             className={`approve-form-text w-100 pt-2 `}>Source: {this.props.data?.source_name}</div>

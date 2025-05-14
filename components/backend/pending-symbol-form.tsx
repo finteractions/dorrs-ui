@@ -78,8 +78,7 @@ const allowedFileExt = ['pdf']
 
 const formSchema = Yup.object().shape({
     reason_for_entry: Yup.string().required('Required').label('Reason for Entry'),
-    symbol: Yup.string().min(2).max(6).required('Required').label('Symbol'),
-
+    symbol: Yup.string().min(2).max(12).required('Required').label('Symbol'),
     asset_status: Yup.string().required('Required').label('Asset Status'),
     edgar_cik: Yup.string().label('Edgar CIK'),
     debt_instrument: Yup.string().label('Debt Instrument'),
@@ -316,6 +315,7 @@ interface SymbolFormProps extends ICallback {
     action: string;
     data: ISymbol | null;
     onCancel?: () => void;
+    onLoading?: () => void;
 }
 
 const columnHelper = createColumnHelper<any>();
@@ -421,7 +421,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
     }
 
-    initForm(initialData: ISymbol) {
+    initForm(initialData: ISymbol, validate = false) {
         return new Promise(resolve => {
             const currentDateTime = new Date();
             const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
@@ -602,7 +602,11 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                 version: initialData?.version || '',
             };
 
-            this.setState({formInitialValues: initialValues});
+            this.setState({formInitialValues: initialValues}, () => {
+                setTimeout(() => {
+                    this.formRef?.current?.validateForm?.()
+                }, 350)
+            });
 
             resolve(true);
         })
@@ -642,7 +646,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
     }
 
     handleSubmit = async (values: ISymbol, {setSubmitting}: { setSubmitting: (isSubmitting: boolean) => void }) => {
-        this.setState({errorMessages: null});
+        this.setState({errorMessages: null, aiErrorMessages: []});
 
         const data = {...values};
 
@@ -715,7 +719,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(data);
+                this.props.onCallback(false);
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -728,8 +732,8 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         this.host = `${window.location.protocol}//${window.location.host}`;
 
         if (this.props.isAdmin) {
-            this.setState({loading: true}, () => {
-                this.getAssets();
+            this.setState({loading: true}, async () => {
+                await this.getAssets();
             });
 
         }
@@ -764,7 +768,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         })
     }
 
-    getAssets = () => {
+    getAssets = async () => {
         const symbolData = this.props.data!;
 
         if (this.props.action !== 'delete') {
@@ -772,14 +776,18 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                 .then(() => {
                     if (symbolData.status !== 'Pending') {
                         this.initForm(symbolData)
-                            .then(() => this.setState({loading: false}));
+                            .then(() => {
+                                this.setState({loading: false});
+                                this.props.onLoading?.();
+                            });
                     } else {
                         this.getAiGenerateSymbol()
                     }
                 })
         } else {
             this.setState({loading: false});
-            this.initForm(symbolData)
+            await this.initForm(symbolData)
+            this.props.onLoading?.();
         }
     }
 
@@ -809,15 +817,15 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                             aiGeneratedFields.push(key);
 
                         } catch (e) {
-
-                            mergedSymbol[key] = originalValue;
+                            aiGeneratedFields.push(key);
+                            mergedSymbol[key] = aiValue;
                         }
                     } else {
                         mergedSymbol[key] = originalValue;
                     }
                 }
 
-                this.initForm(mergedSymbol as ISymbol);
+                await this.initForm(mergedSymbol as ISymbol);
                 this.setState({aiGeneratedFields});
             })
             .catch((errors: IError) => {
@@ -826,6 +834,8 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
             })
             .finally(() => {
                 this.setState({loading: false, isShow: false, isAILoader: false});
+                this.props.onLoading?.();
+
             });
 
     }
@@ -846,7 +856,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(true);
+                this.props.onCallback(false);
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -870,7 +880,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         this.setState({isDeleting: true});
         await adminService.deletePendingAsset(values.id)
             .then(((res: any) => {
-                this.props.onCallback(values);
+                this.props.onCallback(true);
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
@@ -1082,7 +1092,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
     renderAIGeneratedBlock = (field: string) =>
         this.state.aiGeneratedFields.includes(field) ? (
-            <div className="d-flex gap-10 align-items-center">
+            <div className="d-flex gap-10 align-items-center justify-content-end">
                 <FontAwesomeIcon icon={faMagicWandSparkles} title="AI Generated"/>
                 Generated by AI Assistant
             </div>
@@ -1100,11 +1110,9 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
             case 'delete':
                 return (
                     <>
-
-                        {this.state.loading ? (
+                        {this.state.loading && this.isShow() ? (
                             <LoaderBlock/>
                         ) : (
-
                             <>
                                 <Formik<ISymbol>
                                     initialValues={this.state.formInitialValues as ISymbol}
@@ -1126,6 +1134,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                         return (
                                             <Form id="bank-form" className={'position-relative'}>
+
                                                 {this.state.aiErrorMessages && (
                                                     <AlertBlock type={"warning"}
                                                                 messages={this.state.aiErrorMessages}/>
@@ -1141,7 +1150,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                 {this.props.isAdmin && (
                                                     <>
-                                                        {this.isShow() && this.props.data?.status !== 'Pending' && (
+                                                        {(['Submitted', 'Approved'].includes(this.props.data?.status || '') && !this.isShow()) && (
                                                             <div className='approve-form'>
                                                                 {this.props.data?.created_by && (
                                                                     <div
@@ -1180,13 +1189,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     </div>
                                                                                     <button className={`b-btn ripple`}
                                                                                             type="button"
-                                                                                            disabled={this.state.isAILoader}
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
                                                                                             onClick={() => this.handleApprove(this.props.data)}>Confirm
                                                                                     </button>
                                                                                     <button
                                                                                         className={`border-btn ripple`}
                                                                                         type="button"
-                                                                                        disabled={this.state.isAILoader}
+                                                                                        disabled={this.state.loading || this.state.isAILoader}
                                                                                         onClick={() => this.setState({
                                                                                             isConfirmedApproving: false,
                                                                                             isApproving: null
@@ -1197,6 +1206,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 <>
                                                                                     <button className={`b-btn ripple`}
                                                                                             type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
                                                                                             onClick={() => this.setState({
                                                                                                 isConfirmedApproving: true,
                                                                                                 isApproving: true
@@ -1205,6 +1215,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     <button
                                                                                         className={`border-btn ripple`}
                                                                                         type="button"
+                                                                                        disabled={this.state.loading || this.state.isAILoader}
                                                                                         onClick={() => this.setState({
                                                                                             isConfirmedApproving: true,
                                                                                             isApproving: false
@@ -1225,14 +1236,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                         <div
                                                             className={'justify-content-end d-flex align-items-center gap-10'}>
-                                                            {this.state.isAILoader && (
+                                                            {(this.state.loading || this.state.isAILoader) && (
                                                                 <LoaderBlock height={50}
                                                                              className={'p-0 m-0 d-flex-1 pre-loader-btn'}/>
                                                             )}
                                                             <button
                                                                 type="button"
                                                                 className={`d-none d-md-block b-btn ripple`}
-                                                                disabled={this.state.isAILoader}
+                                                                disabled={this.state.loading || this.state.isAILoader}
                                                                 onClick={() => this.getAiGenerateSymbol()}
                                                             >AI Assistant <FontAwesomeIcon
                                                                 icon={faMagicWandSparkles}/>
@@ -1241,7 +1252,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 type="button"
                                                                 variant="link"
                                                                 className="d-md-none admin-table-btn ripple"
-                                                                disabled={this.state.isAILoader}
+                                                                disabled={this.state.loading || this.state.isAILoader}
                                                                 onClick={() => this.getAiGenerateSymbol()}
                                                             >
                                                                 <FontAwesomeIcon icon={faMagicWandSparkles}/>
@@ -1349,7 +1360,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input">
                                                                 <div className="input__title">Delete Reason</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="reason_delete"
                                                                         id="reason_delete"
@@ -1357,7 +1368,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         rows="3"
                                                                         className="input__textarea"
                                                                         placeholder="Type delete reason"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="reason_delete" component="div"
                                                                                   className="error-message"/>
@@ -1376,13 +1387,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Entry <i>*</i>
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="reason_for_entry"
                                                                             id="reason_for_entry"
                                                                             as="select"
                                                                             className="b-select"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select a Reason</option>
                                                                             <option value="New Ticker Symbol">New Ticker
@@ -1408,7 +1419,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Underlying Symbol
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="underlying_symbol"
                                                                             id="underlying_symbol"
@@ -1416,7 +1427,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             className="b-select-search"
                                                                             placeholder="Select Underlying Symbol"
                                                                             classNamePrefix="select__react"
-                                                                            isDisabled={(isSubmitting || this.isShow() || this.state.isAILoader)}
+                                                                            isDisabled={(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading)}
                                                                             isClearable={true}
                                                                             isSearchable={true}
                                                                             options={Object.values(this.masterSymbols).map((item) => (this.renderOption(item)))}
@@ -1459,14 +1470,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Name
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="spv_name"
                                                                                     id="spv_name"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type SPV Name"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="spv_name"
@@ -1480,14 +1491,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Manager
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="fund_manager"
                                                                                     id="fund_manager"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type Fund Manager"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="fund_manager"
@@ -1502,14 +1513,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Objective
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="investment_objective"
                                                                                     id="investment_objective"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type Investment Objective"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="investment_objective"
@@ -1524,7 +1535,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Filing
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="sec_filing"
                                                                                     id="sec_filing"
@@ -1534,7 +1545,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                             mask="9999-9999-99"
                                                                                             placeholder="Type SEC Filing"
                                                                                             className="input__text"
-                                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                         />
                                                                                     )}
                                                                                 />
@@ -1553,7 +1564,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         <button
                                                                             type="button"
                                                                             className='border-grey-btn ripple'
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             onClick={() => {
                                                                                 const updatedDescriptions = [...values.sec_description, ''];
                                                                                 const index = updatedDescriptions.length - 1 || 0
@@ -1569,9 +1580,9 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                                     <div className="input">
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <div className="officer-input">
-                                                                                {values.sec_description.map((description, index) => (
+                                                                                {values.sec_description && values.sec_description.map((description, index) => (
                                                                                     <>
                                                                                         <div
                                                                                             className={'input__btns gap-20'}
@@ -1599,7 +1610,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                     type="file"
                                                                                                     accept={'.' + allowedImageExt.join(',.')}
                                                                                                     className="input__file"
-                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                                     onChange={(event) => {
                                                                                                         setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                         this.handleSecImageChange(event, index);
@@ -1612,7 +1623,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                 rows={4}
                                                                                                 className="input__textarea"
                                                                                                 placeholder={''}
-                                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                             />
                                                                                             <div
                                                                                                 className={'input__wrap'}>
@@ -1637,7 +1648,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                     type="file"
                                                                                                     accept={'.' + allowedFileExt.join(',.')}
                                                                                                     className="input__file"
-                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                                     onChange={(event) => {
                                                                                                         setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                         this.handleSecFileChange(event, index);
@@ -1687,14 +1698,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Name <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="security_name"
                                                                                 id="security_name"
                                                                                 type="text"
-                                                                                className="input__text"
+                                                                                className={`input__text ${this.state.aiGeneratedFields.includes('security_name') ? 'filled' : ''}`}
                                                                                 placeholder="Type Security Name"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.getSymbolProcessing}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing}
                                                                                 onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                             />
                                                                             <ErrorMessage name="security_name"
@@ -1707,7 +1718,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         <div className="input__title">Symbol</div>
                                                                         {!this.state.isSymbolCodeChange ? (
                                                                             <div
-                                                                                className={`input__wrap no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <div
                                                                                     className={`input__wrap no-border`}>
                                                                                     <Field
@@ -1721,7 +1732,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => {
                                                                                             setFieldValue('is_change', true);
@@ -1739,7 +1750,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 {!getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && values.symbol && !this.state.isSymbolCodeChange && (
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.changeSymbolCode(true)}
                                                                                     >
@@ -1773,7 +1784,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 </button>
                                                                                 <button
                                                                                     type="button"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                     className='border-grey-btn ripple'
                                                                                     onClick={() => this.cancelSymbolCode(setFieldValue, setFieldTouched)}>
                                                                                     <FontAwesomeIcon
@@ -1932,7 +1943,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.changeSymbolCode(true)}
                                                                                     >
@@ -1943,7 +1954,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 </div>
                                                                             ) : (
                                                                                 <div
-                                                                                    className={`input no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
                                                                                         name="new_symbol"
                                                                                         id="new_symbol"
@@ -1965,7 +1976,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     </button>
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.cancelNewSymbolNewCode(setFieldValue, setFieldTouched)}>
                                                                                         <FontAwesomeIcon
@@ -1985,7 +1996,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Reason
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                                 <Field
                                                                                     name="reason_change"
                                                                                     id="reason_change"
@@ -1993,7 +2004,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     rows="3"
                                                                                     className="input__textarea"
                                                                                     placeholder="Type change reason"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage name="reason_change"
                                                                                               component="div"
@@ -2062,14 +2073,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Name <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="security_name"
                                                                                 id="security_name"
                                                                                 type="text"
                                                                                 className="input__text"
                                                                                 placeholder="Type Security Name"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.getSymbolProcessing}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing}
                                                                                 onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                             />
                                                                             <ErrorMessage name="security_name"
@@ -2101,13 +2112,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Asset Status <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="asset_status"
                                                                         id="asset_status"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('asset_status') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Asset Status
                                                                         </option>
@@ -2128,12 +2139,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className={'input'}>
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow() || this.state.isAILoader) ? ' disable' : ''}`}>
+                                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? ' disable' : ''}`}>
                                                                         <Field
                                                                             type="checkbox"
                                                                             name="is_cusip"
                                                                             id="is_cusip"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            className={`${this.state.aiGeneratedFields.includes('is_cusip') ? 'filled' : ''}`}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
                                                                         />
                                                                         <label htmlFor="is_cusip">
@@ -2151,14 +2163,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 {values.is_cusip && (
                                                                     <div className="input ai-info-block">
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="cusip"
                                                                                 id="cusip"
                                                                                 type="text"
-                                                                                className="input__text"
+                                                                                className={`input__text ${this.state.aiGeneratedFields.includes('cusip') ? 'filled' : ''}`}
                                                                                 placeholder="Type CUSIP"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="cusip"
                                                                                           component="div"
@@ -2195,13 +2207,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Identifiers
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fifth_character_identifier"
                                                                         id="fifth_character_identifier"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('fifth_character_identifier') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Fifth Character
                                                                             Identifiers
@@ -2224,13 +2236,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Alternative Asset
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="alternative_asset_category"
                                                                         id="alternative_asset_category"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('alternative_asset_category') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Alternative Asset
                                                                         </option>
@@ -2250,13 +2262,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="alternative_asset_subcategory"
                                                                             id="alternative_asset_subcategory"
                                                                             as="select"
-                                                                            className="b-select"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            className={`b-select ${this.state.aiGeneratedFields.includes('alternative_asset_subcategory') ? 'filled' : ''}`}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select category
                                                                             </option>
@@ -2281,13 +2293,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Debt Instrument
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="debt_instrument"
                                                                         id="debt_instrument"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('debt_instrument') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Debt Instrument
                                                                         </option>
@@ -2311,16 +2323,16 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Value <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="face_value_par_value"
                                                                                 id="face_value_par_value"
                                                                                 type="text"
-                                                                                className="input__text"
+                                                                                className={`input__text ${this.state.aiGeneratedFields.includes('face_value_par_value') ? 'filled' : ''}`}
                                                                                 placeholder="Type Face Value/Par Value"
                                                                                 component={NumericInputField}
                                                                                 decimalScale={2}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="face_value_par_value"
                                                                                           component="div"
@@ -2333,16 +2345,16 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Rate <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="coupon_interest_rate"
                                                                                 id="coupon_interest_rate"
                                                                                 type="text"
-                                                                                className="input__text"
+                                                                                className={`input__text ${this.state.aiGeneratedFields.includes('coupon_interest_rate') ? 'filled' : ''}`}
                                                                                 placeholder="Type Coupon/Interest Rate"
                                                                                 component={NumericInputField}
                                                                                 decimalScale={3}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="coupon_interest_rate"
                                                                                           component="div"
@@ -2355,7 +2367,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Date <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <SingleDatePicker
                                                                                 numberOfMonths={1}
                                                                                 renderMonthElement={formatterService.renderMonthElement}
@@ -2366,7 +2378,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 id="maturity_date"
                                                                                 displayFormat={dateFormat}
                                                                                 isOutsideRange={() => false}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                                 readOnly={true}
                                                                                 placeholder={'Select Maturity Date'}
                                                                             />
@@ -2381,13 +2393,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Frequency <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="payment_frequency"
                                                                                 id="payment_frequency"
                                                                                 as="select"
-                                                                                className="b-select"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                                className={`b-select ${this.state.aiGeneratedFields.includes('payment_frequency') ? 'filled' : ''}`}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                             >
                                                                                 <option value="">Select Payment
                                                                                     Frequency
@@ -2412,13 +2424,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Exempted Offerings
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="exempted_offerings"
                                                                         id="exempted_offerings"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('exempted_offerings') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Exempted Offering
                                                                         </option>
@@ -2439,13 +2451,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Market Sector <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="market_sector"
                                                                         id="market_sector"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('market_sector') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Market Sector
                                                                         </option>
@@ -2465,13 +2477,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             {values.market_sector !== '' && getMarketSectorCategory(values.market_sector) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                         <Field
                                                                             name="market_sector_category"
                                                                             id="market_sector_category"
                                                                             as="select"
-                                                                            className="b-select"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            className={`b-select ${this.state.aiGeneratedFields.includes('market_sector_category') ? 'filled' : ''}`}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select Market
                                                                                 Sector Category
@@ -2499,17 +2511,17 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     ({getLotSize().join(', ')}) <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="lot_size"
                                                                         id="lot_size"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('lot_size') ? 'filled' : ''}`}
                                                                         placeholder="Type Lot Size"
                                                                         component={NumericInputField}
                                                                         decimalScale={0}
                                                                         isThousandSeparator={false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="lot_size" component="div"
                                                                                   className="error-message"/>
@@ -2521,16 +2533,16 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Fractional Lot Size
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fractional_lot_size"
                                                                         id="fractional_lot_size"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('fractional_lot_size') ? 'filled' : ''}`}
                                                                         placeholder="Type Fractional Lot Size"
                                                                         component={NumericInputField}
                                                                         decimalScale={6}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="fractional_lot_size"
                                                                                   component="div"
@@ -2547,17 +2559,17 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     .05, .10)
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="mvp"
                                                                         id="mvp"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('mvp') ? 'filled' : ''}`}
                                                                         placeholder="Type MPV"
                                                                         component={NumericInputField}
                                                                         decimalScale={4}
                                                                         isThousandSeparator={false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="mvp" component="div"
                                                                                   className="error-message"/>
@@ -2575,13 +2587,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Primary
                                                                     ATS <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                     <Field
                                                                         name="primary_ats"
                                                                         id="primary_ats"
                                                                         as="select"
-                                                                        className="b-select no-bg"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select no-bg ${this.state.aiGeneratedFields.includes('primary_ats') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Primary ATS</option>
 
@@ -2631,14 +2643,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         ATS <i>*</i>
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : 'no-border'}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                         <Field
                                                                             name="new_primary_ats"
                                                                             id="new_primary_ats"
                                                                             type="text"
                                                                             className="input__text no-bg"
                                                                             placeholder="Enter the primary ATS"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage
                                                                             name="new_primary_ats"
@@ -2651,14 +2663,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Transfer Agent</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="transfer_agent"
                                                                         id="transfer_agent"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('transfer_agent') ? 'filled' : ''}`}
                                                                         placeholder="Type Transfer Agent"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="transfer_agent" component="div"
                                                                                   className="error-message"/>
@@ -2669,14 +2681,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Custodian</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="custodian"
                                                                         id="custodian"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('custodian') ? 'filled' : ''}`}
                                                                         placeholder="Type Custodian"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="custodian" component="div"
                                                                                   className="error-message"/>
@@ -2695,14 +2707,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     </Link>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="edgar_cik"
                                                                         id="edgar_cik"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('edgar_cik') ? 'filled' : ''}`}
                                                                         placeholder="Type Edgar CIK"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="edgar_cik" component="div"
                                                                                   className="error-message"/>
@@ -2720,7 +2732,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Date of Issue / Creation
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <SingleDatePicker
                                                                         numberOfMonths={1}
                                                                         renderMonthElement={formatterService.renderMonthElement}
@@ -2731,7 +2743,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         id="issue_date"
                                                                         displayFormat={dateFormat}
                                                                         isOutsideRange={() => false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         readOnly={true}
                                                                         placeholder={'Select Date of Issue / Creation'}
                                                                     />
@@ -2747,15 +2759,15 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Notes
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="governance_notes"
                                                                         id="governance_notes"
                                                                         as="textarea"
                                                                         rows="3"
-                                                                        className="input__textarea"
+                                                                        className={`input__textarea ${this.state.aiGeneratedFields.includes('governance_notes') ? 'filled' : ''}`}
                                                                         placeholder="DAO, corporate board, free-form text"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="governance_notes"
                                                                                   component="div"
@@ -2768,13 +2780,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Digital Asset Category
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="digital_asset_category"
                                                                         id="digital_asset_category"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('digital_asset_category') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Digital Asset Category
                                                                         </option>
@@ -2794,13 +2806,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             {values.digital_asset_category !== '' && getDigitalAssetCategoryInstrument(values.digital_asset_category) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="instrument_type"
                                                                             id="instrument_type"
                                                                             as="select"
-                                                                            className="b-select"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            className={`b-select ${this.state.aiGeneratedFields.includes('instrument_type') ? 'filled' : ''}`}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select Instrument Type
                                                                             </option>
@@ -2824,14 +2836,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Issuer Name</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="issuer_name"
                                                                         id="issuer_name"
                                                                         type="text"
-                                                                        className="input__text"
+                                                                        className={`input__text ${this.state.aiGeneratedFields.includes('issuer_name') ? 'filled' : ''}`}
                                                                         placeholder="Type Issuer Name"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="issuer_name" component="div"
                                                                                   className="error-message"/>
@@ -2842,13 +2854,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Issuer Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="issuer_type"
                                                                         id="issuer_type"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('instrument_type') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Issuer Type
                                                                         </option>
@@ -2870,13 +2882,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Underpinning Asset Value
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="underpinning_asset_value"
                                                                         id="underpinning_asset_value"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('underpinning_asset_value') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         onChange={(e: any) => this.handlePeggedChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Underpinning Asset Value
@@ -2900,14 +2912,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <div className="input__title">Reference Asset
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="reference_asset"
                                                                             id="reference_asset"
                                                                             type="text"
-                                                                            className="input__text"
+                                                                            className={`input__text ${this.state.aiGeneratedFields.includes('reference_asset') ? 'filled' : ''}`}
                                                                             placeholder="Enter the asset Type"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage name="reference_asset"
                                                                                       component="div"
@@ -2923,13 +2935,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Details (If Any)
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="backing_collateral_details"
                                                                         id="backing_collateral_details"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('backing_collateral_details') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         onChange={(e: any) => this.handleBackingCollateralDetailsChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Backing / Collateral
@@ -2955,15 +2967,15 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Details (Notes)
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="backing_collateral_details_text"
                                                                             id="backing_collateral_details_text"
                                                                             as="textarea"
                                                                             rows="3"
-                                                                            className="input__textarea"
+                                                                            className={`input__textarea ${this.state.aiGeneratedFields.includes('backing_collateral_details_text') ? 'filled' : ''}`}
                                                                             placeholder="Enter Text"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage
                                                                             name="backing_collateral_details_text"
@@ -2978,13 +2990,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Rights Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="rights_type"
                                                                         id="rights_type"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('rights_type') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Rights Type
                                                                         </option>
@@ -3003,13 +3015,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Enforceability</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="enforceability_type"
                                                                         id="enforceability_type"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('enforceability_type') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Enforceability
                                                                         </option>
@@ -3031,13 +3043,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Fungibility Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fungibility_type"
                                                                         id="fungibility_type"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('fungibility_type') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Fungibility Type
                                                                         </option>
@@ -3057,13 +3069,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className={'input ai-info-block'}>
                                                                 <div className="input__title">Redeemability Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="redeemability_type"
                                                                         id="redeemability_type"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('redeemability_type') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         onChange={(e: any) => this.handleRedeemabilityChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Redeemability Type
@@ -3087,14 +3099,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <div className="input__title">Redemption Asset Type
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="redemption_asset_type"
                                                                             id="redemption_asset_type"
                                                                             type="text"
-                                                                            className="input__text"
+                                                                            className={`input__text ${this.state.aiGeneratedFields.includes('redemption_asset_type') ? 'filled' : ''}`}
                                                                             placeholder="Enter the Redemption asset Type"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage name="redemption_asset_type"
                                                                                       component="div"
@@ -3107,13 +3119,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Nature of record</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="nature_of_record"
                                                                         id="nature_of_record"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('nature_of_record') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Nature of record
                                                                         </option>
@@ -3133,13 +3145,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Settlement Method</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="settlement_method"
                                                                         id="settlement_method"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('settlement_method') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Settlement Method
                                                                         </option>
@@ -3159,13 +3171,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Custody Arrangements</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="custody_arrangement"
                                                                         id="custody_arrangement"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('custody_arrangement') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Custody Arrangements
                                                                         </option>
@@ -3187,13 +3199,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Ledger
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="associated_network"
                                                                         id="associated_network"
                                                                         as="select"
-                                                                        className="b-select"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        className={`b-select ${this.state.aiGeneratedFields.includes('associated_network') ? 'filled' : ''}`}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Associated Network /
                                                                             Ledger
@@ -3215,15 +3227,15 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Free-Form Notes
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="notes"
                                                                         id="notes"
                                                                         as="textarea"
                                                                         rows="3"
-                                                                        className="input__textarea"
+                                                                        className={`input__textarea ${this.state.aiGeneratedFields.includes('notes') ? 'filled' : ''}`}
                                                                         placeholder="Comments"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="notes"
                                                                                   component="div"
@@ -3239,9 +3251,9 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                 {((this.props.action !== 'view') || (this.props.action === 'view' && values.is_change)) && (
                                                     <button id="add-bank-acc"
-                                                            className={`b-btn ripple ${(isSubmitting || !isValid || this.state.isAILoader) ? 'disable' : ''}`}
+                                                            className={`b-btn ripple ${(isSubmitting || !isValid || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}
                                                             type="submit"
-                                                            disabled={isSubmitting || !isValid || this.state.isAILoader}>
+                                                            disabled={isSubmitting || !isValid || this.state.isAILoader || this.state.loading}>
                                                         {this.buttonText()}
                                                     </button>
                                                 )}
@@ -3265,8 +3277,6 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                     )}
                             </>
                         )}
-
-
                     </>
                 )
             case
