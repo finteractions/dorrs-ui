@@ -59,9 +59,9 @@ body {
       border: 1px solid var(--error-colour)!important;
     }
 
-    .filled {
-      //border: 1px solid var(--filled-colour)!important;
-      //background-color: var(--filled-bg-colour)!important;
+    .filled:not(.required) {
+      border: 1px solid var(--filled-colour)!important;
+      background-color: var(--filled-bg-colour)!important;
     }
   }
 }
@@ -95,9 +95,9 @@ html.dark {
           border: 1px solid var(--error-colour)!important;
         }
 
-        &.filled {
-          //border: 1px solid var(--filled-colour)!important;
-          //background-color: var(--filled-bg-colour)!important;
+        &.filled:not(.required) {
+          border: 1px solid var(--filled-colour)!important;
+          background-color: var(--filled-bg-colour)!important;
         }
 
         &:not(.no-bg) {
@@ -239,9 +239,9 @@ html.dark {
       border: 1px solid var(--error-colour)!important;
     }
 
-    .filled {
-      //border: 1px solid var(--filled-colour)!important;
-      //background-color: var(--filled-bg-colour)!important;
+    .filled:not(.required) {
+      border: 1px solid var(--filled-colour)!important;
+      background-color: var(--filled-bg-colour)!important;
     }
   }
 }
