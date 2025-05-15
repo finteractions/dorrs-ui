@@ -57,6 +57,7 @@ interface PendingAssetsBlockState extends IState {
     formAction: string;
     formCompanyAction: string;
     symbolLoaded: boolean;
+    activeTab: string;
 }
 
 const fetchIntervalSec = process.env.FETCH_INTERVAL_SEC || '30';
@@ -88,7 +89,8 @@ class PendingAssetsBlock extends React.Component<{}> {
             isOpenCompanyModal: false,
             formCompanyData: null,
             formCompanyAction: 'add',
-            symbolLoaded: false
+            symbolLoaded: false,
+            activeTab: 'symbol'
         }
 
         const host = `${window.location.protocol}//${window.location.host}`;
@@ -304,7 +306,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                             this.setState({formData: symbolNew, formCompanyData: companyProfileNew}, () => {
                                 const modalOverlay = document.querySelector('.modal-overlay.active');
                                 if (modalOverlay) {
-                                    modalOverlay.scrollTo({ top: 0, behavior: 'smooth' });
+                                    modalOverlay.scrollTo({top: 0, behavior: 'smooth'});
                                 }
                             })
                         }
@@ -390,6 +392,10 @@ class PendingAssetsBlock extends React.Component<{}> {
         return this.state.formData?.status.toLowerCase() === 'pending' || !this.state.symbolLoaded
     }
 
+    activeTab = (tab: string) => {
+        this.setState({activeTab: tab});
+    }
+
     render() {
         return (
 
@@ -459,6 +465,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                                         role="tab"
                                         aria-controls="symbol"
                                         aria-selected="true"
+                                        onClick={() => this.activeTab('symbol')}
                                     >
                                         Symbol
                                     </a>
@@ -475,8 +482,13 @@ class PendingAssetsBlock extends React.Component<{}> {
                                         aria-disabled={this.isAssetProfileDisabled() ? 'true' : 'false'}
                                         tabIndex={this.isAssetProfileDisabled() ? -1 : 0}
                                         onClick={(e) => {
-                                            if (this.isAssetProfileDisabled()) e.preventDefault();
-                                        }}
+                                            if (this.isAssetProfileDisabled()) {
+                                                e.preventDefault()
+                                            } else {
+                                                this.activeTab('asset-profile')
+                                            }
+                                        }
+                                        }
                                     >
                                         Asset Profile
                                     </a>
@@ -496,7 +508,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                                 <PendingSymbolForm action={this.state.formAction}
                                                    data={this.state.formData}
                                                    onCancel={() => this.cancelForm()}
-                                                   onCallback={(flag:boolean) => this.submitForm(flag)}
+                                                   onCallback={(flag: boolean) => this.submitForm(flag)}
                                                    onLoading={() => this.onLoading()}
                                                    isAdmin={true}/>
                             </div>
@@ -506,12 +518,14 @@ class PendingAssetsBlock extends React.Component<{}> {
                                 role="tabpanel"
                                 aria-labelledby="asset-profile-tab"
                             >
-                                <PendingCompanyProfileForm action={this.state.formAction}
-                                                           data={this.state.formCompanyData}
-                                                           symbolData={this.state.formData}
-                                                           onCancel={() => this.cancelCompanyForm()}
-                                                           onCallback={() => this.submitForm()}
-                                                           isAdmin={true}/>
+                                {this.state.activeTab === 'asset-profile' && (
+                                    <PendingCompanyProfileForm action={this.state.formAction}
+                                                               data={this.state.formCompanyData}
+                                                               symbolData={this.state.formData}
+                                                               onCancel={() => this.cancelCompanyForm()}
+                                                               onCallback={() => this.submitForm()}
+                                                               isAdmin={true}/>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -546,7 +560,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                                                                 name="source_type"
                                                                 id={`source_type_${type}`}
                                                                 checked={values.source_type.includes(type)}
-                                                                disabled={isSubmitting || [SymbolSourceType.INX, SymbolSourceType.FORGE_GLOBAL].includes(type)}
+                                                                disabled={isSubmitting || [SymbolSourceType.FORGE_GLOBAL].includes(type)}
                                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                                     const isChecked = e.target.checked;
                                                                     const newValue = isChecked
