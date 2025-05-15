@@ -300,7 +300,8 @@ class PendingAssetsBlock extends React.Component<{}> {
                         const symbolId = this.state?.formData?.id;
                         if (symbolId) {
                             const symbolNew = this.state.data.find(s => s.id === symbolId);
-                            this.setState({formData: symbolNew}, () => {
+                            const companyProfileNew = symbolNew?.company_profile || null
+                            this.setState({formData: symbolNew, formCompanyData: companyProfileNew}, () => {
                                 const modalOverlay = document.querySelector('.modal-overlay.active');
                                 if (modalOverlay) {
                                     modalOverlay.scrollTo({ top: 0, behavior: 'smooth' });
@@ -386,7 +387,7 @@ class PendingAssetsBlock extends React.Component<{}> {
     }
 
     isAssetProfileDisabled = () => {
-        return this.state.formData?.status === 'Pending'
+        return this.state.formData?.status.toLowerCase() === 'pending' || !this.state.symbolLoaded
     }
 
     render() {

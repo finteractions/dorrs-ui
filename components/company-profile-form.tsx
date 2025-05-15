@@ -363,7 +363,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             sec_images: string[];
             sec_files: string[];
         } = {
-            symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
+            symbol: this.props.symbolData?.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
             last_market_valuation: initialData?.last_market_valuation || '',
             last_sale_price: initialData?.last_sale_price || '',
@@ -3248,7 +3248,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                 </div>
                                             </div>
                                         </div>
-                                    ): null}
+                                    ) : null}
                                 </div>
                             </div>
                         ) : (

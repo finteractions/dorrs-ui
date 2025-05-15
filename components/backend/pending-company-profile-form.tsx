@@ -363,7 +363,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             sec_images: string[];
             sec_files: string[];
         } = {
-            symbol: initialData?.symbol || this.props.symbolData?.symbol || '',
+            symbol: this.props.symbolData?.symbol || '',
             total_shares_outstanding: initialData?.total_shares_outstanding || '',
             last_market_valuation: initialData?.last_market_valuation || '',
             last_sale_price: initialData?.last_sale_price || '',
@@ -665,7 +665,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
     }) => {
-        this.setState({errorMessages: null, aiErrorMessages: []});
+        this.setState({errorMessages: null, successMessage: null, aiErrorMessages: []});
         setSubmitting(true)
 
         let data = {...values};
@@ -762,11 +762,22 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         await request
             .then(((res: any) => {
                 this.props.onCallback(formData);
+                let action;
+                if (id) {
+                    action = 'updated'
+                } else {
+                    action = 'created'
+                }
+                this.setState({successMessage: [`Asset Profile was successfully ${action}`]});
             }))
             .catch((errors: IError) => {
                 this.setState({errorMessages: errors.messages});
             }).finally(() => {
                 setSubmitting(false);
+
+                setTimeout(() => {
+                    this.setState({successMessage: null});
+                }, 3000);
             });
     };
 
@@ -887,10 +898,9 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         return this.props?.action === 'view';
     }
 
-
     handleApprove = async (values: any) => {
         this.setState({loading: true});
-        const request: Promise<any> = adminService.approveCompanyProfile(values.id, this.state.isApproving || false)
+        const request: Promise<any> = adminService.approveCompanyProfile(values.id, this.state.isApproving || false, true)
 
         await request
             .then(((res: any) => {
@@ -1271,62 +1281,73 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 messages={this.state.aiErrorMessages}/>
                                                 )}
 
+                                                {this.state.successMessage && (
+                                                    <AlertBlock type={"success"}
+                                                                messages={this.state.successMessage}/>
+                                                )}
+
                                                 {this.props.isAdmin && (
-                                                    <div className='approve-form d-none'>
-                                                        {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
-                                                            <>
-                                                                <div className='approve-form-text'>
+                                                    <>
+                                                        {(['submitted', 'approved'].includes(this.props.data?.status.toLowerCase() || '') && !this.isShow()) && (
+                                                            <div className='approve-form'>
+                                                                {this.props.data?.status.toLowerCase() === FormStatus.APPROVED.toLowerCase() ? (
                                                                     <>
-                                                                        Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
+                                                                        <div className='approve-form-text'>
+                                                                            <>
+                                                                                Status: {this.props.data?.status} by {this.props.data?.approved_by || ''} at {formatterService.dateTimeFormat(this.props.data?.approved_date_time || '')}
+                                                                            </>
+                                                                        </div>
                                                                     </>
-                                                                </div>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <div
-                                                                    className='approve-form-text'>Status: {this.props.data?.status}</div>
-                                                                <div className='approve-form-confirm'>
-                                                                    {this.state.isConfirmedApproving ? (
-                                                                        <>
-                                                                            <div
-                                                                                className='approve-form-confirm-title mb-2'>Are
-                                                                                you sure you want
-                                                                                to {this.state.isApproving ? 'approve' : 'reject'}?
-                                                                            </div>
-                                                                            <button className={`b-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.handleApprove(this.props.data)}>Confirm
-                                                                            </button>
-                                                                            <button className={`border-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: false,
-                                                                                        isApproving: null
-                                                                                    })}>Cancel
-                                                                            </button>
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <button className={`b-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: true,
-                                                                                        isApproving: true
-                                                                                    })}>Approve
-                                                                            </button>
-                                                                            <button className={`border-btn ripple`}
-                                                                                    type="button"
-                                                                                    onClick={() => this.setState({
-                                                                                        isConfirmedApproving: true,
-                                                                                        isApproving: false
-                                                                                    })}>Reject
-                                                                            </button>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </>
+                                                                ) : (
+                                                                    <>
+                                                                        <div
+                                                                            className='approve-form-text'>Status: {this.props.data?.status}</div>
+                                                                        <div className='approve-form-confirm'>
+                                                                            {this.state.isConfirmedApproving ? (
+                                                                                <>
+                                                                                    <div
+                                                                                        className='approve-form-confirm-title mb-2'>Are
+                                                                                        you sure you want
+                                                                                        to {this.state.isApproving ? 'approve' : 'reject'}?
+                                                                                    </div>
+                                                                                    <button className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            onClick={() => this.handleApprove(this.props.data)}>Confirm
+                                                                                    </button>
+                                                                                    <button
+                                                                                        className={`border-btn ripple`}
+                                                                                        type="button"
+                                                                                        onClick={() => this.setState({
+                                                                                            isConfirmedApproving: false,
+                                                                                            isApproving: null
+                                                                                        })}>Cancel
+                                                                                    </button>
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <button className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            onClick={() => this.setState({
+                                                                                                isConfirmedApproving: true,
+                                                                                                isApproving: true
+                                                                                            })}>Approve
+                                                                                    </button>
+                                                                                    <button
+                                                                                        className={`border-btn ripple`}
+                                                                                        type="button"
+                                                                                        onClick={() => this.setState({
+                                                                                            isConfirmedApproving: true,
+                                                                                            isApproving: false
+                                                                                        })}>Reject
+                                                                                    </button>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </div>
+                                                    </>
                                                 )}
 
                                                 <div className="input">
@@ -2855,8 +2876,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                 <div className='approve-form'>
                                     {this.props.isAdmin && (
                                         <>
-                                            {getApprovedFormStatus().includes(this.props?.data.status.toLowerCase() as FormStatus) && (
-
+                                            {(['submitted', 'approved'].includes(this.props.data?.status.toLowerCase() || '')) && (
                                                 <div
                                                     className={`approve-form-text w-100`}>
                                                     <>

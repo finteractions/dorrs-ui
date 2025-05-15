@@ -247,12 +247,13 @@ class AdminService extends BaseService {
         return apiWebBackendService.put<IResponseApi>(`${this.PATH}company_profile/${id}/${query}`, data, {}, this.getAdminToken());
     }
 
-    public async approveCompanyProfile(id: number, is_approved: boolean, ): Promise<IResponseApi> {
+    public async approveCompanyProfile(id: number, is_approved: boolean, isPending=false): Promise<IResponseApi> {
         const data = {
             id: id,
             status: is_approved ? 'approved' : 'rejected',
         }
-        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}approve_company_profile/`, data, {}, this.getAdminToken()));
+        const query = isPending ? '?pending=true' : '';
+        return (await apiWebBackendService.post<IResponseApi>(`${this.PATH}approve_company_profile/${query}`, data, {}, this.getAdminToken()));
     }
 
     public async createCompany(name: string): Promise<IResponseApi> {
