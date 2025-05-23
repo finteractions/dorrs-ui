@@ -560,7 +560,7 @@ class PendingAssetsBlock extends React.Component<{}> {
                                                                 name="source_type"
                                                                 id={`source_type_${type}`}
                                                                 checked={values.source_type.includes(type)}
-                                                                disabled={isSubmitting || [SymbolSourceType.FORGE_GLOBAL].includes(type)}
+                                                                disabled={isSubmitting}
                                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                                     const isChecked = e.target.checked;
                                                                     const newValue = isChecked
