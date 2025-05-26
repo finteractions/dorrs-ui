@@ -67,6 +67,10 @@ import aiToolService from "@/services/ai-tool/ai-tool-service";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {Button} from "react-bootstrap";
 import {boolean, ValidationError} from "yup";
+import {countries} from "countries-list";
+import {SicIndustryClassification} from "@/enums/sic-industry-classification";
+import forgeGlobalService from "@/services/forge-global/forge-global-service";
+import {ForgeGlobalCompany, ForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
 
 
 const allowedImageFileSizeMB = 1
@@ -284,6 +288,9 @@ const formSchema = Yup.object().shape({
 
 });
 
+const AIInitialValues = {
+    aiAgreement: false,
+};
 
 interface PendingSymbolFormState extends IState {
     formInitialValues: {},
@@ -306,8 +313,13 @@ interface PendingSymbolFormState extends IState {
     focusedIssueDate: any;
     isShow: boolean;
     isAILoader: boolean;
+    isGlobalForgeLoader: boolean;
     aiGeneratedFields: string[];
     aiErrorMessages: Array<string> | null;
+    formAIInitialValues: any,
+    formForgeGlobalInitialValues: any,
+    aiAgreement: Record<string, boolean>;
+    forgeGlobalAgreement: Record<string, boolean>;
 }
 
 interface SymbolFormProps extends ICallback {
@@ -366,8 +378,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
             focusedIssueDate: null,
             isShow: this.props.action === 'view',
             isAILoader: false,
+            isGlobalForgeLoader: false,
             aiGeneratedFields: [],
             aiErrorMessages: null,
+            formAIInitialValues: {},
+            formForgeGlobalInitialValues: {},
+            aiAgreement: {},
+            forgeGlobalAgreement: {},
         };
 
         columns = [
@@ -613,6 +630,455 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
     }
 
+
+    initAIForm(data?: ISymbol | null) {
+        return new Promise(resolve => {
+
+            const initialData = {...data || {}} as ISymbol;
+
+            const currentDateTime = new Date();
+            const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+            const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+            const initialTime = `${currentHour}:${currentMinute}`;
+            const initialDate = moment().format('YYYY-MM-DD').toString();
+
+            try {
+                const sec_description = JSON.parse(initialData.sec_description.toString());
+                initialData.sec_description = sec_description;
+            } catch (error) {
+                initialData.sec_description = [""];
+            }
+
+            try {
+                const sec_images = JSON.parse(initialData.sec_images.toString().replace(/'/g, '"'));
+                initialData.sec_images = sec_images;
+            } catch (error) {
+                initialData.sec_images = [];
+            }
+
+            try {
+                const sec_files = JSON.parse(initialData.sec_files.toString().replace(/'/g, '"'));
+                initialData.sec_files = sec_files;
+            } catch (error) {
+                initialData.sec_files = [];
+            }
+
+            const initialValues: {
+                reason_for_entry: string;
+                symbol: string;
+                asset_status: string;
+                debt_instrument: string;
+                face_value_par_value: string;
+                coupon_interest_rate: string;
+                maturity_date: string;
+                payment_frequency: string;
+                issue_date: string;
+                governance_notes: string;
+                backing_collateral_details: string;
+                backing_collateral_details_text: string;
+                settlement_method: string;
+                custody_arrangement: string;
+                associated_network: string;
+                notes: string;
+                symbol_id: number | null;
+                company_profile_id: number | null;
+                spv_name: string;
+                fund_manager: string;
+                investment_objective: string;
+                sec_filing: string;
+                sec_description: string[];
+                sec_images: string[];
+                sec_files: string[];
+                is_cusip: boolean;
+                cusip: string;
+                dsin: string;
+                primary_ats: string;
+                transfer_agent: string;
+                custodian: string;
+                market_sector: string;
+                market_sector_category: string;
+                lot_size: string;
+                fractional_lot_size: string;
+                mvp: string;
+                security_name: string;
+                fifth_character_identifier: string;
+                digital_asset_category: string;
+                instrument_type: string;
+                alternative_asset_category: string;
+                alternative_asset_subcategory: string;
+                exempted_offerings: string;
+                issuer_name: string;
+                issuer_type: string;
+                underpinning_asset_value: string;
+                reference_asset: string;
+                market_dynamics_description: string;
+                rights_type: string;
+                enforceability_type: string;
+                fungibility_type: string;
+                redeemability_type: string;
+                redemption_asset_type: string;
+                nature_of_record: string;
+                is_change: boolean;
+                new_dsin: string;
+                new_symbol: string;
+                new_security_name: string;
+                date_entered_change: string;
+                time_entered_change: string;
+                date_effective_change: string;
+                time_effective_change: string;
+                reason_change: string;
+                is_delete: boolean;
+                date_entered_delete: string;
+                time_entered_delete: string;
+                date_effective_delete: string;
+                time_effective_delete: string;
+                reason_delete: string;
+                status: string;
+                edgar_cik: string;
+                version: string;
+            } = {
+                reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
+                symbol: initialData?.symbol || '',
+                asset_status: initialData?.asset_status || '',
+                debt_instrument: initialData?.debt_instrument || '',
+                face_value_par_value: formatterService.toPlainString(initialData?.face_value_par_value?.toString()),
+                coupon_interest_rate: formatterService.toPlainString(initialData?.coupon_interest_rate?.toString()),
+                maturity_date: initialData?.maturity_date || '',
+                payment_frequency: initialData?.payment_frequency || '',
+                issue_date: initialData?.issue_date || '',
+                governance_notes: initialData?.governance_notes || '',
+                backing_collateral_details: initialData?.backing_collateral_details || '',
+                backing_collateral_details_text: initialData?.backing_collateral_details_text || '',
+                settlement_method: initialData?.settlement_method || '',
+                custody_arrangement: initialData?.custody_arrangement || '',
+                associated_network: initialData?.associated_network || '',
+                notes: initialData?.notes || '',
+                symbol_id: initialData?.symbol_id || null,
+                company_profile_id: initialData?.company_profile_id || null,
+                spv_name: initialData?.spv_name || '',
+                fund_manager: initialData?.fund_manager || '',
+                investment_objective: initialData?.investment_objective || '',
+                sec_filing: initialData?.sec_filing || '',
+                sec_description: initialData?.sec_description || [""],
+                sec_images: initialData?.sec_images || [],
+                sec_files: initialData?.sec_files || [],
+                cusip: initialData?.cusip || '',
+                is_cusip: initialData?.is_cusip || false,
+                dsin: initialData?.dsin || '',
+                primary_ats: initialData?.primary_ats || '',
+                transfer_agent: initialData?.transfer_agent || '',
+                custodian: initialData?.custodian || '',
+                market_sector: initialData?.market_sector || '',
+                market_sector_category: initialData?.market_sector_category || '',
+                lot_size: (initialData?.lot_size || getLotSize()[0]).toString(),
+                fractional_lot_size: formatterService.toPlainString(initialData?.fractional_lot_size?.toString()),
+                mvp: formatterService.toPlainString(initialData?.mvp?.toString()),
+                security_name: initialData?.security_name || '',
+                fifth_character_identifier: initialData?.fifth_character_identifier || '',
+                digital_asset_category: initialData?.digital_asset_category || '',
+                instrument_type: initialData?.instrument_type || '',
+                alternative_asset_category: initialData?.alternative_asset_category || '',
+                alternative_asset_subcategory: initialData?.alternative_asset_subcategory || '',
+                exempted_offerings: initialData?.exempted_offerings || '',
+                issuer_name: initialData?.issuer_name || '',
+                issuer_type: initialData?.issuer_type || '',
+                underpinning_asset_value: initialData?.underpinning_asset_value || '',
+                reference_asset: initialData?.reference_asset || '',
+                market_dynamics_description: initialData?.market_dynamics_description || '',
+                rights_type: initialData?.rights_type || '',
+                enforceability_type: initialData?.enforceability_type || '',
+                fungibility_type: initialData?.fungibility_type || '',
+                redeemability_type: initialData?.redeemability_type || '',
+                redemption_asset_type: initialData?.redemption_asset_type || '',
+                nature_of_record: initialData?.nature_of_record || '',
+                is_change: !!initialData?.new_symbol && !!initialData?.new_security_name,
+                new_dsin: dsinService.generate(initialData?.new_symbol || ''),
+                date_entered_change: initialData?.date_entered_change || moment().format('YYYY-MM-DD'),
+                time_entered_change: initialData?.time_entered_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                    .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                date_effective_change: initialData?.date_effective_change || initialDate,
+                time_effective_change: initialData?.time_effective_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                    .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                new_symbol: initialData?.new_symbol || '',
+                new_security_name: initialData?.new_security_name || '',
+                reason_change: initialData?.reason_change || '',
+                is_delete: this.props.action === 'delete',
+                date_entered_delete: initialData?.date_entered_delete || moment().format('YYYY-MM-DD'),
+                time_entered_delete: initialData?.time_entered_delete ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_delete}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                    .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                date_effective_delete: initialData?.date_effective_delete || '',
+                time_effective_delete: initialData?.time_effective_delete ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_delete}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                    .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                reason_delete: initialData?.reason_delete || '',
+                status: initialData?.status || '',
+                edgar_cik: initialData?.edgar_cik || '',
+                version: initialData?.version || '',
+            };
+
+            const keys = Object.keys(initialValues);
+
+            const aiAgreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
+                acc[key] = false;
+                return acc;
+            }, {} as Record<string, boolean>);
+
+            this.setState({
+                formAIInitialValues: initialValues,
+                aiAgreement: aiAgreement
+            }, () => {
+                resolve(true);
+            })
+        })
+    }
+
+    initForgeGlobalForm(data?: ForgeGlobalCompany | null) {
+        return new Promise(resolve => {
+            if (data) {
+                const companyDetail: ForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
+
+                const initialData = {} as ISymbol;
+
+                const currentDateTime = new Date();
+                const currentHour = currentDateTime.getHours().toString().padStart(2, '0');
+                const currentMinute = currentDateTime.getMinutes().toString().padStart(2, '0');
+                const initialTime = `${currentHour}:${currentMinute}`;
+                const initialDate = moment().format('YYYY-MM-DD').toString();
+
+                try {
+                    const sec_description = JSON.parse(initialData.sec_description.toString());
+                    initialData.sec_description = sec_description;
+                } catch (error) {
+                    initialData.sec_description = [""];
+                }
+
+                try {
+                    const sec_images = JSON.parse(initialData.sec_images.toString().replace(/'/g, '"'));
+                    initialData.sec_images = sec_images;
+                } catch (error) {
+                    initialData.sec_images = [];
+                }
+
+                try {
+                    const sec_files = JSON.parse(initialData.sec_files.toString().replace(/'/g, '"'));
+                    initialData.sec_files = sec_files;
+                } catch (error) {
+                    initialData.sec_files = [];
+                }
+
+                const issue_date: string =
+                    /^\d{4}$/.test(companyDetail?.founded ?? '') ? `${companyDetail!.founded}-01-01` : '';
+
+                const marketSector = Object.values(MarketSector);
+                const normalizeSector = (input: string): string | '' => {
+                    const manualMap: Record<string, string> = {
+                        "Industrial": "Industrials",
+                        "Financial": "Financials",
+                        "Consumer Discretionary": "Consumer Discretionary", // можно убрать, если 1:1
+                        "Consumer": "Consumer",
+                        "Energy and Materials": "Energy & Materials"
+                    };
+
+                    if (manualMap[input]) {
+                        return manualMap[input];
+                    }
+
+                    const match = marketSector.find(
+                        sector => sector.toLowerCase() === input.toLowerCase()
+                    );
+                    return match || '';
+                };
+
+                const rawSector = data?.sector ?? '';
+                const normalizedSector = normalizeSector(rawSector);
+
+                const rawFifthCharacterIndetifier = data?.share_class ?? '';
+                const shareClass = Object.values(FifthCharacterIdentifier);
+                const extractSeriesLetter = (raw: string): string | null => {
+                    const match = raw.match(/series\s+([a-z])/i) || raw.match(/series[-\s]*([a-z])/i);
+                    return match ? match[1].toUpperCase() : '';
+                };
+
+                const normalizeFifthCharacterIdentifier = (rawShareClass: string): string => {
+                    const letter = extractSeriesLetter(rawShareClass);
+                    if (!letter) return '';
+
+                    const match = shareClass.find(opt => opt.startsWith(`${letter} Class ${letter}`));
+                    return match || '';
+                };
+
+                const normalizedFifthCharacterIdentifier = normalizeFifthCharacterIdentifier(rawFifthCharacterIndetifier)
+
+                const initialValues: {
+                    reason_for_entry: string;
+                    symbol: string;
+                    asset_status: string;
+                    debt_instrument: string;
+                    face_value_par_value: string;
+                    coupon_interest_rate: string;
+                    maturity_date: string;
+                    payment_frequency: string;
+                    issue_date: string;
+                    governance_notes: string;
+                    backing_collateral_details: string;
+                    backing_collateral_details_text: string;
+                    settlement_method: string;
+                    custody_arrangement: string;
+                    associated_network: string;
+                    notes: string;
+                    symbol_id: number | null;
+                    company_profile_id: number | null;
+                    spv_name: string;
+                    fund_manager: string;
+                    investment_objective: string;
+                    sec_filing: string;
+                    sec_description: string[];
+                    sec_images: string[];
+                    sec_files: string[];
+                    is_cusip: boolean;
+                    cusip: string;
+                    dsin: string;
+                    primary_ats: string;
+                    transfer_agent: string;
+                    custodian: string;
+                    market_sector: string;
+                    market_sector_category: string;
+                    lot_size: string;
+                    fractional_lot_size: string;
+                    mvp: string;
+                    security_name: string;
+                    fifth_character_identifier: string;
+                    digital_asset_category: string;
+                    instrument_type: string;
+                    alternative_asset_category: string;
+                    alternative_asset_subcategory: string;
+                    exempted_offerings: string;
+                    issuer_name: string;
+                    issuer_type: string;
+                    underpinning_asset_value: string;
+                    reference_asset: string;
+                    market_dynamics_description: string;
+                    rights_type: string;
+                    enforceability_type: string;
+                    fungibility_type: string;
+                    redeemability_type: string;
+                    redemption_asset_type: string;
+                    nature_of_record: string;
+                    is_change: boolean;
+                    new_dsin: string;
+                    new_symbol: string;
+                    new_security_name: string;
+                    date_entered_change: string;
+                    time_entered_change: string;
+                    date_effective_change: string;
+                    time_effective_change: string;
+                    reason_change: string;
+                    is_delete: boolean;
+                    date_entered_delete: string;
+                    time_entered_delete: string;
+                    date_effective_delete: string;
+                    time_effective_delete: string;
+                    reason_delete: string;
+                    status: string;
+                    edgar_cik: string;
+                    version: string;
+                } = {
+                    reason_for_entry: initialData?.reason_for_entry || 'New Ticker Symbol',
+                    symbol: initialData?.symbol || '',
+                    asset_status: initialData?.asset_status || 'Active',
+                    debt_instrument: initialData?.debt_instrument || '',
+                    face_value_par_value: formatterService.toPlainString(initialData?.face_value_par_value?.toString()),
+                    coupon_interest_rate: formatterService.toPlainString(initialData?.coupon_interest_rate?.toString()),
+                    maturity_date: initialData?.maturity_date || '',
+                    payment_frequency: initialData?.payment_frequency || '',
+                    issue_date: issue_date,
+                    governance_notes: companyDetail?.description || '',
+                    backing_collateral_details: initialData?.backing_collateral_details || '',
+                    backing_collateral_details_text: initialData?.backing_collateral_details_text || '',
+                    settlement_method: initialData?.settlement_method || '',
+                    custody_arrangement: initialData?.custody_arrangement || '',
+                    associated_network: initialData?.associated_network || '',
+                    notes: initialData?.notes || '',
+                    symbol_id: initialData?.symbol_id || null,
+                    company_profile_id: initialData?.company_profile_id || null,
+                    spv_name: initialData?.spv_name || '',
+                    fund_manager: initialData?.fund_manager || '',
+                    investment_objective: initialData?.investment_objective || '',
+                    sec_filing: initialData?.sec_filing || '',
+                    sec_description: initialData?.sec_description || [""],
+                    sec_images: initialData?.sec_images || [],
+                    sec_files: initialData?.sec_files || [],
+                    cusip: initialData?.cusip || '',
+                    is_cusip: initialData?.is_cusip || false,
+                    dsin: initialData?.dsin || '',
+                    primary_ats: initialData?.primary_ats || '',
+                    transfer_agent: initialData?.transfer_agent || '',
+                    custodian: initialData?.custodian || '',
+                    market_sector: normalizedSector,
+                    market_sector_category: initialData?.market_sector_category || '',
+                    lot_size: (initialData?.lot_size || getLotSize()[0]).toString(),
+                    fractional_lot_size: formatterService.toPlainString(initialData?.fractional_lot_size?.toString()),
+                    mvp: formatterService.toPlainString(initialData?.mvp?.toString()),
+                    security_name: data?.company_name || '',
+                    fifth_character_identifier: normalizedFifthCharacterIdentifier,
+                    digital_asset_category: initialData?.digital_asset_category || '',
+                    instrument_type: initialData?.instrument_type || '',
+                    alternative_asset_category: AlternativeAssetCategory.PRIVATE_FUNDS,
+                    alternative_asset_subcategory: initialData?.alternative_asset_subcategory || '',
+                    exempted_offerings: initialData?.exempted_offerings || '',
+                    issuer_name: data?.company_name || '',
+                    issuer_type: initialData?.issuer_type || '',
+                    underpinning_asset_value: initialData?.underpinning_asset_value || '',
+                    reference_asset: initialData?.reference_asset || '',
+                    market_dynamics_description: initialData?.market_dynamics_description || '',
+                    rights_type: initialData?.rights_type || '',
+                    enforceability_type: initialData?.enforceability_type || '',
+                    fungibility_type: initialData?.fungibility_type || '',
+                    redeemability_type: initialData?.redeemability_type || '',
+                    redemption_asset_type: initialData?.redemption_asset_type || '',
+                    nature_of_record: initialData?.nature_of_record || '',
+                    is_change: !!initialData?.new_symbol && !!initialData?.new_security_name,
+                    new_dsin: dsinService.generate(initialData?.new_symbol || ''),
+                    date_entered_change: initialData?.date_entered_change || moment().format('YYYY-MM-DD'),
+                    time_entered_change: initialData?.time_entered_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                        .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                    date_effective_change: initialData?.date_effective_change || initialDate,
+                    time_effective_change: initialData?.time_effective_change ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_change}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                        .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                    new_symbol: initialData?.new_symbol || '',
+                    new_security_name: initialData?.new_security_name || '',
+                    reason_change: initialData?.reason_change || '',
+                    is_delete: this.props.action === 'delete',
+                    date_entered_delete: initialData?.date_entered_delete || moment().format('YYYY-MM-DD'),
+                    time_entered_delete: initialData?.time_entered_delete ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_entered_delete}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                        .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                    date_effective_delete: initialData?.date_effective_delete || '',
+                    time_effective_delete: initialData?.time_effective_delete ? moment.tz(`${moment().format('YYYY-MM-DD')} ${initialData?.time_effective_delete}`, 'YYYY-MM-DD HH:mm:ss', this.targetTimeZone)
+                        .tz(this.userTimeZone).format('HH:mm:ss') || moment().format('YYYY-MM-DD') : initialTime,
+                    reason_delete: initialData?.reason_delete || '',
+                    status: initialData?.status || '',
+                    edgar_cik: initialData?.edgar_cik || '',
+                    version: initialData?.version || '',
+                };
+
+                const keys = Object.keys(initialValues);
+
+                const aiAgreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
+                    acc[key] = false;
+                    return acc;
+                }, {} as Record<string, boolean>);
+
+                this.setState({
+                    formForgeGlobalInitialValues: initialValues,
+                    aiAgreement: aiAgreement
+                }, () => {
+                    resolve(true);
+                })
+            } else {
+                resolve(true);
+            }
+        })
+    }
+
     getChanges(before: any, after: any) {
         const changes = [];
 
@@ -793,6 +1259,9 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                             });
                     } else {
                         this.getAiGenerateSymbol()
+                            .then(() => {
+                                this.getForgeGlobalSymbol()
+                            })
                     }
                 })
         } else {
@@ -803,53 +1272,281 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
     }
 
     getAiGenerateSymbol() {
-        const symbolId = this.props.data?.id;
-        this.setState({isShow: true, isAILoader: true, aiGeneratedFields: [], aiErrorMessages: null,});
+        return new Promise(resolve => {
+            const symbolId = this.props.data?.id;
+            this.setState({isShow: true, isAILoader: true, aiGeneratedFields: [], aiErrorMessages: null,});
 
-        aiToolService.aiGenerateSymbol(Number(symbolId) ?? 0)
-            .then(async (res: Array<ISymbol>) => {
-                const aiSymbol = (res?.[0] || {}) as any;
-                const originalSymbol = this.props.data as Record<string, any>;
-                const mergedSymbol: Record<string, any> = {};
-                const aiGeneratedFields: string[] = [];
+            this.setState((prevState: any) => ({
+                isShow: true, isAILoader: true, aiGeneratedFields: [], aiErrorMessages: null,
+                formInitialValues: {
+                    ...prevState.formInitialValues
+                },
+            }), async () => {
+                await this.initAIForm();
+                this.formRef?.current?.setSubmitting(true);
+            });
 
-                for (const key in originalSymbol) {
-                    const aiValue = aiSymbol[key];
-                    const originalValue = originalSymbol[key];
 
-                    const hasAIValue = aiValue !== undefined && aiValue !== null && aiValue !== '';
-                    if (hasAIValue && (formSchema as any).fields[key]) {
-                        try {
-                            const tempObj = {[key]: aiValue};
-                            const tempSchema = Yup.object({[key]: (formSchema as any).fields[key]});
-                            await tempSchema.validate(tempObj);
-                            mergedSymbol[key] = aiValue;
+            aiToolService.aiGenerateSymbol(Number(symbolId) ?? 0)
+                .then(async (res: Array<ISymbol>) => {
+                    const symbol = res?.[0] || null;
+                    await this.initAIForm(symbol);
+                })
+                .catch(async (errors: IError) => {
+                    await this.initForm(this.props.data!);
+                    this.setState({aiErrorMessages: errors.messages, isAILoader: false});
+                })
+                .finally(() => {
+                    this.setState({loading: false, isShow: false, isAILoader: false});
+                    this.props.onLoading?.();
+                    resolve(true);
+                });
 
-                            aiGeneratedFields.push(key);
+        })
+    }
 
-                        } catch (e) {
-                            aiGeneratedFields.push(key);
-                            mergedSymbol[key] = aiValue;
-                        }
-                    } else {
-                        mergedSymbol[key] = originalValue;
-                    }
+    getForgeGlobalSymbol() {
+        return new Promise(resolve => {
+            const symbolId = this.props.data?.id;
+            this.setState({isGlobalForgeLoader: true});
+
+            forgeGlobalService.getSymbol(Number(symbolId) ?? 0)
+                .then(async (res: Array<ForgeGlobalCompany>) => {
+                    const symbol = res?.[0] || null;
+                    await this.initForgeGlobalForm(symbol);
+                })
+                .catch(async (errors: IError) => {
+                    await this.initForm(this.props.data!);
+                })
+                .finally(() => {
+                    this.setState({isGlobalForgeLoader: false});
+                    this.props.onLoading?.();
+                    resolve(true);
+                });
+
+        })
+    }
+
+    getAIValue = (field: string): string => {
+        const excludedNumericFields = ['zip_code', 'phone', 'sic_industry_classification'];
+        const aiCompanyProfile = {...this.state.formAIInitialValues} as any;
+        let value = '';
+        const aiValue = aiCompanyProfile[field];
+
+        if (aiValue) {
+            if (Array.isArray(aiValue)) {
+                if (aiValue.length > 0) {
+                    value = aiValue.join(', ');
                 }
+            } else {
+                const numberValue = Number(aiValue);
+                if (!isNaN(numberValue) && !excludedNumericFields.includes(field)) {
+                    const decimals = (numberValue.toString().split('.')[1] || '').length;
+                    value = formatterService.numberFormat(numberValue, decimals);
+                } else {
+                    value = aiValue;
+                }
+            }
+        }
 
-                await this.initForm(mergedSymbol as ISymbol);
-                this.setState({aiGeneratedFields});
-            })
-            .catch((errors: IError) => {
-                this.initForm(this.props.data!);
-                this.setState({aiErrorMessages: errors.messages});
-            })
-            .finally(() => {
-                this.setState({loading: false, isShow: false, isAILoader: false});
-                this.props.onLoading?.();
+        return value;
+    };
+
+    getForgeGlobalValue = (field: string): string => {
+        const excludedNumericFields = ['zip_code', 'phone', 'sic_industry_classification'];
+        const forgeGlobalCompanyProfile = {...this.state.formForgeGlobalInitialValues} as any;
+        let value = '';
+        const aiValue = forgeGlobalCompanyProfile[field];
+
+        if (aiValue) {
+            if (Array.isArray(aiValue)) {
+                if (aiValue.length > 0) {
+                    value = aiValue.join(', ');
+                }
+            } else {
+                const numberValue = Number(aiValue);
+                if (!isNaN(numberValue) && !excludedNumericFields.includes(field)) {
+                    const decimals = (numberValue.toString().split('.')[1] || '').length;
+                    value = formatterService.numberFormat(numberValue, decimals);
+                } else {
+                    value = aiValue;
+                }
+            }
+        }
+
+        return value;
+    };
+
+
+    getRenderedForgeGlobalField = (field: string) => {
+        const value = this.getForgeGlobalValue(field);
+        const checked = this.state.forgeGlobalAgreement[field] ?? false;
+        const self = this;
+
+        const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const {checked} = event.target;
+            this.setState((prevState: any) => ({
+                forgeGlobalAgreement: {
+                    ...prevState.forgeGlobalAgreement,
+                    [field]: checked
+                }
+            }));
+        };
+
+        const applyChanges = () => {
+            this.setState((prevState: any) => ({
+                formInitialValues: {
+                    ...prevState.formInitialValues,
+                    [field]: (this.state.formForgeGlobalInitialValues as any)[field]
+                },
+                formForgeGlobalInitialValues: field === "logo"
+                    ? prevState.formForgeGlobalInitialValues
+                    : {
+                        ...prevState.formForgeGlobalInitialValues,
+                        [field]: "",
+                    },
+            }), async () => {
 
             });
 
-    }
+            setTimeout(() => {
+                self.formRef?.current.handleChange({
+                    target: {
+                        name: 'time',
+                        value: Date.now(),
+                    },
+                });
+                this.formRef?.current.setFieldTouched(field, true);
+            }, 350);
+
+        }
+
+        return (
+            <>
+                {value && value.length > 0 && (
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
+                        <div className={'d-flex gap-10 align-items-center'}>
+                            <div>
+                                <FontAwesomeIcon icon={faMagicWandSparkles} title={'Forge Global Generated'}/>
+                            </div>
+                            <div>{value}</div>
+                        </div>
+                        <>
+                            <div className={'d-flex-1'}>
+                                <div className="b-checkbox b-checkbox">
+                                    <input
+                                        type={'checkbox'}
+                                        id={`checkbox_${field}_forge_global`}
+                                        checked={checked}
+                                        disabled={this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                        onChange={handleCheckboxChange}
+                                    />
+                                    <label htmlFor={`checkbox_${field}_forge_global`}>
+                                        <span></span><i> I agree with generated data (Forge Global)</i>
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='admin-table-actions'>
+                                <button
+                                    className={`admin-table-btn ripple ${!checked || this.state.isGlobalForgeLoader || this.state.isAILoader ? 'disable' : ''}`}
+                                    disabled={!checked || this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                    onClick={applyChanges}
+                                    type={'button'}>
+                                    Apply changes
+                                    <FontAwesomeIcon
+                                        className="nav-icon" icon={faEdit}/></button>
+                            </div>
+                        </>
+                    </div>
+                )}
+            </>
+        );
+    };
+
+    getRenderedAIField = (field: string) => {
+        const value = this.getAIValue(field);
+        const checked = this.state.aiAgreement[field] ?? false;
+        const self = this;
+
+        const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const {checked} = event.target;
+            this.setState((prevState: any) => ({
+                aiAgreement: {
+                    ...prevState.aiAgreement,
+                    [field]: checked
+                }
+            }));
+        };
+
+        const applyChanges = () => {
+            this.setState((prevState: any) => ({
+                formInitialValues: {
+                    ...prevState.formInitialValues,
+                    [field]: (this.state.formAIInitialValues as any)[field]
+                },
+                formAIInitialValues: field === "logo"
+                    ? prevState.formAIInitialValues
+                    : {
+                        ...prevState.formAIInitialValues,
+                        [field]: "",
+                    },
+            }), async () => {
+
+            });
+
+            setTimeout(() => {
+                self.formRef?.current.handleChange({
+                    target: {
+                        name: 'time',
+                        value: Date.now(),
+                    },
+                });
+                this.formRef?.current.setFieldTouched(field, true);
+            }, 350);
+
+        }
+
+        return (
+            <>
+                {value && value.length > 0 && (
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
+                        <div className={'d-flex gap-10 align-items-center'}>
+                            <div>
+                                <FontAwesomeIcon icon={faMagicWandSparkles} title={'AI Generated'}/>
+                            </div>
+                            <div>{value}</div>
+                        </div>
+                        <>
+                            <div className={'d-flex-1'}>
+                                <div className="b-checkbox b-checkbox">
+                                    <input
+                                        type={'checkbox'}
+                                        id={`checkbox_${field}`}
+                                        checked={checked}
+                                        disabled={this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                        onChange={handleCheckboxChange}
+                                    />
+                                    <label htmlFor={`checkbox_${field}`}>
+                                        <span></span><i> I agree with generated data (AI Assistant)</i>
+                                    </label>
+                                </div>
+                            </div>
+                            <div className='admin-table-actions'>
+                                <button
+                                    className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
+                                    disabled={!checked || this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                    onClick={applyChanges}
+                                    type={'button'}>
+                                    Apply changes
+                                    <FontAwesomeIcon
+                                        className="nav-icon" icon={faEdit}/></button>
+                            </div>
+                        </>
+                    </div>
+                )}
+            </>
+        );
+    };
 
     isShow(): boolean {
         const {action, data} = this.props;
@@ -1146,11 +1843,6 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                         return (
                                             <Form id="bank-form" className={'position-relative'}>
 
-                                                {this.state.aiErrorMessages && (
-                                                    <AlertBlock type={"warning"}
-                                                                messages={this.state.aiErrorMessages}/>
-                                                )}
-
                                                 {this.state.successMessage && (
                                                     <AlertBlock type={"success"}
                                                                 messages={this.state.successMessage}/>
@@ -1180,89 +1872,89 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 )}
 
 
-                                                                    <>
-                                                                        <div
-                                                                            className={`approve-form-text pb-0 w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
-                                                                            <>
-                                                                                Status: {this.props.data?.status}
-                                                                                {(
-                                                                                    this.props.data?.deleted_by ||
-                                                                                    this.props.data?.changed_by ||
-                                                                                    this.props.data?.approved_by ||
-                                                                                    this.props.data?.created_by
-                                                                                ) && (
-                                                                                    <> by {this.props.data.deleted_by || this.props.data.changed_by || this.props.data.approved_by || this.props.data.created_by}</>
+                                                                <>
+                                                                    <div
+                                                                        className={`approve-form-text pb-0 w-100 ${this.props.data?.created_by ? 'pt-1' : ''}`}>
+                                                                        <>
+                                                                            Status: {this.props.data?.status}
+                                                                            {(
+                                                                                this.props.data?.deleted_by ||
+                                                                                this.props.data?.changed_by ||
+                                                                                this.props.data?.approved_by ||
+                                                                                this.props.data?.created_by
+                                                                            ) && (
+                                                                                <> by {this.props.data.deleted_by || this.props.data.changed_by || this.props.data.approved_by || this.props.data.created_by}</>
+                                                                            )}
+                                                                            {(
+                                                                                this.props.data?.deleted_date_time ||
+                                                                                this.props.data?.changed_date_time ||
+                                                                                this.props.data?.approved_date_time
+                                                                            ) && (
+                                                                                <> at {formatterService.dateTimeFormat(
+                                                                                    this.props.data.deleted_date_time ||
+                                                                                    this.props.data.changed_date_time ||
+                                                                                    this.props.data.approved_date_time
+                                                                                )}</>
+                                                                            )}
+                                                                        </>
+
+                                                                    </div>
+                                                                    <div
+                                                                        className={`approve-form-text w-100 pt-2 `}>Source: {this.props.data?.source_name}</div>
+
+                                                                    {['submitted'].includes(this.props.data?.status.toLowerCase() || '') && (
+                                                                        <>
+                                                                            <div className='approve-form-confirm'>
+                                                                                {this.state.isConfirmedApproving ? (
+                                                                                    <>
+                                                                                        <div
+                                                                                            className='approve-form-confirm-title mb-2'>Are
+                                                                                            you sure you want
+                                                                                            to {this.state.isApproving ? 'approve' : 'reject'}?
+                                                                                        </div>
+                                                                                        <button
+                                                                                            className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
+                                                                                            onClick={() => this.handleApprove(this.props.data)}>Confirm
+                                                                                        </button>
+                                                                                        <button
+                                                                                            className={`border-btn ripple`}
+                                                                                            type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
+                                                                                            onClick={() => this.setState({
+                                                                                                isConfirmedApproving: false,
+                                                                                                isApproving: null
+                                                                                            })}>Cancel
+                                                                                        </button>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <button
+                                                                                            className={`b-btn ripple`}
+                                                                                            type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
+                                                                                            onClick={() => this.setState({
+                                                                                                isConfirmedApproving: true,
+                                                                                                isApproving: true
+                                                                                            })}>Approve
+                                                                                        </button>
+                                                                                        <button
+                                                                                            className={`border-btn ripple`}
+                                                                                            type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
+                                                                                            onClick={() => this.setState({
+                                                                                                isConfirmedApproving: true,
+                                                                                                isApproving: false
+                                                                                            })}>Reject
+                                                                                        </button>
+                                                                                    </>
                                                                                 )}
-                                                                                {(
-                                                                                    this.props.data?.deleted_date_time ||
-                                                                                    this.props.data?.changed_date_time ||
-                                                                                    this.props.data?.approved_date_time
-                                                                                ) && (
-                                                                                    <> at {formatterService.dateTimeFormat(
-                                                                                        this.props.data.deleted_date_time ||
-                                                                                        this.props.data.changed_date_time ||
-                                                                                        this.props.data.approved_date_time
-                                                                                    )}</>
-                                                                                )}
-                                                                            </>
+                                                                            </div>
+                                                                        </>
+                                                                    )}
 
-                                                                        </div>
-                                                                        <div
-                                                                            className={`approve-form-text w-100 pt-2 `}>Source: {this.props.data?.source_name}</div>
-
-                                                                        {['submitted'].includes(this.props.data?.status.toLowerCase() || '') && (
-                                                                            <>
-                                                                                <div className='approve-form-confirm'>
-                                                                                    {this.state.isConfirmedApproving ? (
-                                                                                        <>
-                                                                                            <div
-                                                                                                className='approve-form-confirm-title mb-2'>Are
-                                                                                                you sure you want
-                                                                                                to {this.state.isApproving ? 'approve' : 'reject'}?
-                                                                                            </div>
-                                                                                            <button
-                                                                                                className={`b-btn ripple`}
-                                                                                                type="button"
-                                                                                                disabled={this.state.loading || this.state.isAILoader}
-                                                                                                onClick={() => this.handleApprove(this.props.data)}>Confirm
-                                                                                            </button>
-                                                                                            <button
-                                                                                                className={`border-btn ripple`}
-                                                                                                type="button"
-                                                                                                disabled={this.state.loading || this.state.isAILoader}
-                                                                                                onClick={() => this.setState({
-                                                                                                    isConfirmedApproving: false,
-                                                                                                    isApproving: null
-                                                                                                })}>Cancel
-                                                                                            </button>
-                                                                                        </>
-                                                                                    ) : (
-                                                                                        <>
-                                                                                            <button
-                                                                                                className={`b-btn ripple`}
-                                                                                                type="button"
-                                                                                                disabled={this.state.loading || this.state.isAILoader}
-                                                                                                onClick={() => this.setState({
-                                                                                                    isConfirmedApproving: true,
-                                                                                                    isApproving: true
-                                                                                                })}>Approve
-                                                                                            </button>
-                                                                                            <button
-                                                                                                className={`border-btn ripple`}
-                                                                                                type="button"
-                                                                                                disabled={this.state.loading || this.state.isAILoader}
-                                                                                                onClick={() => this.setState({
-                                                                                                    isConfirmedApproving: true,
-                                                                                                    isApproving: false
-                                                                                                })}>Reject
-                                                                                            </button>
-                                                                                        </>
-                                                                                    )}
-                                                                                </div>
-                                                                            </>
-                                                                        )}
-
-                                                                    </>
+                                                                </>
 
                                                             </div>
                                                         )}
@@ -1398,7 +2090,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input">
                                                                 <div className="input__title">Delete Reason</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="reason_delete"
                                                                         id="reason_delete"
@@ -1406,7 +2098,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         rows="3"
                                                                         className="input__textarea"
                                                                         placeholder="Type delete reason"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="reason_delete" component="div"
                                                                                   className="error-message"/>
@@ -1425,13 +2117,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Entry <i>*</i>
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="reason_for_entry"
                                                                             id="reason_for_entry"
                                                                             as="select"
                                                                             className="b-select"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select a Reason</option>
                                                                             <option value="New Ticker Symbol">New Ticker
@@ -1457,7 +2149,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Underlying Symbol
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="underlying_symbol"
                                                                             id="underlying_symbol"
@@ -1465,7 +2157,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             className="b-select-search"
                                                                             placeholder="Select Underlying Symbol"
                                                                             classNamePrefix="select__react"
-                                                                            isDisabled={(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading)}
+                                                                            isDisabled={(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading)}
                                                                             isClearable={true}
                                                                             isSearchable={true}
                                                                             options={Object.values(this.masterSymbols).map((item) => (this.renderOption(item)))}
@@ -1508,14 +2200,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Name
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="spv_name"
                                                                                     id="spv_name"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type SPV Name"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="spv_name"
@@ -1529,14 +2221,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Manager
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="fund_manager"
                                                                                     id="fund_manager"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type Fund Manager"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="fund_manager"
@@ -1551,14 +2243,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Objective
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="investment_objective"
                                                                                     id="investment_objective"
                                                                                     type="text"
                                                                                     className="input__text no-bg"
                                                                                     placeholder="Type Investment Objective"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage
                                                                                     name="investment_objective"
@@ -1573,7 +2265,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Filing
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <Field
                                                                                     name="sec_filing"
                                                                                     id="sec_filing"
@@ -1583,7 +2275,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                             mask="9999-9999-99"
                                                                                             placeholder="Type SEC Filing"
                                                                                             className="input__text"
-                                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                         />
                                                                                     )}
                                                                                 />
@@ -1602,7 +2294,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         <button
                                                                             type="button"
                                                                             className='border-grey-btn ripple'
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             onClick={() => {
                                                                                 const updatedDescriptions = [...values.sec_description, ''];
                                                                                 const index = updatedDescriptions.length - 1 || 0
@@ -1618,7 +2310,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                                     <div className="input">
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <div className="officer-input">
                                                                                 {values.sec_description && values.sec_description.map((description, index) => (
                                                                                     <>
@@ -1648,7 +2340,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                     type="file"
                                                                                                     accept={'.' + allowedImageExt.join(',.')}
                                                                                                     className="input__file"
-                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                                     onChange={(event) => {
                                                                                                         setFieldValue(`issuer_profile_image_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                         this.handleSecImageChange(event, index);
@@ -1661,7 +2353,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                 rows={4}
                                                                                                 className="input__textarea"
                                                                                                 placeholder={''}
-                                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                             />
                                                                                             <div
                                                                                                 className={'input__wrap'}>
@@ -1686,7 +2378,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                                     type="file"
                                                                                                     accept={'.' + allowedFileExt.join(',.')}
                                                                                                     className="input__file"
-                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                                     onChange={(event) => {
                                                                                                         setFieldValue(`issuer_profile_file_tmp.${index}`, event.target?.files?.[0] || '');
                                                                                                         this.handleSecFileChange(event, index);
@@ -1736,27 +2428,30 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Name <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="security_name"
                                                                                 id="security_name"
                                                                                 type="text"
                                                                                 className={`input__text ${this.state.aiGeneratedFields.includes('security_name') ? 'filled' : ''}`}
                                                                                 placeholder="Type Security Name"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading || this.state.getSymbolProcessing}
                                                                                 onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                             />
                                                                             <ErrorMessage name="security_name"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('security_name')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('security_name')}
+                                                                            {this.getRenderedForgeGlobalField('security_name')}
+                                                                        </div>
                                                                     </div>
                                                                     <div className="input ai-info-block">
                                                                         <div className="input__title">Symbol</div>
                                                                         {!this.state.isSymbolCodeChange ? (
                                                                             <div
-                                                                                className={`input__wrap no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                className={`input__wrap no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                 <div
                                                                                     className={`input__wrap no-border`}>
                                                                                     <Field
@@ -1770,7 +2465,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 {getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && (
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => {
                                                                                             setFieldValue('is_change', true);
@@ -1788,7 +2483,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 {!getApprovedFormStatus().includes(this.props.data?.status.toLowerCase() as FormStatus) && values.symbol && !this.state.isSymbolCodeChange && (
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.changeSymbolCode(true)}
                                                                                     >
@@ -1822,7 +2517,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 </button>
                                                                                 <button
                                                                                     type="button"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                     className='border-grey-btn ripple'
                                                                                     onClick={() => this.cancelSymbolCode(setFieldValue, setFieldTouched)}>
                                                                                     <FontAwesomeIcon
@@ -1981,7 +2676,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.changeSymbolCode(true)}
                                                                                     >
@@ -1992,7 +2687,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 </div>
                                                                             ) : (
                                                                                 <div
-                                                                                    className={`input no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                                    className={`input no-border input__btns justify-content-center  ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                                     <Field
                                                                                         name="new_symbol"
                                                                                         id="new_symbol"
@@ -2014,7 +2709,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     </button>
                                                                                     <button
                                                                                         type="button"
-                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                         className='border-grey-btn ripple'
                                                                                         onClick={() => this.cancelNewSymbolNewCode(setFieldValue, setFieldTouched)}>
                                                                                         <FontAwesomeIcon
@@ -2034,7 +2729,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 Reason
                                                                             </div>
                                                                             <div
-                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                                className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                                 <Field
                                                                                     name="reason_change"
                                                                                     id="reason_change"
@@ -2042,7 +2737,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                     rows="3"
                                                                                     className="input__textarea"
                                                                                     placeholder="Type change reason"
-                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                    disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                 />
                                                                                 <ErrorMessage name="reason_change"
                                                                                               component="div"
@@ -2111,14 +2806,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Name <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading || this.state.getSymbolProcessing) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="security_name"
                                                                                 id="security_name"
                                                                                 type="text"
                                                                                 className="input__text"
                                                                                 placeholder="Type Security Name"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading || this.state.getSymbolProcessing}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading || this.state.getSymbolProcessing}
                                                                                 onChange={(e: any) => this.handleSecurityNameChange(e, setFieldValue)}
                                                                             />
                                                                             <ErrorMessage name="security_name"
@@ -2150,13 +2845,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Asset Status <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="asset_status"
                                                                         id="asset_status"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('asset_status') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Asset Status
                                                                         </option>
@@ -2171,19 +2866,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('asset_status')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('asset_status')}
+                                                                    {this.getRenderedForgeGlobalField('asset_status')}
+                                                                </div>
                                                             </div>
 
                                                             <div className={'input'}>
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? ' disable' : ''}`}>
+                                                                        className={`b-checkbox b-checkbox${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? ' disable' : ''}`}>
                                                                         <Field
                                                                             type="checkbox"
                                                                             name="is_cusip"
                                                                             id="is_cusip"
                                                                             className={`${this.state.aiGeneratedFields.includes('is_cusip') ? 'filled' : ''}`}
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             onClick={(e: any) => this.handleCusipChange(e, setFieldValue)}
                                                                         />
                                                                         <label htmlFor="is_cusip">
@@ -2195,26 +2893,32 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                       component="div"
                                                                                       className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('is_cusip')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('is_cusip')}
+                                                                        {this.getRenderedForgeGlobalField('is_cusip')}
+                                                                    </div>
                                                                 </div>
 
                                                                 {values.is_cusip && (
                                                                     <div className="input ai-info-block">
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="cusip"
                                                                                 id="cusip"
                                                                                 type="text"
                                                                                 className={`input__text ${this.state.aiGeneratedFields.includes('cusip') ? 'filled' : ''}`}
                                                                                 placeholder="Type CUSIP"
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="cusip"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('cusip')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('cusip')}
+                                                                            {this.getRenderedForgeGlobalField('cusip')}
+                                                                        </div>
                                                                     </div>
                                                                 )}
 
@@ -2245,13 +2949,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Identifiers
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fifth_character_identifier"
                                                                         id="fifth_character_identifier"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('fifth_character_identifier') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Fifth Character
                                                                             Identifiers
@@ -2267,20 +2971,23 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('fifth_character_identifier')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('fifth_character_identifier')}
+                                                                    {this.getRenderedForgeGlobalField('fifth_character_identifier')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Alternative Asset
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="alternative_asset_category"
                                                                         id="alternative_asset_category"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('alternative_asset_category') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Alternative Asset
                                                                         </option>
@@ -2294,19 +3001,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('alternative_asset_category')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('alternative_asset_category')}
+                                                                    {this.getRenderedForgeGlobalField('alternative_asset_category')}
+                                                                </div>
                                                             </div>
 
                                                             {values.alternative_asset_category !== '' && getAlternativeAssetSubCategory(values.alternative_asset_category) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="alternative_asset_subcategory"
                                                                             id="alternative_asset_subcategory"
                                                                             as="select"
                                                                             className={`b-select ${this.state.aiGeneratedFields.includes('alternative_asset_subcategory') ? 'filled' : ''}`}
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select category
                                                                             </option>
@@ -2323,7 +3033,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             component="div"
                                                                             className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('alternative_asset_subcategory')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('alternative_asset_subcategory')}
+                                                                        {this.getRenderedForgeGlobalField('alternative_asset_subcategory')}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -2331,13 +3044,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Debt Instrument
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="debt_instrument"
                                                                         id="debt_instrument"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('debt_instrument') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Debt Instrument
                                                                         </option>
@@ -2351,7 +3064,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('debt_instrument')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('debt_instrument')}
+                                                                    {this.getRenderedForgeGlobalField('debt_instrument')}
+                                                                </div>
                                                             </div>
 
                                                             {values.debt_instrument !== '' && (
@@ -2361,7 +3077,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             Value <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="face_value_par_value"
                                                                                 id="face_value_par_value"
@@ -2370,20 +3086,23 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 placeholder="Type Face Value/Par Value"
                                                                                 component={NumericInputField}
                                                                                 decimalScale={2}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="face_value_par_value"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('face_value_par_value')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('face_value_par_value')}
+                                                                            {this.getRenderedForgeGlobalField('face_value_par_value')}
+                                                                        </div>
                                                                     </div>
                                                                     <div className="input ai-info-block">
                                                                         <div className="input__title">Coupon/Interest
                                                                             Rate <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="coupon_interest_rate"
                                                                                 id="coupon_interest_rate"
@@ -2392,20 +3111,23 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 placeholder="Type Coupon/Interest Rate"
                                                                                 component={NumericInputField}
                                                                                 decimalScale={3}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             />
                                                                             <ErrorMessage name="coupon_interest_rate"
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('coupon_interest_rate')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('coupon_interest_rate')}
+                                                                            {this.getRenderedForgeGlobalField('coupon_interest_rate')}
+                                                                        </div>
                                                                     </div>
                                                                     <div className="input ai-info-block">
                                                                         <div className="input__title">Maturity
                                                                             Date <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <SingleDatePicker
                                                                                 numberOfMonths={1}
                                                                                 renderMonthElement={formatterService.renderMonthElement}
@@ -2416,7 +3138,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                 id="maturity_date"
                                                                                 displayFormat={dateFormat}
                                                                                 isOutsideRange={() => false}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                                 readOnly={true}
                                                                                 placeholder={'Select Maturity Date'}
                                                                             />
@@ -2424,20 +3146,23 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('maturity_date')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('maturity_date')}
+                                                                            {this.getRenderedForgeGlobalField('maturity_date')}
+                                                                        </div>
                                                                     </div>
                                                                     <div className="input ai-info-block">
                                                                         <div className="input__title">Payment
                                                                             Frequency <i>*</i>
                                                                         </div>
                                                                         <div
-                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                            className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                             <Field
                                                                                 name="payment_frequency"
                                                                                 id="payment_frequency"
                                                                                 as="select"
                                                                                 className={`b-select ${this.state.aiGeneratedFields.includes('payment_frequency') ? 'filled' : ''}`}
-                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                                disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                             >
                                                                                 <option value="">Select Payment
                                                                                     Frequency
@@ -2453,7 +3178,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                           component="div"
                                                                                           className="error-message"/>
                                                                         </div>
-                                                                        {this.renderAIGeneratedBlock('payment_frequency')}
+                                                                        <div className={'d-flex'}>
+                                                                            {this.getRenderedAIField('payment_frequency')}
+                                                                            {this.getRenderedForgeGlobalField('payment_frequency')}
+                                                                        </div>
                                                                     </div>
                                                                 </>
                                                             )}
@@ -2462,13 +3190,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Exempted Offerings
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="exempted_offerings"
                                                                         id="exempted_offerings"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('exempted_offerings') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Exempted Offering
                                                                         </option>
@@ -2482,20 +3210,24 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('exempted_offerings')}
+
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('exempted_offerings')}
+                                                                    {this.getRenderedForgeGlobalField('exempted_offerings')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Market Sector <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="market_sector"
                                                                         id="market_sector"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('market_sector') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Market Sector
                                                                         </option>
@@ -2509,19 +3241,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('market_sector')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('market_sector')}
+                                                                    {this.getRenderedForgeGlobalField('market_sector')}
+                                                                </div>
                                                             </div>
 
                                                             {values.market_sector !== '' && getMarketSectorCategory(values.market_sector) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                         <Field
                                                                             name="market_sector_category"
                                                                             id="market_sector_category"
                                                                             as="select"
                                                                             className={`b-select ${this.state.aiGeneratedFields.includes('market_sector_category') ? 'filled' : ''}`}
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select Market
                                                                                 Sector Category
@@ -2540,7 +3275,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             component="div"
                                                                             className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('market_sector_category')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('market_sector_category')}
+                                                                        {this.getRenderedForgeGlobalField('market_sector_category')}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -2549,7 +3287,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     ({getLotSize().join(', ')}) <i>*</i>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="lot_size"
                                                                         id="lot_size"
@@ -2559,19 +3297,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         component={NumericInputField}
                                                                         decimalScale={0}
                                                                         isThousandSeparator={false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="lot_size" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('lot_size')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('lot_size')}
+                                                                    {this.getRenderedForgeGlobalField('lot_size')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Fractional Lot Size
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fractional_lot_size"
                                                                         id="fractional_lot_size"
@@ -2580,13 +3321,16 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         placeholder="Type Fractional Lot Size"
                                                                         component={NumericInputField}
                                                                         decimalScale={6}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="fractional_lot_size"
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('fractional_lot_size')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('fractional_lot_size')}
+                                                                    {this.getRenderedForgeGlobalField('fractional_lot_size')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
@@ -2597,7 +3341,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     .05, .10)
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="mvp"
                                                                         id="mvp"
@@ -2607,12 +3351,15 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         component={NumericInputField}
                                                                         decimalScale={4}
                                                                         isThousandSeparator={false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="mvp" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('mvp')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('mvp')}
+                                                                    {this.getRenderedForgeGlobalField('mvp')}
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -2625,13 +3372,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Primary
                                                                     ATS <i>*</i></div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                     <Field
                                                                         name="primary_ats"
                                                                         id="primary_ats"
                                                                         as="select"
                                                                         className={`b-select no-bg ${this.state.aiGeneratedFields.includes('primary_ats') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Primary ATS</option>
 
@@ -2670,7 +3417,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         component="div"
                                                                         className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('primary_ats')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('primary_ats')}
+                                                                    {this.getRenderedForgeGlobalField('primary_ats')}
+                                                                </div>
                                                             </div>
 
                                                             {values.primary_ats === PrimaryATS.ADD_NEW.value && (
@@ -2681,14 +3431,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         ATS <i>*</i>
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : 'no-border'}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : 'no-border'}`}>
                                                                         <Field
                                                                             name="new_primary_ats"
                                                                             id="new_primary_ats"
                                                                             type="text"
                                                                             className="input__text no-bg"
                                                                             placeholder="Enter the primary ATS"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage
                                                                             name="new_primary_ats"
@@ -2701,37 +3451,43 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Transfer Agent</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="transfer_agent"
                                                                         id="transfer_agent"
                                                                         type="text"
                                                                         className={`input__text ${this.state.aiGeneratedFields.includes('transfer_agent') ? 'filled' : ''}`}
                                                                         placeholder="Type Transfer Agent"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="transfer_agent" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('transfer_agent')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('transfer_agent')}
+                                                                    {this.getRenderedForgeGlobalField('transfer_agent')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Custodian</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="custodian"
                                                                         id="custodian"
                                                                         type="text"
                                                                         className={`input__text ${this.state.aiGeneratedFields.includes('custodian') ? 'filled' : ''}`}
                                                                         placeholder="Type Custodian"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="custodian" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('custodian')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('custodian')}
+                                                                    {this.getRenderedForgeGlobalField('custodian')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
@@ -2745,19 +3501,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     </Link>
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="edgar_cik"
                                                                         id="edgar_cik"
                                                                         type="text"
                                                                         className={`input__text ${this.state.aiGeneratedFields.includes('edgar_cik') ? 'filled' : ''}`}
                                                                         placeholder="Type Edgar CIK"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="edgar_cik" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('edgar_cik')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('edgar_cik')}
+                                                                    {this.getRenderedForgeGlobalField('edgar_cik')}
+                                                                </div>
                                                             </div>
 
                                                         </div>
@@ -2770,7 +3529,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Date of Issue / Creation
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <SingleDatePicker
                                                                         numberOfMonths={1}
                                                                         renderMonthElement={formatterService.renderMonthElement}
@@ -2781,7 +3540,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         id="issue_date"
                                                                         displayFormat={dateFormat}
                                                                         isOutsideRange={() => false}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         readOnly={true}
                                                                         placeholder={'Select Date of Issue / Creation'}
                                                                     />
@@ -2789,7 +3548,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('issue_date')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('issue_date')}
+                                                                    {this.getRenderedForgeGlobalField('issue_date')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
@@ -2797,7 +3559,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Notes
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="governance_notes"
                                                                         id="governance_notes"
@@ -2805,26 +3567,29 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         rows="3"
                                                                         className={`input__textarea ${this.state.aiGeneratedFields.includes('governance_notes') ? 'filled' : ''}`}
                                                                         placeholder="DAO, corporate board, free-form text"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="governance_notes"
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('governance_notes')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('governance_notes')}
+                                                                    {this.getRenderedForgeGlobalField('governance_notes')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Digital Asset Category
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="digital_asset_category"
                                                                         id="digital_asset_category"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('digital_asset_category') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Digital Asset Category
                                                                         </option>
@@ -2838,19 +3603,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('digital_asset_category')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('digital_asset_category')}
+                                                                    {this.getRenderedForgeGlobalField('digital_asset_category')}
+                                                                </div>
                                                             </div>
 
                                                             {values.digital_asset_category !== '' && getDigitalAssetCategoryInstrument(values.digital_asset_category) && (
                                                                 <div className="input ai-info-block">
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="instrument_type"
                                                                             id="instrument_type"
                                                                             as="select"
                                                                             className={`b-select ${this.state.aiGeneratedFields.includes('instrument_type') ? 'filled' : ''}`}
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         >
                                                                             <option value="">Select Instrument Type
                                                                             </option>
@@ -2866,7 +3634,11 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                       component="div"
                                                                                       className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('instrument_type')}
+
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('instrument_type')}
+                                                                        {this.getRenderedForgeGlobalField('instrument_type')}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -2874,31 +3646,34 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Issuer Name</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="issuer_name"
                                                                         id="issuer_name"
                                                                         type="text"
                                                                         className={`input__text ${this.state.aiGeneratedFields.includes('issuer_name') ? 'filled' : ''}`}
                                                                         placeholder="Type Issuer Name"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="issuer_name" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('issuer_name')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('issuer_name')}
+                                                                    {this.getRenderedForgeGlobalField('issuer_name')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Issuer Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="issuer_type"
                                                                         id="issuer_type"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('instrument_type') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Issuer Type
                                                                         </option>
@@ -2911,7 +3686,11 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <ErrorMessage name="issuer_type" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('issuer_type')}
+
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('issuer_type')}
+                                                                    {this.getRenderedForgeGlobalField('issuer_type')}
+                                                                </div>
                                                             </div>
 
                                                             <hr/>
@@ -2920,13 +3699,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 <div className="input__title">Underpinning Asset Value
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="underpinning_asset_value"
                                                                         id="underpinning_asset_value"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('underpinning_asset_value') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         onChange={(e: any) => this.handlePeggedChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Underpinning Asset Value
@@ -2941,7 +3720,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('underpinning_asset_value')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('underpinning_asset_value')}
+                                                                    {this.getRenderedForgeGlobalField('underpinning_asset_value')}
+                                                                </div>
                                                             </div>
 
                                                             {values.underpinning_asset_value === UnderpinningAssetValue.PEGGED && (
@@ -2950,20 +3732,23 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <div className="input__title">Reference Asset
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="reference_asset"
                                                                             id="reference_asset"
                                                                             type="text"
                                                                             className={`input__text ${this.state.aiGeneratedFields.includes('reference_asset') ? 'filled' : ''}`}
                                                                             placeholder="Enter the asset Type"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage name="reference_asset"
                                                                                       component="div"
                                                                                       className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('reference_asset')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('reference_asset')}
+                                                                        {this.getRenderedForgeGlobalField('reference_asset')}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -2973,13 +3758,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Details (If Any)
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="backing_collateral_details"
                                                                         id="backing_collateral_details"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('backing_collateral_details') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         onChange={(e: any) => this.handleBackingCollateralDetailsChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Backing / Collateral
@@ -2995,7 +3780,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('backing_collateral_details')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('backing_collateral_details')}
+                                                                    {this.getRenderedForgeGlobalField('backing_collateral_details')}
+                                                                </div>
                                                             </div>
 
                                                             {values.backing_collateral_details === BackingCollateralDetails.ENTER_TEXT && (
@@ -3005,7 +3793,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         Details (Notes)
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="backing_collateral_details_text"
                                                                             id="backing_collateral_details_text"
@@ -3013,14 +3801,17 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                             rows="3"
                                                                             className={`input__textarea ${this.state.aiGeneratedFields.includes('backing_collateral_details_text') ? 'filled' : ''}`}
                                                                             placeholder="Enter Text"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage
                                                                             name="backing_collateral_details_text"
                                                                             component="div"
                                                                             className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('backing_collateral_details_text')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('backing_collateral_details_text')}
+                                                                        {this.getRenderedForgeGlobalField('backing_collateral_details_text')}
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                             <hr/>
@@ -3028,13 +3819,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Rights Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="rights_type"
                                                                         id="rights_type"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('rights_type') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Rights Type
                                                                         </option>
@@ -3047,19 +3838,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <ErrorMessage name="rights_type" component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('rights_type')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('rights_type')}
+                                                                    {this.getRenderedForgeGlobalField('rights_type')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Enforceability</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="enforceability_type"
                                                                         id="enforceability_type"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('enforceability_type') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Enforceability
                                                                         </option>
@@ -3073,7 +3867,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('enforceability_type')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('enforceability_type')}
+                                                                    {this.getRenderedForgeGlobalField('enforceability_type')}
+                                                                </div>
                                                             </div>
 
                                                             <hr/>
@@ -3081,13 +3878,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Fungibility Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="fungibility_type"
                                                                         id="fungibility_type"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('fungibility_type') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Fungibility Type
                                                                         </option>
@@ -3101,19 +3898,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('fungibility_type')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('fungibility_type')}
+                                                                    {this.getRenderedForgeGlobalField('fungibility_type')}
+                                                                </div>
                                                             </div>
 
                                                             <div className={'input ai-info-block'}>
                                                                 <div className="input__title">Redeemability Type</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="redeemability_type"
                                                                         id="redeemability_type"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('redeemability_type') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         onChange={(e: any) => this.handleRedeemabilityChange(e, setFieldValue)}
                                                                     >
                                                                         <option value="">Select Redeemability Type
@@ -3128,7 +3928,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('redeemability_type')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('redeemability_type')}
+                                                                    {this.getRenderedForgeGlobalField('redeemability_type')}
+                                                                </div>
                                                             </div>
 
                                                             {values.redeemability_type === RedeemabilityType.REDEEMABLE && (
@@ -3137,33 +3940,36 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     <div className="input__title">Redemption Asset Type
                                                                     </div>
                                                                     <div
-                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                        className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                         <Field
                                                                             name="redemption_asset_type"
                                                                             id="redemption_asset_type"
                                                                             type="text"
                                                                             className={`input__text ${this.state.aiGeneratedFields.includes('redemption_asset_type') ? 'filled' : ''}`}
                                                                             placeholder="Enter the Redemption asset Type"
-                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                            disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                         />
                                                                         <ErrorMessage name="redemption_asset_type"
                                                                                       component="div"
                                                                                       className="error-message"/>
                                                                     </div>
-                                                                    {this.renderAIGeneratedBlock('redemption_asset_type')}
+                                                                    <div className={'d-flex'}>
+                                                                        {this.getRenderedAIField('redemption_asset_type')}
+                                                                        {this.getRenderedForgeGlobalField('redemption_asset_type')}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Nature of record</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="nature_of_record"
                                                                         id="nature_of_record"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('nature_of_record') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Nature of record
                                                                         </option>
@@ -3177,19 +3983,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('nature_of_record')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('nature_of_record')}
+                                                                    {this.getRenderedForgeGlobalField('nature_of_record')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Settlement Method</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="settlement_method"
                                                                         id="settlement_method"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('settlement_method') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Settlement Method
                                                                         </option>
@@ -3203,19 +4012,22 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('settlement_method')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('settlement_method')}
+                                                                    {this.getRenderedForgeGlobalField('settlement_method')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Custody Arrangements</div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="custody_arrangement"
                                                                         id="custody_arrangement"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('custody_arrangement') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Custody Arrangements
                                                                         </option>
@@ -3229,7 +4041,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('custody_arrangement')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('custody_arrangement')}
+                                                                    {this.getRenderedForgeGlobalField('custody_arrangement')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
@@ -3237,13 +4052,13 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                     Ledger
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="associated_network"
                                                                         id="associated_network"
                                                                         as="select"
                                                                         className={`b-select ${this.state.aiGeneratedFields.includes('associated_network') ? 'filled' : ''}`}
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     >
                                                                         <option value="">Select Associated Network /
                                                                             Ledger
@@ -3258,14 +4073,17 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('associated_network')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('associated_network')}
+                                                                    {this.getRenderedForgeGlobalField('associated_network')}
+                                                                </div>
                                                             </div>
 
                                                             <div className="input ai-info-block">
                                                                 <div className="input__title">Free-Form Notes
                                                                 </div>
                                                                 <div
-                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}>
+                                                                    className={`input__wrap ${(isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}>
                                                                     <Field
                                                                         name="notes"
                                                                         id="notes"
@@ -3273,13 +4091,16 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                         rows="3"
                                                                         className={`input__textarea ${this.state.aiGeneratedFields.includes('notes') ? 'filled' : ''}`}
                                                                         placeholder="Comments"
-                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.loading}
+                                                                        disabled={isSubmitting || this.isShow() || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}
                                                                     />
                                                                     <ErrorMessage name="notes"
                                                                                   component="div"
                                                                                   className="error-message"/>
                                                                 </div>
-                                                                {this.renderAIGeneratedBlock('notes')}
+                                                                <div className={'d-flex'}>
+                                                                    {this.getRenderedAIField('notes')}
+                                                                    {this.getRenderedForgeGlobalField('notes')}
+                                                                </div>
                                                             </div>
 
                                                         </div>
@@ -3289,9 +4110,9 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
 
                                                 {((this.props.action !== 'view') || (this.props.action === 'view' && values.is_change)) && (
                                                     <button id="add-bank-acc"
-                                                            className={`b-btn ripple ${(isSubmitting || !isValid || this.state.isAILoader || this.state.loading) ? 'disable' : ''}`}
+                                                            className={`b-btn ripple ${(isSubmitting || !isValid || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading) ? 'disable' : ''}`}
                                                             type="submit"
-                                                            disabled={isSubmitting || !isValid || this.state.isAILoader || this.state.loading}>
+                                                            disabled={isSubmitting || !isValid || this.state.isAILoader || this.state.isGlobalForgeLoader || this.state.loading}>
                                                         {this.buttonText()}
                                                     </button>
                                                 )}
