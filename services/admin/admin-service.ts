@@ -558,7 +558,7 @@ class AdminService extends BaseService {
             queryString += `&symbol=${symbol}`;
         }
 
-        return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management_pending/?limit=${this.queryLimit}${queryString}`, {}, this.getAdminToken())).results;
+        return (await apiWebBackendService.get<IResponse<ISymbol[]>>(`${this.PATH}asset_management_pending/?limit=${5000}${queryString}`, {}, this.getAdminToken())).results;
     }
 
     public async getPendingAssetsProcessing(data: any): Promise<any> {

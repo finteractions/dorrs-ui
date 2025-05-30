@@ -1390,32 +1390,34 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         };
 
         const applyChanges = () => {
-            this.setState((prevState: any) => ({
-                formInitialValues: {
-                    ...prevState.formInitialValues,
-                    [field]: (this.state.formForgeGlobalInitialValues as any)[field]
-                },
-                formForgeGlobalInitialValues: field === "logo"
+            this.setState((prevState: any) => {
+                const updatedValue = prevState.formForgeGlobalInitialValues[field];
+
+                const updatedFormForgeGlobalInitialValues = field === "logo"
                     ? prevState.formForgeGlobalInitialValues
                     : {
                         ...prevState.formForgeGlobalInitialValues,
                         [field]: "",
-                    },
-            }), async () => {
+                    };
 
+                this.formRef?.current.setFieldValue(field, updatedValue);
+                this.formRef?.current.setFieldTouched(field, true);
+
+                return {
+                    formForgeGlobalInitialValues: updatedFormForgeGlobalInitialValues,
+                };
             });
 
             setTimeout(() => {
-                self.formRef?.current.handleChange({
+                this.formRef?.current.handleChange({
                     target: {
                         name: 'time',
                         value: Date.now(),
                     },
                 });
-                this.formRef?.current.setFieldTouched(field, true);
             }, 350);
+        };
 
-        }
 
         return (
             <>
@@ -1475,32 +1477,34 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         };
 
         const applyChanges = () => {
-            this.setState((prevState: any) => ({
-                formInitialValues: {
-                    ...prevState.formInitialValues,
-                    [field]: (this.state.formAIInitialValues as any)[field]
-                },
-                formAIInitialValues: field === "logo"
+            this.setState((prevState: any) => {
+                const valueFromAI = prevState.formAIInitialValues[field];
+
+                this.formRef?.current.setFieldValue(field, valueFromAI);
+                this.formRef?.current.setFieldTouched(field, true);
+
+                const updatedAIInitialValues = field === "logo"
                     ? prevState.formAIInitialValues
                     : {
                         ...prevState.formAIInitialValues,
                         [field]: "",
-                    },
-            }), async () => {
+                    };
 
+                return {
+                    formAIInitialValues: updatedAIInitialValues,
+                };
             });
 
             setTimeout(() => {
-                self.formRef?.current.handleChange({
+                this.formRef?.current.handleChange({
                     target: {
                         name: 'time',
                         value: Date.now(),
                     },
                 });
-                this.formRef?.current.setFieldTouched(field, true);
             }, 350);
+        };
 
-        }
 
         return (
             <>
