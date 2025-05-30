@@ -219,17 +219,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         }
 
         if (typeof initialData?.price_per_share_value === 'string') {
-            try {
-                const price_per_share_value = JSON.parse(initialData.price_per_share_value)
-                initialData.price_per_share_value = price_per_share_value;
-            } catch (error) {
-                initialData.price_per_share_value = [""];
-            }
-        } else if (initialData?.price_per_share_value === null) {
-            initialData.price_per_share_value = [""];
-        }
 
-        if (typeof initialData?.price_per_share_value === 'string') {
             try {
                 const parsed = JSON.parse(initialData.price_per_share_value);
 
@@ -239,8 +229,22 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             }
         } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
             initialData.price_per_share_value = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_value) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_value = [String(initialData.price_per_share_value)];
+        }
+
+        if (typeof initialData?.price_per_share_date === 'string') {
+            try {
+                const parsed = JSON.parse(initialData.price_per_share_date);
+
+                initialData.price_per_share_date = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (error) {
+                initialData.price_per_share_date = [String(initialData.price_per_share_date)];
+            }
+        } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
+            initialData.price_per_share_date = [""];
+        } else if (!Array.isArray(initialData.price_per_share_date) || (typeof initialData.price_per_share_value !== 'object')) {
+            initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
         if (typeof initialData?.price_per_share_date === 'string') {
@@ -469,6 +473,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         }
 
         if (typeof initialData?.price_per_share_value === 'string') {
+
             try {
                 const parsed = JSON.parse(initialData.price_per_share_value);
 
@@ -478,7 +483,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             }
         } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
             initialData.price_per_share_value = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_value) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_value = [String(initialData.price_per_share_value)];
         }
 
@@ -492,7 +497,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             }
         } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
             initialData.price_per_share_date = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_date) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
@@ -2925,7 +2930,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
                                                     {this.state.formInitialValues?.price_per_share_value.map((description, index) => (
                                                         <div key={index}>
                                                             {this.state.formInitialValues?.price_per_share_value && this.state.formInitialValues?.price_per_share_value[index] && (
-                                                                <>{this.state.formInitialValues?.price_per_share_value[index]}</>
+                                                                <>{formatterService.numberFormat(Number(this.state.formInitialValues?.price_per_share_value[index]))}</>
                                                             )}
                                                             {this.state.formInitialValues?.price_per_share_date && this.state.formInitialValues?.price_per_share_date[index] && (
                                                                 <> on {formatterService.dateTimeFormat(this.state.formInitialValues?.price_per_share_date[index], 'MM/dd/yyyy')}</>

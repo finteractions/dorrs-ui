@@ -1,13 +1,12 @@
-import React, {RefObject, useEffect} from 'react';
+import React, {RefObject} from 'react';
 import {ErrorMessage, Field, FieldProps, Form, Formik} from "formik";
 import * as Yup from "yup";
 import AlertBlock from "@/components/alert-block";
-import {FormStatus, getApprovedFormStatus} from "@/enums/form-status";
+import {FormStatus} from "@/enums/form-status";
 import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
 import {ISymbol} from "@/interfaces/i-symbol";
-import symbolService from "@/services/symbol/symbol-service";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {countries} from "countries-list";
 import PhoneInputField from "@/components/phone-input-field";
@@ -16,7 +15,7 @@ import NoDataBlock from "@/components/no-data-block";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faArrowUpRightFromSquare,
-    faEdit,
+    faEdit, faLandmark,
     faMagicWandSparkles,
     faMinus,
     faPlus
@@ -36,6 +35,9 @@ import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 import {Button} from "react-bootstrap";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
+import forgeGlobalService from "@/services/forge-global/forge-global-service";
+import {ForgeGlobalCompany, ForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
+import converterService from "@/services/converter/converter-service";
 
 
 const allowedImageFileSizeMB = 5
@@ -132,13 +134,13 @@ const formSchema = Yup.object().shape({
 });
 
 const AIFormSchema = Yup.object().shape({
-    agreement: Yup.boolean()
+    aiAgreement: Yup.boolean()
         .oneOf([true],
             "Required"),
 });
 
 const AIInitialValues = {
-    agreement: false,
+    aiAgreement: false,
 };
 
 interface PendingCompanyProfileFormState extends IState {
@@ -164,8 +166,11 @@ interface PendingCompanyProfileFormState extends IState {
     selectedSecImages: File[] | null;
     selectedSecFiles: File[] | null;
     isAILoader: boolean;
-    agreement: Record<string, boolean>;
+    aiAgreement: Record<string, boolean>;
     aiErrorMessages: Array<string> | null;
+    forgeGlobalAgreement: Record<string, boolean>;
+    formForgeGlobalInitialValues: any;
+    isGlobalForgeLoader: boolean;
 }
 
 interface CompanyProfileFormProps extends ICallback {
@@ -190,7 +195,6 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
 
     constructor(props: CompanyProfileFormProps) {
         super(props);
-
         const initialData = {...this.props.data || {}} as ICompanyProfile;
 
         this.companyProfile = initialData;
@@ -219,17 +223,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         }
 
         if (typeof initialData?.price_per_share_value === 'string') {
-            try {
-                const price_per_share_value = JSON.parse(initialData.price_per_share_value)
-                initialData.price_per_share_value = price_per_share_value;
-            } catch (error) {
-                initialData.price_per_share_value = [""];
-            }
-        } else if (initialData?.price_per_share_value === null) {
-            initialData.price_per_share_value = [""];
-        }
 
-        if (typeof initialData?.price_per_share_value === 'string') {
             try {
                 const parsed = JSON.parse(initialData.price_per_share_value);
 
@@ -239,7 +233,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             }
         } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
             initialData.price_per_share_value = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_value) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_value = [String(initialData.price_per_share_value)];
         }
 
@@ -253,7 +247,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             }
         } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
             initialData.price_per_share_date = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_date) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
@@ -439,7 +433,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             selectedSecFiles: [],
             selectedSecImages: [],
             isAILoader: false,
-            agreement: {},
+            aiAgreement: {},
+            forgeGlobalAgreement: {},
+            formForgeGlobalInitialValues: {},
+            isGlobalForgeLoader: false
         };
 
         this.formRefCompanyProfile = React.createRef();
@@ -469,6 +466,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         }
 
         if (typeof initialData?.price_per_share_value === 'string') {
+
             try {
                 const parsed = JSON.parse(initialData.price_per_share_value);
 
@@ -478,7 +476,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             }
         } else if (initialData?.price_per_share_value === null || initialData?.price_per_share_value === undefined) {
             initialData.price_per_share_value = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_value) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_value = [String(initialData.price_per_share_value)];
         }
 
@@ -492,7 +490,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             }
         } else if (initialData?.price_per_share_date === null || initialData?.price_per_share_date === undefined) {
             initialData.price_per_share_date = [""];
-        } else if (!Array.isArray(initialData.price_per_share_date)) {
+        } else if (!Array.isArray(initialData.price_per_share_date) || (typeof initialData.price_per_share_value !== 'object')) {
             initialData.price_per_share_date = [String(initialData.price_per_share_date)];
         }
 
@@ -651,16 +649,263 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
 
         const keys = Object.keys(initialValues);
 
-        const agreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
+        const aiAgreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
             acc[key] = false;
             return acc;
         }, {} as Record<string, boolean>);
 
         this.setState({
             formAIInitialValues: initialValues,
-            agreement: agreement
+            aiAgreement: aiAgreement
         })
     }
+
+    initForgeGlobalForm(data?: ForgeGlobalCompany | null) {
+        const companyDetail: ForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
+        const initialData = {} as ICompanyProfile;
+
+        const companyName = data?.company_name || '';
+        const initialOfferingDate: string =
+            /^\d{4}$/.test(companyDetail?.founded ?? '') ? `${companyDetail!.founded}-01-01` : '';
+        const businessDescription = companyDetail?.description || '';
+        const totalSharesOutstanding = converterService.parseMoney(companyDetail?.total_funding)
+
+        const extractPricePerShareData = (data: ForgeGlobalCompanyDetail | null) => {
+            const pricePerShareDate: string[] = [];
+            const pricePerShareValue: string[] = [];
+
+            if (!data) return {pricePerShareDate, pricePerShareValue};
+
+            for (const item of data.fundings) {
+                const amount = converterService.parseMoney(item.amount_raised);
+                if (amount !== null) {
+                    const [month, day, year] = item.funding_date.split('/');
+                    const formattedDate = `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                    pricePerShareDate.push(formattedDate);
+                    pricePerShareValue.push(amount.toString());
+                }
+            }
+
+            return {pricePerShareDate, pricePerShareValue};
+        }
+
+        const {pricePerShareDate, pricePerShareValue} = extractPricePerShareData(companyDetail);
+        const websiteAddress = companyDetail?.website || '';
+        const {country, city} = converterService.parseLocationData(companyDetail?.headquarters);
+        const companyOfficersAndContacts = companyDetail?.peoples?.map(s => s.name) || []
+        const boardOfDirectors =
+            companyDetail?.peoples
+                ?.filter(person =>
+                    person.title?.toLowerCase().includes('founder') ||
+                    person.title?.toLowerCase().includes('board')
+                )
+                .map(person => person.name) || [];
+
+        const lastMarketValuation = converterService.parseMoney(companyDetail?.post_money_valuation)
+
+        initialData.total_shares_outstanding = totalSharesOutstanding.toString();
+        initialData.last_market_valuation = lastMarketValuation.toString();
+        initialData.country = country;
+        initialData.city = city;
+        initialData.web_address = websiteAddress;
+        initialData.initial_offering_date = initialOfferingDate;
+        initialData.company_name = companyName;
+        initialData.business_description = businessDescription;
+        initialData.company_officers_and_contacts = companyOfficersAndContacts;
+        initialData.board_of_directors = boardOfDirectors;
+        initialData.price_per_share_value = pricePerShareValue;
+        initialData.price_per_share_date = pricePerShareDate;
+
+
+        try {
+            const asset_type_description = JSON.parse(initialData.asset_type_description.toString());
+            initialData.asset_type_description = asset_type_description;
+        } catch (error) {
+            initialData.asset_type_description = [""];
+        }
+
+        try {
+            const asset_type_images = JSON.parse(initialData.asset_type_images.toString().replace(/'/g, '"'));
+            initialData.asset_type_images = asset_type_images;
+        } catch (error) {
+            initialData.asset_type_images = [];
+        }
+
+        try {
+            const issuer_profile_description = JSON.parse(initialData.issuer_profile_description.toString());
+            initialData.issuer_profile_description = issuer_profile_description;
+        } catch (error) {
+            initialData.issuer_profile_description = [""];
+        }
+
+        try {
+            const issuer_profile_images = JSON.parse(initialData.issuer_profile_images.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_images = issuer_profile_images;
+        } catch (error) {
+            initialData.issuer_profile_images = [];
+        }
+
+        try {
+            const issuer_profile_files = JSON.parse(initialData.issuer_profile_files.toString().replace(/'/g, '"'));
+            initialData.issuer_profile_files = issuer_profile_files;
+        } catch (error) {
+            initialData.issuer_profile_files = [];
+        }
+
+        try {
+            const sec_description = JSON.parse(initialData.sec_description.toString());
+            initialData.sec_description = sec_description;
+        } catch (error) {
+            initialData.sec_description = [""];
+        }
+
+        try {
+            const sec_images = JSON.parse(initialData.sec_images.toString().replace(/'/g, '"'));
+            initialData.sec_images = sec_images;
+        } catch (error) {
+            initialData.sec_images = [];
+        }
+
+        try {
+            const sec_files = JSON.parse(initialData.sec_files.toString().replace(/'/g, '"'));
+            initialData.sec_files = sec_files;
+        } catch (error) {
+            initialData.sec_files = [];
+        }
+
+        const initialValues: {
+            asset_type: string;
+            asset_type_option: string;
+            asset_type_description: string[];
+            asset_type_images: string[];
+            total_shares_outstanding: string;
+            last_market_valuation: string;
+            last_sale_price: string;
+            initial_offering_date: string;
+            price_per_share_value: string[];
+            price_per_share_date: string[];
+            company_name: string;
+            business_description: string;
+            street_address_1: string;
+            street_address_2: string;
+            city: string;
+            state: string;
+            zip_code: string;
+            country: string;
+            email: string;
+            phone: string;
+            web_address: string;
+            sic_industry_classification: string;
+            incorporation_information: string;
+            number_of_employees: string;
+            company_officers_and_contacts: string[];
+            board_of_directors: string[];
+            product_and_services: string;
+            company_facilities: string;
+            transfer_agent: string;
+            accounting_auditing_firm: string;
+            investor_relations_marketing_communications: string;
+            securities_counsel: string;
+            us_reporting: string;
+            edgar_cik: string;
+            logo: string;
+            issuer_profile_option: string;
+            issuer_profile_description: string[];
+            issuer_profile_images: string[];
+            issuer_profile_files: string[];
+            spv_name: string;
+            fund_manager: string;
+            investment_objective: string;
+            sec_filing: string;
+            sec_description: string[];
+            sec_images: string[];
+            sec_files: string[];
+        } = {
+            total_shares_outstanding: initialData?.total_shares_outstanding || '',
+            last_market_valuation: initialData?.last_market_valuation || '',
+            last_sale_price: initialData?.last_sale_price || '',
+            initial_offering_date: initialData?.initial_offering_date || '',
+            price_per_share_value: initialData?.price_per_share_value || [""],
+            price_per_share_date: initialData?.price_per_share_date || [""],
+            asset_type: initialData?.asset_type || '',
+            asset_type_option: initialData?.asset_type_option || '',
+            asset_type_description: initialData?.asset_type_description || [""],
+            asset_type_images: initialData?.asset_type_images || [],
+            issuer_profile_option: initialData?.issuer_profile_option || '',
+            issuer_profile_description: initialData?.issuer_profile_description || [""],
+            issuer_profile_images: initialData?.issuer_profile_images || [],
+            issuer_profile_files: initialData?.issuer_profile_files || [],
+            company_name: initialData?.company_name || '',
+            business_description: initialData?.business_description || '',
+            street_address_1: initialData?.street_address_1 || '',
+            street_address_2: initialData?.street_address_2 || '',
+            city: initialData?.city || '',
+            state: initialData?.state || '',
+            zip_code: initialData?.zip_code || '',
+            country: initialData?.country || selectedCountry,
+            email: initialData?.email || '',
+            phone: initialData?.phone || '',
+            web_address: initialData?.web_address || '',
+            sic_industry_classification: initialData?.sic_industry_classification || '',
+            incorporation_information: initialData?.incorporation_information || '',
+            number_of_employees: initialData?.number_of_employees || '',
+            company_officers_and_contacts: initialData?.company_officers_and_contacts || [""],
+            board_of_directors: initialData?.board_of_directors || [""],
+            product_and_services: initialData?.product_and_services || '',
+            company_facilities: initialData?.company_facilities || '',
+            transfer_agent: initialData?.transfer_agent || '',
+            accounting_auditing_firm: initialData?.accounting_auditing_firm || '',
+            investor_relations_marketing_communications: initialData?.investor_relations_marketing_communications || '',
+            securities_counsel: initialData?.securities_counsel || '',
+            us_reporting: initialData?.us_reporting || '',
+            edgar_cik: initialData?.edgar_cik || '',
+            logo: initialData?.logo || '',
+            spv_name: initialData?.spv_name || '',
+            fund_manager: initialData?.fund_manager || '',
+            investment_objective: initialData?.investment_objective || '',
+            sec_filing: initialData?.sec_filing || '',
+            sec_description: initialData?.sec_description || [""],
+            sec_images: initialData?.sec_images || [],
+            sec_files: initialData?.sec_files || [],
+        };
+
+        const keys = Object.keys(initialValues);
+
+        const aiAgreement: Record<string, boolean> = keys.reduce((acc: Record<string, boolean>, key) => {
+            acc[key] = false;
+            return acc;
+        }, {} as Record<string, boolean>);
+
+        this.setState({
+            formForgeGlobalInitialValues: initialValues,
+            forgeGlobalAgreement: aiAgreement
+        }, () => {
+
+        })
+    }
+
+    getForgeGlobalSymbol() {
+        return new Promise(resolve => {
+            const symbolId = this.props.symbolData?.id;
+
+            forgeGlobalService.getSymbol(Number(symbolId) ?? 0)
+                .then(async (res: Array<ForgeGlobalCompany>) => {
+                    const symbol = res?.[0] || null;
+                    this.initForgeGlobalForm(symbol);
+                })
+                .catch(async (errors: IError) => {
+
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        this.formRefCompanyProfile?.current?.validateForm?.()
+                        resolve(true);
+                    }, 350)
+                });
+
+        })
+    }
+
 
     handleSubmit = async (values: ICompanyProfile, {setSubmitting}: {
         setSubmitting: (isSubmitting: boolean) => void
@@ -1051,6 +1296,9 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             .finally(() => {
                 this.setState({isAILoader: false});
                 this.formRefCompanyProfile?.current?.setSubmitting(false);
+                setTimeout(() => {
+                    this.formRefCompanyProfile?.current?.validateForm?.()
+                }, 350)
             });
     }
 
@@ -1079,27 +1327,57 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         return value;
     };
 
+    getForgeGlobalValue = (field: string): string => {
+        const excludedNumericFields = ['zip_code', 'phone', 'sic_industry_classification'];
+        const forgeGlobalCompanyProfile = {...this.state.formForgeGlobalInitialValues} as any;
+        let value = '';
+        const aiValue = forgeGlobalCompanyProfile[field];
+
+        if (aiValue) {
+            if (Array.isArray(aiValue)) {
+                if (aiValue.length > 0) {
+                    value = aiValue.join(', ');
+                }
+            } else {
+                const numberValue = Number(aiValue);
+                if (!isNaN(numberValue) && !excludedNumericFields.includes(field)) {
+                    const decimals = (numberValue.toString().split('.')[1] || '').length;
+                    value = formatterService.numberFormat(numberValue, decimals);
+                } else {
+                    value = aiValue;
+                }
+            }
+        }
+
+        return value;
+    };
+
 
     getRenderedAIField = (field: string) => {
         const value = this.getAIValue(field);
-        const checked = this.state.agreement[field] ?? false;
+        const checked = this.state.aiAgreement[field] ?? false;
         const self = this;
 
         const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const {checked} = event.target;
             this.setState((prevState: any) => ({
-                agreement: {
-                    ...prevState.agreement,
+                aiAgreement: {
+                    ...prevState.aiAgreement,
                     [field]: checked
                 }
             }));
         };
 
         const applyChanges = () => {
+            const aiValue = (this.state.formAIInitialValues as any)[field];
             this.setState((prevState: any) => ({
                 formInitialValues: {
                     ...prevState.formInitialValues,
-                    [field]: (this.state.formAIInitialValues as any)[field]
+                    [field]: field === 'price_per_share_date'
+                        ? Array.isArray(aiValue)
+                            ? aiValue.map((d: string) => moment(d, 'DD-MM-YYYY'))
+                            : []
+                        : aiValue
                 },
                 formAIInitialValues: field === "logo"
                     ? prevState.formAIInitialValues
@@ -1220,23 +1498,203 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                         </div>
                         {(field !== 'logo' || (this.state.formInitialValues as any)['logo'] !== (this.state.formAIInitialValues as any)['logo']) && (
                             <>
-                                <div className={'d-flex-1'}>
+                                <div className={'d-flex-1 d-flex align-items-end'}>
                                     <div className="b-checkbox b-checkbox">
                                         <input
                                             type={'checkbox'}
                                             id={`checkbox_${field}`}
                                             checked={checked}
+                                            disabled={this.state.isGlobalForgeLoader || this.state.isAILoader}
                                             onChange={handleCheckboxChange}
                                         />
                                         <label htmlFor={`checkbox_${field}`}>
-                                            <span></span><i> I agree with generated data</i>
+                                            <span></span><i> I agree with generated data (AI Assistant)</i>
                                         </label>
                                     </div>
                                 </div>
                                 <div className='admin-table-actions'>
                                     <button
                                         className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
-                                        disabled={!checked}
+                                        disabled={!checked || this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                        onClick={applyChanges}
+                                        type={'button'}>
+                                        Apply changes
+                                        <FontAwesomeIcon
+                                            className="nav-icon" icon={faEdit}/></button>
+                                </div>
+                            </>
+                        )}
+
+                    </div>
+                )}
+            </>
+        );
+    };
+
+    getRenderedForgeGlobalField = (field: string) => {
+        const value = this.getForgeGlobalValue(field);
+        const checked = this.state.forgeGlobalAgreement[field] ?? false;
+        const self = this;
+
+        const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const {checked} = event.target;
+            this.setState((prevState: any) => ({
+                forgeGlobalAgreement: {
+                    ...prevState.forgeGlobalAgreement,
+                    [field]: checked
+                }
+            }));
+        };
+
+        const applyChanges = () => {
+            const forgeGlobalValue = (this.state.formForgeGlobalInitialValues as any)[field];
+
+            this.setState((prevState: any) => ({
+                formInitialValues: {
+                    ...prevState.formInitialValues,
+                    [field]: field === 'price_per_share_date'
+                        ? Array.isArray(forgeGlobalValue)
+                            ? forgeGlobalValue.map((d: string) => moment(d, 'DD-MM-YYYY'))
+                            : []
+                        : forgeGlobalValue
+                },
+                formForgeGlobalInitialValues: field === "logo"
+                    ? prevState.formForgeGlobalInitialValues
+                    : {
+                        ...prevState.formForgeGlobalInitialValues,
+                        [field]: "",
+                    },
+            }), async () => {
+                this.formRefCompanyProfile?.current.setFieldTouched(field, true);
+                switch (field) {
+                    case 'country':
+                        const country = findCountry((this.state.formInitialValues as any)[field]);
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: country
+                            },
+                            selectedCountry: country ?? ''
+                        }));
+                        break;
+                    case 'state':
+                    case 'incorporation_information':
+                        const state = findState((this.state.formInitialValues as any)[field]);
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: state
+                            },
+                        }));
+                        break;
+                    case 'sic_industry_classification':
+                        const sicIndustryClassification = findSicIndustryClassification((this.state.formInitialValues as any)[field])
+                        this.setState((prevState: any) => ({
+                            formInitialValues: {
+                                ...prevState.formInitialValues,
+                                [field]: sicIndustryClassification
+                            },
+                        }));
+                        break;
+                    case 'logo':
+                        const response = await fetch((this.state.formInitialValues as any)[field]);
+                        const blob = await response.blob();
+
+                        const timestamp = Date.now();
+                        const fileName = `image_${timestamp}.png`;
+
+                        const file = new File([blob], fileName, {type: blob.type});
+                        const fileInput = document.getElementById(`${field}_tmp`) as HTMLInputElement;
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+
+                        fileInput.files = dataTransfer.files;
+
+                        self.formRefCompanyProfile?.current.setFieldValue(field, file);
+                        self.formRefCompanyProfile?.current.setFieldValue(`${field}_tmp`, file);
+
+                        this.handleFileChange({
+                            target: {files: [file]},
+                        } as unknown as React.ChangeEvent<HTMLInputElement>);
+
+                        break;
+                }
+            });
+
+            setTimeout(() => {
+                self.formRefCompanyProfile?.current.handleChange({
+                    target: {
+                        name: 'time',
+                        value: Date.now(),
+                    },
+                });
+            });
+
+        }
+
+        const findCountry = (name: string) => {
+            return Object.keys(countries).find(
+                key => ((countries as any)[key] as any).name === name
+            );
+        }
+
+        function findState(name: string) {
+            const state = self.state.usaStates.find((state: any) => state.name === name);
+            return state ? state.abbreviation : null;
+        }
+
+        function findSicIndustryClassification(name: string) {
+            const sicIndustryClassifications = Object.values(SicIndustryClassification);
+            const result = sicIndustryClassifications.find(value =>
+                value.toLowerCase().includes(name.toLowerCase())
+            );
+
+            return result || "";
+        }
+
+
+        return (
+            <>
+                {value && value.length > 0 && (
+                    <div className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
+                        <div className={'d-flex gap-10 align-items-center'}>
+                            <div>
+                                <FontAwesomeIcon icon={faLandmark} title={'AI Generated'}/>
+                            </div>
+                            {field !== 'logo' ? (
+                                <div>{value}</div>
+                            ) : (
+                                <div
+                                    className="my-2 d-flex">
+                                    <AssetImage alt=''
+                                                src={this.getLogoURL(this.state.formForgeGlobalInitialValues.logo)}
+                                                width={100}
+                                                height={100}/>
+                                </div>
+                            )}
+
+                        </div>
+                        {(field !== 'logo' || (this.state.formInitialValues as any)['logo'] !== (this.state.formForgeGlobalInitialValues as any)['logo']) && (
+                            <>
+                                <div className={'d-flex-1'}>
+                                    <div className="b-checkbox b-checkbox">
+                                        <input
+                                            type={'checkbox'}
+                                            id={`checkbox_${field}_forge_global`}
+                                            checked={checked}
+                                            disabled={this.state.isGlobalForgeLoader || this.state.isAILoader}
+                                            onChange={handleCheckboxChange}
+                                        />
+                                        <label htmlFor={`checkbox_${field}_forge_global`}>
+                                            <span></span><i> I agree with generated data (Forge Global)</i>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className='admin-table-actions'>
+                                    <button
+                                        className={`admin-table-btn ripple ${!checked || this.state.isGlobalForgeLoader || this.state.isAILoader ? 'disable' : ''}`}
+                                        disabled={!checked || this.state.isGlobalForgeLoader || this.state.isAILoader}
                                         onClick={applyChanges}
                                         type={'button'}>
                                         Apply changes
@@ -1276,11 +1734,6 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
 
                                         return (
                                             <Form id="company-profile-form">
-                                                {this.state.aiErrorMessages && (
-                                                    <AlertBlock type={"warning"}
-                                                                messages={this.state.aiErrorMessages}/>
-                                                )}
-
                                                 {this.state.successMessage && (
                                                     <AlertBlock type={"success"}
                                                                 messages={this.state.successMessage}/>
@@ -1312,6 +1765,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                                     </div>
                                                                                     <button className={`b-btn ripple`}
                                                                                             type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
                                                                                             onClick={() => this.handleApprove(this.props.data)}>Confirm
                                                                                     </button>
                                                                                     <button
@@ -1327,6 +1781,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                                 <>
                                                                                     <button className={`b-btn ripple`}
                                                                                             type="button"
+                                                                                            disabled={this.state.loading || this.state.isAILoader}
                                                                                             onClick={() => this.setState({
                                                                                                 isConfirmedApproving: true,
                                                                                                 isApproving: true
@@ -1335,6 +1790,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                                     <button
                                                                                         className={`border-btn ripple`}
                                                                                         type="button"
+                                                                                        disabled={this.state.loading || this.state.isAILoader}
                                                                                         onClick={() => this.setState({
                                                                                             isConfirmedApproving: true,
                                                                                             isApproving: false
@@ -1352,7 +1808,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
 
                                                 <div className="input">
                                                     {!this.props.isAIGeneration && (
-                                                        <div className="input__title">
+                                                        <div className="input__title d-flex justify-content-end gap-2">
                                                             <div
                                                                 className={'justify-content-end d-flex align-items-center gap-10'}>
                                                                 {this.state.isAILoader && (
@@ -1362,7 +1818,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 <button
                                                                     type="button"
                                                                     className={`d-none d-md-block b-btn ripple`}
-                                                                    disabled={this.state.isAILoader}
+                                                                    disabled={this.state.loading || this.state.isAILoader}
                                                                     onClick={() => this.aiAssetProfileGenerate()}
                                                                 >AI Assistant <FontAwesomeIcon
                                                                     icon={faMagicWandSparkles}/>
@@ -1371,10 +1827,31 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                     type="button"
                                                                     variant="link"
                                                                     className="d-md-none admin-table-btn ripple"
-                                                                    disabled={this.state.isAILoader}
+                                                                    disabled={this.state.loading || this.state.isAILoader}
                                                                     onClick={() => this.aiAssetProfileGenerate()}
                                                                 >
                                                                     <FontAwesomeIcon icon={faMagicWandSparkles}/>
+                                                                </Button>
+
+                                                            </div>
+                                                            <div
+                                                                className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                                <button
+                                                                    type="button"
+                                                                    className={`d-none d-md-block b-btn ripple`}
+                                                                    disabled={this.state.loading || this.state.isAILoader}
+                                                                    onClick={() => this.getForgeGlobalSymbol()}
+                                                                >Forge Global <FontAwesomeIcon
+                                                                    icon={faLandmark}/>
+                                                                </button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="link"
+                                                                    className="d-md-none admin-table-btn ripple"
+                                                                    disabled={this.state.loading || this.state.isAILoader}
+                                                                    onClick={() => this.getForgeGlobalSymbol()}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faLandmark}/>
                                                                 </Button>
 
                                                             </div>
@@ -1462,9 +1939,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                         </div>
                                                                     )}
                                                                 {this.state.formAIInitialValues.logo && (
-                                                                    <>
+                                                                    <div className={'d-flex'}>
                                                                         {this.getRenderedAIField('logo')}
-                                                                    </>
+                                                                        {this.getRenderedForgeGlobalField('logo')}
+                                                                    </div>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -1503,7 +1981,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="number_of_employees" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('total_shares_outstanding')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('total_shares_outstanding')}
+                                                        {this.getRenderedForgeGlobalField('total_shares_outstanding')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1524,7 +2005,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="last_market_valuation" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('last_market_valuation')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('last_market_valuation')}
+                                                        {this.getRenderedForgeGlobalField('last_market_valuation')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1545,7 +2029,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="last_sale_price" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('last_sale_price')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('last_sale_price')}
+                                                        {this.getRenderedForgeGlobalField('last_sale_price')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1570,7 +2057,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="initial_offering_date" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('initial_offering_date')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('initial_offering_date')}
+                                                        {this.getRenderedForgeGlobalField('initial_offering_date')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1591,7 +2081,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="company_name" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('company_name')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('company_name')}
+                                                        {this.getRenderedForgeGlobalField('company_name')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -1612,7 +2105,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="business_description" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('business_description')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('business_description')}
+                                                        {this.getRenderedForgeGlobalField('business_description')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input__title input__btns">
@@ -1704,6 +2200,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <div className={'d-flex flex-group'}>
                                                             {this.getRenderedAIField('price_per_share_value')}
                                                             {this.getRenderedAIField('price_per_share_date')}
+                                                        </div>
+                                                        <div className={'d-flex flex-group'}>
+                                                            {this.getRenderedForgeGlobalField('price_per_share_value')}
+                                                            {this.getRenderedForgeGlobalField('price_per_share_date')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2205,7 +2705,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="street_address_1" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('street_address_1')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('street_address_1')}
+                                                            {this.getRenderedForgeGlobalField('street_address_1')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2227,7 +2730,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="street_address_2" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('street_address_2')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('street_address_2')}
+                                                            {this.getRenderedForgeGlobalField('street_address_2')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2249,7 +2755,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="city" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('city')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('city')}
+                                                            {this.getRenderedForgeGlobalField('city')}
+                                                        </div>
                                                     </div>
 
                                                     {this.state.selectedCountry === selectedCountry && (
@@ -2282,7 +2791,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 <ErrorMessage name="state" component="div"
                                                                               className="error-message"/>
                                                             </div>
-                                                            {this.getRenderedAIField('state')}
+                                                            <div className={'d-flex'}>
+                                                                {this.getRenderedAIField('state')}
+                                                                {this.getRenderedForgeGlobalField('state')}
+                                                            </div>
                                                         </div>
                                                     )}
 
@@ -2305,7 +2817,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="zip_code" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('zip_code')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('zip_code')}
+                                                            {this.getRenderedForgeGlobalField('zip_code')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2338,7 +2853,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="country" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('country')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('country')}
+                                                            {this.getRenderedForgeGlobalField('country')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2361,7 +2879,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('email')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('email')}
+                                                            {this.getRenderedForgeGlobalField('email')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2379,7 +2900,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 readOnly={this.props?.readonly === true}
                                                             />
                                                         </div>
-                                                        {this.getRenderedAIField('phone')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('phone')}
+                                                            {this.getRenderedForgeGlobalField('phone')}
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -2401,7 +2925,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="web_address" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('web_address')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('web_address')}
+                                                        {this.getRenderedForgeGlobalField('web_address')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -2440,7 +2967,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('sic_industry_classification')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('sic_industry_classification')}
+                                                            {this.getRenderedForgeGlobalField('sic_industry_classification')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2474,7 +3004,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('incorporation_information')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('incorporation_information')}
+                                                            {this.getRenderedForgeGlobalField('incorporation_information')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2495,7 +3028,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="number_of_employees" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('number_of_employees')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('number_of_employees')}
+                                                            {this.getRenderedForgeGlobalField('number_of_employees')}
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -2549,7 +3085,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 className="error-message">{errors.company_officers_and_contacts.toString()}</div>
                                                         )}
                                                     </div>
-                                                    {this.getRenderedAIField('company_officers_and_contacts')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('company_officers_and_contacts')}
+                                                        {this.getRenderedForgeGlobalField('company_officers_and_contacts')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -2601,7 +3140,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 className="error-message">{errors.board_of_directors.toString()}</div>
                                                         )}
                                                     </div>
-                                                    {this.getRenderedAIField('board_of_directors')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('board_of_directors')}
+                                                        {this.getRenderedForgeGlobalField('board_of_directors')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input full">
@@ -2622,7 +3164,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="product_and_services" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('product_and_services')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('product_and_services')}
+                                                        {this.getRenderedForgeGlobalField('product_and_services')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input full">
@@ -2643,7 +3188,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         <ErrorMessage name="company_facilities" component="div"
                                                                       className="error-message"/>
                                                     </div>
-                                                    {this.getRenderedAIField('company_facilities')}
+                                                    <div className={'d-flex'}>
+                                                        {this.getRenderedAIField('company_facilities')}
+                                                        {this.getRenderedForgeGlobalField('company_facilities')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="input">
@@ -2666,7 +3214,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="transfer_agent" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('transfer_agent')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('transfer_agent')}
+                                                            {this.getRenderedForgeGlobalField('transfer_agent')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2688,7 +3239,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                           component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('accounting_auditing_firm')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('accounting_auditing_firm')}
+                                                            {this.getRenderedForgeGlobalField('accounting_auditing_firm')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2713,7 +3267,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 component="div"
                                                                 className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('investor_relations_marketing_communications')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('investor_relations_marketing_communications')}
+                                                            {this.getRenderedForgeGlobalField('investor_relations_marketing_communications')}
+                                                        </div>
                                                     </div>
 
                                                     <div className="input">
@@ -2732,7 +3289,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                                 readOnly={this.props?.readonly === true}
                                                             />
                                                         </div>
-                                                        {this.getRenderedAIField('securities_counsel')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('securities_counsel')}
+                                                            {this.getRenderedForgeGlobalField('securities_counsel')}
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -2757,7 +3317,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="us_reporting" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('us_reporting')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('us_reporting')}
+                                                            {this.getRenderedForgeGlobalField('us_reporting')}
+                                                        </div>
                                                     </div>
 
                                                     <div
@@ -2786,7 +3349,10 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                             <ErrorMessage name="edgar_cik" component="div"
                                                                           className="error-message"/>
                                                         </div>
-                                                        {this.getRenderedAIField('edgar_cik')}
+                                                        <div className={'d-flex'}>
+                                                            {this.getRenderedAIField('edgar_cik')}
+                                                            {this.getRenderedForgeGlobalField('edgar_cik')}
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -2833,18 +3399,18 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                         className={`b-checkbox b-checkbox${isSubmitting ? ' disable' : ''}`}>
                                                         <Field
                                                             type="checkbox"
-                                                            name="agreement"
-                                                            id="agreement"
+                                                            name="aiAgreement"
+                                                            id="aiAgreement"
                                                             disabled={isSubmitting}
                                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                                 const isChecked = e.target.checked;
-                                                                setFieldValue("agreement", isChecked);
+                                                                setFieldValue("aiAgreement", isChecked);
                                                             }}
                                                         />
-                                                        <label htmlFor="agreement">
+                                                        <label htmlFor="aiAgreement">
                                                             <span></span><i> I agree with filled out form</i>
                                                         </label>
-                                                        <ErrorMessage name="agreement" component="div"
+                                                        <ErrorMessage name="aiAgreement" component="div"
                                                                       className="error-message"/>
                                                     </div>
                                                 </div>
@@ -2943,7 +3509,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                     {this.state.formInitialValues?.price_per_share_value.map((description, index) => (
                                                         <div key={index}>
                                                             {this.state.formInitialValues?.price_per_share_value && this.state.formInitialValues?.price_per_share_value[index] && (
-                                                                <>{this.state.formInitialValues?.price_per_share_value[index]}</>
+                                                                <>{formatterService.numberFormat(Number(this.state.formInitialValues?.price_per_share_value[index]))}</>
                                                             )}
                                                             {this.state.formInitialValues?.price_per_share_date && this.state.formInitialValues?.price_per_share_date[index] && (
                                                                 <> on {formatterService.dateTimeFormat(this.state.formInitialValues?.price_per_share_date[index], 'MM/dd/yyyy')}</>

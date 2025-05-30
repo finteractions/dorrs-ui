@@ -10,7 +10,6 @@ import adminService from "@/services/admin/admin-service";
 import LoaderBlock from "@/components/loader-block";
 import formatterService from "@/services/formatter/formatter-service";
 import {ISymbol} from "@/interfaces/i-symbol";
-import symbolService from "@/services/symbol/symbol-service";
 import dsinService from "@/services/dsin/dsin-service";
 import {getMarketSectorCategory, MarketSector} from "@/enums/market-sector";
 import {FifthCharacterIdentifier} from "@/enums/fifth-character-identifier";
@@ -27,6 +26,7 @@ import {
     faCheck,
     faClose,
     faEdit,
+    faLandmark,
     faMagicWandSparkles,
     faMinus,
     faPlus
@@ -54,8 +54,6 @@ import formValidator from "@/services/form-validator/form-validator";
 import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 import formService from "@/services/form/form-service";
 import {PrimaryATS} from "@/constants/primary-ats";
-import Table from "@/components/table/table";
-import NoDataBlock from "@/components/no-data-block";
 import {AssetStatus} from "@/enums/asset-status";
 import {DebtInstrument} from "@/enums/debt-instrument";
 import {PaymentFrequency} from "@/enums/payment-frequency";
@@ -64,11 +62,7 @@ import {SettlementMethod} from "@/enums/settlement-method";
 import {CustodyArrangement} from "@/enums/custody-arrangement";
 import {AssociatedNetwork} from "@/enums/associated-network";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
-import {ICompanyProfile} from "@/interfaces/i-company-profile";
 import {Button} from "react-bootstrap";
-import {boolean, ValidationError} from "yup";
-import {countries} from "countries-list";
-import {SicIndustryClassification} from "@/enums/sic-industry-classification";
 import forgeGlobalService from "@/services/forge-global/forge-global-service";
 import {ForgeGlobalCompany, ForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
 
@@ -288,10 +282,6 @@ const formSchema = Yup.object().shape({
 
 });
 
-const AIInitialValues = {
-    aiAgreement: false,
-};
-
 interface PendingSymbolFormState extends IState {
     formInitialValues: {},
     isConfirmedApproving: boolean;
@@ -316,8 +306,8 @@ interface PendingSymbolFormState extends IState {
     isGlobalForgeLoader: boolean;
     aiGeneratedFields: string[];
     aiErrorMessages: Array<string> | null;
-    formAIInitialValues: any,
-    formForgeGlobalInitialValues: any,
+    formAIInitialValues: any;
+    formForgeGlobalInitialValues: any;
     aiAgreement: Record<string, boolean>;
     forgeGlobalAgreement: Record<string, boolean>;
 }
@@ -622,10 +612,11 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
             this.setState({formInitialValues: initialValues}, () => {
                 setTimeout(() => {
                     this.formRef?.current?.validateForm?.()
+                    resolve(true);
                 }, 350)
             });
 
-            resolve(true);
+
         })
 
     }
@@ -1294,11 +1285,11 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                 })
                 .catch(async (errors: IError) => {
                     await this.initForm(this.props.data!);
-                    this.setState({aiErrorMessages: errors.messages, isAILoader: false});
                 })
                 .finally(() => {
                     this.setState({loading: false, isShow: false, isAILoader: false});
                     this.props.onLoading?.();
+                    this.formRef?.current?.setSubmitting(false);
                     resolve(true);
                 });
 
@@ -1319,9 +1310,14 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                     await this.initForm(this.props.data!);
                 })
                 .finally(() => {
-                    this.setState({isGlobalForgeLoader: false});
+                    this.setState({loading: false, isShow: false, isGlobalForgeLoader: false}, ()=> {
+                    });
                     this.props.onLoading?.();
-                    resolve(true);
+                    this.formRef?.current?.setSubmitting(false);
+                    setTimeout(() => {
+                        this.formRef?.current?.validateForm?.()
+                        resolve(true);
+                    }, 350)
                 });
 
         })
@@ -1427,7 +1423,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                     <div className={`ai-info-block input__wrap no-border mt-3 mb-2 d-flex-1`}>
                         <div className={'d-flex gap-10 align-items-center'}>
                             <div>
-                                <FontAwesomeIcon icon={faMagicWandSparkles} title={'Forge Global Generated'}/>
+                                <FontAwesomeIcon icon={faLandmark} title={'Forge Global Generated'}/>
                             </div>
                             <div>{value}</div>
                         </div>
@@ -1533,7 +1529,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                             </div>
                             <div className='admin-table-actions'>
                                 <button
-                                    className={`admin-table-btn ripple ${!checked ? 'disable' : ''}`}
+                                    className={`admin-table-btn ripple ${!checked || this.state.isGlobalForgeLoader || this.state.isAILoader ? 'disable' : ''}`}
                                     disabled={!checked || this.state.isGlobalForgeLoader || this.state.isAILoader}
                                     onClick={applyChanges}
                                     type={'button'}>
@@ -1962,7 +1958,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                 )}
                                                 {!this.isShow() && (
                                                     <div
-                                                        className={'content__bottom d-flex justify-content-end'}>
+                                                        className={'content__bottom d-flex justify-content-end gap-2'}>
 
                                                         <div
                                                             className={'justify-content-end d-flex align-items-center gap-10'}>
@@ -1986,6 +1982,28 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                                 onClick={() => this.getAiGenerateSymbol()}
                                                             >
                                                                 <FontAwesomeIcon icon={faMagicWandSparkles}/>
+                                                            </Button>
+
+                                                        </div>
+
+                                                        <div
+                                                            className={'justify-content-end d-flex align-items-center gap-10'}>
+                                                            <button
+                                                                type="button"
+                                                                className={`d-none d-md-block b-btn ripple`}
+                                                                disabled={this.state.loading || this.state.isAILoader}
+                                                                onClick={() => this.getForgeGlobalSymbol()}
+                                                            >ForgeGlobal <FontAwesomeIcon
+                                                                icon={faLandmark}/>
+                                                            </button>
+                                                            <Button
+                                                                type="button"
+                                                                variant="link"
+                                                                className="d-md-none admin-table-btn ripple"
+                                                                disabled={this.state.loading || this.state.isAILoader}
+                                                                onClick={() => this.getAiGenerateSymbol()}
+                                                            >
+                                                                <FontAwesomeIcon icon={faLandmark}/>
                                                             </Button>
 
                                                         </div>
@@ -2112,7 +2130,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
                                                     <>
                                                         {(!values.is_change) && (
                                                             <>
-                                                                <div className="input">
+                                                                <div className="ai-info-block input">
                                                                     <div className="input__title">Reason for
                                                                         Entry <i>*</i>
                                                                     </div>

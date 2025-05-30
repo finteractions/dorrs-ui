@@ -763,7 +763,7 @@ class CompanyProfileBlock extends React.Component<CompanyProfileProps> {
                                                             {this.companyProfile?.price_per_share_value.map((description, index) => (
                                                                 <div key={index}>
                                                                     {this.companyProfile?.price_per_share_value && this.companyProfile?.price_per_share_value[index] && (
-                                                                        <>{this.companyProfile?.price_per_share_value[index]}</>
+                                                                        <>{formatterService.numberFormat(Number(this.companyProfile?.price_per_share_value[index]))}</>
                                                                     )}
                                                                     {this.companyProfile?.price_per_share_date && this.companyProfile?.price_per_share_date[index] && (
                                                                         <> on {formatterService.dateTimeFormat(this.companyProfile?.price_per_share_date[index], 'MM/dd/yyyy')}</>
