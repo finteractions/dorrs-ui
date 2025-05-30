@@ -11,17 +11,11 @@ import Modal from "@/components/modal";
 import AssetImage from "@/components/asset-image";
 import {ISymbol} from "@/interfaces/i-symbol";
 import {ICompanyProfile} from "@/interfaces/i-company-profile";
-import downloadFile from "@/services/download-file/download-file";
 import {faComment} from "@fortawesome/free-solid-svg-icons";
 import * as Yup from "yup";
 import {getSymbolSourceTypeName, SymbolSourceType} from "@/enums/symbol-source-type";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import PendingSymbolForm from "@/components/backend/pending-symbol-form";
-import CompanyProfile from "@/components/company-profile-form";
-import {PaymentSource} from "@/enums/payment-source";
-import PaymentMethodStripeCreditDebitCardBlock from "@/components/payment-method-stripe-credit-debit-card-block";
-import PaymentMethodStripeACHBlock from "@/components/payment-method-stripe-ach-block";
-import PaymentMethodWireBlock from "@/components/payment-method-wire-block";
 import PendingCompanyProfileForm from "@/components/backend/pending-company-profile-form";
 
 

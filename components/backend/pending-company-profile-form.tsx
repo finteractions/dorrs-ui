@@ -1006,7 +1006,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
 
         await request
             .then(((res: any) => {
-                this.props.onCallback(formData);
+                this.props.onCallback(false);
                 let action;
                 if (id) {
                     action = 'updated'
