@@ -19,7 +19,7 @@ const DataFeedProviderLogo = () => {
 
     return (
         <>
-            <div className={"logo"}>
+            <div className={"logo full-logo"}>
                 {logo === null ? (
                     <LoaderBlock/>
                 ) : (

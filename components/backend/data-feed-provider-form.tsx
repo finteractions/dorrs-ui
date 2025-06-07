@@ -633,7 +633,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                         </div>
                         <h2 className={'view_block_main_title'}>
                             {this.props.dataFeedProviderData?.logo && (
-                                <div className={"company-profile-logo"}>
+                                <div className={"company-profile-logo full-logo"}>
                                     <img src={this.props.dataFeedProviderData?.logo} alt="Logo"/>
                                 </div>
                             )}
@@ -738,16 +738,21 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                         {this.props.dataFeedProviderData?.description.map((description, index) => (
                                             <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'} key={index}>
                                                 {this.props.dataFeedProviderData?.images[index] && (
-                                                    <div
-                                                        className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                    <div className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
                                                         <div className={'logo p-0 align-items-baseline '}>
-                                                            <img src={this.props.dataFeedProviderData?.images[index]}/>
+                                                            <img src={this.props.dataFeedProviderData?.images[index]} />
                                                         </div>
                                                     </div>
                                                 )}
-                                                <div className={'d-flex mb-2'}>{description}</div>
+                                                <div
+                                                    className={'d-flex mb-3'}
+                                                    style={{ whiteSpace: 'pre-wrap' }}
+                                                >
+                                                    {description}
+                                                </div>
                                             </div>
                                         ))}
+
                                     </>
                                 </div>
                             </div>

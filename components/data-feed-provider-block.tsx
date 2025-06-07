@@ -184,7 +184,12 @@ class DataFeedProviderBlock extends React.Component<DataFeedProviderProps> {
                                                             </div>
                                                         </div>
                                                     )}
-                                                    <div className={'d-flex mb-2'}>{description}</div>
+                                                    <div
+                                                        className={'d-flex mb-3'}
+                                                        style={{whiteSpace: 'pre-wrap'}}
+                                                    >
+                                                        {description}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

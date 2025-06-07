@@ -4497,6 +4497,10 @@
     //border-radius: 50%;
     overflow: hidden;
 
+    &.full-logo {
+      flex:unset;
+    }
+
     > img {
       object-fit: cover;
       width: 100%;

@@ -2985,6 +2985,9 @@ body {
         position: relative;
         padding: 22px;
 
+        &.full-logo {
+          height: unset;
+        }
 
         > div {
           width: 100%;
