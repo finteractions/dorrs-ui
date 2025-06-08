@@ -169,7 +169,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         const descriptions = values.description;
         formData.append('description', JSON.stringify(descriptions));
 
-        formData.delete('logo');
+        // formData.delete('logo');
         formData.delete('logo_tmp');
         formData.delete('images');
         formData.delete('image_tmp');
@@ -192,11 +192,22 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         }
 
 
-        if (this.state.selectedFileForDescription && this.state.selectedFileForDescription.length > 0) {
-            for (const file of Array.from(this.state.selectedFileForDescription)) {
-                formData.append('images[]', file);
+        const descr = values.description || [];
+        const images = this.state.selectedFileForDescription || [];
+
+        for (let index = 0; index < descr.length; index++) {
+            const image = images[index];
+
+            if (image instanceof File) {
+                formData.append(`images[${index}]`, image);
+            } else if (typeof image === 'string') {
+                formData.append(`images[${index}]`, image);
+            } else {
+                formData.append(`images[${index}]`, '');
             }
         }
+
+
 
         if (this.state.selectedFile) {
             formData.append('logo', this.state.selectedFile);
@@ -258,6 +269,22 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
         });
     };
 
+    handleRemoveLogo = (setFieldValue: Function) => {
+        this.setState({
+            selectedFile: null
+        });
+        setFieldValue('logo', '');
+    };
+
+    handleRemoveDescriptionImage = (index: number) => {
+        this.setState((prevState) => {
+            const updatedFiles = [...(prevState.selectedFileForDescription || [])];
+            updatedFiles.splice(index, 1);
+            return { selectedFileForDescription: updatedFiles };
+        });
+    };
+
+
     render() {
         switch (this.props.action) {
             case 'add':
@@ -298,13 +325,22 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                     </div>
                                                 </div>
 
-
-                                                {(this.isShow() && initialValues?.logo) && (
-                                                    <div
-                                                        className={"input d-flex justify-content-center company-profile-logo"}>
-                                                        <img src={initialValues?.logo} alt="Logo"/>
+                                                {values?.logo && (
+                                                    <div className="input d-flex align-items-center gap-20">
+                                                        <img src={values.logo} alt="Logo" style={{maxHeight: 50}}/>
+                                                        {!this.isShow() && (
+                                                            <button
+                                                                type="button"
+                                                                className="border-grey-btn ripple"
+                                                                onClick={() => this.handleRemoveLogo(setFieldValue)}
+                                                            >
+                                                                <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 )}
+
+
                                                 {!this.isShow() && (
                                                     <div className="input">
                                                         <div className="input__title">Logo</div>
@@ -512,6 +548,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                         <div
                                                             className={`input__wrap ${(isSubmitting || this.isShow()) ? 'disable' : ''}`}>
                                                             <div className="officer-input">
+
                                                                 {values.description.map((description, index) => (
                                                                     <>
                                                                         <div
@@ -519,19 +556,29 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                                             key={index}>
                                                                             <div className={'input__wrap'}>
                                                                                 {!this.isShow() && values.images[index] && (
-                                                                                    <div key={index}
-                                                                                         className="mb-2 d-flex">
+                                                                                    <div key={index} className="mb-2 d-flex gap-10 align-items-center">
                                                                                         <Link
                                                                                             className={'link info-panel-title-link'}
                                                                                             href={`${this.host}${values.images[index]}`}
                                                                                             target={'_blank'}>
-                                                                                            Image #{index + 1} {' '}
-                                                                                            <FontAwesomeIcon
-                                                                                                className="nav-icon"
-                                                                                                icon={faArrowUpRightFromSquare}/>
+                                                                                            Image #{index + 1}{' '}
+                                                                                            <FontAwesomeIcon className="nav-icon" icon={faArrowUpRightFromSquare} />
                                                                                         </Link>
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="border-grey-btn ripple"
+                                                                                            onClick={() => {
+                                                                                                const updatedImages = [...values.images];
+                                                                                                updatedImages.splice(index, 1);
+                                                                                                setFieldValue('images', updatedImages);
+                                                                                                this.handleRemoveDescriptionImage(index);
+                                                                                            }}
+                                                                                        >
+                                                                                            <FontAwesomeIcon className="nav-icon" icon={faMinus} />
+                                                                                        </button>
                                                                                     </div>
                                                                                 )}
+
                                                                                 <input
                                                                                     id={`image_tmp.${index}`}
                                                                                     name={`image_tmp.${index}`}
@@ -738,14 +785,14 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                         {this.props.dataFeedProviderData?.description.map((description, index) => (
                                             <div className={'d-flex gap-20 flex-wrap flex-md-nowrap'} key={index}>
                                                 {this.props.dataFeedProviderData?.images[index] && (
-                                                    <div className={'profile__left bg-transparent flex-panel-box pt-0 content-box'}>
+                                                    <div className={'flex-1 profile__left bg-transparent flex-panel-box pt-0 content-box'}>
                                                         <div className={'logo p-0 align-items-baseline '}>
                                                             <img src={this.props.dataFeedProviderData?.images[index]} />
                                                         </div>
                                                     </div>
                                                 )}
                                                 <div
-                                                    className={'d-flex mb-3'}
+                                                    className={'flex-1 d-flex mb-3'}
                                                     style={{ whiteSpace: 'pre-wrap' }}
                                                 >
                                                     {description}
