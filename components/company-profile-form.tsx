@@ -382,7 +382,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
             issuer_profile_description: initialData?.issuer_profile_description || [""],
             issuer_profile_images: initialData?.issuer_profile_images || [],
             issuer_profile_files: initialData?.issuer_profile_files || [],
-            company_name: initialData?.company_name || '',
+            company_name: initialData?.company_name || this.props.symbolData?.security_name || '',
             business_description: initialData?.business_description || '',
             street_address_1: initialData?.street_address_1 || '',
             street_address_2: initialData?.street_address_2 || '',
@@ -1176,7 +1176,7 @@ class CompanyProfileForm extends React.Component<CompanyProfileFormProps, Compan
         const findCountry = (name: string) => {
             return Object.keys(countries).find(
                 key => ((countries as any)[key] as any).name === name
-            );
+            ) || name;
         }
 
         function findState(name: string) {
