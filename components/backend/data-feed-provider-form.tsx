@@ -7,7 +7,7 @@ import adminService from "@/services/admin/admin-service";
 import formatterService from "@/services/formatter/formatter-service";
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowUpRightFromSquare, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUpRightFromSquare, faMinus, faPlus, faTrashCan, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {ISocialMediaLink, socialMediaLinks} from "@/interfaces/i-social-media-link";
 import formValidator from "@/services/form-validator/form-validator";
 
@@ -331,15 +331,14 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                         {!this.isShow() && (
                                                             <button
                                                                 type="button"
-                                                                className="border-grey-btn ripple"
+                                                                className="admin-table-btn ripple"
                                                                 onClick={() => this.handleRemoveLogo(setFieldValue)}
                                                             >
-                                                                <FontAwesomeIcon className="nav-icon" icon={faMinus}/>
+                                                                <FontAwesomeIcon className="nav-icon" icon={faTrashCan}/>
                                                             </button>
                                                         )}
                                                     </div>
                                                 )}
-
 
                                                 {!this.isShow() && (
                                                     <div className="input">
@@ -566,7 +565,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                                                         </Link>
                                                                                         <button
                                                                                             type="button"
-                                                                                            className="border-grey-btn ripple"
+                                                                                            className="admin-table-btn ripple"
                                                                                             onClick={() => {
                                                                                                 const updatedImages = [...values.images];
                                                                                                 updatedImages.splice(index, 1);
@@ -574,7 +573,7 @@ class DataFeedProviderForm extends React.Component<DataFeedProviderProps, DataFe
                                                                                                 this.handleRemoveDescriptionImage(index);
                                                                                             }}
                                                                                         >
-                                                                                            <FontAwesomeIcon className="nav-icon" icon={faMinus} />
+                                                                                            <FontAwesomeIcon className="nav-icon" icon={faTrashCan} />
                                                                                         </button>
                                                                                     </div>
                                                                                 )}
