@@ -86,7 +86,7 @@ class TradeForm extends React.Component<TradeFormProps, TradeFormState> {
                                 </div>
 
                                 <button id="add-asset-acc"
-                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                        className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                         Save
                                 </button>

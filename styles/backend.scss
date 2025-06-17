@@ -1116,7 +1116,7 @@
   }
 
   .modal__content #add-bank-acc {
-    width: 100%
+    //width: 100%
   }
 
   .modal__content .modal-terms {
@@ -4498,7 +4498,7 @@
     overflow: hidden;
 
     &.full-logo {
-      flex:unset;
+      flex: unset;
     }
 
     > img {
@@ -5215,3 +5215,14 @@
 }
 
 
+span.up {
+  color: #005343;
+}
+
+span.down {
+  color: #590000;
+}
+
+.flex-1-1-100 {
+  flex: 1 1 100% !important;
+}

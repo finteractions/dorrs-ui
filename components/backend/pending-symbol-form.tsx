@@ -64,7 +64,7 @@ import {AssociatedNetwork} from "@/enums/associated-network";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
 import {Button} from "react-bootstrap";
 import forgeGlobalService from "@/services/forge-global/forge-global-service";
-import {ForgeGlobalCompany, ForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
+import {IForgeGlobalCompany, IForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
 
 
 const allowedImageFileSizeMB = 1
@@ -822,10 +822,10 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
         })
     }
 
-    initForgeGlobalForm(data?: ForgeGlobalCompany | null) {
+    initForgeGlobalForm(data?: IForgeGlobalCompany | null) {
         return new Promise(resolve => {
             if (data) {
-                const companyDetail: ForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
+                const companyDetail: IForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
 
                 const initialData = {} as ISymbol;
 
@@ -1302,7 +1302,7 @@ class PendingSymbolForm extends React.Component<SymbolFormProps, PendingSymbolFo
             this.setState({isGlobalForgeLoader: true});
 
             forgeGlobalService.getSymbol(Number(symbolId) ?? 0)
-                .then(async (res: Array<ForgeGlobalCompany>) => {
+                .then(async (res: Array<IForgeGlobalCompany>) => {
                     const symbol = res?.[0] || null;
                     await this.initForgeGlobalForm(symbol);
                 })

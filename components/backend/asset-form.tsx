@@ -379,7 +379,7 @@ class AssetForm extends React.Component<AssetFormProps, AssetFormState> {
                                         </div>
 
                                         <button id="add-asset-acc"
-                                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                 type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                             {`${this.state.mode === 'edit' ? 'Save' : 'Add'}`}
                                         </button>
@@ -463,7 +463,7 @@ class AssetForm extends React.Component<AssetFormProps, AssetFormState> {
                                 <div className="box__title">Active</div>
                                 <div className="box__wrap">{this.props.data?.active ? 'Yes' : 'No' }</div>
                             </div>
-                            <button className="w-100 b-btn ripple" onClick={() => this.handleEdit('Edit Symbol') }>
+                            <button id="add-bank-acc" className="b-btn ripple" onClick={() => this.handleEdit('Edit Symbol') }>
                                 Edit
                             </button>
                         </div>

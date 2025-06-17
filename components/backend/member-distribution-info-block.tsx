@@ -244,8 +244,8 @@ class MemberDistributionInfoBlock extends React.Component<MemberDistributionInfo
                                 </div>
                             </div>
 
-                            <button
-                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : ''}`}
+                            <button id="add-bank-acc"
+                                className={`b-btn ripple ${(isSubmitting || !isValid) ? 'disable' : ''}`}
                                 type="submit" disabled={isSubmitting || !isValid}>
                                 Save
                             </button>

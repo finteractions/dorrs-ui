@@ -1,4 +1,4 @@
-export interface ForgeGlobalCompany {
+export interface IForgeGlobalCompany {
     id: number;
     page_url: string | null;
     image_url: string | null;
@@ -11,10 +11,10 @@ export interface ForgeGlobalCompany {
     valuation: string | null;
     amount_raised: string | null;
     page: number | null;
-    forge_global_company_detail: ForgeGlobalCompanyDetail[];
+    forge_global_company_detail: IForgeGlobalCompanyDetail[];
 }
 
-export interface ForgeGlobalCompanyDetail {
+export interface IForgeGlobalCompanyDetail {
     id: number;
     url: string | null;
     website: string | null;
@@ -28,19 +28,19 @@ export interface ForgeGlobalCompanyDetail {
     lfr_price_per_share: string | null;
     last_funding_share_class: string | null;
     fundings: any[];
-    peoples: People[];
+    peoples: IPeople[];
     investors_other_investments: any[];
-    news: NewsItem[];
-    similar_companies: SimilarCompany[];
+    news: INewsItem[];
+    similar_companies: ISimilarCompany[];
     company: number;
 }
 
-export interface People {
+export interface IPeople {
     name: string;
     title: string;
 }
 
-export interface NewsItem {
+export interface INewsItem {
     date: string;
     link: string;
     name: string;
@@ -48,7 +48,7 @@ export interface NewsItem {
     description: string;
 }
 
-export interface SimilarCompany {
+export interface ISimilarCompany {
     link: string;
     name: string;
 }

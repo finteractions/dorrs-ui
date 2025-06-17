@@ -302,8 +302,8 @@ class BankAccountForm extends React.Component<BankAccountFormProps, BankAccountF
                                                               className="error-message"/>
                                             </div>
                                         </div>
-                                        <button
-                                            className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                        <button id="add-bank-acc"
+                                            className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                             type="submit" disabled={isSubmitting || !isValid || !dirty}>{`${this.state.mode === 'edit' ? 'Save' : 'Add'}`}
                                         </button>
 
@@ -440,7 +440,7 @@ class BankAccountForm extends React.Component<BankAccountFormProps, BankAccountF
                                     <div className="box__title">Approved Date</div>
                                     <div className="box__wrap">{formatterService.dateTimeFormat(this.state.data?.approved_date_time || '')}</div>
                                 </div>
-                                <button className="w-100 b-btn ripple" onClick={() => this.handleEdit('Edit Bank Account') }>
+                                <button id="add-bank-acc" className="b-btn ripple" onClick={() => this.handleEdit('Edit Bank Account') }>
                                     Edit
                                 </button>
                             </div>

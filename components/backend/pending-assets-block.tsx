@@ -17,6 +17,7 @@ import {getSymbolSourceTypeName, SymbolSourceType} from "@/enums/symbol-source-t
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import PendingSymbolForm from "@/components/backend/pending-symbol-form";
 import PendingCompanyProfileForm from "@/components/backend/pending-company-profile-form";
+import PendingLastSaleReportingForm from "@/components/backend/pending-last-sale-reporting-form";
 
 
 const columnHelper = createColumnHelper<any>();
@@ -382,7 +383,7 @@ class PendingAssetsBlock extends React.Component<{}> {
         this.setState({symbolLoaded: true});
     }
 
-    isAssetProfileDisabled = () => {
+    isTabDisabled = () => {
         return this.state.formData?.status.toLowerCase() === 'pending' || !this.state.symbolLoaded
     }
 
@@ -466,17 +467,17 @@ class PendingAssetsBlock extends React.Component<{}> {
                                 </li>
                                 <li className="nav-item">
                                     <a
-                                        className={`nav-link ${this.isAssetProfileDisabled() ? 'disabled' : ''}`}
+                                        className={`nav-link ${this.isTabDisabled() ? 'disabled' : ''}`}
                                         id="asset-profile-tab"
-                                        data-bs-toggle={this.isAssetProfileDisabled() ? undefined : 'tab'}
-                                        href={this.isAssetProfileDisabled() ? undefined : '#asset-profile'}
+                                        data-bs-toggle={this.isTabDisabled() ? undefined : 'tab'}
+                                        href={this.isTabDisabled() ? undefined : '#asset-profile'}
                                         role="tab"
                                         aria-controls="asset-profile"
                                         aria-selected="false"
-                                        aria-disabled={this.isAssetProfileDisabled() ? 'true' : 'false'}
-                                        tabIndex={this.isAssetProfileDisabled() ? -1 : 0}
+                                        aria-disabled={this.isTabDisabled() ? 'true' : 'false'}
+                                        tabIndex={this.isTabDisabled() ? -1 : 0}
                                         onClick={(e) => {
-                                            if (this.isAssetProfileDisabled()) {
+                                            if (this.isTabDisabled()) {
                                                 e.preventDefault()
                                             } else {
                                                 this.activeTab('asset-profile')
@@ -488,6 +489,32 @@ class PendingAssetsBlock extends React.Component<{}> {
                                     </a>
 
                                 </li>
+                                {this.state.formData?.source === SymbolSourceType.FORGE_GLOBAL && (
+                                    <li className="nav-item">
+                                        <a
+                                            className={`nav-link ${this.isTabDisabled() ? 'disabled' : ''}`}
+                                            id="last-sales-tab"
+                                            data-bs-toggle={this.isTabDisabled() ? undefined : 'tab'}
+                                            href={this.isTabDisabled() ? undefined : '#asset-profile'}
+                                            role="tab"
+                                            aria-controls="last-sales"
+                                            aria-selected="false"
+                                            aria-disabled={this.isTabDisabled() ? 'true' : 'false'}
+                                            tabIndex={this.isTabDisabled() ? -1 : 0}
+                                            onClick={(e) => {
+                                                if (this.isTabDisabled()) {
+                                                    e.preventDefault()
+                                                } else {
+                                                    this.activeTab('last-sales')
+                                                }
+                                            }
+                                            }
+                                        >
+                                            Last Sale Reporting
+                                        </a>
+
+                                    </li>
+                                )}
                             </ul>
                         )}
 
@@ -519,6 +546,15 @@ class PendingAssetsBlock extends React.Component<{}> {
                                                                onCancel={() => this.cancelCompanyForm()}
                                                                onCallback={() => this.submitForm()}
                                                                isAdmin={true}/>
+                                )}
+
+                                {this.state.activeTab === 'last-sales' && (
+                                    <PendingLastSaleReportingForm action={this.state.formAction}
+                                                                  data={this.state.formData}
+                                                                  symbolData={this.state.formData}
+                                                                  onCancel={() => this.cancelCompanyForm()}
+                                                                  onCallback={() => this.submitForm()}
+                                                                  isAdmin={true}/>
                                 )}
                             </div>
                         </div>

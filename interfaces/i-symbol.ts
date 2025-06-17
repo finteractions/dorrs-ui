@@ -116,4 +116,6 @@ export interface ISymbol {
     source?: string;
     source_name?: string;
     viewDisabled?: boolean;
+    record_id?: number;
+    is_last_sale_updated?:boolean;
 }

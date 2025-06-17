@@ -135,8 +135,8 @@ class BalanceForm extends React.Component<BalanceFormProps, BalanceFormState> {
 
                                         </div>
                                     </div>
-                                    <button
-                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                    <button id="add-bank-acc"
+                                        className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>{`${this.props.action === 'edit' ? 'Save' : 'Add'}`}
                                     </button>
 

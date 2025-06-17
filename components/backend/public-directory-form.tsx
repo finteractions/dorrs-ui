@@ -775,8 +775,8 @@ class PublicDirectoryForm extends React.Component<PublicDirectoryFormProps, Publ
                                                 )}
 
                                                 {this.props.action !== 'view' && (
-                                                    <button
-                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                    <button id="add-bank-acc"
+                                                        className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                                         Save Firm
                                                     </button>

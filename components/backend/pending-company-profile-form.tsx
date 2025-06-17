@@ -36,7 +36,7 @@ import SubSymbolBlock from "@/components/backend/sub-symbol-block";
 import {Button} from "react-bootstrap";
 import aiToolService from "@/services/ai-tool/ai-tool-service";
 import forgeGlobalService from "@/services/forge-global/forge-global-service";
-import {ForgeGlobalCompany, ForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
+import {IForgeGlobalCompany, IForgeGlobalCompanyDetail} from "@/interfaces/i-forge-global-company";
 import converterService from "@/services/converter/converter-service";
 
 
@@ -660,8 +660,8 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         })
     }
 
-    initForgeGlobalForm(data?: ForgeGlobalCompany | null) {
-        const companyDetail: ForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
+    initForgeGlobalForm(data?: IForgeGlobalCompany | null) {
+        const companyDetail: IForgeGlobalCompanyDetail | null = data?.forge_global_company_detail?.[0] || null;
         const initialData = {} as ICompanyProfile;
 
         const companyName = data?.company_name || '';
@@ -670,7 +670,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
         const businessDescription = companyDetail?.description || '';
         const totalSharesOutstanding = converterService.parseMoney(companyDetail?.total_funding)
 
-        const extractPricePerShareData = (data: ForgeGlobalCompanyDetail | null) => {
+        const extractPricePerShareData = (data: IForgeGlobalCompanyDetail | null) => {
             const pricePerShareDate: string[] = [];
             const pricePerShareValue: string[] = [];
 
@@ -889,7 +889,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
             const symbolId = this.props.symbolData?.id;
 
             forgeGlobalService.getSymbol(Number(symbolId) ?? 0)
-                .then(async (res: Array<ForgeGlobalCompany>) => {
+                .then(async (res: Array<IForgeGlobalCompany>) => {
                     const symbol = res?.[0] || null;
                     this.initForgeGlobalForm(symbol);
                 })
@@ -3360,8 +3360,8 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                 {!this.props?.isAIGeneration && (
                                                     <>
                                                         {this.props.action !== 'view' && (
-                                                            <button
-                                                                className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                            <button id="add-bank-acc"
+                                                                className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                                 type="submit"
                                                                 disabled={isSubmitting || !isValid || !dirty}>
                                                                 Save Asset Profile
@@ -3417,7 +3417,7 @@ class PendingCompanyProfileForm extends React.Component<CompanyProfileFormProps,
                                                 </div>
 
                                                 <button id="add-bank-acc"
-                                                        className={`w-100 b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
+                                                        className={`b-btn ripple ${(isSubmitting || !isValid || !dirty) ? 'disable' : ''}`}
                                                         type="submit" disabled={isSubmitting || !isValid || !dirty}>
                                                     Export Asset Profile to Google Spreadsheets
                                                 </button>
