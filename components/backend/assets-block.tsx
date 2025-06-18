@@ -169,11 +169,11 @@ class AssetsBlock extends React.Component<{}> {
         tableFilters = [
             {key: 'symbol', placeholder: 'Symbol'},
             {key: 'security_name', placeholder: 'Security Name'},
+            {key: 'source_name', placeholder: 'Source'},
             {key: 'cusip', placeholder: 'CUSIP'},
             // {key: 'reason_for_entry', placeholder: 'Reason for Entry'},
             {key: 'dsin', placeholder: 'DSIN'},
             {key: 'market_sector', placeholder: 'Market Sector'},
-            {key: 'asset_status', placeholder: 'Asset Status'},
             {key: 'status', placeholder: 'Status'},
             {key: 'company_profile_status', placeholder: 'Asset Profile Status'},
         ]

@@ -1,7 +1,7 @@
 import React, {ReactElement} from "react"
-import type {NextPageWithLayout} from "../_app";
 import BackendLayout from "@/components/layouts/backend/backend-layout";
 import LastSalesBlock from "@/components/backend/last-sales-block";
+import {NextPageWithLayout} from "@/pages/_app";
 
 const LastSales: NextPageWithLayout = () => {
 

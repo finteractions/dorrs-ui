@@ -65,8 +65,8 @@ class PendingLastSaleReportingForm extends React.Component<LastSaleReportingForm
                 cell: (item) => formatterService.formatAndColorNumberBlockHTML(item.getValue()),
                 header: () => <span>% Changed</span>,
             }),
-            columnHelper.accessor((row) => row.created_at, {
-                id: "created_at",
+            columnHelper.accessor((row) => row.date_time, {
+                id: "date_time",
                 cell: (item) => formatterService.dateTimeFormat(item.getValue(), 'MM/dd/yyyy'),
                 header: () => <span>Date</span>,
             }),

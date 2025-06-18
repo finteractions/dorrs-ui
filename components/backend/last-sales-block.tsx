@@ -14,6 +14,7 @@ import downloadFile from "@/services/download-file/download-file";
 import AssetImage from "@/components/asset-image";
 import ModalMPIDInfoBlock from "@/components/modal-mpid-info-block";
 import converterService from "@/services/converter/converter-service";
+import Link from "next/link";
 
 const columnHelper = createColumnHelper<any>();
 let columns: any[] = [];
@@ -274,6 +275,7 @@ class LastSalesBlock extends React.Component<{}> {
                     <div className="content__top">
                         <div className="content__title">Last Sale Reporting</div>
                         <div className="content__title_btns content__filter download-buttons justify-content-end">
+                            <Link className={'link margin-right-20px'}  href={'/backend/forge-global-last-sales'}>Forge Global List</Link>
                             <button className="border-grey-btn ripple d-flex"
                                     onClick={this.downloadLastSaleReportingCSV}>
                                 <span className="file-item__download"></span>
