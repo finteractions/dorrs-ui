@@ -5,7 +5,7 @@ interface AssetImageProps {
     alt: string;
     src?: string;
     height?: number;
-    width: number;
+    width?: number;
 }
 
 function AssetImage({alt, src, ...props}: AssetImageProps) {
@@ -41,12 +41,14 @@ function AssetImage({alt, src, ...props}: AssetImageProps) {
                 </>
             ) : (
                 <>
-                    <Image
-                        {...props}
+                    <img
+                        width={props.width || undefined}
+                        height={props.height || undefined}
                         src={finalSrc}
                         alt={imageAlt}
                         onError={() => setImageSrc('/img/no-data.png')}
                     />
+
                 </>
             )}
         </>

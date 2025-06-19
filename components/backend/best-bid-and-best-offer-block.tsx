@@ -90,7 +90,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                        width={28} height={28}/>
+                                         height={28}/>
                         </div>
                         {item.getValue().symbol}
                     </div>
@@ -116,7 +116,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                            height={28}/>
                                 {item.getValue().mpid}
                             </div>
                         )}
@@ -161,7 +161,7 @@ class BestBidAndBestOfferBlock extends React.Component<{}> {
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                            height={28}/>
                                 {item.getValue().mpid}
                             </div>
                         )}

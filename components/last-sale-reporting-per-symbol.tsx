@@ -104,7 +104,7 @@ class LastSaleReportingPerSymbolBlock extends React.Component<LastSaleReportingP
                          }}
                     >
                         <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                    width={28} height={28}/>
+                                   height={28}/>
                         {item.getValue().mpid}
                     </div>,
                 header: () => <span>MPID</span>,

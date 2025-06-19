@@ -71,7 +71,7 @@ class PublicDirectoryBlock extends React.Component<{}> {
                             <div className="table-image-container">
                                 <AssetImage alt=''
                                             src={item.getValue().logo ? `${host}${item.getValue().logo}` : ''}
-                                            width={28} height={28}/>
+                                             height={28}/>
                             </div>
                             {item.getValue().company_name}
                         </div>

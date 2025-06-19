@@ -102,8 +102,14 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                             height={28}/>
                                 {item.getValue().mpid}
+                                <div className={'d-flex gap-3 align-items-center'}>
+                                    <div className={'img-logo'}><AssetImage alt=''
+                                                                                     src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
+                                                                                     height={28}/></div>
+                                    <span>{item.getValue().mpid}</span>
+                                </div>
                             </div>
                         )}
                     </>,
@@ -146,7 +152,7 @@ class BestBidAndBestOfferPerSymbolBlock extends React.Component<BestBidAndBestOf
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                            height={28}/>
                                 {item.getValue().mpid}
                             </div>
                         )}

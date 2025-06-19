@@ -82,7 +82,7 @@ class AlgorandDataFeedBestBidAndBestOfferBlock extends React.Component<AlgorandD
                             <div className="table-image-container">
                                 <AssetImage alt=''
                                             src={item.getValue().image ? `${this.host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                           height={28}/>
                             </div>
                             {formatterService.formatSymbolName(item.getValue().symbol)}
                         </div>

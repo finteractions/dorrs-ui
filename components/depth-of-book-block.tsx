@@ -99,7 +99,7 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                     >
                         <div className="table-image-container">
                             <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                        width={28} height={28}/>
+                                         height={28}/>
                         </div>
                         {item.getValue().symbol}
                     </div>
@@ -125,7 +125,7 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                             height={28}/>
                                 {item.getValue().mpid}
                             </div>
                         )}
@@ -169,7 +169,7 @@ class DepthOfBookBlock extends React.Component<DepthOfBookBlockProps, DepthOfBoo
                                  }}
                             >
                                 <AssetImage alt='' src={item.getValue().image ? `${host}${item.getValue().image}` : ''}
-                                            width={28} height={28}/>
+                                             height={28}/>
                                 {item.getValue().mpid}
                             </div>
                         )}
