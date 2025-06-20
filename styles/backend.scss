@@ -3904,7 +3904,7 @@
 
           .table-image-container {
             display: flex;
-            //flex: 0 0 28px;
+            flex: 0 0 28px;
             //max-width: 28px;
             height: 28px;
             overflow: hidden;
@@ -4491,7 +4491,7 @@
   }
 
   .company-profile-logo {
-    flex: 0 0 60px;
+    //flex: 0 0 60px;
     height: 60px;
     min-width: 60px;
     //border-radius: 50%;
