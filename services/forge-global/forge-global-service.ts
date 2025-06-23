@@ -23,6 +23,10 @@ class ForgeGlobalService extends BaseService {
         return (await apiWebBackendService.get<IResponse<Array<IForgeGlobalLastSale>>>(`${this.PATH}last_sale/`, params, this.getAdminToken())).results;
     }
 
+    public async getLastSaleByCompany(): Promise<Array<IForgeGlobalLastSale>> {
+        return (await apiWebBackendService.get<IResponse<Array<IForgeGlobalLastSale>>>(`${this.PATH}by_company/`, {}, this.getAdminToken())).results;
+    }
+
     public async approveLastSales(id: number, is_approved: boolean): Promise<IResponseApi> {
         const data = {
             status: is_approved ? 'approved' : 'rejected',
